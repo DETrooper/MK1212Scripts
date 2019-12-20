@@ -164,6 +164,7 @@ function output_uicomponent(uic)
 	dev.log("position on screen:\t" .. tostring(pos_x) .. ", " .. tostring(pos_y));
 	dev.log("size:\t\t\t" .. tostring(size_x) .. ", " .. tostring(size_y));
 	dev.log("state:\t\t" .. tostring(uic:CurrentState()));
+	dev.log("current anim:\t\t"..tostring(uic:CurrentAnimationId()));
 	dev.log("visible:\t\t" .. tostring(uic:Visible()));
 	dev.log("priority:\t\t" .. tostring(uic:Priority()));
 	dev.log("children:");

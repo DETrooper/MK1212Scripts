@@ -47,8 +47,10 @@ scripting = require "lua_scripts.EpisodicScripting";
 
 adopted = false;
 cutscenes_enabled = true; -- default to true
+version_number = 1000;
+version_number_string = "v1.0.5";
 
-require("lua_scripts.logging_callbacks");
+--require("lua_scripts.logging_callbacks");
 
 --
 --	Create handle to the UI root when it's created
@@ -97,19 +99,14 @@ function OnUICreated(context)
 		dev.writeSettings("MK1212_config.txt");
 	end
 
-	scripting.m_root:CreateComponent("button_select", "ui/templates/text_button");
 	scripting.m_root:CreateComponent("button_random_faction", "ui/new/button_small_randfact");
 	scripting.m_root:CreateComponent("checkbox_campaign_cutscenes", "ui/templates/checkbox");
 	scripting.m_root:CreateComponent("text_campaign_cutscenes", "ui/campaign ui/script_dummy");
-	local button_select_uic = UIComponent(scripting.m_root:Find("button_select"));
-	local button_select_text_uic = UIComponent(scripting.m_root:Find("button_txt"));
 	local button_random_faction_uic = UIComponent(scripting.m_root:Find("button_random_faction"));
 	local checkbox_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes"));
 	local text_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("text_campaign_cutscenes"));
-	button_select_text_uic:SetStateText("[[rgba:255:255:255:150]]Select Campaign[[/rgba:255:255:255:150]]");
 	checkbox_campaign_cutscenes_uic:SetTooltipText("Check this box to enable campaign cutscenes. Note that these will be unskippable.");
 	--text_campaign_cutscenes_uic:SetStateText("[[rgba:255:255:242:150]]Enable Campaign Cutscenes[[/rgba:255:255:242:150]]");
-	button_select_uic:SetVisible(false);
 	button_random_faction_uic:SetVisible(false);	
 	checkbox_campaign_cutscenes_uic:SetVisible(false);
 	text_campaign_cutscenes_uic:SetVisible(false);
@@ -124,7 +121,7 @@ function ChangeFrontend(context)
 	local text_version_number_uic = UIComponent(scripting.m_root:Find("version_number"));
 	local curX, curY = text_version_number_uic:Position();
 
-	text_version_number_uic:SetStateText("Medieval Kingdoms 1212: Campaign Build v5.0.0");
+	text_version_number_uic:SetStateText("Medieval Kingdoms 1212: Campaign Build "..version_number_string);
 	text_version_number_uic:SetMoveable(true);
 	text_version_number_uic:MoveTo(curX - 8, curY);
 	text_version_number_uic:SetMoveable(false);
@@ -152,6 +149,15 @@ function ChangeFrontend(context)
 end
 
 function OnComponentLClickUp(context)
+	if context.string == "button_new_campaign" or context.string == "button_dlc_campaign_1" or string.find(context.string, "att_fact_group") or string.find(context.string, "mk_fact") or string.find(context.string, "att_fact") then
+		tm:callback(
+			function()
+				ChangeEffects();
+			end, 
+			1
+		);
+	end
+
 	if context.string == "button_new_campaign" then
 		tm:callback(
 			function() 
@@ -173,12 +179,21 @@ function OnComponentLClickUp(context)
 				--faction_uic:ClearSound();
 				faction_uic:SimulateClick(); -- Click random faction.
 				faction_uic:SetState("selected");
+
+				local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
+				local button_start_campaign_uic = UIComponent(sp_grand_campaign_uic:Find("button_start_campaign"));
+				button_start_campaign_uic:SetInteractive(false);
+
+				tm:callback(
+					function() 
+						button_start_campaign_uic:SetInteractive(true);
+					end,
+					1000
+				);
 			end, 
 			1
 		);
-	end
-
-	if context.string == "button_dlc_campaign_1" then
+	elseif context.string == "button_dlc_campaign_1" then
 		tm:callback(
 			function() 
 				local faction_panel_uic = UIComponent(scripting.m_root:Find("faction_panel"));
@@ -207,22 +222,9 @@ function OnComponentLClickUp(context)
 			end, 
 			1
 		);
-	end
-
-	if context.string == "button_new_campaign" or context.string == "button_dlc_campaign_1" or string.find(context.string, "att_fact_group") or string.find(context.string, "mk_fact") or string.find(context.string, "att_fact") then
-		tm:callback(
-			function()
-				ChangeEffects();
-			end, 
-			1
-		);
-	end
-
-	if context.string == "button_introduction" then
+	elseif context.string == "button_introduction" then
 		adopted = false;
-	end
-
-	if context.string == "checkbox_campaign_cutscenes" then	
+	elseif context.string == "checkbox_campaign_cutscenes" then	
 		if util.fileExists("MK1212_config.txt") == false then
 			writeSettings("MK1212_config.txt");
 		end
@@ -234,9 +236,7 @@ function OnComponentLClickUp(context)
 			dev.changeSetting("MK1212_config.txt", "cutscenesEnabled", 1);
 			cutscenes_enabled = true;
 		end
-	end
-
-	if context.string == "button_random_faction" then
+	elseif context.string == "button_random_faction" then
 		if CHAPTER_SELECTED == 1 then
 			local faction_id = math.random(#FACTIONS_CAMPAIGN_1);
 			local faction_button_group_uic = UIComponent(scripting.m_root:Find("faction_button_group"));
@@ -249,7 +249,7 @@ function OnComponentLClickUp(context)
 			local faction_uic = UIComponent(faction_button_group_uic:Find(FACTIONS_CAMPAIGN_2[faction_id]));
 			faction_uic:SimulateClick(); -- Click random faction.
 			faction_uic:SetState("selected");	
-		end	
+		end
 	end
 
 	if FACTION_WEAKNESSES[context.string] ~= nil then
@@ -406,15 +406,16 @@ function ChangeCampaignsPanel()
 	button_multiplayer_campaign_uic:SetMoveable(true);
 	button_multiplayer_campaign_uic:MoveTo(curX, curY + 120);
 	button_multiplayer_campaign_uic:SetMoveable(false);
+	button_multiplayer_campaign_uic:SetState("inactive");
 end
 
 function ChangeEffects()
 	local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
-	local tx_header_uic = UIComponent(scripting.m_root:Find("tx_header"));
-	local tx_factions_uic = UIComponent(scripting.m_root:Find("tx_factions"));
-	local effects_uic = UIComponent(scripting.m_root:Find("effects"));
-	local effects_dlc_uic = UIComponent(scripting.m_root:Find("effects_dlc"));
-	local leader_window_uic = UIComponent(scripting.m_root:Find("3D_window"));
+	local tx_header_uic = UIComponent(sp_grand_campaign_uic:Find("tx_header"));
+	local tx_factions_uic = UIComponent(sp_grand_campaign_uic:Find("tx_factions"));
+	local effects_uic = UIComponent(sp_grand_campaign_uic:Find("effects"));
+	local effects_dlc_uic = UIComponent(sp_grand_campaign_uic:Find("effects_dlc"));
+	local leader_window_uic = UIComponent(sp_grand_campaign_uic:Find("3D_window"));
 	local curX, curY = leader_window_uic:Position();
 
 	if CHAPTER_SELECTED == 1 then
@@ -432,7 +433,7 @@ function ChangeEffects()
 			elseif i > 19 and i < 38 or i == 38  then
 				faction_uic:MoveTo(curX - 528 + (67 * (i - 19)), curY - 182);
 			elseif i > 38 then
-				faction_uic:MoveTo(curX - 495 + (67 * (i - 38)), curY - 115);
+				faction_uic:MoveTo(curX - 528 + (67 * (i - 38)), curY - 115);
 			end
 			faction_uic:SetMoveable(false);
  		end
@@ -458,7 +459,7 @@ function ChangeEffects()
 			elseif i > 19 and i < 38 or i == 38  then
 				faction_uic:MoveTo(curX - 528 + (67 * (i - 19)), curY - 182);
 			elseif i > 38 then
-				faction_uic:MoveTo(curX - 461 + (67 * (i - 38)), curY - 115);
+				faction_uic:MoveTo(curX - 528 + (67 * (i - 38)), curY - 115);
 			end
 			faction_uic:SetMoveable(false);
  		end

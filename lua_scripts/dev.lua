@@ -17,7 +17,7 @@ local util = require "lua_scripts.util"
 -- Lua has no in-built concept of file-systems, and external non-pure lua libraries cannot be included due to this being run inside Rome 2, so os.execute must be used to create folders
 local fileMethod = "preface" -- Uses preface method because os.execute call to create folders pulls focus from game, causing issues in fullscreen.
 local modName = "MK1212"
-local loggingEnabled = true;
+local loggingEnabled = false;
 
 if fileMethod == "preface" then
 	modName = modName .. "_" -- Add file preface separator: instead of "R2TRlog.txt", it's "R2TR_log.txt"
