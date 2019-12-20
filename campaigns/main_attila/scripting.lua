@@ -94,7 +94,7 @@ cm:register_first_tick_callback(
 --	additional script files to load
 -------------------------------------------------------
 
-require("att_start");
+require("mk1212_start");
 require("att_traits");
 
 require("byzantium/main");
@@ -104,3 +104,6 @@ require("mechanics/main");
 require("mongols/main");
 require("startingbattles/main");
 require("story/main");
+require("timurids/main");
+
+require("pretender_crash_stopgap");
