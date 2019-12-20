@@ -18,7 +18,8 @@ ARMY_SELECTED_REGION = nil;
 ARMY_SELECTED_TABLE = {};
 ARMY_SELECTED_STRENGTHS_TABLE = {};
 REGION_SELECTED = "";
-LAST_CHARACTER_SELECTED = "";
+LAST_CHARACTER_SELECTED = nil;
+LAST_CHARACTER_SELECTED_FACTION = nil;
 LAST_SACKED_SETTLEMENT = "";
 
 function Add_MK1212_Common_Listeners()
@@ -64,6 +65,7 @@ end
 
 function CharacterSelected_Global(context)
 	LAST_CHARACTER_SELECTED = context:character();
+	LAST_CHARACTER_SELECTED_FACTION = context:character():faction();
 
 	Check_Last_Character_Force();
 end
@@ -78,9 +80,11 @@ function Check_Last_Character_Force()
 	ARMY_SELECTED_STRENGTHS_TABLE = {};
 	ARMY_SELECTED_REGION = LAST_CHARACTER_SELECTED:region():name();
 
-	for i = 0, LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() - 1 do
-		table.insert(ARMY_SELECTED_TABLE, LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):unit_key());
-		table.insert(ARMY_SELECTED_STRENGTHS_TABLE, LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):percentage_proportion_of_full_strength());
+	if LAST_CHARACTER_SELECTED:has_military_force() then
+		for i = 0, LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() - 1 do
+			table.insert(ARMY_SELECTED_TABLE, LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):unit_key());
+			table.insert(ARMY_SELECTED_STRENGTHS_TABLE, LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):percentage_proportion_of_full_strength());
+		end
 	end
 end
 
@@ -168,6 +172,10 @@ function FindClosestPort(x, y, faction)
 
 	local region = cm:model():world():region_manager():region_by_key(region_name);
 	return region;
+end
+
+function GetTurnFromYear(year)
+	return year - 1211;
 end
 
 -- Some cool functions from Thrones of Britannia.

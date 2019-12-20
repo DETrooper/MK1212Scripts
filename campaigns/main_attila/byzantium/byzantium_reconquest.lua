@@ -26,143 +26,151 @@ function Add_Byzantium_Reconquest_Listeners()
 			"FactionTurnStart_Byzantium_Regions_Check",
 			"FactionTurnStart",
 			true,
-			function(context) Byzantium_Regions_Check(context) end,
+			function(context) FactionTurnStart_Byzantium_Regions_Check(context) end,
 			true
 		);
 		cm:add_listener(
-			"SettlementOccupied_Byzantium_Regions_Check",
-			"SettlementOccupied",
+			"CharacterEntersGarrison_Byzantium_Regions_Check",
+			"CharacterEntersGarrison",
 			true,
-			function(context) Byzantium_Regions_Check(context) end,
+			function(context) CharacterEntersGarrison_Byzantium_Regions_Check(context) end,
 			true
 		);
-	end;
-end;
+	end
+end
 
-function Byzantium_Regions_Check(context)
-	local faction_key = context:faction():name();
+function FactionTurnStart_Byzantium_Regions_Check(context)
+	if context:faction():name() == BYZANTINE_EMPIRE_FACTION then
+		Byzantium_Regions_Check(context:faction():name());
+	end
+end
 
-	if faction_key == BYZANTINE_EMPIRE_FACTION then
-		local latins = cm:model():world():faction_by_key(LATIN_EMPIRE_KEY);
+function CharacterEntersGarrison_Byzantium_Regions_Check(context)
+	if context:character():faction():name() == BYZANTINE_EMPIRE_FACTION then
+		Byzantium_Regions_Check(context:character():faction():name());
+	end
+end
 
-		if latins:is_null_interface() == false then
-			if latins:has_home_region() ~= true and latins:has_faction_leader() ~= true and latins:military_force_list():num_items() == 0 then
-				LATIN_EMPIRE_DEAD = true;
-			else
-				LATIN_EMPIRE_DEAD = false;
-			end
+function Byzantium_Regions_Check(faction_key)
+	local latins = cm:model():world():faction_by_key(LATIN_EMPIRE_KEY);
+
+	if latins:is_null_interface() == false then
+		if latins:has_home_region() ~= true and latins:has_faction_leader() ~= true and latins:military_force_list():num_items() == 0 then
+			LATIN_EMPIRE_DEAD = true;
+		else
+			LATIN_EMPIRE_DEAD = false;
 		end
+	end
 
-		local has_constantinople = false;
+	local has_constantinople = false;
 
-		if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == context:faction():name() then
-			has_constantinople = true;
-		end
+	if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == faction_key then
+		has_constantinople = true;
+	end
 
-		local has_regions_africa = Has_Required_Regions(faction_key, BYZ_REGIONS_AFRICA);
-		local has_regions_anatolia = Has_Required_Regions(faction_key, BYZ_REGIONS_ANATOLIA);
-		--local has_regions_cyrenaica = Has_Required_Regions(faction_key, BYZ_REGIONS_CYRENAICA);
-		local has_regions_dalmatia = Has_Required_Regions(faction_key, BYZ_REGIONS_DALMATIA);
-		local has_regions_egypt = Has_Required_Regions(faction_key, BYZ_REGIONS_EGYPT);
-		local has_regions_italy = Has_Required_Regions(faction_key, BYZ_REGIONS_ITALY);
-		local has_regions_greece = Has_Required_Regions(faction_key, BYZ_REGIONS_GREECE);
-		local has_regions_oriens = Has_Required_Regions(faction_key, BYZ_REGIONS_ORIENS);
+	local has_regions_africa = Has_Required_Regions(faction_key, BYZ_REGIONS_AFRICA);
+	local has_regions_anatolia = Has_Required_Regions(faction_key, BYZ_REGIONS_ANATOLIA);
+	--local has_regions_cyrenaica = Has_Required_Regions(faction_key, BYZ_REGIONS_CYRENAICA);
+	local has_regions_dalmatia = Has_Required_Regions(faction_key, BYZ_REGIONS_DALMATIA);
+	local has_regions_egypt = Has_Required_Regions(faction_key, BYZ_REGIONS_EGYPT);
+	local has_regions_italy = Has_Required_Regions(faction_key, BYZ_REGIONS_ITALY);
+	local has_regions_greece = Has_Required_Regions(faction_key, BYZ_REGIONS_GREECE);
+	local has_regions_oriens = Has_Required_Regions(faction_key, BYZ_REGIONS_ORIENS);
 
-		--local has_regions_pentarchy = Has_Required_Regions(faction_key, BYZ_REGIONS_PENTARCHY);
-		
-		if has_regions_africa == true and BYZ_AFRICA == false then
-			BYZ_AFRICA = true;
-			cm:show_message_event(
-				BYZANTINE_EMPIRE_FACTION, 
-				"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
-				"message_event_text_text_mk_event_byz_africa_reconquered_primary", 
-				"message_event_text_text_mk_event_byz_africa_reconquered_secondary", 
-				true, 
-				705
-			);
-		end;
-
-		if has_regions_anatolia == true and BYZ_ANATOLIA == false then
-			BYZ_ANATOLIA = true;
-			cm:show_message_event(
-				BYZANTINE_EMPIRE_FACTION, 
-				"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
-				"message_event_text_text_mk_event_byz_anatolia_reconquered_primary", 
-				"message_event_text_text_mk_event_byz_anatolia_reconquered_secondary", 
-				true, 
-				705
-			);
-		end;
-
-		if has_regions_dalmatia == true and BYZ_DALMATIA == false then
-			BYZ_DALMATIA = true;
-			cm:show_message_event(
-				BYZANTINE_EMPIRE_FACTION, 
-				"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
-				"message_event_text_text_mk_event_byz_dalmatia_reconquered_primary", 
-				"message_event_text_text_mk_event_byz_dalmatia_reconquered_secondary", 
-				true, 
-				705
-			);
-		end;
-
-		if has_regions_egypt == true and BYZ_EGYPT == false then
-			BYZ_EGYPT = true;
-			cm:show_message_event(
-				BYZANTINE_EMPIRE_FACTION, 
-				"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
-				"message_event_text_text_mk_event_byz_egypt_reconquered_primary", 
-				"message_event_text_text_mk_event_byz_egypt_reconquered_secondary", 
-				true, 
-				705
-			);
-		end;
-
-		if has_regions_italy == true and BYZ_ITALY == false then
-			BYZ_ITALY = true;
-			cm:show_message_event(
-				BYZANTINE_EMPIRE_FACTION, 
-				"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
-				"message_event_text_text_mk_event_byz_italy_reconquered_primary", 
-				"message_event_text_text_mk_event_byz_italy_reconquered_secondary", 
-				true, 
-				705
-			);
-		end;
-
-		if has_regions_greece == true and BYZ_GREECE == false then
-			BYZ_GREECE = true;
-			cm:show_message_event(
-				BYZANTINE_EMPIRE_FACTION, 
-				"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
-				"message_event_text_text_mk_event_byz_greece_reconquered_primary", 
-				"message_event_text_text_mk_event_byz_greece_reconquered_secondary", 
-				true, 
-				705
-			);
-		end;
-
-		if has_regions_oriens == true and BYZ_ORIENS == false then
-			BYZ_ORIENS = true;
-			cm:show_message_event(
-				BYZANTINE_EMPIRE_FACTION, 
-				"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
-				"message_event_text_text_mk_event_byz_oriens_reconquered_primary", 
-				"message_event_text_text_mk_event_byz_oriens_reconquered_secondary", 
-				true, 
-				705
-			);
-		end;
-
-		if ROMAN_EMPIRE_RESTORED == false and LATIN_EMPIRE_DEAD == true and has_constantinople == true and BYZ_AFRICA == true and BYZ_ANATOLA == true and BYZ_DALMATIA == true and BYZ_EGYPT == true and BYZ_ITALY == true and BYZ_GREECE == true and BYZ_ORIENS == true then
-			if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_key):is_human() == false then
-				Roman_Empire_Restored(faction_key);
-			else
-				Enable_Decision("restore_roman_empire");
-			end
-		end;
+	--local has_regions_pentarchy = Has_Required_Regions(faction_key, BYZ_REGIONS_PENTARCHY);
+	
+	if has_regions_africa == true and BYZ_AFRICA == false then
+		BYZ_AFRICA = true;
+		cm:show_message_event(
+			BYZANTINE_EMPIRE_FACTION, 
+			"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
+			"message_event_text_text_mk_event_byz_africa_reconquered_primary", 
+			"message_event_text_text_mk_event_byz_africa_reconquered_secondary", 
+			true, 
+			705
+		);
 	end;
-end;
+
+	if has_regions_anatolia == true and BYZ_ANATOLIA == false then
+		BYZ_ANATOLIA = true;
+		cm:show_message_event(
+			BYZANTINE_EMPIRE_FACTION, 
+			"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
+			"message_event_text_text_mk_event_byz_anatolia_reconquered_primary", 
+			"message_event_text_text_mk_event_byz_anatolia_reconquered_secondary", 
+			true, 
+			705
+		);
+	end;
+
+	if has_regions_dalmatia == true and BYZ_DALMATIA == false then
+		BYZ_DALMATIA = true;
+		cm:show_message_event(
+			BYZANTINE_EMPIRE_FACTION, 
+			"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
+			"message_event_text_text_mk_event_byz_dalmatia_reconquered_primary", 
+			"message_event_text_text_mk_event_byz_dalmatia_reconquered_secondary", 
+			true, 
+			705
+		);
+	end;
+
+	if has_regions_egypt == true and BYZ_EGYPT == false then
+		BYZ_EGYPT = true;
+		cm:show_message_event(
+			BYZANTINE_EMPIRE_FACTION, 
+			"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
+			"message_event_text_text_mk_event_byz_egypt_reconquered_primary", 
+			"message_event_text_text_mk_event_byz_egypt_reconquered_secondary", 
+			true, 
+			705
+		);
+	end;
+
+	if has_regions_italy == true and BYZ_ITALY == false then
+		BYZ_ITALY = true;
+		cm:show_message_event(
+			BYZANTINE_EMPIRE_FACTION, 
+			"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
+			"message_event_text_text_mk_event_byz_italy_reconquered_primary", 
+			"message_event_text_text_mk_event_byz_italy_reconquered_secondary", 
+			true, 
+			705
+		);
+	end;
+
+	if has_regions_greece == true and BYZ_GREECE == false then
+		BYZ_GREECE = true;
+		cm:show_message_event(
+			BYZANTINE_EMPIRE_FACTION, 
+			"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
+			"message_event_text_text_mk_event_byz_greece_reconquered_primary", 
+			"message_event_text_text_mk_event_byz_greece_reconquered_secondary", 
+			true, 
+			705
+		);
+	end;
+
+	if has_regions_oriens == true and BYZ_ORIENS == false then
+		BYZ_ORIENS = true;
+		cm:show_message_event(
+			BYZANTINE_EMPIRE_FACTION, 
+			"message_event_text_text_mk_event_byz_imperial_reconquest_title", 
+			"message_event_text_text_mk_event_byz_oriens_reconquered_primary", 
+			"message_event_text_text_mk_event_byz_oriens_reconquered_secondary", 
+			true, 
+			705
+		);
+	end;
+
+	if ROMAN_EMPIRE_RESTORED == false and LATIN_EMPIRE_DEAD == true and has_constantinople == true and has_regions_africa == true and has_regions_anatolia == true and has_regions_dalmatia == true and has_regions_egypt == true and has_regions_italy == true and has_regions_greece == true and has_regions_oriens == true then
+		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_key):is_human() == false then
+			Roman_Empire_Restored(faction_key);
+		else
+			Enable_Decision("restore_roman_empire");
+		end
+	end
+end
 
 function Roman_Empire_Restored(faction_key)
 	ROMAN_EMPIRE_RESTORED = true;
@@ -183,11 +191,20 @@ function Roman_Empire_Restored(faction_key)
 	);
 
 	cm:remove_listener("FactionTurnStart_Byzantium_Regions_Check");
-	cm:remove_listener("SettlementOccupied_Byzantium_Regions_Check");
+	cm:remove_listener("CharacterEntersGarrison_Byzantium_Regions_Check");
 end
 
 
 function GetConditionsString_Roman_Empire()
+	local has_regions_africa = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_AFRICA);
+	local has_regions_anatolia = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ANATOLIA);
+	--local has_regions_cyrenaica = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_CYRENAICA);
+	local has_regions_dalmatia = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_DALMATIA);
+	local has_regions_egypt = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_EGYPT);
+	local has_regions_italy = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ITALY);
+	local has_regions_greece = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_GREECE);
+	local has_regions_oriens = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ORIENS);
+
 	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Byzantine Empire.\n([[rgba:8:201:27:150]]Y[[/rgba]]) - The Roman Empire does not exist.\n";
 
 	if LATIN_EMPIRE_DEAD == true then
@@ -202,46 +219,46 @@ function GetConditionsString_Roman_Empire()
 		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of Constantinople.\n";
 	end
 
-	if BYZ_GREECE == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the province of Achaia and the region of Philippopolis.\n";
+	if has_regions_greece == true then
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Greece.\n";
 	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the province of Achaia and the region of Philippopolis.\n";
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Greece.\n";
 	end
 
-	if BYZ_ANATOLIA == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the provinces of Asia, Bithynia, Cappadocia, and Cilicia.\n";
+	if has_regions_anatolia == true then
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Anatolia.\n";
 	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the provinces of Asia, Bithynia, Cappadocia, and Cilicia.\n";
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Anatolia.\n";
 	end
 
-	if BYZ_SYRIA == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the provinces of Palaestinea and Syria.\n";
+	if has_regions_oriens == true then
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the Levant.\n";
 	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the provinces of Palaestinea and Syria.\n";
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the Levant.\n";
 	end
 
-	if BYZ_EGYPT == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the province of Misr.\n";
+	if has_regions_egypt == true then
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Egypt.\n";
 	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the province of Misr.\n";
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Egypt.\n";
 	end
 	
-	if BYZ_AFRICA == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the provinces of Ifriqiya and Tarabulus.\n";
+	if has_regions_africa == true then
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Tunisia and Tripolitania.\n";
 	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the provinces of Ifriqiya and Tarabulus.\n";		
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Tunisia and Tripolitania.\n";
 	end
 
-	if BYZ_ITALY == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the provinces of Calabria et Sicilia, Lombardia, Italia, and Romagna.\n";
+	if has_regions_italy == true then
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Italy.\n";
 	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the provinces of Calabria et Sicilia, Lombardia, Italia, and Romagna.\n";
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Italy.\n";
 	end
 
-	if BYZ_DALMATIA == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the province of Dalmatia.";
+	if has_regions_dalmatia == true then
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Dalmatia.";
 	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the province of Dalmatia.";
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Dalmatia.";
 	end
 
 	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Roman Empire[[/rgba]].";

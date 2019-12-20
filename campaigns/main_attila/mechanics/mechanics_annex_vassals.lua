@@ -14,12 +14,12 @@ ANNEX_TURNS_PER_REGION = 3; -- Once annexation process has started, how many tur
 FACTIONS_VASSALIZED = {};
 FACTIONS_VASSALIZED_DELAYS = {};
 VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
-VASSAL_SELECTED = "nil";
+VASSAL_SELECTED = nil;
 VASSAL_SELECTED_ANNEXATION_TIME = 0;
 
-PROPOSER = "nil";
-RECIPIENT = "nil";
-VASSALIZER = "nil";
+PROPOSER = nil;
+RECIPIENT = nil;
+VASSAL = nil;
 
 function Add_Annex_Vassals_Listeners()
 	cm:add_listener(
@@ -37,10 +37,10 @@ function Add_Annex_Vassals_Listeners()
 		true
 	);
 	cm:add_listener(
-		"ClanBecomesVassal_Annex",
-		"ClanBecomesVassal",
+		"FactionSubjugatesOtherFaction_Annex",
+		"FactionSubjugatesOtherFaction",
 		true,
-		function(context) ClanBecomesVassal_Annex(context) end,
+		function(context) FactionSubjugatesOtherFaction_Annex(context) end,
 		true
 	);
 	cm:add_listener(
@@ -166,8 +166,6 @@ function AnnexVassalsSetup()
 	for i = 1, #FACTIONS_VASSALIZED do
 		FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]] = tostring(ANNEX_TURN_REQUIREMENT);
 	end
-
-	ANNEX_SETUP = true;
 end
 
 function FactionTurnStart_Annex(context)
@@ -214,7 +212,7 @@ function FactionTurnStart_Annex(context)
 						end
 
 						VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
-						VASSAL_SELECTED = "nil";
+						VASSAL_SELECTED = nil;
 
 						for i = 1, #ANNEX_VASSALS_SIZES do
 							cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name);
@@ -246,7 +244,7 @@ function FactionTurnStart_Annex(context)
 
 					VASSAL_SELECTED_ANNEXATION_TIME = 0;
 					VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
-					VASSAL_SELECTED = "nil";
+					VASSAL_SELECTED = nil;
 
 					for i = 1, #ANNEX_VASSALS_SIZES do
 						cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name);
@@ -264,14 +262,12 @@ function FactionBecomesLiberationVassal_Annex(context)
 	end
 end
 
-function ClanBecomesVassal_Annex(context)
-	VASSALIZER = context:faction():name();
+function FactionSubjugatesOtherFaction_Annex(context)
+	VASSAL = context:other_faction():name();
 end
 
 function PositiveDiplomaticEvent_Annex(context)
 	if context:proposer():is_human() == true then
-		dev.log("PositiveDiplomaticEvent_Annex");
-
 		PROPOSER = context:proposer():name();
 		RECIPIENT = context:recipient():name();
 		cm:add_time_trigger("diplo_vassal_check", 0.5);
@@ -284,6 +280,7 @@ function FactionLeaderDeclaresWar_Annex(context)
 			for i = 1, #FACTIONS_VASSALIZED do
 				if FACTIONS_VASSALIZED[i] == context:character():faction():name() then
 					table.remove(FACTIONS_VASSALIZED, i);
+					FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]] = nil;
 				end
 			end
 		end
@@ -291,6 +288,7 @@ function FactionLeaderDeclaresWar_Annex(context)
 		for i = 1, #FACTIONS_VASSALIZED do
 			if context:character():faction():at_war_with(cm:model():world():faction_by_key(FACTIONS_VASSALIZED[i])) then
 				table.remove(FACTIONS_VASSALIZED, i);
+				FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]] = nil;
 			end
 		end		
 	end
@@ -445,30 +443,30 @@ function OnTimeTrigger_Annex(context)
 		if is_ally == true then
 			-- They were liberated instead of vassalized, so remove them.
 			table.remove(FACTIONS_VASSALIZED, #FACTIONS_VASSALIZED);
+			FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED]] = nil;
 		else
-			FACTIONS_VASSALIZED_DELAYS[vassalized_faction:name()] = tostring(ANNEX_TURN_REQUIREMENT);
+			FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED]] = tostring(ANNEX_TURN_REQUIREMENT);
 		end
 		
 		dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
 
-		PROPOSER = "nil";
-		RECIPIENT = "nil";
-		VASSALIZER = "nil";
-	end
-
-	if context.string == "diplo_vassal_check" then
-		if PROPOSER == VASSALIZER then
-			dev.log("PROPOSER == VASSALIZER");
-			if VASSALIZER == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+		PROPOSER = nil;
+		RECIPIENT = nil;
+		VASSAL = nil;
+	elseif context.string == "diplo_vassal_check" then
+		if PROPOSER ~= nil and RECIPIENT ~= nil and VASSAL ~= nil then
+			if RECIPIENT == VASSAL then
+				dev.log("RECIPIENT == VASSAL");
 				table.insert(FACTIONS_VASSALIZED, RECIPIENT);
+				FACTIONS_VASSALIZED_DELAYS[RECIPIENT] = tostring(ANNEX_TURN_REQUIREMENT);
 			end
+
+			dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
+
+			PROPOSER = nil;
+			RECIPIENT = nil;
+			VASSAL = nil;
 		end
-
-		dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
-
-		PROPOSER = "nil";
-		RECIPIENT = "nil";
-		VASSALIZER = "nil";
 	end
 end
 
@@ -480,7 +478,7 @@ cm:register_loading_game_callback(
 		FACTIONS_VASSALIZED = LoadTable(context, "FACTIONS_VASSALIZED");
 		FACTIONS_VASSALIZED_DELAYS = LoadKeyPairTable(context, "FACTIONS_VASSALIZED_DELAYS");
 		VASSAL_SELECTED_CURRENTLY_ANNEXING = cm:load_value("VASSAL_SELECTED_CURRENTLY_ANNEXING", false, context);
-		VASSAL_SELECTED = cm:load_value("VASSAL_SELECTED", "nil", context);
+		VASSAL_SELECTED = cm:load_value("VASSAL_SELECTED", nil, context);
 		VASSAL_SELECTED_ANNEXATION_TIME = cm:load_value("VASSAL_SELECTED_ANNEXATION_TIME", 0, context);
 	end
 );

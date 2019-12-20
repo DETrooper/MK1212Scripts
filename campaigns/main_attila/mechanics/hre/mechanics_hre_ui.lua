@@ -8,18 +8,12 @@
 -------------------------------------------------------------------------------------------------------------------------------------
 
 HRE_PANEL_OPEN = false;
+HRE_FACTION_SELECTED = nil;
 
 local dev = require("lua_scripts.dev");
 
 function Add_HRE_UI_Listeners()
 	if cm:model():world():faction_by_key("mk_fact_hre"):is_human() == true then
-		cm:add_listener(
-			"FactionTurnStart_HRE_UI",
-			"FactionTurnStart",
-			true,
-			function(context) FactionTurnStart_HRE_UI(context) end,
-			true
-		);
 		cm:add_listener(
 			"FactionTurnEnd_HRE_UI",
 			"FactionTurnEnd",
@@ -49,13 +43,6 @@ function Add_HRE_UI_Listeners()
 			true
 		);
 		cm:add_listener(
-			"OnPanelClosedCampaign_HRE_UI",
-			"PanelClosedCampaign",
-			true,
-			function(context) OnPanelClosedCampaign_HRE_UI(context) end,
-			true
-		);
-		cm:add_listener(
 			"TimeTrigger_HRE_UI",
 			"TimeTrigger",
 			true,
@@ -63,22 +50,8 @@ function Add_HRE_UI_Listeners()
 			true
 		);
 
-		CreateHREButton();
 		CreateHREPanel();
 	end
-end
-
-function CreateHREButton()
-	local root = cm:ui_root();
-	local mission = UIComponent(root:Find("button_missions"))
-	local missionX, missionY = mission:Position()
-
-	root:CreateComponent("HRE_Button", "UI/new/basic_toggle_hre");
-	local btnHRE = UIComponent(root:Find("HRE_Button"));
-	btnHRE:SetMoveable(true);
-	btnHRE:MoveTo(missionX - 120, missionY);
-	btnHRE:SetMoveable(false);
-	btnHRE:SetTooltipText("Holy Roman Empire Interface");
 end
 
 function CreateHREPanel()
@@ -212,11 +185,7 @@ function CreateHREPanel()
 end
 
 function OnComponentMouseOn_HRE_UI(context)
-	if context.string == "HRE_Button" then
-		local root = cm:ui_root();
-		local btnHRE = UIComponent(root:Find("HRE_Button"));
-		btnHRE:SetTooltipText("Holy Roman Empire");
-	elseif context.string == "hre_map" then
+	if context.string == "hre_map" then
 		UIComponent(context.component):SetTooltipText("This tab shows a map of the Holy Roman Empire and information on the selected faction.");
 	elseif context.string == "hre_policies" then
 		UIComponent(context.component):SetTooltipText("This tab, interactable with only by the emperor, contains imperial decrees which can be enacted with varied boons and drawbacks.");
@@ -224,6 +193,10 @@ function OnComponentMouseOn_HRE_UI(context)
 		UIComponent(context.component):SetTooltipText("Boost the fealty of this faction by placating them with gifts.");
 	elseif context.string == "button_back_candidate" then
 		UIComponent(context.component):SetTooltipText("Back this faction's candidate for a boost to their fealty!");
+	elseif context.string == "dy_imperium" then
+		if UIComponent(UIComponent(UIComponent(context.component):Parent()):Parent()):Id() == "faction_context_subpanel" then
+			
+		end
 	elseif string.find(context.string, "_logo") then
 		local fealty = "";
 		local in_hre = "";
@@ -280,7 +253,7 @@ function OnComponentMouseOn_HRE_UI(context)
 end
 
 function OnComponentLClickUp_HRE_UI(context)
-	if context.string == "HRE_Button" then
+	if context.string == "button_hre" then
 		if HRE_PANEL_OPEN == false then
 			OpenHREPanel();
 			HRE_PANEL_OPEN = true;
@@ -298,9 +271,23 @@ function OnComponentLClickUp_HRE_UI(context)
 	elseif context.string == "hre_policies" then
 		UIComponent(context.component):SetTooltipText("This tab, interactable with only by the emperor, contains imperial decrees which can be enacted with varied boons and drawbacks.");
 	elseif context.string == "hre_upfealty" then
-		UIComponent(context.component):SetTooltipText("Boost the fealty of this faction by placating them with gifts.");
+		UIComponent(context.component):SetState("inactive");
+
+		HRE_Increase_Fealty(HRE_FACTION_SELECTED, 1, "boosted");
+		Update_Fealty_HRE_UI(HRE_FACTION_SELECTED);
 	elseif context.string == "button_back_candidate" then
-		UIComponent(context.component):SetTooltipText("Back this faction's candidate for a boost to their fealty!");
+		local root = cm:ui_root();
+
+		UIComponent(context.component):SetState("inactive");
+
+		if FACTIONS_HRE_VOTES[cm:get_local_faction()] ~= cm:get_local_faction() then
+			HRE_Decrease_Fealty(FACTIONS_HRE_VOTES[HRE_FACTION_SELECTED], 3, "withdrew_support");
+		end
+
+		Cast_Vote_For_Factions_Candidate_HRE(cm:get_local_faction(), HRE_FACTION_SELECTED);
+		HRE_Increase_Fealty(HRE_FACTION_SELECTED, 3, "supported_candidate");
+		Update_Fealty_HRE_UI(HRE_FACTION_SELECTED);
+		Setup_Elector_Faction_Info_HRE_UI(root, HRE_FACTION_SELECTED);
 	elseif string.find(context.string, "_logo") then
 		local root = cm:ui_root();
 
@@ -320,50 +307,18 @@ function OnComponentLClickUp_HRE_UI(context)
 	end
 end
 
-function FactionTurnStart_HRE_UI(context)
-	if context:faction():is_human() then
-		cm:add_time_trigger("HRE_Button_Visible", 1);
-	end
-end
-
 function FactionTurnEnd_HRE_UI(context)
 	if context:faction():is_human() then
 		CloseHREPanel();
-		cm:add_time_trigger("HRE_Button_Invisible", 0.5);
 	end
 end
 
 function OnPanelOpenedCampaign_HRE_UI(context)
 	CloseHREPanel();
-	
-	if context.string == "campaign_tactical_map" or context.string == "clan" or context.string == "diplomacy_dropdown" or context.string == "popup_pre_battle" or context.string == "settlement_captured" or context.string == "technology_panel" then
-		cm:add_time_trigger("HRE_Button_Invisible", 0.1);
-	end
-end
-
-function OnPanelClosedCampaign_HRE_UI(context)
-	if context.string == "campaign_tactical_map" or context.string == "clan" or context.string == "popup_pre_battle" or context.string == "settlement_captured" or context.string == "technology_panel" then
-			cm:add_time_trigger("HRE_Button_Visible", 0.1);
-	elseif context.string == "diplomacy_dropdown" then
-		if cm:get_local_faction() == FACTION_TURN then
-			-- Otherwise this may fire during post-turn diplomacy, and we don't want a button appearing in the middle of nowhere!
-			cm:add_time_trigger("HRE_Button_Visible", 0.5);
-		end
-	end
 end
 
 function TimeTrigger_HRE_UI(context)
-	if context.string == "HRE_Button_Visible" then
-		local root = cm:ui_root();
-		local btnHRE = UIComponent(root:Find("HRE_Button"));
-		btnHRE:SetState("active");
-		btnHRE:SetVisible(true);
-	elseif context.string == "HRE_Button_Invisible" then
-		local root = cm:ui_root();
-		local btnHRE = UIComponent(root:Find("HRE_Button"));
-		btnHRE:SetState("active");
-		btnHRE:SetVisible(false);
-	elseif context.string == "HRE_Text_Setup" then
+	if context.string == "HRE_Text_Setup" then
 		local root = cm:ui_root();
 		local garbage = UIComponent(root:Find("garbage"));
 		local panHRE = UIComponent(root:Find("HRE_Panel"));
@@ -464,7 +419,7 @@ end
 function CloseHREPanel()
 	local root = cm:ui_root();
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
-	local btnHRE = UIComponent(root:Find("HRE_Button"));
+	local btnHRE = UIComponent(root:Find("button_hre"));
 	panHRE:SetVisible(false);
 	btnHRE:SetState("active");
 	HRE_PANEL_OPEN = false;
@@ -581,8 +536,14 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 			tx_hordes_owned_uic:SetVisible(true);
 			btnFealty:SetVisible(true);
 			btnBackCandidate:SetVisible(true);
+
 			btnFealty:SetState("active");
-			btnBackCandidate:SetState("active");
+
+			if FACTIONS_HRE_VOTES[cm:get_local_faction()] ~= FACTIONS_HRE_VOTES[faction_name] then
+				btnBackCandidate:SetState("active");
+			else
+				btnBackCandidate:SetState("inactive");
+			end
 		end
 
 		for i = 0, faction_context_subpanel_uic:ChildCount() - 1 do
@@ -700,6 +661,21 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		btnBackCandidate:SetVisible(false);
 		bar_uic:SetVisible(false);
 	end
+
+	HRE_FACTION_SELECTED = faction_name;
+end
+
+function Update_Fealty_HRE_UI(faction_name)
+	local root = cm:ui_root();
+	local panHRE = UIComponent(root:Find("HRE_Panel"));
+	local parchment_uic = UIComponent(panHRE:Find("scroll_frame"));
+	local faction_context_subpanel_uic = UIComponent(parchment_uic:Find("faction_context_subpanel"));
+	local tx_imperium_uic = UIComponent(faction_context_subpanel_uic:Find("tx_imperium"));
+	local dy_imperium_uic = UIComponent(tx_imperium_uic:Find("dy_imperium"));
+
+	tx_imperium_uic:SetStateText("Fealty:");
+	dy_imperium_uic:SetStateText(tostring(FACTIONS_HRE_FEALTY[faction_name]).."/10");
+	panHRE:SetVisible(true);
 end
 
 function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
@@ -747,7 +723,14 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 
 	tx_hordes_owned_uic:SetStateText("Chosen Candidate:");
 	dy_hordes_owned_uic:SetStateText("Votes: "..tostring(num_votes));
-	bar_uic:Resize((26 * num_votes) + 4, 24);
+
+	if num_votes > 0 then
+		bar_uic:Resize((26 * num_votes) + 4, 24);
+		bar_uic:SetVisible(true);
+		bar_uic:SetInteractive(false);
+	else
+		bar_uic:SetVisible(false);
+	end
 
 	num_votes = num_votes / 2;
 
@@ -766,7 +749,4 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 			num_votes = num_votes - 1;
 		end
 	end
-
-	bar_uic:SetVisible(true);
-	bar_uic:SetInteractive(false);
 end

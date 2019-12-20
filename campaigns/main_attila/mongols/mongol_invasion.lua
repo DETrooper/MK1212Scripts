@@ -9,8 +9,6 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Gives the Mongols armies, controls their events, and so-forth.
 
-require("mongols/mongol_lists");
-
 CUMANS_KEY = "mk_fact_cumans";
 JOCHI_KEY = "mk_fact_goldenhorde";
 KHWARAZM_KEY = "mk_fact_khwarazm";
@@ -27,7 +25,7 @@ MIN_ARMY_STRENGTH_PERCENT = 65; -- # of men left in an army on average before th
 
 BUNDLES_APPLIED_JOCHI = {};
 BUNDLES_APPLIED_TOLUI = {};
-FREE_UPKEEP_TIME = 10;
+FREE_UPKEEP_TIME = 20;
 WARN_AFTER = 1;
 
 function Add_Mongol_Invasion_Listeners()
@@ -66,7 +64,7 @@ function Add_Mongol_Invasion_Listeners()
 
 				if unit_list:num_items() < MIN_ARMY_STRENGTH_UNITS then
 					for j = 0, MIN_ARMY_STRENGTH_UNITS - unit_list:num_items() do
-						cm:add_unit_to_force("mk_mon_t1_horse_archers", force:command_queue_index());
+						cm:add_unit_to_force("mk_mon_t1_golden_horse_archers", force:command_queue_index());
 					end
 				end
 			end
@@ -81,7 +79,7 @@ function Add_Mongol_Invasion_Listeners()
 
 				if unit_list:num_items() < MIN_ARMY_STRENGTH_UNITS then
 					for j = 0, MIN_ARMY_STRENGTH_UNITS - unit_list:num_items() do
-						cm:add_unit_to_force("mk_mon_t1_horse_archers", force:command_queue_index());
+						cm:add_unit_to_force("mk_mon_t1_ilkhan_horse_archers", force:command_queue_index());
 					end
 				end
 			end
@@ -123,22 +121,22 @@ function FactionTurnStart_Mongol_Preservation(context)
 		MONGOL_INVASION_STARTED = true;
 
 		if INDEPENDENCE_JOCHI == false then
-			SpawnArmyInZone(JOCHI_KEY, MONGOL_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
-			SpawnArmyInZone(JOCHI_KEY, MONGOL_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
-			SpawnArmyInZone(JOCHI_KEY, MONGOL_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
-			SpawnArmyInZone(JOCHI_KEY, MONGOL_ALT_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
-			SpawnArmyInZone(JOCHI_KEY, MONGOL_ALT_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(JOCHI_KEY, GOLDEN_HORDE_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(JOCHI_KEY, GOLDEN_HORDE_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(JOCHI_KEY, GOLDEN_HORDE_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(JOCHI_KEY, GOLDEN_HORDE_ALT_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(JOCHI_KEY, GOLDEN_HORDE_ALT_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
 
 			cm:force_change_cai_faction_personality(JOCHI_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
 			--cm:add_time_trigger("jochi_war", 0.1);
 		end
 
-		if INDEPENDENCE_JOCHI == false then
-			SpawnArmyInZone(TOLUI_KEY, MONGOL_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
-			SpawnArmyInZone(TOLUI_KEY, MONGOL_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
-			SpawnArmyInZone(TOLUI_KEY, MONGOL_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
-			SpawnArmyInZone(TOLUI_KEY, MONGOL_ALT_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
-			SpawnArmyInZone(TOLUI_KEY, MONGOL_ALT_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
+		if INDEPENDENCE_TOLUI == false then
+			SpawnMongolArmyInZone(TOLUI_KEY, ILKHANATE_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(TOLUI_KEY, ILKHANATE_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(TOLUI_KEY, ILKHANATE_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(TOLUI_KEY, ILKHANATE_ALT_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
+			SpawnMongolArmyInZone(TOLUI_KEY, ILKHANATE_ALT_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
 
 			cm:force_change_cai_faction_personality(TOLUI_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
 			--cm:add_time_trigger("tolui_war", 0.1);
@@ -196,11 +194,6 @@ function OnBattleCompleted_Mongol_Preservation(context)
 		local attacker_result = pending_battle:attacker_battle_result();
 		local defender_result = pending_battle:defender_battle_result();
 
-		-- Check to see if battle was a retreat.
-		--[[if attacker_result == "close_defeat" and defender_result == "close_defeat" then
-
-		end]]--
-
 		if pending_battle:has_attacker() then
 			if pending_battle:attacker():has_military_force() and pending_battle:attacker():faction():is_human() == false and (pending_battle:attacker():faction():name() == JOCHI_KEY or pending_battle:attacker():faction():name() == TOLUI_KEY) then
 				MongolArmyChecks(pending_battle:attacker():faction():name());
@@ -215,7 +208,7 @@ function OnBattleCompleted_Mongol_Preservation(context)
 	end
 end
 
-function ApplyInvasionBundle(CQI)
+function ApplyMongolInvasionBundle(CQI)
  	cm:apply_effect_bundle_to_characters_force("mk_bundle_army_mongol_invasion", CQI, FREE_UPKEEP_TIME, true);
 	
 	local character = cm:model():character_for_command_queue_index(CQI);
@@ -250,7 +243,7 @@ function WarnAboutUpkeep(CQI)
 	end
 end
 
-function SpawnArmyInZone(faction_name, unit_list, region, zone)
+function SpawnMongolArmyInZone(faction_name, unit_list, region, zone)
 	local turn_number = cm:model():turn_number();
 	local x = math.random(zone.x1 , zone.x2);
 	local y = math.random(zone.y2 , zone.y1);
@@ -264,18 +257,21 @@ function SpawnArmyInZone(faction_name, unit_list, region, zone)
 		faction_name..tostring(x)..tostring(y)..tostring(turn_number), 	-- string id for army
 		true,
 		function(cqi)
-			ApplyInvasionBundle(cqi)
+			ApplyMongolInvasionBundle(cqi)
 		end
 	);
 end
 
 function MongolArmyChecks(faction_name)
 	local faction = cm:model():world():faction_by_key(faction_name);
+	local army = nil;
 	local zone = nil;
 
 	if faction_name == JOCHI_KEY then
+		army = GOLDEN_HORDE_INVASION_ARMY;
 		zone = GOLDEN_HORDE_SPAWN_ZONE;
 	elseif faction_name == TOLUI_KEY then
+		army = ILKHANATE_INVASION_ARMY;
 		zone = ILKHANATE_SPAWN_ZONE;
 	end
 
@@ -283,8 +279,8 @@ function MongolArmyChecks(faction_name)
 	local forces = faction:military_force_list();
 	
 	if forces:num_items() < MIN_ARMY_STRENGTH_FORCES then
-		SpawnArmyInZone(faction_name, MONGOL_INVASION_ARMY, "att_reg_scythia_sarai", zone);
-		SpawnArmyInZone(faction_name, MONGOL_INVASION_ARMY, "att_reg_scythia_sarai", zone);
+		SpawnMongolArmyInZone(faction_name, army, "att_reg_scythia_sarai", zone);
+		SpawnMongolArmyInZone(faction_name, army, "att_reg_scythia_sarai", zone);
 	else
 		for i = 0, forces:num_items() - 1 do
 			local force_avg_strength = 100;
@@ -308,8 +304,8 @@ function MongolArmyChecks(faction_name)
 		end
 
 		if forces:num_items() - battered_armies < MIN_ARMY_STRENGTH_FORCES then
-			SpawnArmyInZone(faction_name, MONGOL_INVASION_ARMY, "att_reg_scythia_sarai", zone);
-			SpawnArmyInZone(faction_name, MONGOL_INVASION_ARMY, "att_reg_scythia_sarai", zone);
+			SpawnMongolArmyInZone(faction_name, army, "att_reg_scythia_sarai", zone);
+			SpawnMongolArmyInZone(faction_name, army, "att_reg_scythia_sarai", zone);
 		end
 	end
 end

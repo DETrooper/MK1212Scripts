@@ -243,27 +243,24 @@ function NextPope()
 end
 
 POPE_LIST = {
-	{id = "Innocentius III",	name = "names_name_2147380345", turn = -99}, -- All comments are the 1TPY equivalent.
-	{id = "Honorius III",		name = "names_name_2147380346", turn = 14}, -- 4
-	{id = "Gregorius IX",		name = "names_name_2147380347", turn = 60}, -- 15
-	{id = "Coelestinus IV",	name = "names_name_2147380353", turn = 118}, -- 29
-	{id = "Innocentius IV",	name = "names_name_2147380363", turn = 125}, -- 31
-	{id = "Alexander IV",	name = "names_name_2147380367", turn = 169}, -- 42
-	{id = "Urbanus IV",		name = "names_name_2147380369", turn = 197}, -- 49
-	{id = "Clemens IV",		name = "names_name_2147380378", turn = 212}, -- 53
-	{id = "Gregorius X",		name = "names_name_2147380386", turn = 238}, -- 59
-	{id = "Innocentius V",	name = "names_name_2147380394", turn = 256}, -- 64
-	{id = "Hadrianus V",		name = "names_name_2147380396", turn = 257}, -- 64
-	{id = "Ioannes XXI",		name = "names_name_2147380401", turn = 258}, -- 65
-	{id = "Nicolaus III",		name = "names_name_2147380406", turn = 262}, -- 66
-	{id = "Martinus IV",		name = "names_name_2147380412", turn = 276}, -- 69
-	{id = "Honorius IV",		name = "names_name_2147380421", turn = 292}, -- 73
-	{id = "Nicolaus IV",		name = "names_name_2147380426", turn = 316}, -- 76
-	{id = "Coelestinus V",	name = "names_name_2147380428", turn = 328}, -- 82
-	{id = "Bonfatius VIII",	name = "names_name_2147380432", turn = 331}, -- 83
-	{id = "Benedictus XI",	name = "names_name_2147380442", turn = -1},
-	{id = "Clemens V",		name = "names_name_2147380449", turn = -1},
-	{id = "Ioannes XXII",	name = "names_name_2147380458", turn = -1}
+	{id = "Innocentius III",	name = "names_name_2147380345", turn = -99},
+	{id = "Honorius III",		name = "names_name_2147380346", turn = 4},
+	{id = "Gregorius IX",		name = "names_name_2147380347", turn = 16},
+	{id = "Coelestinus IV",	name = "names_name_2147380353", turn = 30},
+	{id = "Innocentius IV",	name = "names_name_2147380363", turn = 32},
+	{id = "Alexander IV",	name = "names_name_2147380367", turn = 43},
+	{id = "Urbanus IV",		name = "names_name_2147380369", turn = 50},
+	{id = "Clemens IV",		name = "names_name_2147380378", turn = 54},
+	{id = "Gregorius X",		name = "names_name_2147380386", turn = 60},
+	{id = "Ioannes XXI",		name = "names_name_2147380401", turn = 65},
+	{id = "Nicolaus III",		name = "names_name_2147380406", turn = 66},
+	{id = "Martinus IV",		name = "names_name_2147380412", turn = 70},
+	{id = "Honorius IV",		name = "names_name_2147380421", turn = 74},
+	{id = "Nicolaus IV",		name = "names_name_2147380426", turn = 77},
+	{id = "Bonfatius VIII",	name = "names_name_2147380432", turn = 83},
+	{id = "Benedictus XI",	name = "names_name_2147380442", turn = 92},
+	{id = "Clemens V",		name = "names_name_2147380449", turn = 94},
+	{id = "Ioannes XXII",	name = "names_name_2147380458", turn = 105}
 };
 
 ------------------------------------------------

@@ -9,8 +9,8 @@
 -- Byzantine factions must maintain the costly Greek Fire or risk losing it forever.
 
 CONSTANTINOPLE_KEY = "att_reg_thracia_constantinopolis";
-TURNS_BETWEEN_DILEMMAS_MAX = 25;
-TURNS_BETWEEN_DILEMMAS_MIN = 10;
+GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MAX = 50;
+GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MIN = 25;
 
 GREEK_FIRE_UNITS = {
 	"mk_byz_t1_siphonatores"
@@ -48,24 +48,9 @@ function Add_Byzantium_Greek_Fire_Listeners()
 	);
 
 	if cm:is_new_game() then
-		GREEK_FIRE_EPIRUS_TIMER = cm:random_number(TURNS_BETWEEN_DILEMMAS_MAX, TURNS_BETWEEN_DILEMMAS_MIN);
-		GREEK_FIRE_NICAEA_TIMER = cm:random_number(TURNS_BETWEEN_DILEMMAS_MAX, TURNS_BETWEEN_DILEMMAS_MIN);
-		GREEK_FIRE_TREBIZOND_TIMER = cm:random_number(TURNS_BETWEEN_DILEMMAS_MAX, TURNS_BETWEEN_DILEMMAS_MIN);
-
-		-- TEMPORARY
-
-		local nicaea = cm:model():world():faction_by_key(NICAEA_KEY);
-		local forces = nicaea:military_force_list();
-
-		for i = 0, forces:num_items() - 1 do
-			local force = forces:item_at(i);
-
-			if force:has_general() then
-				if force:general_character() == nicaea:faction_leader() then
-					cm:add_unit_to_force("mk_byz_t1_siphonatores", force:command_queue_index());
-				end
-			end
-		end
+		GREEK_FIRE_EPIRUS_TIMER = cm:random_number(GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MAX, GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MIN);
+		GREEK_FIRE_NICAEA_TIMER = cm:random_number(GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MAX, GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MIN);
+		GREEK_FIRE_TREBIZOND_TIMER = cm:random_number(GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MAX, GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MIN);
 	end	
 end
 
@@ -74,42 +59,60 @@ function Byzantium_Greek_Fire_Check(context)
 		if GREEK_FIRE_EPIRUS_TIMER > 0 then
 			GREEK_FIRE_EPIRUS_TIMER = GREEK_FIRE_EPIRUS_TIMER - 1;
 		elseif GREEK_FIRE_EPIRUS_TIMER <= 0 then
-			GREEK_FIRE_EPIRUS_TIMER = cm:random_number(TURNS_BETWEEN_DILEMMAS_MAX, TURNS_BETWEEN_DILEMMAS_MIN);
-			cm:trigger_dilemma(EPIRUS_KEY, "mk_dilemma_byzantium_greek_fire");
+			GREEK_FIRE_EPIRUS_TIMER = cm:random_number(GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MAX, GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MIN);
+
+			if context:faction():is_human() then
+				cm:trigger_dilemma(EPIRUS_KEY, "mk_dilemma_byzantium_greek_fire");
+			end
 		end
 
 		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_key then
 			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
 				EXPLOSION_TRIGGERED = true;
-				cm:trigger_dilemma(EPIRUS_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
+
+				if context:faction():is_human() then
+					cm:trigger_dilemma(EPIRUS_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
+				end
 			end
 		end
 	elseif context:faction():name() == NICAEA_KEY and GREEK_FIRE_NICAEA == true then
 		if GREEK_FIRE_NICAEA_TIMER > 0 then
 			GREEK_FIRE_NICAEA_TIMER = GREEK_FIRE_NICAEA_TIMER - 1;
 		elseif GREEK_FIRE_NICAEA_TIMER <= 0 then
-			GREEK_FIRE_NICAEA_TIMER = cm:random_number(TURNS_BETWEEN_DILEMMAS_MAX, TURNS_BETWEEN_DILEMMAS_MIN);
-			cm:trigger_dilemma(NICAEA_KEY, "mk_dilemma_byzantium_greek_fire");
+			GREEK_FIRE_NICAEA_TIMER = cm:random_number(GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MAX, GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MIN);
+
+			if context:faction():is_human() then
+				cm:trigger_dilemma(NICAEA_KEY, "mk_dilemma_byzantium_greek_fire");
+			end
 		end
 
 		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_key then
 			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
 				EXPLOSION_TRIGGERED = true;
-				cm:trigger_dilemma(NICAEA_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
+
+				if context:faction():is_human() then
+					cm:trigger_dilemma(NICAEA_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
+				end
 			end
 		end
 	elseif context:faction():name() == TREBIZOND_KEY and GREEK_FIRE_TREBIZOND == true then
 		if GREEK_FIRE_TREBIZOND_TIMER > 0 then
 			GREEK_FIRE_TREBIZOND_TIMER = GREEK_FIRE_TREBIZOND_TIMER - 1;
 		elseif GREEK_FIRE_TREBIZOND_TIMER <= 0 then
-			GREEK_FIRE_TREBIZOND_TIMER = cm:random_number(TURNS_BETWEEN_DILEMMAS_MAX, TURNS_BETWEEN_DILEMMAS_MIN);
-			cm:trigger_dilemma(TREBIZOND_KEY, "mk_dilemma_byzantium_greek_fire");
+			GREEK_FIRE_TREBIZOND_TIMER = cm:random_number(GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MAX, GREEK_FIRE_TURNS_BETWEEN_DILEMMAS_MIN);
+
+			if context:faction():is_human() then
+				cm:trigger_dilemma(TREBIZOND_KEY, "mk_dilemma_byzantium_greek_fire");
+			end
 		end
 
 		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_key then
 			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
 				EXPLOSION_TRIGGERED = true;
-				cm:trigger_dilemma(TREBIZOND_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
+
+				if context:faction():is_human() then
+					cm:trigger_dilemma(TREBIZOND_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
+				end
 			end
 		end
 	end

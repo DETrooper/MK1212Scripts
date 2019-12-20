@@ -14,6 +14,7 @@ require("mechanics/population/mechanics_population_ui");
 require("mechanics/population/mechanics_population_unit_lists");
 
 POPULATION_MANPOWER_PERCENTAGE = 0.25; -- How much of a population should be eligible for military service?
+POPULATION_MANPOWER_REGENERATION_RATE = 0.75; -- If manpower is lower than the above percentage of a population (1/4th of population), how much should it regenerate by in addition to growth?
 POPULATION_SOFT_CAP_PERCENTAGE = 0.5; -- How much to scale growth by when a region's population soft cap is exceeded?
 POPULATION_HARD_CAP_PERCENTAGE = 0.1; -- How much to scale growth by when a region's population soft cap is exceeded?
 POPULATION_SIEGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement is under siege?
@@ -169,6 +170,25 @@ function FactionTurnStart_Population(context)
 			end
 		end
 	end
+
+	if context:faction():is_human() then
+		for k, v in pairs(POPULATION_REGIONS_CHARACTERS_RAIDING) do
+			if cm:model():character_for_command_queue_index(tonumber(k)) == nil or cm:model():character_for_command_queue_index(tonumber(k)):is_null_interface() then
+				POPULATION_REGIONS_CHARACTERS_RAIDING[k] = nil;
+			else
+				if cm:model():character_for_command_queue_index(tonumber(k)):has_region() then
+					if cm:model():character_for_command_queue_index(tonumber(k)):region():name() ~= v then
+						POPULATION_REGIONS_CHARACTERS_RAIDING[k] = nil;
+					end
+				else
+					POPULATION_REGIONS_CHARACTERS_RAIDING[k] = nil;
+				end
+			end
+
+			-- Update growth of the region now that raiding has been processed.
+			POPULATION_REGIONS_GROWTH_RATES[v] = Compute_Region_Growth(cm:model():world():region_manager():region_by_key(v));
+		end
+	end
 end
 
 function BattleCompleted_Population(context)
@@ -235,6 +255,12 @@ function CharacterTurnStart_Population(context)
 
 	if context:character():region():owning_faction() ~= context:character():faction() then
 		POPULATION_UNITS_IN_RECRUITMENT[tostring(context:character():cqi())] = {};
+	end
+
+	if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] ~= nil then
+		if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] ~= context:character():region():name() or context:character():has_military_force() == false then
+			POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] = nil;
+		end
 	end
 end
 
@@ -411,6 +437,7 @@ function Compute_Region_Growth(region)
 	local hard_cap = 0;
 
 	local region_name = region:name();
+	local region_owning_faction = region:owning_faction();
 	local buildings_list = region:garrison_residence():buildings();
 	local under_siege = region:garrison_residence():is_under_siege();
 	local food_shortage = region:owning_faction():has_food_shortage();
@@ -435,6 +462,13 @@ function Compute_Region_Growth(region)
 
 	for i = 1, 5 do
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."buildings_"..tostring(i).."#"..tostring(growth[i] * 100).."#@";
+	end
+
+	if POPULATION_FACTION_TRAITS_GROWTH[region_owning_faction:name()] ~= nil then
+		for i = 1, 5 do
+			growth[i] = growth[i] + POPULATION_FACTION_TRAITS_GROWTH[region_owning_faction:name()][i];
+			POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."faction_trait_"..tostring(i).."#"..tostring(POPULATION_FACTION_TRAITS_GROWTH[region_owning_faction:name()][i] * 100).."#@";
+		end
 	end
 
 	if region_population > hard_cap then 
@@ -496,6 +530,10 @@ function Apply_Region_Growth_Factionwide(faction)
 			else
 				POPULATION_REGIONS_POPULATIONS[region_name][j] = POPULATION_REGIONS_POPULATIONS[region_name][j] + math.ceil(POPULATION_REGIONS_POPULATIONS[region_name][j] * POPULATION_REGIONS_GROWTH_RATES[region_name][j]);
 			end
+
+			if POPULATION_REGIONS_POPULATIONS[region_name][j] < 0 then
+				POPULATION_REGIONS_POPULATIONS[region_name][j] = 0;
+			end
 		end
 
 		-- Manpower
@@ -505,7 +543,16 @@ function Apply_Region_Growth_Factionwide(faction)
 					POPULATION_REGIONS_MANPOWER[region_name][j] = 1;
 				end
 			else
-				POPULATION_REGIONS_MANPOWER[region_name][j] = POPULATION_REGIONS_MANPOWER[region_name][j] + math.ceil(POPULATION_REGIONS_MANPOWER[region_name][j] * (POPULATION_REGIONS_GROWTH_RATES[region_name][j] * POPULATION_MANPOWER_PERCENTAGE));
+				if POPULATION_REGIONS_MANPOWER[region_name][j] < (POPULATION_REGIONS_POPULATIONS[region_name][j] * POPULATION_MANPOWER_PERCENTAGE) then
+					local manpower_growth = POPULATION_REGIONS_MANPOWER[region_name][j] + math.ceil(POPULATION_REGIONS_MANPOWER[region_name][j] * (POPULATION_REGIONS_GROWTH_RATES[region_name][j] * POPULATION_MANPOWER_PERCENTAGE));
+					POPULATION_REGIONS_MANPOWER[region_name][j] = manpower_growth + math.ceil(POPULATION_REGIONS_MANPOWER[region_name][j] * POPULATION_MANPOWER_REGENERATION_RATE);
+				else
+					POPULATION_REGIONS_MANPOWER[region_name][j] = POPULATION_REGIONS_MANPOWER[region_name][j] + math.ceil(POPULATION_REGIONS_MANPOWER[region_name][j] * (POPULATION_REGIONS_GROWTH_RATES[region_name][j] * POPULATION_MANPOWER_PERCENTAGE));
+				end
+			end
+
+			if POPULATION_REGIONS_MANPOWER[region_name][j] < 0 then
+				POPULATION_REGIONS_MANPOWER[region_name][j] = 0;
 			end
 		end
 	end
@@ -537,10 +584,18 @@ end
 
 function Change_Population_Region(region_name, class, amount)
 	POPULATION_REGIONS_POPULATIONS[region_name][class] = POPULATION_REGIONS_POPULATIONS[region_name][class] + amount;
+
+	if POPULATION_REGIONS_POPULATIONS[region_name][class] < 0 then
+		POPULATION_REGIONS_POPULATIONS[region_name][class] = 0;
+	end
 end
 
 function Change_Manpower_Region(region_name, class, amount)
 	POPULATION_REGIONS_MANPOWER[region_name][class] = POPULATION_REGIONS_MANPOWER[region_name][class] + amount;
+
+	if POPULATION_REGIONS_MANPOWER[region_name][class] < 0 then
+		POPULATION_REGIONS_MANPOWER[region_name][class] = 0;
+	end
 
 	Change_Population_Region(region_name, class, amount);
 end

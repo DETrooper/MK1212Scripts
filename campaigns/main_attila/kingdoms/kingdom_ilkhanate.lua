@@ -93,13 +93,17 @@ end
 function GetConditionsString_Ilkhanate()
 	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Ulus of Tolui.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Ilkhanate does not yet exist.\n";
 	
-	if ILKHANATE_REGIONS_OWNED == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the provinces of: Atharbaijan, Fars, Iraq al-Ajam, Khorasan, and Makran o Sistan.";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the provinces of: Atharbaijan, Fars, Iraq al-Ajam, Khorasan, and Makran o Sistan.";			
+	for i = 1, #REGIONS_ILKHANATE do
+		local region = cm:model():world():region_manager():region_by_key(REGIONS_ILKHANATE[i]);
+		
+		if region:owning_faction():name() == cm:get_local_faction() then
+			conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_ILKHANATE[i]]..".\n";
+		else
+			conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_ILKHANATE[i]]..".\n";
+		end
 	end
 
-	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Ilkhanate[[/rgba]].";
+	conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Ilkhanate[[/rgba]].";
 
 	return conditionstring;
 end

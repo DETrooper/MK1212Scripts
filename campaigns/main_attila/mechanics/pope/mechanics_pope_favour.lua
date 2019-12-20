@@ -159,6 +159,8 @@ function Reactivate_Papal_Favour_System()
 	for i = 0, faction_list:num_items() - 1 do
 		local current_faction = faction_list:item_at(i);
 
+		cm:remove_effect_bundle("mk_bundle_christian_dejection", current_faction:name());
+
 		if current_faction:state_religion() == "att_rel_chr_catholic" then
 			cm:apply_effect_bundle("mk_bundle_pope_favour_5", current_faction:name(), 0);
 			PLAYER_POPE_FAVOUR[current_faction:name()] = 5;
@@ -312,7 +314,15 @@ function Check_If_Catholic_Attacked(context, type)
 						708
 					);
 
-					cm:apply_effect_bundle("mk_bundle_christian_dejection", faction_name, 0);
+					for i = 0, faction_list:num_items() - 1 do
+						local current_faction = faction_list:item_at(i);
+
+						if current_faction:state_religion() == "att_rel_chr_catholic" then
+							cm:apply_effect_bundle("mk_bundle_christian_dejection", current_faction:name(), 0);
+						end
+					end
+
+					Deactivate_Papal_Favour_System();
 				end
 			end
 		end
@@ -808,7 +818,7 @@ cm:register_saving_game_callback(
 
 cm:register_loading_game_callback(
 	function(context)
-		PLAYER_POPE_FAVOUR = LoadKeyPairTable(context, "PLAYER_POPE_FAVOUR");
+		PLAYER_POPE_FAVOUR = LoadKeyPairTableNumbers(context, "PLAYER_POPE_FAVOUR");
 		PLAYER_EXCOMMUNICATED = LoadBooleanPairTable(context, "PLAYER_EXCOMMUNICATED");
 		PAPAL_FAVOUR_SYSTEM_ACTIVE = cm:load_value("PAPAL_FAVOUR_SYSTEM_ACTIVE", true, context);
 		FAVOUR_LAST_ATTACKED_GARRISON = cm:load_value("FAVOUR_LAST_ATTACKED_GARRISON", "", context);

@@ -86,19 +86,6 @@ function DilemmaChoiceMadeEvent_Hungary(context)
 			cm:show_message_event(
 				HUNGARY_KEY,
 				"message_event_text_text_mk_event_cumans_situation_title", 
-				"message_event_text_text_mk_event_cumans_rejected_primary", 
-				"message_event_text_text_mk_event_cumans_rejected_secondary", 
-				true,
-				710
-			);
-
-			cm:cai_strategic_stance_manager_promote_specified_stance_towards_target_faction(GOLDEN_HORDE_KEY, HUNGARY_KEY, "CAI_STRATEGIC_STANCE_BEST_FRIENDS");
-			cm:cai_strategic_stance_manager_promote_specified_stance_towards_target_faction(ILKHANATE_KEY, HUNGARY_KEY, "CAI_STRATEGIC_STANCE_BEST_FRIENDS");
-		elseif context:choice() == 1 then
-			-- Choice made to reject Cumans!
-			cm:show_message_event(
-				HUNGARY_KEY,
-				"message_event_text_text_mk_event_cumans_situation_title", 
 				"message_event_text_text_mk_event_cumans_settled_primary", 
 				"message_event_text_text_mk_event_cumans_settled_secondary", 
 				true,
@@ -115,6 +102,19 @@ function DilemmaChoiceMadeEvent_Hungary(context)
 
 			SetFactionsHostile(HUNGARY_KEY, GOLDEN_HORDE_KEY);
 			SetFactionsHostile(HUNGARY_KEY, ILKHANATE_KEY);
+		elseif context:choice() == 1 then
+			-- Choice made to reject Cumans!
+			cm:show_message_event(
+				HUNGARY_KEY,
+				"message_event_text_text_mk_event_cumans_situation_title", 
+				"message_event_text_text_mk_event_cumans_rejected_primary", 
+				"message_event_text_text_mk_event_cumans_rejected_secondary", 
+				true,
+				710
+			);
+
+			cm:cai_strategic_stance_manager_promote_specified_stance_towards_target_faction(GOLDEN_HORDE_KEY, HUNGARY_KEY, "CAI_STRATEGIC_STANCE_BEST_FRIENDS");
+			cm:cai_strategic_stance_manager_promote_specified_stance_towards_target_faction(ILKHANATE_KEY, HUNGARY_KEY, "CAI_STRATEGIC_STANCE_BEST_FRIENDS");
 		end
 	elseif context:dilemma() == "mk_dilemma_story_hungary_golden_bull_1222" then
 		if context:choice() == 0 then

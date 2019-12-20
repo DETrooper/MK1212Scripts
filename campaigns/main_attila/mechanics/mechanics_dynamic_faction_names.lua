@@ -79,23 +79,6 @@ function FactionTurnStart_DFN_Checks(context)
 	if context:faction():is_human() then
 		Global_DFN_Check();
 	end
-
-	-- Support for kingdom events (excluding Byzantines and Mongols).
-	if faction_name == POLISH_KINGDOM_FACTION or faction_name == SERBIAN_KINGDOM_FACTION then
-		if context:faction():region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 then
-			if context:faction():is_human() == true and cm:is_multiplayer() == true then 
-				Enable_Decision("found_an_empire");
-			else
-				DFN_Set_Faction_Rank(faction_name, 3);
-			end
-		end
-	elseif faction_name == SPANISH_KINGDOM_FACTION then
-		if context:faction():region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 then
-			local newname = faction_name.."_lvl3";
-			Rename_Faction(faction_name, newname);
-			FACTIONS_DFN_LEVEL[faction_name] = 5;
-		end
-	end
 end
 
 function Global_DFN_Check()
@@ -119,6 +102,15 @@ function Global_DFN_Check()
 			if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 then
 				if faction:is_human() == false or cm:is_multiplayer() == true then
 					DFN_Set_Faction_Rank(faction_name, 3);
+				else
+					Enable_Decision("found_an_empire");
+				end
+			end
+		-- For Kingdom events.
+		elseif FACTIONS_DFN_LEVEL[faction_name] == 4 then
+			if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 then
+				if faction:is_human() == false or cm:is_multiplayer() == true then
+					DFN_Set_Faction_Rank(faction_name, 5);
 				else
 					Enable_Decision("found_an_empire");
 				end
@@ -153,6 +145,10 @@ function Get_DFN_Localisation(faction_name)
 end
 
 function DFN_Set_Faction_Rank(faction_name, rank)
+	if rank == 3 and FACTIONS_DFN_LEVEL[faction_name] == 4 then
+		rank = 5;
+	end
+
 	local newname = faction_name.."_lvl"..tostring(rank);
 	Rename_Faction(faction_name, newname);
 	FACTIONS_DFN_LEVEL[faction_name] = rank;
@@ -199,6 +195,10 @@ function GetConditionsString_DFN_Empire()
 
 	conditionstring = conditionstring.."(Current total: "..tostring(num_regions)..")";
 	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl3"].."[[\rgba]].";
+
+	if FACTIONS_DFN_LEVEL[faction_name] == 4 then
+		conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl5"].."[[\rgba]].";
+	end
 
 	return conditionstring;	
 end

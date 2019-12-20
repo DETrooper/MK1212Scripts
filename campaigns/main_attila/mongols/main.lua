@@ -10,6 +10,7 @@
 -- faction arrays 53 and 54
 
 require("mongols/mongol_invasion");
+require("mongols/mongol_lists");
 --require("mongols/mongol_ui");
 
 function Mongol_Initializer()

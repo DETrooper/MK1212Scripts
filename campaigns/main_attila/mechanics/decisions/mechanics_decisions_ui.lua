@@ -6,17 +6,9 @@
 --
 ------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------
-
 DECISION_PANEL_OPEN = false;
 
 function Add_Decisions_UI_Listeners()
-	cm:add_listener(
-		"FactionTurnStart_Decisions_UI",
-		"FactionTurnStart",
-		true,
-		function(context) FactionTurnStart_Decisions_UI(context) end,
-		true
-	);
 	cm:add_listener(
 		"FactionTurnEnd_Decisions_UI",
 		"FactionTurnEnd",
@@ -46,13 +38,6 @@ function Add_Decisions_UI_Listeners()
 		true
 	);
 	cm:add_listener(
-		"OnPanelClosedCampaign_Decisions_UI",
-		"PanelClosedCampaign",
-		true,
-		function(context) OnPanelClosedCampaign_Decisions_UI(context) end,
-		true
-	);
-	cm:add_listener(
 		"TimeTrigger_Decisions_UI",
 		"TimeTrigger",
 		true,
@@ -60,7 +45,7 @@ function Add_Decisions_UI_Listeners()
 		true
 	);
 
-	CreateDecisionsButton();
+	--CreateDecisionsButton();
 	CreateDecisionsPanel();
 
 	cm:add_time_trigger("Decisions_Button_Check", 0.5);
@@ -87,14 +72,14 @@ function CreateDecisionsPanel()
 	local faction_name = cm:get_local_faction();
 
 	root:CreateComponent("Decisions_Panel", "UI/new/objectives_screen");
-	root:CreateComponent("Decisions_Panel_View", "UI/campaign ui/script_dummy");
 	local panDecisions = UIComponent(root:Find("Decisions_Panel"));
-	local panDecisionsView = UIComponent(root:Find("Decisions_Panel_View"));
 	local tabgroup_uic = UIComponent(panDecisions:Find("TabGroup"));
 	local txt_title_uic = UIComponent(panDecisions:Find("tx_title"));
 
+	panDecisions:CreateComponent("Decisions_Panel_View", "UI/campaign ui/script_dummy");
+	local panDecisionsView = UIComponent(panDecisions:Find("Decisions_Panel_View"));
+
 	panDecisions:Adopt(txt_title_uic:Address());
-	panDecisions:Adopt(panDecisionsView:Address());
 	tabgroup_uic:SetVisible(false);
 	UIComponent(panDecisions:Find("button_info")):SetVisible(false);
 	UIComponent(panDecisions:Find("button_info_holder")):SetVisible(false);
@@ -110,33 +95,216 @@ function CreateDecisionsPanel()
 	local rootbX, rootbY = root:Bounds();
 	--panDecisions:Resize(736, 700);
 	panDecisions:SetMoveable(true);
-	panDecisions:MoveTo(curX, rootbY/2.5);
+	panDecisions:MoveTo(curX, rootbY / 3);
 	panDecisions:SetMoveable(false);
 	panDecisions:SetVisible(false);
 end
 
+function Create_Decisions_Map(decision)
+	local root = cm:ui_root();
+	local rootbX, rootbY = root:Bounds();
+	local panDecisions = UIComponent(root:Find("Decisions_Panel"));
+	local panDecisionsView = UIComponent(panDecisions:Find("Decisions_Panel_View"));
+	local sizeX, sizeY = tonumber(MAP_DECISIONS_MAP_NAMES[decision][2]), tonumber(MAP_DECISIONS_MAP_NAMES[decision][3]);
+
+	panDecisions:CreateComponent("Decisions_Panel_Map_View", "UI/campaign ui/script_dummy");
+	local panDecisionsMapView = UIComponent(panDecisions:Find("Decisions_Panel_Map_View"));
+
+	panDecisionsMapView:CreateComponent(decision.."_Map_Parchment", "UI/new/map_parchment_"..tostring(sizeX));
+	local mapParchment = UIComponent(panDecisionsMapView:Find(decision.."_Map_Parchment"));
+	local mapParchmentPanel = UIComponent(mapParchment:Find("panel"));
+	local mapParchmentPanelClip = UIComponent(mapParchment:Find("panel_clip"));
+	local sortable_list_factions_uic = UIComponent(mapParchmentPanelClip:Find("sortable_list_factions"));
+
+	mapParchment:Resize(sizeX + 120, sizeY + 100);
+	mapParchmentPanel:Resize(sizeX + 120, sizeY + 100);
+	mapParchment:SetMoveable(true);
+	mapParchment:MoveTo((rootbX / 2) + (sizeX / 2) - 30, (rootbY / 2) - (sizeY / 2));
+	mapParchment:SetMoveable(false);
+
+	local mapParchmentPanelClipX, mapParchmentPanelClipY = mapParchmentPanelClip:Position();
+	mapParchmentPanelClip:SetMoveable(true);
+	mapParchmentPanelClip:MoveTo(mapParchmentPanelClipX, mapParchmentPanelClipY - 25);
+	mapParchmentPanelClip:SetMoveable(false);
+	sortable_list_factions_uic:DestroyChildren();
+
+	Create_Image(mapParchment, MAP_DECISIONS_MAP_NAMES[decision][1]);
+	local map_uic = UIComponent(mapParchment:Find(MAP_DECISIONS_MAP_NAMES[decision][1]));
+	local map_uicX, map_uicY = map_uic:Position();
+
+	local table_regions = {};
+
+	if decision == "form_kingdom_armenia" then
+		table_regions = DeepCopy(REGIONS_ARMENIA);
+	elseif decision == "restore_roman_empire" then
+		table_regions = DeepCopy(REGIONS_ROME);
+	elseif decision == "form_empire_golden_horde" then
+		table_regions = DeepCopy(REGIONS_GOLDEN_HORDE);
+	elseif decision == "form_empire_ilkhanate" then
+		table_regions = DeepCopy(REGIONS_ILKHANATE);
+	elseif decision == "form_kingdom_poland" then
+		table_regions = DeepCopy(REGIONS_POLAND);
+	elseif decision == "form_kingdom_spain" then
+		table_regions = DeepCopy(REGIONS_SPAIN_NO_PORTUGAL);
+	end
+
+	for i = 1, #table_regions do
+		local region_name = table_regions[i];
+		local image_name = string.gsub(region_name, "att_", "dec_");
+
+		Create_Image(map_uic, image_name);
+		local image_uic = UIComponent(map_uic:Find(image_name));
+		image_uic:SetMoveable(true);
+		image_uic:MoveTo(map_uicX, map_uicY);
+		image_uic:SetMoveable(false);
+	end
+
+
+	local mapParchmentX, mapParchmentY = mapParchment:Position();
+	local mapParchmentbX, mapParchmentbY = mapParchment:Bounds();
+
+	mapParchment:CreateComponent(decision.."_Decision_Tooltip", "UI/new/decision_question");
+	local tltipDecisions = UIComponent(mapParchment:Find(decision.."_Decision_Tooltip"));
+
+	tltipDecisions:SetMoveable(true);
+
+	if sizeY == 500 then
+		tltipDecisions:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 315, mapParchmentY + mapParchmentbY - 726);
+	elseif sizeY == 650 then
+		tltipDecisions:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 423, mapParchmentY + mapParchmentbY - 951);
+	elseif sizeY == 900 then
+		tltipDecisions:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 833, mapParchmentY + mapParchmentbY - 1326);
+	end
+
+	tltipDecisions:SetMoveable(false);
+
+	mapParchment:CreateComponent("map_accept", "UI/new/basic_toggle_accept");
+	local map_accept_uic = UIComponent(mapParchment:Find("map_accept"));
+
+	map_accept_uic:SetMoveable(true);
+
+	if sizeY == 500 then
+		map_accept_uic:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 556, mapParchmentY + mapParchmentbY - 205);
+	elseif sizeY == 650 then
+		map_accept_uic:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 741, mapParchmentY + mapParchmentbY - 280);
+	elseif sizeY == 900 then
+		map_accept_uic:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 1427, mapParchmentY + mapParchmentbY - 405);
+	end
+
+	map_accept_uic:SetMoveable(false);
+
+	map_uic:SetMoveable(true);
+
+	if sizeY == 500 then
+		map_uic:MoveTo(mapParchmentX - sizeX + 33, mapParchmentX - (sizeY * 2) + 53);
+	elseif sizeY == 650 then
+		map_uic:MoveTo(mapParchmentX - sizeX + 33, mapParchmentX - (sizeY * 2) + 200);
+	elseif sizeY == 900 then
+		map_uic:MoveTo(mapParchmentX - sizeX + 33, mapParchmentX - (sizeY * 2) + 300);
+	end
+
+	map_uic:SetMoveable(false);
+	mapParchment:SetVisible(false);
+end
+
+function Refresh_Decisions_Map(decision)
+	local root = cm:ui_root();
+	local panDecisions = UIComponent(root:Find("Decisions_Panel"));
+	local panDecisionsMapView = UIComponent(panDecisions:Find("Decisions_Panel_Map_View"));
+	local mapParchment = UIComponent(panDecisionsMapView:Find(decision.."_Map_Parchment"));
+	local mapParchmentPanel = UIComponent(mapParchment:Find("panel"));
+	local map_accept_uic = UIComponent(mapParchment:Find("map_accept"));
+	local map_uic = UIComponent(mapParchment:Find(MAP_DECISIONS_MAP_NAMES[decision][1]));
+	local map_uicX, map_uicY = map_uic:Position();
+	local tx_title_uic = UIComponent(mapParchmentPanel:Find("tx_title"));
+
+	local regions_owned_counter = 0;
+	local table_regions = {};
+	local table_faction_pips = {};
+
+	if decision == "form_kingdom_armenia" then
+		table_regions = DeepCopy(REGIONS_ARMENIA);
+		table_faction_pips = DeepCopy(REGIONS_ARMENIA_FACTION_PIPS_LOCATIONS);
+	elseif decision == "restore_roman_empire" then
+		table_regions = DeepCopy(REGIONS_ROME);
+		table_faction_pips = DeepCopy(REGIONS_ROME_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_empire_golden_horde" then
+		table_regions = DeepCopy(REGIONS_GOLDEN_HORDE);
+		table_faction_pips = DeepCopy(REGIONS_GOLDEN_HORDE_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_empire_ilkhanate" then
+		table_regions = DeepCopy(REGIONS_ILKHANATE);
+		table_faction_pips = DeepCopy(REGIONS_ILKHANATE_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_kingdom_poland" then
+		table_regions = DeepCopy(REGIONS_POLAND);
+		table_faction_pips = DeepCopy(REGIONS_POLAND_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_kingdom_spain" then
+		table_regions = DeepCopy(REGIONS_SPAIN_NO_PORTUGAL);
+		table_faction_pips = DeepCopy(REGIONS_SPAIN_FACTION_PIPS_LOCATIONS);
+	end
+
+	map_accept_uic:SetState("active");
+
+	for i = 1, #table_regions do
+		local region_name = table_regions[i];
+		local region = cm:model():world():region_manager():region_by_key(region_name);
+		local owning_faction_name = region:owning_faction():name();
+		local image_name = string.gsub(region_name, "att_", "dec_");
+		local image_uic = UIComponent(map_uic:Find(image_name));
+
+		image_uic:DestroyChildren();
+
+		if owning_faction_name == cm:get_local_faction() then
+			image_uic:PropagateImageColour(0, 204, 0, 150);
+			regions_owned_counter = regions_owned_counter + 1;
+		else
+			image_uic:PropagateImageColour(204, 0, 0, 150);
+		end
+
+		-- Temporary if statement until all faction logo UI files are made.
+		if HasValue(FACTIONS_WITH_IMAGES, owning_faction_name) then
+			image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/"..owning_faction_name.."_flag_small");
+		else
+			image_uic:CreateComponent(region_name.."_logo", "UI/campaign ui/faction_flag_small");
+		end
+
+		local faction_logo_uic = UIComponent(image_uic:Find(region_name.."_logo"));
+		faction_logo_uic:SetMoveable(true);
+		faction_logo_uic:MoveTo(map_uicX + table_faction_pips[region_name][1], map_uicY + table_faction_pips[region_name][2]);
+		faction_logo_uic:SetMoveable(false);
+		faction_logo_uic:SetInteractive(false);
+	end
+
+	tx_title_uic:SetStateText(DECISIONS_STRINGS_MAP[decision].." - ("..tostring(regions_owned_counter).."/"..tostring(#table_regions)..")");
+	mapParchment:SetVisible(true);
+	--mapParchment:TriggerAnimation("show");
+end
+
 function OnComponentMouseOn_Decisions_UI(context)
-	if context.string == "Decisions_Button" then
-		local root = cm:ui_root();
-		local btnDecisions = UIComponent(root:Find("Decisions_Button"));
-		btnDecisions:SetTooltipText("Decisions");
+	if context.string == "map_accept" then
+		local btnAccept = UIComponent(context.component);
+
+		btnAccept:SetTooltipText("Close Map");
 	elseif string.find(context.string, "_Decision_Button") then
-		local root = cm:ui_root();
-		local btnDecision = UIComponent(root:Find(context.string));
+		local btnDecision = UIComponent(context.component);
 		local decision = string.gsub(context.string, "_Decision_Button", "");
 
 		btnDecision:SetTooltipText("Enact Decision");
 	elseif string.find(context.string, "_Decision_Tooltip") then
-		local root = cm:ui_root();
-		local tltipDecisions = UIComponent(root:Find(context.string));
+		local tltipDecisions = UIComponent(context.component);
 		local decision = string.gsub(context.string, "_Decision_Tooltip", "");
 
 		tltipDecisions:SetTooltipText(Get_Decision_Tooltip(decision));
+	elseif string.find(context.string, "_Decision_Map_Button") then
+		local mapDecisions = UIComponent(context.component);
+
+		mapDecisions:SetTooltipText("View a map of the regions required to enact this decision.");
 	end
 end
 
 function OnComponentLClickUp_Decisions_UI(context)
-	if context.string == "Decisions_Button" then
+	if context.string == "map_accept" then
+		UIComponent(UIComponent(context.component):Parent()):SetVisible(false);
+	elseif context.string == "button_decisions" then
 		local root = cm:ui_root();
 		local panDecisions = UIComponent(root:Find("Decisions_Panel"));
 
@@ -154,70 +322,37 @@ function OnComponentLClickUp_Decisions_UI(context)
 			CloseDecisionsPanel();
 		elseif string.find(context.string, "_Decision_Button") then
 			local root = cm:ui_root();
-			UIComponent(root:Find(context.string)):SetState("inactive");
+			UIComponent(context.component):SetState("inactive");
 
 			local decision = string.gsub(context.string, "_Decision_Button", "");
 			Decision_Button_Pressed(decision);
-		end
-	end
-end
+		elseif string.find(context.string, "_Decision_Map_Button") then
+			local root = cm:ui_root();
+			local decision = string.gsub(context.string, "_Decision_Map_Button", "");
+			local panDecisions = UIComponent(root:Find("Decisions_Panel"));
+			local mapParchment = UIComponent(panDecisions:Find(decision.."_Map_Parchment"));
 
-function FactionTurnStart_Decisions_UI(context)
-	if context:faction():is_human() then
-		cm:add_time_trigger("Decisions_Button_Visible", 1);
+			if mapParchment:Visible() == true then
+				mapParchment:SetVisible(false);
+			else
+				Refresh_Decisions_Map(decision);
+			end
+		end
 	end
 end
 
 function FactionTurnEnd_Decisions_UI(context)
 	if context:faction():is_human() then
 		CloseDecisionsPanel();
-		cm:add_time_trigger("Decisions_Button_Invisible", 0.5);
 	end
 end
 
 function OnPanelOpenedCampaign_Decisions_UI(context)
 	CloseDecisionsPanel();
-	
-	if context.string == "campaign_tactical_map" or context.string == "clan" or context.string == "diplomacy_dropdown" or context.string == "popup_pre_battle" or context.string == "settlement_captured" or context.string == "technology_panel" or context.string == "popup_battle_results" then
-		cm:add_time_trigger("Decisions_Button_Invisible", 0.1);
-	end
-end
-
-function OnPanelClosedCampaign_Decisions_UI(context)
-	if context.string == "campaign_tactical_map" or context.string == "clan" or context.string == "popup_pre_battle" or context.string == "settlement_captured" or context.string == "technology_panel" or context.string == "popup_battle_results" then
-		cm:add_time_trigger("Decisions_Button_Visible", 0.1);
-	elseif context.string == "diplomacy_dropdown" then
-		if cm:get_local_faction() == FACTION_TURN then
-			-- Otherwise this may fire during post-turn diplomacy, and we don't want a button appearing in the middle of nowhere!
-			cm:add_time_trigger("Decisions_Button_Visible", 0.5);
-		end
-	end
 end
 
 function TimeTrigger_Decisions_UI(context)
-	if context.string == "Decisions_Button_Visible" then
-		if FACTION_TURN == cm:get_local_faction() then
-			local root = cm:ui_root();
-			local btnDecisions = UIComponent(root:Find("Decisions_Button"));
-			local btnMissions = UIComponent(root:Find("button_missions"));
-
-			if btnMissions:Visible() == true then
-				btnDecisions:SetState("active");
-				btnDecisions:SetVisible(true);
-			end
-		end
-	elseif context.string == "Decisions_Button_Invisible" then
-		local root = cm:ui_root();
-		local btnDecisions = UIComponent(root:Find("Decisions_Button"));
-		btnDecisions:SetVisible(false);
-	elseif context.string == "Decisions_Button_Check" then
-		local root = cm:ui_root();
-
-		if UIComponent(root:Find("popup_pre_battle")):Visible() == true then
-			local btnDecisions = UIComponent(root:Find("Decisions_Button"));
-			btnDecisions:SetVisible(false);
-		end
-	elseif context.string == "Refresh_Delay" then
+	if context.string == "Refresh_Delay" then
 		RefreshDecisionsPanel();
 	end
 end
@@ -225,7 +360,32 @@ end
 function CloseDecisionsPanel()
 	local root = cm:ui_root();
 	local panDecisions = UIComponent(root:Find("Decisions_Panel"));
-	local btnDecisions = UIComponent(root:Find("Decisions_Button"));
+	local btnDecisions = UIComponent(root:Find("button_decisions"));
+
+	if #PRIORITY_DECISIONS > 0 then
+		for i = 1, #PRIORITY_DECISIONS do
+			if HasValue(MAP_DECISIONS, PRIORITY_DECISIONS[i][1]) then
+				local mapParchment = UIComponent(panDecisions:Find(PRIORITY_DECISIONS[i][1].."_Map_Parchment"));
+
+				if mapParchment:Address() ~= nil then
+					mapParchment:SetVisible(false);
+				end
+			end
+		end
+	end
+
+	if #AVAILABLE_DECISIONS > 0 then
+		for i = 1, #AVAILABLE_DECISIONS do
+			if HasValue(MAP_DECISIONS, AVAILABLE_DECISIONS[i][1]) then
+				local mapParchment = UIComponent(panDecisions:Find(AVAILABLE_DECISIONS[i][1].."_Map_Parchment"));
+
+				if mapParchment:Address() ~= nil then
+					mapParchment:SetVisible(false);
+				end
+			end
+		end
+	end
+
 	panDecisions:SetVisible(false);
 	btnDecisions:SetState("active");
 	DECISION_PANEL_OPEN = false;
@@ -234,26 +394,21 @@ end
 function RefreshDecisionsPanel()
 	local root = cm:ui_root();
 	local panDecisions = UIComponent(root:Find("Decisions_Panel"));
-	local panDecisionsView = UIComponent(root:Find("Decisions_Panel_View"));
+	local panDecisionsView = UIComponent(panDecisions:Find("Decisions_Panel_View"));
 	local txt_title_uic = UIComponent(panDecisions:Find("tx_title"));
 	txt_title_uic:SetStateText(Get_DFN_Localisation(cm:get_local_faction()));
 	panDecisionsView:DestroyChildren();
  
 	if #PRIORITY_DECISIONS > 0 then
 		for i = 1, #PRIORITY_DECISIONS do
-			root:CreateComponent(PRIORITY_DECISIONS[i][1].."_Decision_Button", "UI/new/button_small_accept");
-			root:CreateComponent(PRIORITY_DECISIONS[i][1].."_Decision_Tooltip", "UI/new/decision_question");
-			root:CreateComponent(PRIORITY_DECISIONS[i][1].."_Text", "UI/campaign ui/city_info_bar_horde");
+			panDecisionsView:CreateComponent(PRIORITY_DECISIONS[i][1].."_Decision_Button", "UI/new/button_small_accept");
+			panDecisionsView:CreateComponent(PRIORITY_DECISIONS[i][1].."_Decision_Tooltip", "UI/new/decision_question");
+			panDecisionsView:CreateComponent(PRIORITY_DECISIONS[i][1].."_Text", "UI/campaign ui/city_info_bar_horde");
 
-			local btnDecisions = UIComponent(root:Find(PRIORITY_DECISIONS[i][1].."_Decision_Button"));
-			local tltipDecisions = UIComponent(root:Find(PRIORITY_DECISIONS[i][1].."_Decision_Tooltip"));
-			local textDecisions = UIComponent(root:Find(PRIORITY_DECISIONS[i][1].."_Text"));
+			local btnDecisions = UIComponent(panDecisionsView:Find(PRIORITY_DECISIONS[i][1].."_Decision_Button"));
+			local tltipDecisions = UIComponent(panDecisionsView:Find(PRIORITY_DECISIONS[i][1].."_Decision_Tooltip"));
+			local textDecisions = UIComponent(panDecisionsView:Find(PRIORITY_DECISIONS[i][1].."_Text"));
 			local curX, curY = panDecisions:Position();
-
-			panDecisionsView:Adopt(btnDecisions:Address());
-			panDecisionsView:Adopt(tltipDecisions:Address());
-			panDecisionsView:Adopt(textDecisions:Address());
-
 			local mon_frame = UIComponent(textDecisions:Find("mon_frame"));
 			local mon_24 = UIComponent(textDecisions:Find("mon_24"));
 			local dy_name = UIComponent(textDecisions:Find("dy_name"));
@@ -273,6 +428,23 @@ function RefreshDecisionsPanel()
 			tltipDecisions:SetMoveable(false);
 			--tltipDecisions:SetInteractive(false);
 
+			if HasValue(MAP_DECISIONS, PRIORITY_DECISIONS[i][1]) then
+				panDecisionsView:CreateComponent(PRIORITY_DECISIONS[i][1].."_Decision_Map_Button", "UI/new/button_small_decision_map");
+
+				local mapDecisions = UIComponent(panDecisionsView:Find(PRIORITY_DECISIONS[i][1].."_Decision_Map_Button"));
+
+				mapDecisions:Resize(24, 24);
+				mapDecisions:SetMoveable(true);
+				mapDecisions:MoveTo(curX + 540, curY + 103 + ((i - 1) * 32));
+				mapDecisions:SetMoveable(false);
+
+				local mapParchment = UIComponent(panDecisions:Find(PRIORITY_DECISIONS[i][1].."_Map_Parchment"));
+
+				if mapParchment:Address() == nil then
+					Create_Decisions_Map(PRIORITY_DECISIONS[i][1]);
+				end
+			end
+
 			textDecisions:SetMoveable(true);
 			textDecisions:MoveTo(curX + 175, curY + 104 + ((i - 1) * 32));
 			textDecisions:SetMoveable(false);
@@ -289,19 +461,14 @@ function RefreshDecisionsPanel()
 
 	if #AVAILABLE_DECISIONS > 0 then
 		for i = 1, #AVAILABLE_DECISIONS do
-			root:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Decision_Button", "UI/new/button_small_accept");
-			root:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Decision_Tooltip", "UI/new/decision_question");
-			root:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Text", "UI/campaign ui/city_info_bar_horde");
+			panDecisionsView:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Decision_Button", "UI/new/button_small_accept");
+			panDecisionsView:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Decision_Tooltip", "UI/new/decision_question");
+			panDecisionsView:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Text", "UI/campaign ui/city_info_bar_horde");
 
-			local btnDecisions = UIComponent(root:Find(AVAILABLE_DECISIONS[i][1].."_Decision_Button"));
-			local tltipDecisions = UIComponent(root:Find(AVAILABLE_DECISIONS[i][1].."_Decision_Tooltip"));
-			local textDecisions = UIComponent(root:Find(AVAILABLE_DECISIONS[i][1].."_Text"));
+			local btnDecisions = UIComponent(panDecisionsView:Find(AVAILABLE_DECISIONS[i][1].."_Decision_Button"));
+			local tltipDecisions = UIComponent(panDecisionsView:Find(AVAILABLE_DECISIONS[i][1].."_Decision_Tooltip"));
+			local textDecisions = UIComponent(panDecisionsView:Find(AVAILABLE_DECISIONS[i][1].."_Text"));
 			local curX, curY = panDecisions:Position();
-
-			panDecisionsView:Adopt(btnDecisions:Address());
-			panDecisionsView:Adopt(tltipDecisions:Address());
-			panDecisionsView:Adopt(textDecisions:Address());
-
 			local mon_frame = UIComponent(textDecisions:Find("mon_frame"));
 			local mon_24 = UIComponent(textDecisions:Find("mon_24"));
 			local dy_name = UIComponent(textDecisions:Find("dy_name"));
@@ -321,6 +488,23 @@ function RefreshDecisionsPanel()
 			tltipDecisions:SetMoveable(false);
 			--tltipDecisions:SetInteractive(false);
 
+			if HasValue(MAP_DECISIONS, AVAILABLE_DECISIONS[i][1]) then
+				panDecisionsView:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Decision_Map_Button", "UI/new/button_small_decision_map");
+
+				local mapDecisions = UIComponent(panDecisionsView:Find(AVAILABLE_DECISIONS[i][1].."_Decision_Map_Button"));
+
+				mapDecisions:Resize(24, 24);
+				mapDecisions:SetMoveable(true);
+				mapDecisions:MoveTo(curX + 540, curY + 103 + ((i - 1) * 32));
+				mapDecisions:SetMoveable(false);
+
+				local mapParchment = UIComponent(panDecisions:Find(AVAILABLE_DECISIONS[i][1].."_Map_Parchment"));
+
+				if mapParchment:Address() == nil then
+					Create_Decisions_Map(AVAILABLE_DECISIONS[i][1]);
+				end
+			end
+
 			textDecisions:SetMoveable(true);
 			textDecisions:MoveTo(curX + 175, curY + 104 + ((i - 1 + #PRIORITY_DECISIONS) * 32));
 			textDecisions:SetMoveable(false);
@@ -337,11 +521,11 @@ function RefreshDecisionsPanel()
 end
 
 function Highlight_Decisions_Button()
-	highlight_component("Decisions_Button", true, false);
+	highlight_component("button_decisions", true, false);
 end
 
 function Unhighlight_Decisions_Button()
-	highlight_component("Decisions_Button", false, false);
+	highlight_component("button_decisions", false, false);
 end
 
 -------------------------------------------------
@@ -353,6 +537,8 @@ function Get_Decision_Tooltip(decision)
 		return GetConditionsString_Byzantium();
 	elseif decision == "restore_roman_empire" then
 		return GetConditionsString_Roman_Empire();
+	elseif decision == "form_kingdom_armenia" then
+		return GetConditionsString_Armenia();
 	elseif decision == "form_kingdom_poland" then
 		return GetConditionsString_Poland();
 	elseif decision == "form_kingdom_spain" then
@@ -375,6 +561,8 @@ function Decision_Button_Pressed(decision)
 		Byzantine_Empire_Restored(cm:get_local_faction());
 	elseif decision == "restore_roman_empire" then
 		Roman_Empire_Restored(cm:get_local_faction());
+	elseif decision == "form_kingdom_armenia" then
+		Armenian_Kingdom_Formed(cm:get_local_faction());
 	elseif decision == "form_kingdom_poland" then
 		Polish_Kingdom_Formed(cm:get_local_faction());
 	elseif decision == "form_kingdom_spain" then

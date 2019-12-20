@@ -36,6 +36,14 @@ function Calculate_Num_Votes_HRE_Elections(faction_name)
 	return votes;
 end
 
+function Cast_Vote_For_Faction_HRE(faction_name, candidate_faction_name)
+	FACTIONS_HRE_VOTES[faction_name] = candidate_faction_name;
+end
+
+function Cast_Vote_For_Factions_Candidate_HRE(faction_name, supporting_faction_name)
+	FACTIONS_HRE_VOTES[faction_name] = FACTIONS_HRE_VOTES[supporting_faction_name];
+end
+
 --------------------------------------------------------------
 ----------------------- SAVING / LOADING ---------------------
 --------------------------------------------------------------

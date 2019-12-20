@@ -26,7 +26,7 @@ function Add_Las_Navas_Listeners()
 	if almohads:is_human() == true or aragon:is_human() == true or castile:is_human() == true or navarre:is_human() == true then
 		if BATTLE_LAS_NAVAS_OCCURED == false then
 			cm:add_listener(
-				"BattleCompleted_Las_Navas_Listener",
+				"BattleCompleted_Las_Navas",
 				"BattleCompleted",
 				true,
 				function(context) BattleCompleted_Las_Navas(context) end,
@@ -42,17 +42,42 @@ function Add_Las_Navas_Listeners()
 		end
 
 		if cm:is_new_game() then
-			Las_Navas_Setup();
+			if almohads:is_human() == true then
+				Las_Navas_Setup(ALMOHADS_KEY);
+			elseif aragon:is_human() == true then
+				Las_Navas_Setup(ARAGON_KEY);
+			elseif castile:is_human() == true then
+				Las_Navas_Setup(CASTILE_KEY);
+			elseif navarre:is_human() == true then
+				Las_Navas_Setup(NAVARRE_KEY);
+			end
+		end
+	else
+		if cm:is_new_game() then
+			-- No factions are human, so let's give Navarra some units, otherwise the 6 AI armies will stand there for years too scared to attack.
+
+			local navarre_commander = get_closest_commander_to_position_from_faction(
+				navarre,
+				LAS_NAVAS_X, 
+				LAS_NAVAS_Y, 
+				true
+			);
+
+			cm:add_unit_to_force("mk_cas_t1_spear_militia", navarre_commander:military_force():command_queue_index());
+			cm:add_unit_to_force("mk_cas_t1_spear_militia", navarre_commander:military_force():command_queue_index());
+			cm:add_unit_to_force("mk_cas_t1_almocaden", navarre_commander:military_force():command_queue_index());
+			cm:add_unit_to_force("mk_cas_t1_almocaden", navarre_commander:military_force():command_queue_index());
+			cm:add_unit_to_force("mk_cas_t1_almocaden", navarre_commander:military_force():command_queue_index());
+			cm:add_unit_to_force("mk_cas_t1_almocaden", navarre_commander:military_force():command_queue_index());
 		end
 	end
 end
 
-function Las_Navas_Setup()
+function Las_Navas_Setup(faction_name)
 	local almohads = cm:model():world():faction_by_key(ALMOHADS_KEY);
 	local aragon = cm:model():world():faction_by_key(ARAGON_KEY);
 	local castile = cm:model():world():faction_by_key(CASTILE_KEY);
 	local navarre = cm:model():world():faction_by_key(NAVARRE_KEY);
-	local faction_name = cm:get_local_faction();
 
 	local almohads_gen_string = char_lookup_str(
 		get_closest_commander_to_position_from_faction(
@@ -117,7 +142,7 @@ function BattleCompleted_Las_Navas(context)
 				cm:apply_effect_bundle("mk_bundle_las_navas_victory", defender_name, 10);
 			end
 
-			cm:remove_listener("BattleCompleted_Las_Navas_Listener");
+			cm:remove_listener("BattleCompleted_Las_Navas");
 		end
 	end
 end

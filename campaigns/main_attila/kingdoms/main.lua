@@ -7,6 +7,7 @@
 -------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------
 
+require("kingdoms/kingdom_armenia");
 require("kingdoms/kingdom_byzantium");
 require("kingdoms/kingdom_golden_horde");
 require("kingdoms/kingdom_ilkhanate");
@@ -16,6 +17,7 @@ require("kingdoms/kingdom_spain");
 require("kingdoms/list_regions");
 
 function Kingdom_Initializer()
+	Add_Kingdom_Armenia_Listeners();
 	Add_Kingdom_Byzantium_Listeners();
 	Add_Kingdom_Golden_Horde_Listeners();
 	Add_Kingdom_Ilkhanate_Listeners();

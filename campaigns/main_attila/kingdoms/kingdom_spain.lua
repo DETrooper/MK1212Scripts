@@ -98,13 +98,17 @@ end
 function GetConditionsString_Spain()
 	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is Crown of Aragon, Kingdom of Castile, or Kingdom of Navarre.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Spain does not yet exist.\n";
 	
-	if SPANISH_KINGDOM_REGIONS_OWNED == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the provinces of: Andalusia, Castella et Aragonia, and Castella Nova, and the regions of: Badajoz, Leon, and Santiago.";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the provinces of: Andalusia, Castella et Aragonia, and Castella Nova, and the regions of: Badajoz, Leon, and Santiago.";	
+	for i = 1, #REGIONS_SPAIN_NO_PORTUGAL do
+		local region = cm:model():world():region_manager():region_by_key(REGIONS_SPAIN_NO_PORTUGAL[i]);
+		
+		if region:owning_faction():name() == cm:get_local_faction() then
+			conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_SPAIN_NO_PORTUGAL[i]]..".\n";
+		else
+			conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_SPAIN_NO_PORTUGAL[i]]..".\n";
+		end
 	end
 
-	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Spain[[/rgba]].";
+	conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Spain[[/rgba]].";
 
 	return conditionstring;
 end

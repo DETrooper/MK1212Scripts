@@ -160,7 +160,7 @@ function OnComponentMouseOn_Population_UI(context)
 		local TechTooltipPopup = UIComponent(root:Find("TechTooltipPopup"));
 		local instruction_window_uic = UIComponent(TechTooltipPopup:Find("dy_building_title"));
 
-		if instruction_window_uic:GetStateText() == "Population of" or string.find(instruction_window_uic:GetStateText(), REGIONS_NAMES_LOCALISATION[REGION_SELECTED]) then
+		if instruction_window_uic:GetStateText() == "Population of" then
 			Change_Tooltip_Population_UI(REGION_SELECTED, POPULATION_CURRENT_TOOLTIP_SELECTED, true);
 		end
 	elseif context.string == "mk_bundle_population_bundle_region" then
@@ -199,16 +199,17 @@ function OnComponentMouseOn_Population_UI(context)
 		end
 	elseif string.find(context.string, "LandUnit") then
 		local unit_card_uic = UIComponent(context.component);
+		local merc_icon_uic = UIComponent(unit_card_uic:Find("merc_icon"));
 		local strength_number = UIComponent(unit_card_uic:Find("unit_strength_number")):GetStateText();
 		local splitstr = SplitString(UIComponent(context.component):GetTooltipText(), "||");
 		local oldToolTip = splitstr[1];
 		local queue_number = string.gsub(context.string, "LandUnit ", "");
 
-		if queue_number > 0 then
+		if tonumber(queue_number) > 0 and merc_icon_uic:Visible() == false then
 			local newToolTip = oldToolTip.."\n\nUsed Manpower: "..strength_number.."\n\nLeft-click to select.";
 			UIComponent(context.component):SetTooltipText(newToolTip);
 		else
-			local newToolTip = oldToolTip.."\n\nUsed Manpower: None (General Unit)\n\nLeft-click to select.";
+			local newToolTip = oldToolTip.."\n\nLeft-click to select.";
 			UIComponent(context.component):SetTooltipText(newToolTip);
 		end
 	end
@@ -262,7 +263,7 @@ function OnComponentLClickUp_Population_UI(context)
 		end
 
 		UIComponent(context.component):SetDisabled(true);
-		cm:add_time_trigger("Unit_Cards", 0.1);
+		cm:add_time_trigger("Unit_Cards", 0.0);
 	elseif string.find(context.string, "QueuedLandUnit") then
 		local queue_number = string.gsub(context.string, "QueuedLandUnit ", "");
 
@@ -279,9 +280,27 @@ function OnComponentLClickUp_Population_UI(context)
 		end
 
 		table.remove(POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())], queue_number);
+	elseif string.find(context.string, "LandUnit") then
+		local unit_card_uic = UIComponent(context.component);
+		local merc_icon_uic = UIComponent(unit_card_uic:Find("merc_icon"));
+		local strength_number = UIComponent(unit_card_uic:Find("unit_strength_number")):GetStateText();
+		local splitstr = SplitString(UIComponent(context.component):GetTooltipText(), "||");
+		local oldToolTip = splitstr[1];
+		local queue_number = string.gsub(context.string, "LandUnit ", "");
+
+		if tonumber(queue_number) > 0 and merc_icon_uic:Visible() == false then
+			local newToolTip = oldToolTip.."\n\nUsed Manpower: "..strength_number.."\n\nLeft-click to select.";
+			UIComponent(context.component):SetTooltipText(newToolTip);
+		else
+			local newToolTip = oldToolTip.."\n\nLeft-click to select.";
+			UIComponent(context.component):SetTooltipText(newToolTip);
+		end
 	elseif context.string == "button_tick" then
 		if UIComponent(context.component):GetTooltipText() == "Accept" and button_disband_pressed == true then
 			cm:add_time_trigger("Check_Disbanded_Units", 0.1);
+			button_disband_pressed = false;
+		elseif UIComponent(context.component):GetTooltipText() == "Cancel" and button_disband_pressed == true then
+			button_disband_pressed = false;
 		end
 	elseif context.string == "button_replace_general" then
 		POPULATION_COMMANDER_TO_REPLACE_CQI = LAST_CHARACTER_SELECTED:cqi();
@@ -293,14 +312,12 @@ function OnComponentLClickUp_Population_UI(context)
 
 	if context.string == "button_disband" then
 		button_disband_pressed = true;
-	else
-		button_disband_pressed = false;
 	end
 end
 
 function OnPanelOpenedCampaign_Population_UI(context)
 	if context.string == "units_recruitment" then
-		cm:add_time_trigger("Unit_Cards", 0.1);
+		cm:add_time_trigger("Unit_Cards", 0.0);
 	elseif context.string == "clan" then
 		cm:add_time_trigger("Faction_Panel_Population", 0.0);
 	end
@@ -323,60 +340,76 @@ function TimeTrigger_Population_UI(context)
 					if POPULATION_REGIONS_MANPOWER[LAST_CHARACTER_SELECTED:region():name()][POPULATION_UNITS_TO_POPULATION[unit_name][2]] < POPULATION_UNITS_TO_POPULATION[unit_name][1] then
 						local unit_icon_uic = UIComponent(unit_uic:Find("unit_icon"));
 						unit_uic:SetDisabled(true);
-						unit_icon_uic:SetState("inactive")
-					end					
+						unit_icon_uic:SetState("inactive");
+					end
 				end
 			end 
 		end
 	elseif context.string == "Check_Disbanded_Units" then
 		local new_army = {};
+		local forces = LAST_CHARACTER_SELECTED_FACTION:military_force_list();
 
-		if LAST_CHARACTER_SELECTED:has_military_force() then
-			for i = 0, LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() - 1 do
-				if not LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):has_unit_commander() then
-					table.insert(new_army, LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):unit_key());
-				end
-			end
+		for x = 0, forces:num_items() - 1 do
+			local force = forces:item_at(x);
 
-			for i = 2, #ARMY_SELECTED_TABLE do
-				if HasValue(new_army, ARMY_SELECTED_TABLE[i]) then
-					for j = 1, #new_army do
-						if new_army[j] == ARMY_SELECTED_TABLE[i] then
-							table.remove(new_army, j);
-							break;
+			if force:has_general() then
+				if force:general_character() == LAST_CHARACTER_SELECTED then
+					for i = 0, LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() - 1 do
+						if not LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):has_unit_commander() then
+							table.insert(new_army, LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):unit_key());
 						end
 					end
-				else
-					local unit_name = ARMY_SELECTED_TABLE[i];
+
+					for i = 2, #ARMY_SELECTED_TABLE do
+						if HasValue(new_army, ARMY_SELECTED_TABLE[i]) then
+							for j = 1, #new_army do
+								if new_army[j] == ARMY_SELECTED_TABLE[i] then
+									table.remove(new_army, j);
+									break;
+								end
+							end
+						else
+							local unit_name = ARMY_SELECTED_TABLE[i];
+
+							if not string.find(unit_name, "mk_merc") then
+								local unit_cost = POPULATION_UNITS_TO_POPULATION[unit_name][1];
+								local unit_strength = math.floor((unit_cost * (ARMY_SELECTED_STRENGTHS_TABLE[i] / 100)) + 0.5);
+								local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
+
+								if LAST_CHARACTER_SELECTED:has_region() then
+									Change_Manpower_Region(ARMY_SELECTED_REGION, unit_class, unit_strength);
+								else
+									local region = FindClosestPort(x, y, LAST_CHARACTER_SELECTED:faction());
+									Change_Manpower_Region(region:name(), unit_class, unit_strength);
+								end
+
+								for j = 1, #new_army do
+									if new_army[j] == ARMY_SELECTED_TABLE[i] then
+										table.remove(new_army, j);
+										break;
+									end
+								end
+							end
+						end
+					end
+
+					Check_Last_Character_Force();
+					return;
+				end
+			end
+		end
+
+		if #ARMY_SELECTED_TABLE > 1 then
+			for i = 2, #ARMY_SELECTED_TABLE do
+				local unit_name = ARMY_SELECTED_TABLE[i];
+
+				if not string.find(unit_name, "mk_merc") then
 					local unit_cost = POPULATION_UNITS_TO_POPULATION[unit_name][1];
 					local unit_strength = math.floor((unit_cost * (ARMY_SELECTED_STRENGTHS_TABLE[i] / 100)) + 0.5);
 					local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
 
-					if LAST_CHARACTER_SELECTED:has_region() then
-						Change_Manpower_Region(ARMY_SELECTED_REGION, unit_class, unit_strength);
-					else
-						local region = FindClosestPort(x, y, LAST_CHARACTER_SELECTED:faction());
-						Change_Manpower_Region(region:name(), unit_class, unit_strength);
-					end
-
-					for j = 1, #new_army do
-						if new_army[j] == ARMY_SELECTED_TABLE[i] then
-							table.remove(new_army, j);
-							break;
-						end
-					end
+					Change_Manpower_Region(ARMY_SELECTED_REGION, unit_class, unit_strength);
 				end
-			end
-
-			Check_Last_Character_Force();
-		else -- It got fully disbanded!
-			for i = 2, #ARMY_SELECTED_TABLE do
-				local unit_name = ARMY_SELECTED_TABLE[i];
-				local unit_cost = POPULATION_UNITS_TO_POPULATION[unit_name][1];
-				local unit_strength = math.floor((unit_cost * (ARMY_SELECTED_STRENGTHS_TABLE[i] / 100)) + 0.5);
-				local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
-
-				Change_Manpower_Region(ARMY_SELECTED_REGION, unit_class, unit_strength);
 			end
 		end
 	elseif context.string == "Update_Force_CQI" then
@@ -409,6 +442,8 @@ end
 function ShortcutTriggered_Population_UI(context)
 	if context.string == "auto_merge_units" then
 		Check_Last_Character_Force();
+	elseif context.string == "current_selection_disband" then
+		button_disband_pressed = true;
 	end
 end
 
@@ -477,6 +512,7 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 		end
 
 		-- May or may not exist.
+		local faction_trait_growth = "";
 		local building_growth = "";
 		local cap_exceeded = "";
 		local under_siege = "";
@@ -490,7 +526,18 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 			for i = 1, #first_split do
 				local second_split = SplitString(first_split[i], "#");
 
-				if second_split[1] == "buildings_"..tostring(class) then
+				if second_split[1] == "faction_trait_"..tostring(class) then
+					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
+
+					if tonumber(second_split[2]) < 0 then
+						faction_trait_growth = "Growth From Faction Trait: ".."[[rgba:255:0:0:150]]("..second_split[2].."%)[[/rgba]]\n";
+					elseif tonumber(second_split[2]) == 0 then
+						-- Should never be the case.
+						faction_trait_growth = "Growth From Faction Trait: ".."[[rgba:255:255:0:150]](0%)[[/rgba]]\n";
+					else
+						faction_trait_growth = "Growth From Faction Trait: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
+					end
+				elseif second_split[1] == "buildings_"..tostring(class) then
 					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 9);
 					building_growth = "Growth From Buildings: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "hard_cap_exceeded" then
@@ -515,7 +562,7 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 			end
 		end
 
-		description_window_uic:SetStateText(class_population..building_growth..cap_exceeded..under_siege..food_shortage..public_order..region_raided..projected_growth..projected_growth_num);
+		description_window_uic:SetStateText(class_population..faction_trait_growth..building_growth..cap_exceeded..under_siege..food_shortage..public_order..region_raided..projected_growth..projected_growth_num);
 		nobility_uic:SetVisible(false);
 		artisans_uic:SetVisible(false);
 		peasantry_uic:SetVisible(false);

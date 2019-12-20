@@ -72,6 +72,7 @@ function CreateBufferButton()
 
 	UIComponent(panBufferWarning:Find("heading_txt")):SetStateText("Release Buffer State?");
 	UIComponent(panBufferWarning:Find("dy_filename")):SetStateText("Faction: ".."\nRegion: ");
+	UIComponent(panBufferWarning:Find("txt")):SetStateText("This faction will become your vassal.");
 
 	panBufferWarning:SetVisible(false);
 end
@@ -153,7 +154,6 @@ function OnSettlementSelected_Buffer(context)
 		if REGIONS_LIBERATION_FACTIONS[region_name] ~= faction_name and vassal_faction:has_home_region() ~= true and vassal_faction:has_faction_leader() ~= true then
 			local root = cm:ui_root();
 			local btnBuffer = UIComponent(root:Find("Buffer_Button"));
-	
 
 			if cm:get_local_faction() == FACTION_TURN then
 				btnBuffer:SetState("active"); 

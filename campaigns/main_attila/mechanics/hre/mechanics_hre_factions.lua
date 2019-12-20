@@ -10,6 +10,8 @@
 
 FACTIONS_HRE = {};
 FACTIONS_HRE_FEALTY = {};
+MAX_FEALTY = 10;
+MIN_FEALTY = 0;
 HRE_EMPEROR_KEY = "mk_fact_hre";
 HRE_EMPEROR_PRETENDER_KEY = "mk_fact_sicily";
 
@@ -21,20 +23,6 @@ function Add_HRE_Faction_Listeners()
 		"FactionTurnStart",
 		true,
 		function(context) FactionTurnStart_HRE_Factions(context) end,
-		true
-	);
-	cm:add_listener(
-		"FactionBecomesLiberationVassal_HRE",
-		"FactionBecomesLiberationVassal",
-		true,
-		function(context) FactionBecomesLiberationVassal_HRE(context) end,
-		true
-	);
-	cm:add_listener(
-		"TimeTrigger_HRE_Vassal",
-		"TimeTrigger",
-		true,
-		function(context) TimeTrigger_HRE_Vassal(context) end,
 		true
 	);
 
@@ -53,6 +41,25 @@ function Add_HRE_Faction_Listeners()
 			end
 		end
 	end
+end
+
+function FactionTurnStart_HRE_Factions(context)
+	if context:faction():name() == HRE_EMPEROR_KEY then
+		local faction_list = cm:model():world():faction_list();
+		local turn_number = cm:model():turn_number();
+
+		for i = 0, faction_list:num_items() - 1 do
+			local current_faction = faction_list:item_at(i);
+
+			if current_faction:name() ~= HRE_EMPEROR_KEY and FACTIONS_HRE[current_faction:name()] ~= nil then
+				HRE_Fealty_Check(current_faction:name());
+			end
+		end
+	end
+end
+
+function HRE_Fealty_Check(faction_name)
+
 end
 
 function HRE_Replace_Emperor(faction_name)
@@ -75,56 +82,49 @@ function HRE_Replace_Emperor(faction_name)
 	end
 end
 
-function FactionTurnStart_HRE_Factions(context)
-	if context:faction():name() == HRE_EMPEROR_KEY then
-		local hre = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
-		local faction_list = cm:model():world():faction_list();
-		local turn_number = cm:model():turn_number();
-
-		for i = 0, faction_list:num_items() - 1 do
-			local current_faction = faction_list:item_at(i);
-
-			if current_faction:name() ~= HRE_EMPEROR_KEY and FACTIONS_HRE[current_faction:name()] ~= nil then
-				local faction = cm:model():world():faction_by_key(current_faction:name());
-				local now_at_war = faction:at_war_with(hre);
-
-				if now_at_war == true then
-					-- War with HRE! Remove from FACTIONS_HRE list if in there!
-					Remove_From_HRE(current_faction:name());
-				end
-
-				if not current_faction:region_list():num_items() > 0 then
-					Remove_From_HRE(current_faction:name());
-				end
-			end
-		end
+function HRE_Increase_Fealty(faction_name, amount, reason)
+	if FACTIONS_HRE_FEALTY[faction_name] == nil then
+		FACTIONS_HRE_FEALTY[faction_name] = 5 + amount;
+		FACTIONS_HRE_FEALTY[faction_name] = math.max(FACTIONS_HRE_FEALTY[faction_name], MIN_FEALTY);
+		FACTIONS_HRE_FEALTY[faction_name] = math.min(FACTIONS_HRE_FEALTY[faction_name], MAX_FEALTY);
+	else
+		FACTIONS_HRE_FEALTY[faction_name] = FACTIONS_HRE_FEALTY[faction_name] + amount;
+		FACTIONS_HRE_FEALTY[faction_name] = math.max(FACTIONS_HRE_FEALTY[faction_name], MIN_FEALTY);
+		FACTIONS_HRE_FEALTY[faction_name] = math.min(FACTIONS_HRE_FEALTY[faction_name], MAX_FEALTY);
 	end
+
+	cm:show_message_event(
+		HRE_EMPEROR_KEY,
+		"message_event_text_text_mk_event_hre_fealty_increase_title",
+		"campaign_localised_strings_string_"..faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]),
+		"message_event_text_text_mk_event_hre_fealty_increase_secondary_"..reason,
+		true, 
+		704
+	);
 end
 
-function FactionBecomesLiberationVassal_HRE(context)
-	if context:liberating_character():faction():name() == HRE_EMPEROR_KEY then
-		local faction_name = context:liberating_character():faction():name();
-		dev.log("Adding faction to HRE: "..faction_name);
-		table.insert(FACTIONS_HRE, faction_name);
-		dev.log("Faction added!");
-		cm:add_time_trigger("liberation_check", 0.1);
+function HRE_Decrease_Fealty(faction_name, amount, reason)
+	if FACTIONS_HRE_FEALTY[faction_name] == nil then
+		FACTIONS_HRE_FEALTY[faction_name] = 5 - amount;
+		FACTIONS_HRE_FEALTY[faction_name] = math.max(FACTIONS_HRE_FEALTY[faction_name], MIN_FEALTY);
+		FACTIONS_HRE_FEALTY[faction_name] = math.min(FACTIONS_HRE_FEALTY[faction_name], MAX_FEALTY);
+	else
+		FACTIONS_HRE_FEALTY[faction_name] = FACTIONS_HRE_FEALTY[faction_name] - amount;
+		FACTIONS_HRE_FEALTY[faction_name] = math.max(FACTIONS_HRE_FEALTY[faction_name], MIN_FEALTY);
+		FACTIONS_HRE_FEALTY[faction_name] = math.min(FACTIONS_HRE_FEALTY[faction_name], MAX_FEALTY);
 	end
+
+	cm:show_message_event(
+		HRE_EMPEROR_KEY,
+		"message_event_text_text_mk_event_hre_fealty_decrease_title",
+		"campaign_localised_strings_string_"..faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]),
+		"message_event_text_text_mk_event_hre_fealty_decrease_secondary_"..reason,
+		true, 
+		704
+	);
 end
 
-function TimeTrigger_HRE_Vassal(context)
-	if context.string == "liberation_check" then
-		local hre = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
-		local liberated_faction = cm:model():world():faction_by_key(FACTIONS_HRE[#FACTIONS_HRE]);
-		local is_ally = hre:allied_with(liberated_faction);
-			
-		if is_ally == true then
-			-- They were allied after liberation so we should make them a vassal by force!
-			cm:force_make_vassal(HRE_EMPEROR_KEY, liberated_faction);
-		end
-	end
-end
-
-function Remove_From_HRE(faction_name)
+function HRE_Remove_From_Empire(faction_name)
 	for i = 1, #FACTIONS_HRE do
 		if FACTIONS_HRE[i] == faction_name then
 			dev.log("Removing faction from HRE: "..FACTIONS_HRE[i]);

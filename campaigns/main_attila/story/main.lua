@@ -16,6 +16,7 @@ require("story/story_hre");
 require("story/story_reconquista");
 require("story/story_sicily");
 require("story/story_teutonic_order");
+require("story/story_world");
 
 function Story_Initializer()
 	Add_Aragon_Story_Events_Listeners();
@@ -23,9 +24,10 @@ function Story_Initializer()
 	Add_England_Story_Events_Listeners();
 	Add_France_Story_Events_Listeners();
 	Add_Hungary_Story_Events_Listeners();
-	Add_HRE_Story_Events_Listeners();
+	--Add_HRE_Story_Events_Listeners();
 	Add_Reconquista_Story_Events_Listeners();
-	Add_Sicily_Story_Events_Listeners();
+	--Add_Sicily_Story_Events_Listeners();
+	Add_World_Story_Events_Listeners();
 end
 
 function Are_Regions_Religion(religion_key, region_list)

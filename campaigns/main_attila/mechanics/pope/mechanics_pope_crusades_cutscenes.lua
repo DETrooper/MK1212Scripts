@@ -181,9 +181,9 @@ function Cutscene_Fifth_Crusade_Skipped()
 end;
 
 function Cutscene_Fifth_Cruade_End()
+	CampaignUI.ShowObjective("MK1212.Crusades.Cutscene_03", 0, 0);
 	ui_state.events_rollout:set_allowed(true);
 	ui_state.events_panel:set_allowed(true);
-	Force_Declare_Wars_Crusade(5);
 end;
 
 -------------------------------------------------------

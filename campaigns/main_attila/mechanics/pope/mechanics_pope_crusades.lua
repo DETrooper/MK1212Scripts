@@ -20,16 +20,16 @@ CRUSADE_DEFENSE_UNIT_LIST = 	"mk_ayy_t1_jund_spearmen,mk_ayy_t1_jund_spearmen,mk
 				"mk_ayy_t1_jund_swordsmen,mk_ayy_t1_jund_swordsmen,mk_ayy_t1_jund_swordsmen,mk_ayy_t1_jund_swordsmen,".. -- Swords
 				"mk_ayy_t1_crossbowmen,mk_ayy_t1_crossbowmen,mk_ayy_t1_crossbowmen"; -- Ranged
 
-JERUSALEM_CAPTURED = false;
+MISSION_TAKE_JERUSALEM_ACTIVE = false;
 JERUSALEM_REGION_KEY = "att_reg_palaestinea_aelia_capitolina";
 ALEXANDRIA_REGION_KEY = "att_reg_aegyptus_alexandria";
 
 FIFTH_CRUSADE_TRIGGERED = false;
 FIFTH_CRUSADE_TARGET = "att_reg_aegyptus_oxyrhynchus";
 FIFTH_CRUSADE_CUTSCENE_PLAYED = false;
-FIFTH_CRUSADE_MESSAGE_TURN = 3;
-FIFTH_CRUSADE_START_TURN = 5;
-FIFTH_CRUSADE_END_TURN = 16;
+FIFTH_CRUSADE_MESSAGE_TURN = 4;
+FIFTH_CRUSADE_START_TURN = 6;
+FIFTH_CRUSADE_END_TURN = 17;
 FIFTH_CRUSADE_ENDED = false;
 
 SEVENTH_CRUSADE_TRIGGERED = false;
@@ -103,6 +103,13 @@ function Add_Crusade_Event_Listeners()
 		function(context) CharacterEntersGarrison_Jerusalem(context) end,
 		true
 	);
+	cm:add_listener(
+		"TimeTrigger_Crusades",
+		"TimeTrigger",
+		true,
+		function(context) TimeTrigger_Crusades(context) end,
+		true
+	);
 
 	GetCutsceneOptions();
 
@@ -143,30 +150,20 @@ function FactionTurnStart_Pope_Crusades(context)
 		end
 	end
 
-	if cm:model():turn_number() == FIFTH_CRUSADE_START_TURN and FIFTH_CRUSADE_TRIGGERED == false then
-		local owner = cm:model():world():region_manager():region_by_key(FIFTH_CRUSADE_TARGET):owning_faction();
+	if cm:model():turn_number() == FIFTH_CRUSADE_START_TURN then
+		if FIFTH_CRUSADE_TRIGGERED == false then
+			local owner = cm:model():world():region_manager():region_by_key(FIFTH_CRUSADE_TARGET):owning_faction();
 
-		if owner:state_religion() == "mk_rel_shia_islam" or owner:state_religion() == "att_rel_semitic_paganism" then
-			FIFTH_CRUSADE_TRIGGERED = true;
-			CURRENT_CRUSADE_TARGET_OWNER = owner:name();
-			CURRENT_CRUSADE_TARGET = FIFTH_CRUSADE_TARGET;
+			if owner:state_religion() == "mk_rel_shia_islam" or owner:state_religion() == "att_rel_semitic_paganism" then
+				FIFTH_CRUSADE_TRIGGERED = true;
+				CURRENT_CRUSADE_TARGET_OWNER = owner:name();
+				CURRENT_CRUSADE_TARGET = FIFTH_CRUSADE_TARGET;
 
-			if cm:is_multiplayer() == false then
-				cm:make_region_seen_in_shroud(context:faction():name(), FIFTH_CRUSADE_TARGET);
-			end
-		else
-			local faction_name = (cm:model():faction_for_command_queue_index(human_factions[1])):name();
-			cm:show_message_event(
-				faction_name,
-				"message_event_text_text_mk_event_crusade_fifth_crusade_title", 
-				"message_event_text_text_mk_event_crusade_fifth_crusade_aborted_primary", 
-				"message_event_text_text_mk_event_crusade_fifth_crusade_aborted_secondary", 
-				true,
-				706
-			);
-
-			if human_factions[2] ~= nil then 
-				local faction_name = (cm:model():faction_for_command_queue_index(human_factions[2])):name();
+				if cm:is_multiplayer() == false then
+					cm:make_region_seen_in_shroud(context:faction():name(), FIFTH_CRUSADE_TARGET);
+				end
+			else
+				local faction_name = (cm:model():faction_for_command_queue_index(human_factions[1])):name();
 				cm:show_message_event(
 					faction_name,
 					"message_event_text_text_mk_event_crusade_fifth_crusade_title", 
@@ -175,101 +172,80 @@ function FactionTurnStart_Pope_Crusades(context)
 					true,
 					706
 				);
-			end
-		end
 
-		if FIFTH_CRUSADE_TRIGGERED == true then
-			if FIFTH_CRUSADE_CUTSCENE_PLAYED == false and CRUSADE_CUTSCENES_ENABLED == true then
-				ui_state.events_rollout:set_allowed(false, true);
-				ui_state.events_panel:set_allowed(false, true);
-				Cutscene_Fifth_Crusade_Play();
-				FIFTH_CRUSADE_CUTSCENE_PLAYED = true;
-			else
-				Force_Declare_Wars_Crusade(5);
-			end
-
-			cm:apply_effect_bundle("mk_bundle_crusade_target", CURRENT_CRUSADE_TARGET_OWNER, 0);
-
-			cm:add_listener(
-				"CharacterEntersGarrison_Crusade",
-				"CharacterEntersGarrison",
-				true,
-				function(context) CharacterEntersGarrison_Crusade(context) end,
-				true
-			);
-
-			if owner:is_human() == false then
-				local force = CRUSADE_DEFENSE_UNIT_LIST;
-
-				if cm:model():world():region_manager():region_by_key(JERUSALEM_REGION_KEY):owning_faction() == owner then
-					CreateDefensiveArmy_Crusades(JERUSALEM_REGION_KEY, force);
-				end
-
-				if cm:model():world():region_manager():region_by_key(FIFTH_CRUSADE_TARGET):owning_faction() == owner then
-					CreateDefensiveArmy_Crusades(FIFTH_CRUSADE_TARGET, force);
-				end
-
-				if cm:model():world():region_manager():region_by_key(ALEXANDRIA_REGION_KEY):owning_faction() == owner then
-					CreateDefensiveArmy_Crusades(ALEXANDRIA_REGION_KEY, force);
+				if human_factions[2] ~= nil then 
+					local faction_name = (cm:model():faction_for_command_queue_index(human_factions[2])):name();
+					cm:show_message_event(
+						faction_name,
+						"message_event_text_text_mk_event_crusade_fifth_crusade_title", 
+						"message_event_text_text_mk_event_crusade_fifth_crusade_aborted_primary", 
+						"message_event_text_text_mk_event_crusade_fifth_crusade_aborted_secondary", 
+						true,
+						706
+					);
 				end
 			end
 
-			cm:show_message_event(
-				context:faction():name(),
-				"message_event_text_text_mk_event_crusade_fifth_crusade_title", 
-				"message_event_text_text_mk_event_crusade_fifth_crusade_go_primary", 
-				"message_event_text_text_mk_event_crusade_fifth_crusade_go_secondary", 
-				true,
-				706
-			);
+			if FIFTH_CRUSADE_TRIGGERED == true then
+				if FIFTH_CRUSADE_CUTSCENE_PLAYED == false and CRUSADE_CUTSCENES_ENABLED == true then
+					ui_state.events_rollout:set_allowed(false, true);
+					ui_state.events_panel:set_allowed(false, true);
+					Cutscene_Fifth_Crusade_Play();
+					FIFTH_CRUSADE_CUTSCENE_PLAYED = true;
+				end
+
+				cm:apply_effect_bundle("mk_bundle_crusade_target", CURRENT_CRUSADE_TARGET_OWNER, 0);
+
+				cm:add_listener(
+					"CharacterEntersGarrison_Crusade",
+					"CharacterEntersGarrison",
+					true,
+					function(context) CharacterEntersGarrison_Crusade(context) end,
+					true
+				);
+
+				if owner:is_human() == false then
+					local force = CRUSADE_DEFENSE_UNIT_LIST;
+
+					if cm:model():world():region_manager():region_by_key(JERUSALEM_REGION_KEY):owning_faction() == owner then
+						CreateDefensiveArmy_Crusades(JERUSALEM_REGION_KEY, force);
+					end
+
+					if cm:model():world():region_manager():region_by_key(FIFTH_CRUSADE_TARGET):owning_faction() == owner then
+						CreateDefensiveArmy_Crusades(FIFTH_CRUSADE_TARGET, force);
+					end
+
+					if cm:model():world():region_manager():region_by_key(ALEXANDRIA_REGION_KEY):owning_faction() == owner then
+						CreateDefensiveArmy_Crusades(ALEXANDRIA_REGION_KEY, force);
+					end
+				end
+
+				cm:show_message_event(
+					context:faction():name(),
+					"message_event_text_text_mk_event_crusade_fifth_crusade_title", 
+					"message_event_text_text_mk_event_crusade_fifth_crusade_go_primary", 
+					"message_event_text_text_mk_event_crusade_fifth_crusade_go_secondary", 
+					true,
+					706
+				);
+			end
+		elseif context:faction():is_human() == false and FIFTH_CRUSADE_TRIGGERED == true then
+			local owner = cm:model():world():region_manager():region_by_key(FIFTH_CRUSADE_TARGET):owning_faction();
+
+			if context:faction():name() == FRANCE_KEY or context:faction():name() == HRE_KEY or context:faction():name() == HUNGARY_KEY or context:faction():name() == JERUSALEM_KEY then
+				if context:faction():at_war_with(owner) == false then
+					cm:force_declare_war(context:faction():name(), owner:name());
+				end
+
+				cm:force_diplomacy(context:faction():name(), CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
+				cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, context:faction():name(), "peace", false, false);
+			end
 		end
 	end
 
 	if cm:model():turn_number() == FIFTH_CRUSADE_END_TURN and FIFTH_CRUSADE_TRIGGERED == true and FIFTH_CRUSADE_ENDED == false then
 		Defeat_Crusade();
 		cm:override_mission_succeeded_status(context:faction():name(), "mk_mission_crusades_take_cairo", false);
-	end
-end
-
-function Force_Declare_Wars_Crusade(numCrusade)
-	local owner = cm:model():world():region_manager():region_by_key(FIFTH_CRUSADE_TARGET):owning_faction();
-
-	if numCrusade == 5 then
-		if cm:model():world():faction_by_key(FRANCE_KEY):is_human() == false then
-			if cm:model():world():faction_by_key(FRANCE_KEY):at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) == false then
-				cm:force_declare_war(FRANCE_KEY, owner:name());
-			end
-
-			cm:force_diplomacy(FRANCE_KEY, CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
-			cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, FRANCE_KEY, "peace", false, false);
-		end
-
-		if cm:model():world():faction_by_key(HRE_KEY):is_human() == false then
-			if cm:model():world():faction_by_key(HRE_KEY):at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) == false then
-				cm:force_declare_war(HRE_KEY, owner:name());
-			end
-
-			cm:force_diplomacy(HRE_KEY, CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
-			cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, HRE_KEY, "peace", false, false);
-		end
-
-		if cm:model():world():faction_by_key(HUNGARY_KEY):is_human() == false then
-			if cm:model():world():faction_by_key(HUNGARY_KEY):at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) == false then
-				cm:force_declare_war(HUNGARY_KEY, owner:name());
-			end
-
-			cm:force_diplomacy(HUNGARY_KEY, CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
-			cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, HUNGARY_KEY, "peace", false, false);
-		end
-
-		if cm:model():world():faction_by_key(JERUSALEM_KEY):is_human() == false then
-			if cm:model():world():faction_by_key(JERUSALEM_KEY):at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) == false then
-				cm:force_declare_war(JERUSALEM_KEY, owner:name());
-			end
-
-			cm:force_diplomacy(JERUSALEM_KEY, CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
-			cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, JERUSALEM_KEY, "peace", false, false);
-		end
 	end
 end
 
@@ -353,6 +329,7 @@ function DilemmaChoiceMadeEvent_Crusades(context)
 		elseif context:choice() == 2 then
 			-- Choice made to push on to Jerusalem!
 			cm:trigger_mission(faction_name, "mk_mission_crusades_take_jerusalem");
+			MISSION_TAKE_JERUSALEM_ACTIVE = true;
 		elseif context:choice() == 3 then
 			-- Choice made to give only Cairo!
 			cm:force_make_peace(CURRENT_CRUSADE_TARGET_OWNER, faction_name);
@@ -373,29 +350,27 @@ function DilemmaChoiceMadeEvent_Crusades(context)
 end
 
 function CharacterEntersGarrison_Crusade(context)
-	if context:character():has_region() and context:character():region():name() == CURRENT_CRUSADE_TARGET then
-		if context:character():faction():state_religion() == "att_rel_chr_catholic" then
-			if FIFTH_CRUSADE_TRIGGERED == true and FIFTH_CRUSADE_ENDED == false then
+	if FIFTH_CRUSADE_TRIGGERED == true and FIFTH_CRUSADE_ENDED == false then
+		if context:character():has_region() and context:character():region():name() == CURRENT_CRUSADE_TARGET then
+			if context:character():faction():state_religion() == "att_rel_chr_catholic" then
 				cm:override_mission_succeeded_status(context:character():faction():name(), "mk_mission_crusades_take_cairo", true);
 				Victory_Crusade();
 			end
 		elseif context:character():faction():state_religion() == "att_rel_chr_orthodox" or context:character():faction():state_religion() == "att_rel_church_east" then
-			if FIFTH_CRUSADE_TRIGGERED == true and FIFTH_CRUSADE_ENDED == false then
-				cm:cancel_custom_mission(context:character():faction():name(), "mk_mission_crusades_take_cairo");
-				Abort_Crusade();
-			end
+			cm:cancel_custom_mission(context:character():faction():name(), "mk_mission_crusades_take_cairo");
+			Abort_Crusade();
 		end
 	end
 end
 
 function CharacterEntersGarrison_Jerusalem(context)
-	if context:character():has_region() and context:character():region():name() == JERUSALEM_REGION_KEY then
-		if context:character():faction():state_religion() == "att_rel_chr_catholic" then
-			if FIFTH_CRUSADE_TRIGGERED == true and JERUSALEM_CAPTURED == false then
-				JERUSALEM_CAPTURED = true;
-				cm:transfer_region_to_faction(JERUSALEM_REGION_KEY, JERUSALEM_KEY);
+	if MISSION_TAKE_JERUSALEM_ACTIVE == true then
+		if context:character():has_region() and context:character():region():name() == JERUSALEM_REGION_KEY then
+			if context:character():faction():state_religion() == "att_rel_chr_catholic" then
+				MISSION_TAKE_JERUSALEM_ACTIVE = false;
 				cm:override_mission_succeeded_status(context:character():faction():name(), "mk_mission_crusades_take_jerusalem", true);
-				cm:remove_listener("CharacterEntersGarrison_Jerusalem");			
+				cm:add_time_trigger("Transfer_Jerusalem_Crusades", 0.5);
+				cm:remove_listener("CharacterEntersGarrison_Jerusalem");
 			end
 		end
 	end
@@ -638,6 +613,12 @@ function Purge_Crusade_Defensive_Armies()
 	end
 end
 
+function TimeTrigger_Crusades(context)
+	if context.string == "Transfer_Jerusalem_Crusades" then
+		cm:transfer_region_to_faction(JERUSALEM_REGION_KEY, JERUSALEM_KEY);
+	end
+end
+
 --------------------------------------------------------------
 ----------------------- SAVING / LOADING ---------------------
 --------------------------------------------------------------
@@ -645,7 +626,7 @@ cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("CURRENT_CRUSADE_TARGET", CURRENT_CRUSADE_TARGET, context);
 		cm:save_value("CURRENT_CRUSADE_TARGET_OWNER", CURRENT_CRUSADE_TARGET_OWNER, context);
-		cm:save_value("JERUSALEM_CAPTURED", JERUSALEM_CAPTURED, context);
+		cm:save_value("MISSION_TAKE_JERUSALEM_ACTIVE", MISSION_TAKE_JERUSALEM_ACTIVE, context);
 		cm:save_value("FIFTH_CRUSADE_TRIGGERED", FIFTH_CRUSADE_TRIGGERED, context);
 		cm:save_value("FIFTH_CRUSADE_CUTSCENE_PLAYED", FIFTH_CRUSADE_CUTSCENE_PLAYED, context);
 		cm:save_value("SEVENTH_CRUSADE_TRIGGERED", SEVENTH_CRUSADE_TRIGGERED, context);
@@ -662,7 +643,7 @@ cm:register_loading_game_callback(
 	function(context)
 		CURRENT_CRUSADE_TARGET = cm:load_value("CURRENT_CRUSADE_TARGET", "nil", context);
 		CURRENT_CRUSADE_TARGET_OWNER = cm:load_value("CURRENT_CRUSADE_TARGET_OWNER", "nil", context);
-		JERUSALEM_CAPTURED = cm:load_value("JERUSALEM_CAPTURED", false, context);
+		MISSION_TAKE_JERUSALEM_ACTIVE = cm:load_value("MISSION_TAKE_JERUSALEM_ACTIVE", false, context);
 		FIFTH_CRUSADE_TRIGGERED = cm:load_value("FIFTH_CRUSADE_TRIGGERED", false, context);
 		FIFTH_CRUSADE_CUTSCENE_PLAYED = cm:load_value("FIFTH_CRUSADE_CUTSCENE_PLAYED", false, context);
 		SEVENTH_CRUSADE_TRIGGERED = cm:load_value("SEVENTH_CRUSADE_TRIGGERED", false, context);

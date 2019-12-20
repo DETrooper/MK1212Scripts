@@ -9,11 +9,9 @@
 
 SICILY_KEY = "mk_fact_sicily";
 SICILY_KING_CQI = 0;
-
 HRE_KEY = "mk_fact_hre";
 HRE_EMPEROR_CQI = 0;
 HRE_MISSION_WIN_TURN = 12;
-
 HRE_WAR_WERE_DECLARED = false;
 SICILIAN_MISSION_ACTIVE = false;
 HRE_MISSION_ACTIVE = false;

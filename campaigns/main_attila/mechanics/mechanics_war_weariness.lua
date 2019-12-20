@@ -90,7 +90,7 @@ function Add_War_Weariness_Listeners()
 						"message_event_text_text_mk_event_mk1212_wwintro_primary",
 						"message_event_text_text_mk_event_mk1212_wwintro_secondary",
 						true, 
-						37
+						723
 					);
 
 					cm:apply_effect_bundle("att_bundle_war_weariness_0", current_faction:name(), 0);
@@ -107,8 +107,8 @@ function FactionTurnStart_WW(context)
 	if context:faction():is_human() then		
 		local borderWar, warCount, warCountScore = WarChecks(context:faction());		
 	
-		if warCount > 0 then
-			-- AT WAR
+		if context:faction():is_horde() == false and warCount > 0 then
+			-- AT WAR (DOES NOT AFFECT HORDES IN MK1212)
 			Add_War_Weariness(context:faction():name(), warCountScore);
 		else
 			-- AT PEACE
@@ -316,10 +316,9 @@ function Does_Faction_Border_Faction(faction_key, query_faction_key)
 end
 
 function Show_War_Weariness_Message(faction_name, event_ID)
-	local event_num = war_weariness_events[event_ID].num;
+	--local event_num = war_weariness_events[event_ID].num;
 	local event_text = war_weariness_events[event_ID].text;
 	local title = event_texts[event_text].title;
-	--local primary = event_texts[event_text].title;
 	local primary = event_texts[event_text].primary;
 	local secondary = event_texts[event_text].secondary;	
 
@@ -329,7 +328,7 @@ function Show_War_Weariness_Message(faction_name, event_ID)
 		primary,
 		secondary,
 		false,
-		event_num
+		723
 	);
 end
 

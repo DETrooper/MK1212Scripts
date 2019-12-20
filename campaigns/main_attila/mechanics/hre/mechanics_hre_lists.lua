@@ -51,32 +51,6 @@ FACTIONS_HRE_VOTES_START = {
 	["mk_fact_pisa"] = "mk_fact_sicily"
 };
 
-
--- THIS TABLE IS TEMPORARY TO AVOID CRASHES
-FACTIONS_WITH_IMAGES = {
-	"mk_fact_hre",
-	"mk_fact_bologna",
-	"mk_fact_verona",
-	"mk_fact_savoy",
-	"mk_fact_friesland",
-	"mk_fact_brabant",
-	"mk_fact_provence",
-	"mk_fact_dauphine",
-	"mk_fact_milan",
-	"mk_fact_genoa",
-	"mk_fact_brandenburg",
-	"mk_fact_saxony",
-	"mk_fact_bavaria",
-	"mk_fact_bohemia",
-	"mk_fact_trier",
-	"mk_fact_austria",
-	"mk_fact_lorraine",
-	"mk_fact_schwyz",
-	"mk_fact_pisa",
-	"mk_fact_denmark",
-	"mk_fact_sicily"
-};
-
 HRE_REGIONS = {
 	"att_reg_belgica_augusta_treverorum",
 	"att_reg_belgica_colonia_agrippina",
@@ -153,6 +127,19 @@ HRE_REGION_FACTION_PIPS_LOCATIONS = {
 	["att_reg_raetia_et_noricum_virunum"] = {389, 386},
 	["att_reg_venetia_ravenna"] = {320, 528},
 	["att_reg_venetia_verona"] = {299, 464},
+};
+
+-- Order: effect_bundle_key, dilemma_key, title localisation, description localisation.
+HRE_REFORMS = {
+	["hre_reform_kufursten"] = {"mk_effect_bundle_reform_1", "mk_dilemma_hre_reform_1", "Confirm Permanent Prince-Electors (Kurf??rsten)", "The emperor is only elected by a select group of electors."},
+	["hre_reform_reichstag"] = {"mk_effect_bundle_reform_2",  "mk_dilemma_hre_reform_2", "Formalize the Imperial Diet (Reichstag)", "The Imperial Diet becomes the formal consultative and legislative body of the empire with representatives from the empire's estates."},
+	["hre_reform_reichspfennig"] = {"mk_effect_bundle_reform_3", "mk_dilemma_hre_reform_3", "Institute the Common Penny (Reichspfennig)", "Institute the levy of a widespread poll tax."},
+	["hre_reform_reichskreise"] = {"mk_effect_bundle_reform_4", "mk_dilemma_hre_reform_4", "Organize the Imperial Circles (Reichskreise)", "Regroup regions of the empire into administrative territories to better manage the empire."},
+	["hre_reform_ewiger_landfriede"] = {"mk_effect_bundle_reform_5", "mk_dilemma_hre_reform_5", "Enact Perpetual Public Peace (Ewiger Landfriede)", "Outlaws feuds and organizes legal structure into a single body, with the Emperor as the ultimate arbiter."},
+	["hre_reform_reichskammergericht"] = {"mk_effect_bundle_reform_6", "mk_dilemma_hre_reform_6", "Establish the Imperial Chamber Court (Reichskammergericht)", "Creates the Imperial Chamber Court to hear cases and apply imperial law."},
+	["hre_reform_reichsregiment"] = {"mk_effect_bundle_reform_7", "mk_dilemma_hre_reform_7", "Establish the Imperial Government (Reichsregiment)", "Create an executive organ led by the estates, acting as representatives of the emperor."},
+	["hre_reform_erbkaisertum"] = {"mk_effect_bundle_reform_8", "mk_dilemma_hre_reform_8", "Adopt Hereditary Succession of the Imperial Throne (Erbkaisertum)", "Abolishes elections and institutes a hereditary monarchy."},
+	["hre_reform_renovatio_imperii"] = {"mk_effect_bundle_reform_9", "mk_dilemma_hre_reform_9", "Renovatio Imperii", "Absorb all territories in the empire into your faction."}
 };
 
 HRE_EMPERORS_NAMES_NUMBERS = {

@@ -138,20 +138,20 @@ function Possible_Rebel_Forces()
 	Random_Army_Manager:new_force("english_force_small");
 	Random_Army_Manager:add_mandatory_unit("english_force_small", "mk_eng_t1_spear_militia", 3)
 	Random_Army_Manager:add_mandatory_unit("english_force_small", "mk_eng_t1_serjeants", 2)
-	Random_Army_Manager:add_mandatory_unit("english_force_small", "mk_eng_t1_longbow_serjeants", 3)
+	Random_Army_Manager:add_mandatory_unit("english_force_small", "mk_eng_t1_longbowmen", 3)
 	Random_Army_Manager:add_mandatory_unit("english_force_small", "mk_eng_t1_mounted_serjeants", 1)
 	
 	Random_Army_Manager:new_force("english_force_medium");
 	Random_Army_Manager:add_mandatory_unit("english_force_medium", "mk_eng_t1_spear_militia", 4)
 	Random_Army_Manager:add_mandatory_unit("english_force_medium", "mk_eng_t1_serjeants", 3)
-	Random_Army_Manager:add_mandatory_unit("english_force_medium", "mk_eng_t1_longbow_serjeants", 3)
+	Random_Army_Manager:add_mandatory_unit("english_force_medium", "mk_eng_t1_longbowmen", 3)
 	Random_Army_Manager:add_mandatory_unit("english_force_medium", "mk_eng_t1_mounted_serjeants", 2)	
 	
 	Random_Army_Manager:new_force("english_force_large");
 	Random_Army_Manager:add_mandatory_unit("english_force_large", "mk_eng_t1_spear_militia", 4)
 	Random_Army_Manager:add_mandatory_unit("english_force_large", "mk_eng_t1_serjeants", 4)
 	Random_Army_Manager:add_mandatory_unit("english_force_large", "mk_eng_t1_axe_sergeant", 1)
-	Random_Army_Manager:add_mandatory_unit("english_force_large", "mk_eng_t1_longbow_serjeants", 3)
+	Random_Army_Manager:add_mandatory_unit("english_force_large", "mk_eng_t1_longbowmen", 3)
 	Random_Army_Manager:add_mandatory_unit("english_force_large", "mk_eng_t1_mounted_serjeants", 2)
 end
 
@@ -162,11 +162,11 @@ function CreateCivilWarArmy(region, culture, rebel_faction_key, army_id, x, y)
 	
 	if culture == "english" then
 		if difficulty == 1 then
-			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_longbow_serjeants,mk_eng_t1_longbow_serjeants,mk_eng_t1_longbow_serjeants,mk_eng_t1_mounted_serjeants";
+			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_mounted_serjeants";
 		elseif difficulty == 0 or difficulty == -1 then
-			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_longbow_serjeants,mk_eng_t1_longbow_serjeants,mk_eng_t1_longbow_serjeants,mk_eng_t1_mounted_serjeants,mk_eng_t1_mounted_serjeants";
+			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_mounted_serjeants,mk_eng_t1_mounted_serjeants";
 		elseif difficulty == -2 or difficulty == -3 then
-			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_axe_sergeant,mk_eng_t1_longbow_serjeants,mk_eng_t1_longbow_serjeants,mk_eng_t1_longbow_serjeants,mk_eng_t1_mounted_serjeants,mk_eng_t1_mounted_serjeants";		
+			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_axe_sergeant,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_mounted_serjeants,mk_eng_t1_mounted_serjeants";
 		end
 	end
 

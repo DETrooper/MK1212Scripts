@@ -11,12 +11,12 @@ ENGLAND_KEY = "mk_fact_england";
 ENGLAND_REBEL_KEY = "mk_fact_earldoms";
 FRANCE_KEY = "mk_fact_france";
 HRE_KEY = "mk_fact_hre";
-WAR_WERE_DECLARED = false;
+ENGLAND_WAR_WERE_DECLARED = false;
 ENGLISH_MISSION_ACTIVE = false;
-DUE_FOR_DILEMMA = false;
-FIRST_DILEMMA = "NIL";
-SECOND_DILEMMA_CHOICE = "NIL";
-HRE_MESSAGE_SENT = false;
+ENGLAND_DUE_FOR_DILEMMA = false;
+ENGLAND_FIRST_DILEMMA = "NIL";
+ENGLAND_SECOND_DILEMMA_CHOICE = "NIL";
+ENGLAND_HRE_MESSAGE_SENT = false;
 
 function Add_England_Story_Events_Listeners()
 	local england = cm:model():world():faction_by_key(ENGLAND_KEY);
@@ -70,7 +70,7 @@ function Add_England_Story_Events_Listeners()
 			);
 		end
 
-		if SECOND_DILEMMA_CHOICE == "AGREE" then
+		if ENGLAND_SECOND_DILEMMA_CHOICE == "AGREE" then
 			cm:add_listener(
 				"CharacterBecomesFactionLeader_Magna_Carta",
 				"CharacterBecomesFactionLeader",
@@ -93,9 +93,9 @@ function FactionTurnStart_England(context)
 
 	if context:faction():name() == ENGLAND_KEY then
 		if england:is_human() == true then
-			if DUE_FOR_DILEMMA == true then
+			if ENGLAND_DUE_FOR_DILEMMA == true then
 				cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_magna_carta_renew");
-				DUE_FOR_DILEMMA = false;
+				ENGLAND_DUE_FOR_DILEMMA = false;
 			end
 			if cm:model():turn_number() == 2 then
 				cm:force_diplomacy(ENGLAND_KEY, FRANCE_KEY, "war", true, true); -- Re-enable war with France.
@@ -109,12 +109,12 @@ function FactionTurnStart_England(context)
 					cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_war_with_france");
 				end
 			end
-			if FIRST_DILEMMA == "ISSUE" then
+			if ENGLAND_FIRST_DILEMMA == "ISSUE" then
 				cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_magna_carta");
-				FIRST_DILEMMA = "NIL";
+				ENGLAND_FIRST_DILEMMA = "NIL";
 			end
-			if SECOND_DILEMMA_CHOICE == "REFUSE" then
-				SECOND_DILEMMA_CHOICE = "NIL";
+			if ENGLAND_SECOND_DILEMMA_CHOICE == "REFUSE" then
+				ENGLAND_SECOND_DILEMMA_CHOICE = "NIL";
 				CreateCivilWarArmy("att_reg_britannia_superior_londinium", "english", ENGLAND_REBEL_KEY, "eng_barons_war_1", 156, 565);
 				CreateCivilWarArmy("att_reg_britannia_superior_londinium", "english", ENGLAND_REBEL_KEY, "eng_barons_war_2", 161, 569);
 
@@ -164,7 +164,7 @@ function FactionTurnStart_England(context)
 	end
 
 	if context:faction():name() == HRE_KEY then
-		if cm:model():turn_number() >= 3 and HRE_MESSAGE_SENT == false and england:at_war_with(france) == true then
+		if cm:model():turn_number() >= 3 and ENGLAND_HRE_MESSAGE_SENT == false and england:at_war_with(france) == true then
 			local hre = cm:model():world():faction_by_key(HRE_KEY);
 
 			if hre:is_human() == true and hre:allied_with(england) == true then
@@ -177,7 +177,7 @@ function FactionTurnStart_England(context)
 					711
 				);
 
-				HRE_MESSAGE_SENT = true;
+				ENGLAND_HRE_MESSAGE_SENT = true;
 			end
 		end
 	end
@@ -189,7 +189,7 @@ function DilemmaChoiceMadeEvent_England(context)
 	if context:dilemma() == "mk_dilemma_story_england_war_with_france" then
 		if context:choice() == 0 then
 			-- Choice made to war on France!
-			WAR_WERE_DECLARED = true;
+			ENGLAND_WAR_WERE_DECLARED = true;
 			cm:force_declare_war(ENGLAND_KEY, FRANCE_KEY);
 			ENGLISH_MISSION_ACTIVE = true;
 
@@ -226,7 +226,7 @@ function DilemmaChoiceMadeEvent_England(context)
 				true,
 				704
 			);
-			FIRST_DILEMMA = "ISSUE";
+			ENGLAND_FIRST_DILEMMA = "ISSUE";
 		end
 	end
 	if context:dilemma() == "mk_dilemma_story_england_magna_carta" then
@@ -239,16 +239,16 @@ function DilemmaChoiceMadeEvent_England(context)
 				function(context) New_England_Leader(context) end,
 				true
 			);
-			SECOND_DILEMMA_CHOICE = "AGREE";
+			ENGLAND_SECOND_DILEMMA_CHOICE = "AGREE";
 		elseif context:choice() == 1 then
 			-- Choice made to refuse!
-			SECOND_DILEMMA_CHOICE = "REFUSE";
+			ENGLAND_SECOND_DILEMMA_CHOICE = "REFUSE";
 		end
 	end
 	if context:dilemma() == "mk_dilemma_story_england_magna_carta_renew" then
 		if context:choice() == 1 then
 			-- Choice made to refuse!
-			SECOND_DILEMMA_CHOICE = "REFUSE";
+			ENGLAND_SECOND_DILEMMA_CHOICE = "REFUSE";
 			cm:remove_effect_bundle("mk_bundle_magna_carta", ENGLAND_KEY);
 			cm:remove_listener("CharacterBecomesFactionLeader_Magna_Carta");
 		end
@@ -295,7 +295,7 @@ function MissionFailed_England(context)
 				704
 			);
 
-			FIRST_DILEMMA = "ISSUE";
+			ENGLAND_FIRST_DILEMMA = "ISSUE";
 			SetFactionsNeutral(ENGLAND_KEY, FRANCE_KEY);
 			ENGLISH_MISSION_ACTIVE = false;
 
@@ -318,7 +318,7 @@ end
 
 function New_England_Leader(context)
 	if context:character():faction():name() == ENGLAND_KEY then
-		DUE_FOR_DILEMMA = true;
+		ENGLAND_DUE_FOR_DILEMMA = true;
 	end
 end
 
@@ -327,24 +327,24 @@ end
 --------------------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		cm:save_value("WAR_WERE_DECLARED", WAR_WERE_DECLARED, context);
-		cm:save_value("ENGLAND_MISSION_ACTIVE", ENGLAND_MISSION_ACTIVE, context);
+		cm:save_value("ENGLAND_WAR_WERE_DECLARED", ENGLAND_WAR_WERE_DECLARED, context);
+		cm:save_value("ENGLISH_MISSION_ACTIVE", ENGLISH_MISSION_ACTIVE, context);
 		--cm:save_value("NORMANDY_CAMPAIGN_END_TURN", NORMANDY_CAMPAIGN_END_TURN, context);
-		cm:save_value("DUE_FOR_DILEMMA", DUE_FOR_DILEMMA, context);
-		cm:save_value("FIRST_DILEMMA", FIRST_DILEMMA, context);
-		cm:save_value("SECOND_DILEMMA_CHOICE", SECOND_DILEMMA_CHOICE, context);
-		cm:save_value("HRE_MESSAGE_SENT", HRE_MESSAGE_SENT, context);
+		cm:save_value("ENGLAND_DUE_FOR_DILEMMA", ENGLAND_DUE_FOR_DILEMMA, context);
+		cm:save_value("ENGLAND_FIRST_DILEMMA", ENGLAND_FIRST_DILEMMA, context);
+		cm:save_value("ENGLAND_SECOND_DILEMMA_CHOICE", ENGLAND_SECOND_DILEMMA_CHOICE, context);
+		cm:save_value("ENGLAND_HRE_MESSAGE_SENT", ENGLAND_HRE_MESSAGE_SENT, context);
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
-		WAR_WERE_DECLARED = cm:load_value("WAR_WERE_DECLARED", false, context);
-		ENGLAND_MISSION_ACTIVE = cm:load_value("ENGLAND_MISSION_ACTIVE", false, context);
+		ENGLAND_WAR_WERE_DECLARED = cm:load_value("ENGLAND_WAR_WERE_DECLARED", false, context);
+		ENGLISH_MISSION_ACTIVE = cm:load_value("ENGLISH_MISSION_ACTIVE", false, context);
 		--NORMANDY_CAMPAIGN_END_TURN = cm:load_value("NORMANDY_CAMPAIGN_END_TURN", 0, context);
-		DUE_FOR_DILEMMA = cm:load_value("DUE_FOR_DILEMMA", false, context);
-		FIRST_DILEMMA = cm:load_value("FIRST_DILEMMA", "NIL", context);
-		SECOND_DILEMMA_CHOICE = cm:load_value("SECOND_DILEMMA_CHOICE", "NIL", context);
-		HRE_MESSAGE_SENT = cm:load_value("HRE_MESSAGE_SENT", false, context);
+		ENGLAND_DUE_FOR_DILEMMA = cm:load_value("ENGLAND_DUE_FOR_DILEMMA", false, context);
+		ENGLAND_FIRST_DILEMMA = cm:load_value("ENGLAND_FIRST_DILEMMA", "NIL", context);
+		ENGLAND_SECOND_DILEMMA_CHOICE = cm:load_value("ENGLAND_SECOND_DILEMMA_CHOICE", "NIL", context);
+		ENGLAND_HRE_MESSAGE_SENT = cm:load_value("ENGLAND_HRE_MESSAGE_SENT", false, context);
 	end
 );

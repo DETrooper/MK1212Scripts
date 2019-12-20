@@ -94,13 +94,17 @@ end
 function GetConditionsString_Poland()
 	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Duchy of Lesser Poland.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Poland does not yet exist.\n";
 	
-	if POLISH_KINGDOM_REGIONS_OWNED == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the the regions of: Gdansk, Krakow, Poznan, and Wroclaw";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the the regions of: Gdansk, Krakow, Poznan, and Wroclaw";	
+	for i = 1, #REGIONS_POLAND do
+		local region = cm:model():world():region_manager():region_by_key(REGIONS_POLAND[i]);
+		
+		if region:owning_faction():name() == cm:get_local_faction() then
+			conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_POLAND[i]]..".\n";
+		else
+			conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_POLAND[i]]..".\n";
+		end
 	end
 
-	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Poland[[/rgba]].";
+	conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Poland[[/rgba]].";
 
 	return conditionstring;
 end
