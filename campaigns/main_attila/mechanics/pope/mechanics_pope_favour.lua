@@ -39,15 +39,15 @@ function Add_Pope_Favour_Listeners()
 	end
 	
 	local faction_list = cm:model():world():faction_list();
-	local POPE_FAC = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
+	local pope_faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
 
 	for i = 0, faction_list:num_items() - 1 do
 		local current_faction = faction_list:item_at(i);
 
-		AT_WAR_WITH_POPE[current_faction:name()] = current_faction:at_war_with(POPE_FAC);
+		AT_WAR_WITH_POPE[current_faction:name()] = current_faction:at_war_with(pope_faction);
 
 		if cm:is_new_game() then
-			if current_faction:state_religion() == "att_rel_chr_catholic" and current_faction ~= POPE_FAC then
+			if current_faction:state_religion() == "att_rel_chr_catholic" and current_faction ~= pope_faction then
 				if current_faction:name() ~= "mk_fact_hre" and current_faction:name() ~= "mk_fact_portugal" then
 					cm:apply_effect_bundle("mk_bundle_pope_favour_5", current_faction:name(), 0);
 					PLAYER_POPE_FAVOUR[current_faction:name()] = 5;
@@ -218,13 +218,13 @@ function Deactivate_Papal_Favour_System()
 end
 
 function Check_Catholic_Nations(context)
-	local POPE_FAC = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
 	local faction_name = context:faction():name();
 	local faction_religion = context:faction():state_religion();
 	local turn_number = cm:model():turn_number();
 
 	if faction_religion == "att_rel_chr_catholic" then
-		AT_WAR_WITH_POPE[faction_name] = context:faction():at_war_with(POPE_FAC);
+		local pope_faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
+		AT_WAR_WITH_POPE[faction_name] = context:faction():at_war_with(pope_faction);
 
 		if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
 			if context:faction():is_human() == true and cm:model():turn_number() > 1 then
@@ -332,8 +332,8 @@ end
 function Check_Excommunication_Pope_War(context)
 	if AT_WAR_WITH_POPE[context:character():faction():name()] == false then
 		-- They weren't at war with the Pope...
-		local POPE_FAC = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
-		local now_at_war = context:character():faction():at_war_with(POPE_FAC);
+		local pope_faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
+		local now_at_war = context:character():faction():at_war_with(pope_faction);
 			
 		if now_at_war == true then
 			-- They are now at war with the Pope!
@@ -665,12 +665,12 @@ function Remove_Excommunication(context)
 end
 
 function Remove_Excommunication_Manual(faction_name)
-	local faction =  cm:model():world():faction_by_key(faction_name);
+	local faction = cm:model():world():faction_by_key(faction_name);
 
 	PLAYER_EXCOMMUNICATED[faction_name] = false;
 	cm:remove_effect_bundle("mk_bundle_pope_excommunication", faction_name);
 
-	if faction:state_religion() == "att_rel_chr_catholic" then
+	if faction:state_religion() == "att_rel_chr_catholic" and PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
 		PLAYER_POPE_FAVOUR[faction_name] = 2;
 
 		if faction:is_human() and cm:is_multiplayer() == false then
@@ -704,10 +704,7 @@ function Remove_Excommunication_Manual(faction_name)
 				);
 			end
 		end
-	end
 
-
-	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
 		Update_Pope_Favour(faction);
 	end
 end
