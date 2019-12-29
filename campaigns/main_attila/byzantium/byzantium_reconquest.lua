@@ -51,7 +51,7 @@ function CharacterEntersGarrison_Byzantium_Regions_Check(context)
 	end
 end
 
-function Byzantium_Regions_Check(faction_key)
+function Byzantium_Regions_Check(faction_name)
 	local latins = cm:model():world():faction_by_key(LATIN_EMPIRE_KEY);
 
 	if latins:is_null_interface() == false then
@@ -64,20 +64,20 @@ function Byzantium_Regions_Check(faction_key)
 
 	local has_constantinople = false;
 
-	if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == faction_key then
+	if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == faction_name then
 		has_constantinople = true;
 	end
 
-	local has_regions_africa = Has_Required_Regions(faction_key, BYZ_REGIONS_AFRICA);
-	local has_regions_anatolia = Has_Required_Regions(faction_key, BYZ_REGIONS_ANATOLIA);
-	--local has_regions_cyrenaica = Has_Required_Regions(faction_key, BYZ_REGIONS_CYRENAICA);
-	local has_regions_dalmatia = Has_Required_Regions(faction_key, BYZ_REGIONS_DALMATIA);
-	local has_regions_egypt = Has_Required_Regions(faction_key, BYZ_REGIONS_EGYPT);
-	local has_regions_italy = Has_Required_Regions(faction_key, BYZ_REGIONS_ITALY);
-	local has_regions_greece = Has_Required_Regions(faction_key, BYZ_REGIONS_GREECE);
-	local has_regions_oriens = Has_Required_Regions(faction_key, BYZ_REGIONS_ORIENS);
+	local has_regions_africa = Has_Required_Regions(faction_name, BYZ_REGIONS_AFRICA);
+	local has_regions_anatolia = Has_Required_Regions(faction_name, BYZ_REGIONS_ANATOLIA);
+	--local has_regions_cyrenaica = Has_Required_Regions(faction_name, BYZ_REGIONS_CYRENAICA);
+	local has_regions_dalmatia = Has_Required_Regions(faction_name, BYZ_REGIONS_DALMATIA);
+	local has_regions_egypt = Has_Required_Regions(faction_name, BYZ_REGIONS_EGYPT);
+	local has_regions_italy = Has_Required_Regions(faction_name, BYZ_REGIONS_ITALY);
+	local has_regions_greece = Has_Required_Regions(faction_name, BYZ_REGIONS_GREECE);
+	local has_regions_oriens = Has_Required_Regions(faction_name, BYZ_REGIONS_ORIENS);
 
-	--local has_regions_pentarchy = Has_Required_Regions(faction_key, BYZ_REGIONS_PENTARCHY);
+	--local has_regions_pentarchy = Has_Required_Regions(faction_name, BYZ_REGIONS_PENTARCHY);
 	
 	if has_regions_africa == true and BYZ_AFRICA == false then
 		BYZ_AFRICA = true;
@@ -164,15 +164,15 @@ function Byzantium_Regions_Check(faction_key)
 	end;
 
 	if ROMAN_EMPIRE_RESTORED == false and LATIN_EMPIRE_DEAD == true and has_constantinople == true and has_regions_africa == true and has_regions_anatolia == true and has_regions_dalmatia == true and has_regions_egypt == true and has_regions_italy == true and has_regions_greece == true and has_regions_oriens == true then
-		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_key):is_human() == false then
-			Roman_Empire_Restored(faction_key);
+		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
+			Roman_Empire_Restored(faction_name);
 		else
 			Enable_Decision("restore_roman_empire");
 		end
 	end
 end
 
-function Roman_Empire_Restored(faction_key)
+function Roman_Empire_Restored(faction_name)
 	ROMAN_EMPIRE_RESTORED = true;
 	Rename_Faction(BYZANTINE_EMPIRE_FACTION, "mk_faction_roman_empire");
 	FACTIONS_DFN_LEVEL[BYZANTINE_EMPIRE_FACTION] = 5;

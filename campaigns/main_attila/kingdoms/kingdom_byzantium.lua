@@ -49,35 +49,35 @@ end
 function Byzantium_Check(context)
 	local give_mission_turn = 2;
 	local turn_number = cm:model():turn_number();
-	local turn_faction = context:faction():name();
+	local faction_name = context:faction():name();
 	
-	if turn_faction == EPIRUS_KEY or turn_faction == NICAEA_KEY or turn_faction == TREBIZOND_KEY then
-		if turn_number == give_mission_turn and cm:model():world():faction_by_key(turn_faction):is_human() and cm:is_multiplayer() == true then
+	if faction_name == EPIRUS_KEY or faction_name == NICAEA_KEY or faction_name == TREBIZOND_KEY then
+		if turn_number == give_mission_turn and cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == true then
 			cm:trigger_mission(context:faction():name(), "mk_mission_kingdom_byzantium");
 		elseif turn_number > give_mission_turn then
-			Constantinople_Check(turn_faction);
+			Constantinople_Check(faction_name);
 		end
 	end
 end
 
-function Constantinople_Check(faction_key)
+function Constantinople_Check(faction_name)
 	local region = cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis");
 		
-	if region:owning_faction():name() == faction_key then
-		Constantinople_Taken(faction_key);
+	if region:owning_faction():name() == faction_name then
+		Constantinople_Taken(faction_name);
 	else
-		if cm:is_multiplayer() == false and cm:model():world():faction_by_key(faction_key):is_human() == true then
+		if cm:is_multiplayer() == false and cm:model():world():faction_by_key(faction_name):is_human() == true then
 			Disable_Decision("restore_byzantine_empire");
 		end
 	end
 end
 
 function Constantinople_Check_Occupied(context)
-	local faction_key = context:character():faction():name();
+	local faction_name = context:character():faction():name();
 
-	if faction_key == EPIRUS_KEY or faction_key == NICAEA_KEY or faction_key == TREBIZOND_KEY then
+	if faction_name == EPIRUS_KEY or faction_name == NICAEA_KEY or faction_name == TREBIZOND_KEY then
 		if context:character():region():name() == "att_reg_thracia_constantinopolis" then
-			Constantinople_Taken(faction_key);
+			Constantinople_Taken(faction_name);
 		end
 	else
 		if context:character():region():name() == "att_reg_thracia_constantinopolis" and cm:is_multiplayer() == false and context:character():faction():is_human() == true then
@@ -86,36 +86,36 @@ function Constantinople_Check_Occupied(context)
 	end
 end
 
-function Constantinople_Taken(faction_key)
-	if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_key):is_human() == false then
-		Byzantine_Empire_Restored(faction_key);
+function Constantinople_Taken(faction_name)
+	if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
+		Byzantine_Empire_Restored(faction_name);
 	else
 		Enable_Decision("restore_byzantine_empire");
 	end
 end
 
-function Byzantine_Empire_Restored(faction_key)
-	Rename_Faction(faction_key, "mk_faction_byzantine_empire");
-	BYZANTINE_EMPIRE_FACTION = faction_key;
-	FACTIONS_DFN_LEVEL[faction_key] = 4;
+function Byzantine_Empire_Restored(faction_name)
+	Rename_Faction(faction_name, "mk_faction_byzantine_empire");
+	BYZANTINE_EMPIRE_FACTION = faction_name;
+	FACTIONS_DFN_LEVEL[faction_name] = 4;
 
 	Add_Byzantium_Reconquest_Listeners(); -- Moves to byzantium/byzantium_reconquest.lua
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("restore_byzantine_empire");
 
-		if cm:model():world():faction_by_key(faction_key):is_human() then
-			Add_Decision("restore_roman_empire", faction_key, false, true);
+		if cm:model():world():faction_by_key(faction_name):is_human() then
+			Add_Decision("restore_roman_empire", faction_name, false, true);
 		end
 	else
-		cm:override_mission_succeeded_status(faction_key, "mk_mission_kingdom_byzantium", true);
+		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_byzantium", true);
 	end
 
 	cm:show_message_event(
-		faction_key, 
+		faction_name, 
 		"message_event_text_text_mk_event_byz_empire_restored_title", 
 		"message_event_text_text_mk_event_byz_empire_restored_primary",
-		"message_event_text_text_mk_event_byz_empire_restored_secondary_"..faction_key,
+		"message_event_text_text_mk_event_byz_empire_restored_secondary_"..faction_name,
 		true, 
 		718
 	);
@@ -126,13 +126,13 @@ function Byzantine_Empire_Restored(faction_key)
 end
 
 function MissionIssued_Byzantium(context)
-	local faction_key = context:faction():name();
+	local faction_name = context:faction():name();
 
-	if faction_key == EPIRUS_KEY or faction_key == NICAEA_KEY or faction_key == TREBIZOND_KEY then
+	if faction_name == EPIRUS_KEY or faction_name == NICAEA_KEY or faction_name == TREBIZOND_KEY then
 		local mission_name = context:mission():mission_record_key();
 		
 		if mission_name == "mk_mission_kingdom_byzantium" then
-			Constantinople_Check(faction_key);
+			Constantinople_Check(faction_name);
 		end
 	end
 end

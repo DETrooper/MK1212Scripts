@@ -41,11 +41,11 @@ end
 function Poland_Check(context)
 	local give_mission_turn = 2;
 	local turn_number = cm:model():turn_number();
-	local turn_faction = context:faction():name();
+	local faction_name = context:faction():name();
 	
-	if turn_faction == POLAND_KEY then
-		if turn_number == give_mission_turn and cm:model():world():faction_by_key(turn_faction):is_human() and cm:is_multiplayer() == true then
-			cm:trigger_mission(turn_faction, "mk_mission_kingdom_poland");
+	if faction_name == POLAND_KEY then
+		if turn_number == give_mission_turn and cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == true then
+			cm:trigger_mission(faction_name, "mk_mission_kingdom_poland");
 		elseif turn_number > give_mission_turn then
 			Polish_Regions_Check(context);
 		end
@@ -53,33 +53,33 @@ function Poland_Check(context)
 end
 
 function Polish_Regions_Check(context)
-	local faction_key = context:faction():name();
-	local has_regions = Has_Required_Regions(faction_key, REGIONS_POLAND);
+	local faction_name = context:faction():name();
+	local has_regions = Has_Required_Regions(faction_name, REGIONS_POLAND);
 	POLISH_KINGDOM_REGIONS_OWNED = has_regions;
 		
 	if has_regions == true then
-		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_key):is_human() == false then
-			Polish_Kingdom_Formed(faction_key);
+		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
+			Polish_Kingdom_Formed(faction_name);
 		else
 			Enable_Decision("form_kingdom_poland");
 		end
 	end
 end
 
-function Polish_Kingdom_Formed(faction_key)
-	Rename_Faction(faction_key, "mk_faction_polish_kingdom");
-	FACTIONS_DFN_LEVEL[faction_key] = 2;
-	POLISH_KINGDOM_FACTION = faction_key; 
+function Polish_Kingdom_Formed(faction_name)
+	Rename_Faction(faction_name, "mk_faction_polish_kingdom");
+	FACTIONS_DFN_LEVEL[faction_name] = 2;
+	POLISH_KINGDOM_FACTION = faction_name; 
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_kingdom_poland");
-		Add_Decision("found_an_empire", faction_key, false, false);
+		Add_Decision("found_an_empire", faction_name, false, false);
 	else
-		cm:override_mission_succeeded_status(faction_key, "mk_mission_kingdom_poland", true);
+		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_poland", true);
 	end
 
 	cm:show_message_event(
-		faction_key, 
+		faction_name, 
 		"message_event_text_text_mk_event_polish_kingdom_formed_title", 
 		"message_event_text_text_mk_event_polish_kingdom_formed_primary",
 		"message_event_text_text_mk_event_polish_kingdom_formed_secondary",

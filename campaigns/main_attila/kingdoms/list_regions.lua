@@ -70,20 +70,33 @@ REGIONS_ILKHANATE_FACTION_PIPS_LOCATIONS = {
 	["att_reg_spahan_susa"] = {205, 346}
 };
 
---[[REGIONS_ITALY = {
+REGIONS_ITALY = {
 	"att_reg_liguria_mediolanum",
 	"att_reg_liguria_segusio",
 	"att_reg_liguria_genua",
 	"att_reg_venetia_verona",
-	"att_reg_venetia_aquileia",
 	"att_reg_venetia_ravenna",
 	"att_reg_italia_fiorentia",
-	"att_reg_italia_roma",
 	"att_reg_italia_neapolis",
 	"att_reg_magna_graecia_tarentum",
 	"att_reg_magna_graecia_rhegium",
 	"att_reg_magna_graecia_syracusae"
-};]]--
+};
+
+REGIONS_ITALY_FACTION_PIPS_LOCATIONS = {
+	["att_reg_italia_fiorentia"] = {210, 163},
+	["att_reg_italia_roma"] = {257, 219},
+	["att_reg_italia_neapolis"] = {289, 245},
+	["att_reg_magna_graecia_tarentum"] = {365, 281},
+	["att_reg_magna_graecia_rhegium"] = {338, 350},
+	["att_reg_magna_graecia_syracusae"]  = {301, 429},
+	["att_reg_liguria_mediolanum"] = {170, 60},
+	["att_reg_liguria_segusio"] = {92, 91},
+	["att_reg_liguria_genua"] = {134, 104},
+	["att_reg_venetia_verona"] = {240, 80},
+	["att_reg_venetia_aquileia"] = {293, 49},
+	["att_reg_venetia_ravenna"] = {263, 143}
+};
 
 REGIONS_POLAND = {
 	"att_reg_gothiscandza_ascaucalis",

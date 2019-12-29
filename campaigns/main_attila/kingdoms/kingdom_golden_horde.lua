@@ -41,11 +41,11 @@ end
 function Golden_Horde_Check(context)
 	local give_mission_turn = 2;
 	local turn_number = cm:model():turn_number();
-	local turn_faction = context:faction():name();
+	local faction_name = context:faction():name();
 	
-	if turn_faction == JOCHI_KEY then
-		if turn_number == give_mission_turn and cm:model():world():faction_by_key(turn_faction):is_human() and cm:is_multiplayer() == true then
-			cm:trigger_mission(turn_faction, "mk_mission_kingdom_goldenhorde");
+	if faction_name == JOCHI_KEY then
+		if turn_number == give_mission_turn and cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == true then
+			cm:trigger_mission(faction_name, "mk_mission_kingdom_goldenhorde");
 		elseif turn_number > give_mission_turn then
 			Golden_Horde_Regions_Check(context);
 		end
@@ -53,32 +53,32 @@ function Golden_Horde_Check(context)
 end
 
 function Golden_Horde_Regions_Check(context)
-	local faction_key = context:faction():name();
-	local has_regions = Has_Required_Regions(faction_key, REGIONS_GOLDEN_HORDE);
+	local faction_name = context:faction():name();
+	local has_regions = Has_Required_Regions(faction_name, REGIONS_GOLDEN_HORDE);
 	GOLDEN_HORDE_REGIONS_OWNED = has_regions;
 		
 	if has_regions == true then
-		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_key):is_human() == false then
-			Golden_Horde_Formed(faction_key);
+		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
+			Golden_Horde_Formed(faction_name);
 		else
 			Enable_Decision("form_empire_golden_horde");
 		end	
 	end
 end
 
-function Golden_Horde_Formed(faction_key)
-	Rename_Faction(faction_key, "mk_faction_goldenhorde");
-	FACTIONS_DFN_LEVEL[faction_key] = 4;
-	GOLDEN_HORDE_FACTION = faction_key;
+function Golden_Horde_Formed(faction_name)
+	Rename_Faction(faction_name, "mk_faction_goldenhorde");
+	FACTIONS_DFN_LEVEL[faction_name] = 4;
+	GOLDEN_HORDE_FACTION = faction_name;
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_empire_golden_horde");
 	else
-		cm:override_mission_succeeded_status(faction_key, "mk_mission_kingdom_goldenhorde", true);
+		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_goldenhorde", true);
 	end
 
 	cm:show_message_event(
-		faction_key, 
+		faction_name, 
 		"message_event_text_text_mk_event_golden_horde_formed_title", 
 		"message_event_text_text_mk_event_golden_horde_formed_primary",
 		"message_event_text_text_mk_event_golden_horde_formed_secondary",

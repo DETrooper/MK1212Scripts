@@ -50,26 +50,26 @@ function Add_Reconquista_Story_Events_Listeners()
 end
 
 function FactionTurnStart_Reconquista(context)
-	local faction_key = context:faction():name();
+	local faction_name = context:faction():name();
 
-	if faction_key == ARAGON_KEY or faction_key == CASTILE_KEY or faction_key == NAVARRE_KEY or faction_key == PORTUGAL_KEY then
+	if faction_name == ARAGON_KEY or faction_name == CASTILE_KEY or faction_name == NAVARRE_KEY or faction_name == PORTUGAL_KEY then
 		local turn_number = cm:model():turn_number();
 		local regions_catholic = Are_Regions_Religion("att_rel_chr_catholic", REGIONS_SPAIN_RECONQUISTA);
 
 		if context:faction():is_human() then
 			if turn_number == RECONQUISTA_MISSION_TURN and context:faction():state_religion() == "att_rel_chr_catholic" then
-				cm:trigger_mission(faction_key, "mk_mission_story_reconquista_spain");
+				cm:trigger_mission(faction_name, "mk_mission_story_reconquista_spain");
 			elseif turn_number > RECONQUISTA_MISSION_TURN and context:faction():state_religion() ~= "att_rel_chr_catholic" then
-				if faction_key == ARAGON_KEY and ARAGON_RELIGION == "att_rel_chr_catholic" then
+				if faction_name == ARAGON_KEY and ARAGON_RELIGION == "att_rel_chr_catholic" then
 					cm:override_mission_succeeded_status(ARAGON_KEY, "mk_mission_story_reconquista_spain", false);
 					ARAGON_RELIGION = context:faction():state_religion();
-				elseif faction_key == CASTILE_KEY and CASTILE_RELIGION == "att_rel_chr_catholic" then
+				elseif faction_name == CASTILE_KEY and CASTILE_RELIGION == "att_rel_chr_catholic" then
 					cm:override_mission_succeeded_status(CASTILE_KEY, "mk_mission_story_reconquista_spain", false);
 					CASTILE_RELIGION = context:faction():state_religion();
-				elseif faction_key == NAVARRE_KEY and NAVARRE_RELIGION == "att_rel_chr_catholic" then
+				elseif faction_name == NAVARRE_KEY and NAVARRE_RELIGION == "att_rel_chr_catholic" then
 					cm:override_mission_succeeded_status(NAVARRE_KEY, "mk_mission_story_reconquista_spain", false);
 					NAVARRE_RELIGION = context:faction():state_religion();
-				elseif faction_key == PORTUGAL_KEY and PORTUGAL_RELIGION == "att_rel_chr_catholic" then
+				elseif faction_name == PORTUGAL_KEY and PORTUGAL_RELIGION == "att_rel_chr_catholic" then
 					cm:override_mission_succeeded_status(PORTUGAL_KEY, "mk_mission_story_reconquista_spain", false);
 					PORTUGAL_RELIGION = context:faction():state_religion();
 				end

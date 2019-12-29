@@ -66,7 +66,7 @@ function Byzantium_Greek_Fire_Check(context)
 			end
 		end
 
-		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_key then
+		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_name then
 			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
 				EXPLOSION_TRIGGERED = true;
 
@@ -86,7 +86,7 @@ function Byzantium_Greek_Fire_Check(context)
 			end
 		end
 
-		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_key then
+		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_name then
 			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
 				EXPLOSION_TRIGGERED = true;
 
@@ -106,7 +106,7 @@ function Byzantium_Greek_Fire_Check(context)
 			end
 		end
 
-		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_key then
+		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_name then
 			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
 				EXPLOSION_TRIGGERED = true;
 

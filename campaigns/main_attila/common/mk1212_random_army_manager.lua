@@ -155,7 +155,7 @@ function Possible_Rebel_Forces()
 	Random_Army_Manager:add_mandatory_unit("english_force_large", "mk_eng_t1_mounted_serjeants", 2)
 end
 
-function CreateCivilWarArmy(region, culture, rebel_faction_key, army_id, x, y)
+function CreateCivilWarArmy(region, culture, rebel_faction_name, army_id, x, y)
 	-- DIFFICULTY LEVEL DETECTION
 	local difficulty = cm:model():difficulty_level();
 	local force = false;
@@ -181,7 +181,7 @@ function CreateCivilWarArmy(region, culture, rebel_faction_key, army_id, x, y)
 	end
 
 	cm:create_force(
-		rebel_faction_key,
+		rebel_faction_name,
 		force,
 		region,
 		x,

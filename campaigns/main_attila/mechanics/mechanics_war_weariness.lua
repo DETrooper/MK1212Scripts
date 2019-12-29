@@ -294,8 +294,8 @@ function ArmiesInOwnLands(player)
 	end
 end
 
-function Does_Faction_Border_Faction(faction_key, query_faction_key)
-	local faction = cm:model():world():faction_by_key(faction_key);	
+function Does_Faction_Border_Faction(faction_name, query_faction_name)
+	local faction = cm:model():world():faction_by_key(faction_name);	
 	local regions = faction:region_list();
 	
 	for i = 0, regions:num_items() - 1 do
@@ -306,7 +306,7 @@ function Does_Faction_Border_Faction(faction_key, query_faction_key)
 			local border_region = border_regions:item_at(j);
 			
 			if border_region:owning_faction():is_null_interface() == false then
-				if border_region:owning_faction():name() == query_faction_key then
+				if border_region:owning_faction():name() == query_faction_name then
 					return true;
 				end
 			end
