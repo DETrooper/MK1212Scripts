@@ -1,5 +1,3 @@
-local scripting = require "lua_scripts.EpisodicScripting";
-
 CHAPTER_SELECTED = 1;
 
 eh:add_listener(

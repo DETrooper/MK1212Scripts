@@ -9,9 +9,9 @@
 
 require("mechanics/hre/mechanics_hre_factions");
 require("mechanics/hre/mechanics_hre_lists");
-require("mechanics/hre/mechanics_hre_elections");
-require("mechanics/hre/mechanics_hre_reforms");
-require("mechanics/hre/mechanics_hre_ui");
+--require("mechanics/hre/mechanics_hre_elections");
+--require("mechanics/hre/mechanics_hre_reforms");
+--require("mechanics/hre/mechanics_hre_ui");
 
 function Add_HRE_Listeners()
 	--Add_HRE_Faction_Listeners();

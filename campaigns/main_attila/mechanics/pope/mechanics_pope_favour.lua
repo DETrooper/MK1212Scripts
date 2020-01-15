@@ -16,6 +16,7 @@ local dev = require("lua_scripts.dev");
 PAPAL_STATES_KEY = "mk_fact_papacy";
 
 PAPAL_FAVOUR_SYSTEM_ACTIVE = true; -- Disabled if Papal States faction does not exist.
+PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED = false; -- Papal favour will never restart even if the Papal States faction is alive.
 PLAYER_POPE_FAVOUR = {};
 MAX_POPE_FAVOUR = 10;
 MIN_POPE_FAVOUR = 0;
@@ -34,7 +35,7 @@ function Add_Pope_Favour_Listeners()
 		true
 	);
 
-	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
+	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true and PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED == false then
 		Activate_Papal_Favour_System();
 	end
 	
@@ -151,33 +152,35 @@ function Activate_Papal_Favour_System()
 end
 
 function Reactivate_Papal_Favour_System()
-	PAPAL_FAVOUR_SYSTEM_ACTIVE = true;
-	Activate_Papal_Favour_System();
+	if PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED == false then
+		PAPAL_FAVOUR_SYSTEM_ACTIVE = true;
+		Activate_Papal_Favour_System();
 
-	local faction_list = cm:model():world():faction_list();
+		local faction_list = cm:model():world():faction_list();
 
-	for i = 0, faction_list:num_items() - 1 do
-		local current_faction = faction_list:item_at(i);
+		for i = 0, faction_list:num_items() - 1 do
+			local current_faction = faction_list:item_at(i);
 
-		cm:remove_effect_bundle("mk_bundle_christian_dejection", current_faction:name());
+			cm:remove_effect_bundle("mk_bundle_christian_dejection", current_faction:name());
 
-		if current_faction:state_religion() == "att_rel_chr_catholic" then
-			cm:apply_effect_bundle("mk_bundle_pope_favour_5", current_faction:name(), 0);
-			PLAYER_POPE_FAVOUR[current_faction:name()] = 5;
+			if current_faction:state_religion() == "att_rel_chr_catholic" then
+				cm:apply_effect_bundle("mk_bundle_pope_favour_5", current_faction:name(), 0);
+				PLAYER_POPE_FAVOUR[current_faction:name()] = 5;
 
-			if current_faction:is_human() and cm:is_multiplayer() == false then
-				Add_Decision("ask_pope_for_money", current_faction:name(), false, false);
+				if current_faction:is_human() and cm:is_multiplayer() == false then
+					Add_Decision("ask_pope_for_money", current_faction:name(), false, false);
+				end
 			end
-		end
 
-		cm:show_message_event(
-			current_faction:name(),
-			"message_event_text_text_mk_event_pope_papacy_restored_title",
-			"message_event_text_text_mk_event_pope_papacy_restored_primary",
-			"message_event_text_text_mk_event_pope_papacy_restored_secondary",
-			true,
-			701
-		);
+			cm:show_message_event(
+				current_faction:name(),
+				"message_event_text_text_mk_event_pope_papacy_restored_title",
+				"message_event_text_text_mk_event_pope_papacy_restored_primary",
+				"message_event_text_text_mk_event_pope_papacy_restored_secondary",
+				true,
+				701
+			);
+		end
 	end
 end
 
@@ -215,6 +218,11 @@ function Deactivate_Papal_Favour_System()
 			cm:remove_effect_bundle("mk_bundle_pope_favour_"..j, current_faction:name());
 		end
 	end
+end
+
+function Force_Stop_Papal_Favour_System()
+	Deactivate_Papal_Favour_System();
+	PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED = true;
 end
 
 function Check_Catholic_Nations(context)
@@ -808,6 +816,7 @@ cm:register_saving_game_callback(
 		SaveKeyPairTable(context, PLAYER_POPE_FAVOUR, "PLAYER_POPE_FAVOUR");
 		SaveBooleanPairTable(context, PLAYER_EXCOMMUNICATED, "PLAYER_EXCOMMUNICATED");
 		cm:save_value("PAPAL_FAVOUR_SYSTEM_ACTIVE", PAPAL_FAVOUR_SYSTEM_ACTIVE, context);
+		cm:save_value("PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED", PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED, context);
 		cm:save_value("FAVOUR_LAST_ATTACKED_GARRISON", FAVOUR_LAST_ATTACKED_GARRISON, context);
 		cm:save_value("POPE_DEPOSED", POPE_DEPOSED, context);
 	end
@@ -818,6 +827,7 @@ cm:register_loading_game_callback(
 		PLAYER_POPE_FAVOUR = LoadKeyPairTableNumbers(context, "PLAYER_POPE_FAVOUR");
 		PLAYER_EXCOMMUNICATED = LoadBooleanPairTable(context, "PLAYER_EXCOMMUNICATED");
 		PAPAL_FAVOUR_SYSTEM_ACTIVE = cm:load_value("PAPAL_FAVOUR_SYSTEM_ACTIVE", true, context);
+		PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED = cm:load_value("PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED", false, context);
 		FAVOUR_LAST_ATTACKED_GARRISON = cm:load_value("FAVOUR_LAST_ATTACKED_GARRISON", "", context);
 		POPE_DEPOSED = cm:load_value("POPE_DEPOSED", false, context);
 	end

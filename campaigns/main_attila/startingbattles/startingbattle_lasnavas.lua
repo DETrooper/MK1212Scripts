@@ -112,7 +112,7 @@ function Las_Navas_Setup(faction_name)
 		)
 	);
 
-	scripting.game_interface:override_ui("disable_prebattle_retreat", true);
+	cm:override_ui("disable_prebattle_retreat", true);
 
 	if faction_name == ALMOHADS_KEY then
 		cm:attack(almohads_gen_string, castile_gen_string, true);
@@ -134,7 +134,7 @@ function BattleCompleted_Las_Navas(context)
 	if BATTLE_LAS_NAVAS_OCCURED == false then
 		if attacker_name == ALMOHADS_KEY or attacker_name == ARAGON_KEY or attacker_name == CASTILE_KEY or attacker_name == NAVARRE_KEY then
 			BATTLE_LAS_NAVAS_OCCURED = true;
-			scripting.game_interface:override_ui("disable_prebattle_retreat", false);
+			cm:override_ui("disable_prebattle_retreat", false);
 
 			if attacker_result == "heroic_victory" or attacker_result == "decisive_victory" or attacker_result == "close_victory" or attacker_result == "pyrrhic_victory" then
 				cm:apply_effect_bundle("mk_bundle_las_navas_victory", attacker_name, 10);

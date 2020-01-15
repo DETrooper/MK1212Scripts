@@ -52,7 +52,7 @@ function Add_MK1212_Common_Listeners()
 	local faction_list = cm:model():world():faction_list();
 
 	for i = 0, faction_list:num_items() - 1 do
-		if (faction_list:item_at(i):is_human() == true) then
+		if faction_list:item_at(i):is_human() then
 			table.insert(HUMAN_FACTIONS, faction_list:item_at(i):command_queue_index()); 
 		end
 	end

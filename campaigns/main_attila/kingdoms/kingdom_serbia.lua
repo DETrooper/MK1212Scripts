@@ -25,7 +25,7 @@ end
 function Serbia_Check(context)
 	local turn_number = cm:model():turn_number();
 	local faction_name = context:faction():name();
-	local faction = cm:model():world():faction_by_key(faction_name);
+	local faction = context:faction();
 	
 	if faction_name == SERBIA_KEY then
 		if turn_number == 6 then
@@ -37,9 +37,9 @@ function Serbia_Check(context)
 				end
 			end
 
-			Rename_Faction(SERBIA_KEY, "mk_faction_serbian_kingdom");
 			FACTIONS_DFN_LEVEL[faction_name] = 2;
 			SERBIAN_KINGDOM_FACTION = faction_name;
+			Rename_Faction(faction_name, faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]));
 			cm:remove_listener("FactionTurnStart_Serbia_Check");
 		end
 	end

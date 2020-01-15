@@ -106,4 +106,5 @@ require("startingbattles/main");
 require("story/main");
 require("timurids/main");
 
+require("challenges/main");
 require("pretender_crash_stopgap");

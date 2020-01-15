@@ -230,6 +230,10 @@ function Add_War_Weariness(faction, amount)
 	end
 end
 
+function WarWearinessNerf()
+	TURN_AT_WAR = 0;
+end
+
 function WarChecks(player)
 	local faction_list = cm:model():world():faction_list();
 	local borderWar = false;

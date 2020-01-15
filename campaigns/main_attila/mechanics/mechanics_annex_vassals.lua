@@ -14,7 +14,7 @@ ANNEX_TURNS_PER_REGION = 3; -- Once annexation process has started, how many tur
 FACTIONS_VASSALIZED = {};
 FACTIONS_VASSALIZED_DELAYS = {};
 VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
-VASSAL_SELECTED = nil;
+VASSAL_SELECTED = "";
 VASSAL_SELECTED_ANNEXATION_TIME = 0;
 
 PROPOSER = nil;
@@ -478,7 +478,7 @@ cm:register_loading_game_callback(
 		FACTIONS_VASSALIZED = LoadTable(context, "FACTIONS_VASSALIZED");
 		FACTIONS_VASSALIZED_DELAYS = LoadKeyPairTable(context, "FACTIONS_VASSALIZED_DELAYS");
 		VASSAL_SELECTED_CURRENTLY_ANNEXING = cm:load_value("VASSAL_SELECTED_CURRENTLY_ANNEXING", false, context);
-		VASSAL_SELECTED = cm:load_value("VASSAL_SELECTED", nil, context);
+		VASSAL_SELECTED = cm:load_value("VASSAL_SELECTED", "", context);
 		VASSAL_SELECTED_ANNEXATION_TIME = cm:load_value("VASSAL_SELECTED_ANNEXATION_TIME", 0, context);
 	end
 );

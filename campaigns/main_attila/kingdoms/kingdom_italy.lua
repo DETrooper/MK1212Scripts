@@ -77,9 +77,9 @@ function Italian_Regions_Check(context)
 end
 
 function Italian_Kingdom_Formed(faction_name)
-	Rename_Faction(faction_name, "mk_faction_Italian_kingdom");
 	FACTIONS_DFN_LEVEL[faction_name] = 4;
-	ITALIAN_KINGDOM_FACTION = faction_name; 
+	ITALIAN_KINGDOM_FACTION = faction_name;
+	Rename_Faction(faction_name, faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]));
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_kingdom_italy");

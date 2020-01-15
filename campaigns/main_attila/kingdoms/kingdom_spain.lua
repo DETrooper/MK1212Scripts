@@ -47,7 +47,7 @@ function Spain_Check(context)
 	local faction_name = context:faction():name();
 	
 	if faction_name == ARAGON_KEY or faction_name == CASTILE_KEY or faction_name == NAVARRE_KEY then
-		if turn_number == SPANISH_KINGDOM_MISSION_TURN and cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == true then
+		if turn_number == SPANISH_KINGDOM_MISSION_TURN and context:faction():is_human() and cm:is_multiplayer() == true then
 			cm:trigger_mission(faction_name, "mk_mission_kingdom_spain");
 		elseif turn_number > 1 then
 			Spanish_Regions_Check(context);
@@ -61,7 +61,7 @@ function Spanish_Regions_Check(context)
 	SPANISH_KINGDOM_REGIONS_OWNED = has_regions;
 		
 	if has_regions == true then
-		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
+		if cm:is_multiplayer() == true or context:faction():is_human() == false then
 			Spanish_Kingdom_Formed(faction_name);
 		else
 			Enable_Decision("form_kingdom_spain");
@@ -70,9 +70,9 @@ function Spanish_Regions_Check(context)
 end
 
 function Spanish_Kingdom_Formed(faction_name)
-	Rename_Faction(faction_name, faction_name.."_lvl4");
 	FACTIONS_DFN_LEVEL[faction_name] = 4;
 	SPANISH_KINGDOM_FACTION = faction_name;
+	Rename_Faction(faction_name, faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]));
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_kingdom_spain");

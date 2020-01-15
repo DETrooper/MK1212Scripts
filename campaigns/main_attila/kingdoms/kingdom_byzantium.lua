@@ -95,9 +95,9 @@ function Constantinople_Taken(faction_name)
 end
 
 function Byzantine_Empire_Restored(faction_name)
-	Rename_Faction(faction_name, "mk_faction_byzantine_empire");
-	BYZANTINE_EMPIRE_FACTION = faction_name;
 	FACTIONS_DFN_LEVEL[faction_name] = 4;
+	BYZANTINE_EMPIRE_FACTION = faction_name;
+	Rename_Faction(faction_name, faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]));
 
 	Add_Byzantium_Reconquest_Listeners(); -- Moves to byzantium/byzantium_reconquest.lua
 

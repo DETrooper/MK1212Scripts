@@ -15,9 +15,9 @@
 
 -- List of scripted world events not included in here (i.e. handled elsewhere): 
 --[[
-Fifth Crusade Announced - Turn 3
-Fifth Crusade Begins - Turn 5
-Mongol Invasion Begins - Turn 8
+Fifth Crusade Announced - Turn 4
+Fifth Crusade Begins - Turn 6
+Mongol Invasion Begins - Turn 9
 Bubonic Plague Begins - 135
 ]]--
 

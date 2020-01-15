@@ -44,7 +44,7 @@ function Poland_Check(context)
 	local faction_name = context:faction():name();
 	
 	if faction_name == POLAND_KEY then
-		if turn_number == give_mission_turn and cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == true then
+		if turn_number == give_mission_turn and context:faction():is_human() and cm:is_multiplayer() == true then
 			cm:trigger_mission(faction_name, "mk_mission_kingdom_poland");
 		elseif turn_number > give_mission_turn then
 			Polish_Regions_Check(context);
@@ -58,7 +58,7 @@ function Polish_Regions_Check(context)
 	POLISH_KINGDOM_REGIONS_OWNED = has_regions;
 		
 	if has_regions == true then
-		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
+		if cm:is_multiplayer() == true or context:faction():is_human() == false then
 			Polish_Kingdom_Formed(faction_name);
 		else
 			Enable_Decision("form_kingdom_poland");
@@ -67,9 +67,9 @@ function Polish_Regions_Check(context)
 end
 
 function Polish_Kingdom_Formed(faction_name)
-	Rename_Faction(faction_name, "mk_faction_polish_kingdom");
 	FACTIONS_DFN_LEVEL[faction_name] = 2;
-	POLISH_KINGDOM_FACTION = faction_name; 
+	POLISH_KINGDOM_FACTION = faction_name;
+	Rename_Faction(faction_name, faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]));
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_kingdom_poland");

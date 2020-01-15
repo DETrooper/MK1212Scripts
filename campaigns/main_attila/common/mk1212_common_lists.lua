@@ -451,3 +451,34 @@ REGIONS_TO_PROVINCE_ORDER_LIST = {
 	att_reg_venetia_ravenna = 1,
 	att_reg_venetia_verona = 3
 };
+
+DIPLOMACY_OPTIONS = {
+	"trade agreement",
+	"hard military access",
+	"cancel hard military access",
+	"military alliance",
+	"regions",
+	"technology",
+	"state gift",
+	"payments",
+	"vassal",
+	"peace",
+	"war",
+	"join war",
+	"break trade",
+	"break alliance",
+	"hostages",
+	"marriage",
+	"non aggression pact",
+	"soft military access",
+	"cancel soft military access",
+	"defensive alliance",
+	"client state",
+	--"form confederation",
+	"break non aggression pact",
+	"break soft military access",
+	"break defensive alliance",
+	"break vassal",
+	"break client state",
+	"state gift unilateral"
+};

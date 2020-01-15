@@ -119,7 +119,7 @@ function Create_Decisions_Map(decision)
 	mapParchment:Resize(sizeX + 120, sizeY + 100);
 	mapParchmentPanel:Resize(sizeX + 120, sizeY + 100);
 	mapParchment:SetMoveable(true);
-	mapParchment:MoveTo((rootbX / 2) + (sizeX / 2) - 30, (rootbY / 2) - (sizeY / 2));
+	mapParchment:MoveTo((rootbX / 2) + (sizeX / 2) - 32, (rootbY / 2) - (sizeY / 2) - 56);
 	mapParchment:SetMoveable(false);
 
 	local mapParchmentPanelClipX, mapParchmentPanelClipY = mapParchmentPanelClip:Position();
@@ -169,42 +169,18 @@ function Create_Decisions_Map(decision)
 	local tltipDecisions = UIComponent(mapParchment:Find(decision.."_Decision_Tooltip"));
 
 	tltipDecisions:SetMoveable(true);
-
-	if sizeY == 500 then
-		tltipDecisions:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 315, mapParchmentY + mapParchmentbY - 726);
-	elseif sizeY == 650 then
-		tltipDecisions:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 423, mapParchmentY + mapParchmentbY - 951);
-	elseif sizeY == 900 then
-		tltipDecisions:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 833, mapParchmentY + mapParchmentbY - 1326);
-	end
-
+	tltipDecisions:MoveTo(mapParchmentX - 4, mapParchmentY + 32);
 	tltipDecisions:SetMoveable(false);
 
 	mapParchment:CreateComponent("map_accept", "UI/new/basic_toggle_accept");
 	local map_accept_uic = UIComponent(mapParchment:Find("map_accept"));
 
 	map_accept_uic:SetMoveable(true);
-
-	if sizeY == 500 then
-		map_accept_uic:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 556, mapParchmentY + mapParchmentbY - 205);
-	elseif sizeY == 650 then
-		map_accept_uic:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 741, mapParchmentY + mapParchmentbY - 280);
-	elseif sizeY == 900 then
-		map_accept_uic:MoveTo(mapParchmentX + (mapParchmentbX / 2) - 1427, mapParchmentY + mapParchmentbY - 405);
-	end
-
+	map_accept_uic:MoveTo(mapParchmentX - (mapParchmentbX / 3) - 40, mapParchmentY + (mapParchmentbY / 1.5));
 	map_accept_uic:SetMoveable(false);
 
 	map_uic:SetMoveable(true);
-
-	if sizeY == 500 then
-		map_uic:MoveTo(mapParchmentX - sizeX + 33, mapParchmentX - (sizeY * 2) + 53);
-	elseif sizeY == 650 then
-		map_uic:MoveTo(mapParchmentX - sizeX + 33, mapParchmentX - (sizeY * 2) + 200);
-	elseif sizeY == 900 then
-		map_uic:MoveTo(mapParchmentX - sizeX + 33, mapParchmentX - (sizeY * 2) + 300);
-	end
-
+	map_uic:MoveTo(mapParchmentX - sizeX + 32, mapParchmentY + 82);
 	map_uic:SetMoveable(false);
 	mapParchment:SetVisible(false);
 end

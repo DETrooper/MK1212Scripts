@@ -58,6 +58,8 @@ function start_game_all_factions()
 	--if cm:is_multiplayer() then
 		--Add_MK1212_Networking_Listeners();
 	--end
+
+	Challenge_Initializer();
 end;
 
 --------------------------------------------------------------------------------------------------------------------
