@@ -106,5 +106,6 @@ require("startingbattles/main");
 require("story/main");
 require("timurids/main");
 
+require("mk1212_ironman");
 require("challenges/main");
 require("pretender_crash_stopgap");

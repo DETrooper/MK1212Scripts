@@ -42,6 +42,7 @@ function Add_Challenge_This_Is_Total_War_Listeners()
 		end
 	end
 
+	STORY_EVENTS_ENABLED = false;
 	WarWearinessNerf();
 
 	ui_state.diplomacy:set_allowed(false, true);

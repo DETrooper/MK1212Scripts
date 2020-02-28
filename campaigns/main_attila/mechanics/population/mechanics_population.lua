@@ -14,9 +14,12 @@ require("mechanics/population/mechanics_population_ui");
 require("mechanics/population/mechanics_population_unit_lists");
 
 POPULATION_MANPOWER_PERCENTAGE = 0.25; -- How much of a population should be eligible for military service?
+POPULATION_MANPOWER_SOFT_CAP = 1.25; -- How much should manpower be allowed to exceed its ratio by before its growth is stymied? 1.25 = 25% above its ratio.
 POPULATION_MANPOWER_REGENERATION_RATE = 0.75; -- If manpower is lower than the above percentage of a population (1/4th of population), how much should it regenerate by in addition to growth?
+POPULATION_MANPOWER_DEGENERATION_RATE = 0.2; -- If manpower is growing too fast, how much should growth be reduced by?
 POPULATION_SOFT_CAP_PERCENTAGE = 0.5; -- How much to scale growth by when a region's population soft cap is exceeded?
 POPULATION_HARD_CAP_PERCENTAGE = 0.1; -- How much to scale growth by when a region's population soft cap is exceeded?
+POPULATION_CAPITAL_BONUS = 0.02; -- How much should a capital region's population be boosted?
 POPULATION_SIEGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement is under siege?
 POPULATION_FOOD_SHORTAGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement has a food shortage?
 POPULATION_LOW_PUBLIC_ORDER_POPULATION_LOSS = 0.00001; -- How much percentage of population should be lost every turn due to low public order (scales with public order);
@@ -438,10 +441,12 @@ function Compute_Region_Growth(region)
 
 	local region_name = region:name();
 	local region_owning_faction = region:owning_faction();
+	local owning_faction_capital = region_owning_faction:home_region():name();
 	local buildings_list = region:garrison_residence():buildings();
 	local under_siege = region:garrison_residence():is_under_siege();
 	local food_shortage = region:owning_faction():has_food_shortage();
 	local public_order = region:public_order();
+	local public_order_loss = -1 * (public_order * POPULATION_LOW_PUBLIC_ORDER_POPULATION_LOSS);
 
 	POPULATION_REGIONS_GROWTH_FACTORS[region_name]= "";
 
@@ -480,31 +485,52 @@ function Compute_Region_Growth(region)
 	end
 
 	for i = 1, 5 do
+		if owning_faction_capital == region_name then
+			-- Exclude peasants and tribesmen.
+
+			if i ~= 3 and i ~= 4 then
+				growth[i] = growth[i] + POPULATION_CAPITAL_BONUS;
+				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."capital_bonus_"..tostring(i).."#"..tostring(POPULATION_CAPITAL_BONUS * 100).."#@";
+			end		
+		end
+
+		-- Apply soft/hard cap to positive growth.
 		growth[i] = growth[i] * growth_modifier;
+
+		-- Calculate growth penalties.
 
 		if under_siege == true then
 			growth[i] = growth[i] - POPULATION_SIEGE_POPULATION_LOSS;
-			POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."under_siege#"..tostring(POPULATION_SIEGE_POPULATION_LOSS * 100).."#@";
 		end
 
 		if food_shortage == true then
 			growth[i] = growth[i] - POPULATION_FOOD_SHORTAGE_POPULATION_LOSS;
-			POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."food_shortage#"..tostring(POPULATION_FOOD_SHORTAGE_POPULATION_LOSS * 100).."#@";
 		end
 
 		if public_order < 0 then
-			local population_loss = -1 * (public_order * POPULATION_LOW_PUBLIC_ORDER_POPULATION_LOSS);
-			growth[i] = growth[i] - population_loss;
-			POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."public_order#"..tostring(population_loss * 100).."#@";
+			growth[i] = growth[i] - public_order_loss;
 		end
+	end
+
+	if under_siege == true then
+		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."under_siege#"..tostring(POPULATION_SIEGE_POPULATION_LOSS * 100).."#@";
+	end
+
+	if food_shortage == true then
+		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."food_shortage#"..tostring(POPULATION_FOOD_SHORTAGE_POPULATION_LOSS * 100).."#@";
+	end
+
+	if public_order < 0 then
+		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."public_order#"..tostring(public_order_loss * 100).."#@";
 	end
 
 	for k, v in pairs(POPULATION_REGIONS_CHARACTERS_RAIDING) do
 		if v == region_name then
 			for j = 1, 5 do
 				growth[j] = growth[j] - POPULATION_RAIDING_POPULATION_LOSS;
-				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."region_raided#"..tostring(POPULATION_RAIDING_POPULATION_LOSS * 100).."#@";
 			end
+
+			POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."region_raided#"..tostring(POPULATION_RAIDING_POPULATION_LOSS * 100).."#@";
 		end
 	end
 
@@ -519,42 +545,61 @@ function Apply_Region_Growth_Factionwide(faction)
 	for i = 0, regions:num_items() - 1 do
 		local region = regions:item_at(i);
 		local region_name = region:name();
-
-		POPULATION_REGIONS_GROWTH_RATES[region_name] = Compute_Region_Growth(region);
+		local region_population = POPULATION_REGIONS_POPULATIONS[region_name];
+		local region_manpower = POPULATION_REGIONS_MANPOWER[region_name];
+		local region_growth_rates = Compute_Region_Growth(region);
 
 		for j = 1, 5 do
-			if POPULATION_REGIONS_POPULATIONS[region_name][j] == 0 then
-				if POPULATION_REGIONS_GROWTH_RATES[region_name][j] > 0 then
+			-- Population
+
+			if region_population[j] == 0 then
+				if region_growth_rates[j] > 0 then
 					POPULATION_REGIONS_POPULATIONS[region_name][j] = 1;
 				end
 			else
-				POPULATION_REGIONS_POPULATIONS[region_name][j] = POPULATION_REGIONS_POPULATIONS[region_name][j] + math.ceil(POPULATION_REGIONS_POPULATIONS[region_name][j] * POPULATION_REGIONS_GROWTH_RATES[region_name][j]);
+				POPULATION_REGIONS_POPULATIONS[region_name][j] = region_population[j] + math.ceil(region_population[j] * region_growth_rates[j]);
 			end
 
-			if POPULATION_REGIONS_POPULATIONS[region_name][j] < 0 then
+			if region_population[j] < 0 then
 				POPULATION_REGIONS_POPULATIONS[region_name][j] = 0;
 			end
-		end
 
-		-- Manpower
-		for j = 1, 5 do
-			if POPULATION_REGIONS_MANPOWER[region_name][j] == 0 then
-				if POPULATION_REGIONS_GROWTH_RATES[region_name][j] > 0 then
+			-- Manpower
+
+			if  region_manpower[j] == 0 then
+				if region_growth_rates[j] > 0 then
 					POPULATION_REGIONS_MANPOWER[region_name][j] = 1;
 				end
 			else
-				if POPULATION_REGIONS_MANPOWER[region_name][j] < (POPULATION_REGIONS_POPULATIONS[region_name][j] * POPULATION_MANPOWER_PERCENTAGE) then
-					local manpower_growth = POPULATION_REGIONS_MANPOWER[region_name][j] + math.ceil(POPULATION_REGIONS_MANPOWER[region_name][j] * (POPULATION_REGIONS_GROWTH_RATES[region_name][j] * POPULATION_MANPOWER_PERCENTAGE));
-					POPULATION_REGIONS_MANPOWER[region_name][j] = manpower_growth + math.ceil(POPULATION_REGIONS_MANPOWER[region_name][j] * POPULATION_MANPOWER_REGENERATION_RATE);
+				if region_manpower[j] < math.ceil(POPULATION_REGIONS_POPULATIONS[region_name][j] * POPULATION_MANPOWER_PERCENTAGE) then
+					-- Manpower is lower than the ratio of population to manpower is supposed to be, so boost its growth!
+					local manpower_growth = region_manpower[j] + math.ceil(region_manpower[j] * region_growth_rates[j]);
+					POPULATION_REGIONS_MANPOWER[region_name][j] = manpower_growth + math.ceil(region_manpower[j] * POPULATION_MANPOWER_REGENERATION_RATE);
+
+					-- Check to see if we accidentally went over the ratio.
+					if POPULATION_REGIONS_MANPOWER[region_name][j] > math.ceil(POPULATION_REGIONS_POPULATIONS[region_name][j] * POPULATION_MANPOWER_PERCENTAGE) then
+						-- If so, set it to the exact ratio.
+						POPULATION_REGIONS_MANPOWER[region_name][j] = math.ceil(POPULATION_REGIONS_POPULATIONS[region_name][j] * POPULATION_MANPOWER_PERCENTAGE);
+					end
+				elseif region_manpower[j] > math.ceil((POPULATION_REGIONS_POPULATIONS[region_name][j] * POPULATION_MANPOWER_PERCENTAGE) * POPULATION_MANPOWER_SOFT_CAP) then
+					-- Manpower somehow exceeds the ratio of population to manpower and its soft cap, so it's time to slow down manpower growth to equalize the ratio somewhat.
+					local manpower_growth = region_manpower[j] + math.ceil(region_manpower[j] * region_growth_rates[j]);
+					POPULATION_REGIONS_MANPOWER[region_name][j] = manpower_growth - math.ceil(region_manpower[j] * POPULATION_MANPOWER_DEGENERATION_RATE);
 				else
-					POPULATION_REGIONS_MANPOWER[region_name][j] = POPULATION_REGIONS_MANPOWER[region_name][j] + math.ceil(POPULATION_REGIONS_MANPOWER[region_name][j] * (POPULATION_REGIONS_GROWTH_RATES[region_name][j] * POPULATION_MANPOWER_PERCENTAGE));
+					POPULATION_REGIONS_MANPOWER[region_name][j] = region_manpower[j] + math.floor(region_manpower[j] * region_growth_rates[j]);
 				end
+			end
+
+			if POPULATION_REGIONS_MANPOWER[region_name][j] > POPULATION_REGIONS_POPULATIONS[region_name][j] then
+				POPULATION_REGIONS_MANPOWER[region_name][j] = POPULATION_REGIONS_POPULATIONS[region_name][j];
 			end
 
 			if POPULATION_REGIONS_MANPOWER[region_name][j] < 0 then
 				POPULATION_REGIONS_MANPOWER[region_name][j] = 0;
 			end
 		end
+
+		POPULATION_REGIONS_GROWTH_RATES[region_name] = region_growth_rates;
 	end
 
 	Update_Faction_Total_Population(faction);

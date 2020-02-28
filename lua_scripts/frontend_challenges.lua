@@ -12,7 +12,7 @@ CHALLENGE_STRINGS = {
 
 CHALLENGE_BULLETINS = {
 	["no_retreat"] = {"When attacking or being attacked by an enemy force, you will not be able to retreat your force.", "Withdrawing units in battles is disabled."},
-	["this_is_total_war"] = {"At the start of the campaign you will automatically declare war against every faction.", "Any new factions encountered will automatically be declared war upon.", "All diplomatic options for the player are disabled, and the AI will never make peace offers.", "The 'Subjugate' and 'Liberate' occupation decisions are disabled.", "The Papal Favour system is disabled and War Weariness penalties are decreased."}
+	["this_is_total_war"] = {"At the start of the campaign you will automatically declare war against every faction.", "Any new factions encountered will automatically be declared war upon.", "All diplomatic options for the player are disabled, and the AI will never make peace offers.", "Story events (excluding world events) are disabled.", "The 'Subjugate' and 'Liberate' occupation decisions are disabled.", "The Papal Favour system is disabled and War Weariness penalties are decreased."}
 };
 
 CHALLENGES_ENABLED = {

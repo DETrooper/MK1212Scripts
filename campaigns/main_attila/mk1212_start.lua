@@ -45,7 +45,9 @@ function start_game_all_factions()
 	Add_Stopgap_Listeners();
 
 	-- MK1212 scripts.
+	Add_MK1212_Ironman_Listeners();
 	Common_Initializer();
+	Challenge_Initializer();
 	Byzantium_Initializer();
 	--Islamic_Initializer();
 	Kingdom_Initializer();
@@ -58,8 +60,6 @@ function start_game_all_factions()
 	--if cm:is_multiplayer() then
 		--Add_MK1212_Networking_Listeners();
 	--end
-
-	Challenge_Initializer();
 end;
 
 --------------------------------------------------------------------------------------------------------------------

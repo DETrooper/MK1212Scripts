@@ -7,6 +7,28 @@
 -------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------
 
+-- Order: Attitude title, attitude description.
+HRE_STATES = {
+	["loyal"] = {"Loyal", "This faction is loyal to the emperor and will always support them."},
+	["ambitious"] = {"Ambitious", "This faction is ruthlessly ambitious, serving its own ends at the expense of all others."},
+	["malcontent"] = {"Malcontent", "This faction has been extremely offended by the emperor and will always oppose them."},
+	["discontent"] = {"Discontent", "This faction is displeased with the actions of the emperor and will oppose them unless it is against their interests."},
+	["neutral"] = {"Neutral", "This faction has no significant grievances or commendations towards the emperor, acting in the best interest of the empire at large."},
+	["emperor"] = {"Emperor", "This faction currently holds the throne of the Holy Roman Empire."},
+	["pretender"] = {"Pretender", "This faction is a pretender to the throne of the Holy Roman Empire."},
+	["puppet"] = {"Puppet", "This faction exists only in name, being completely subservient to the whims of the emperor"}
+};
+
+HRE_ELECTION_FACTORS = {
+	["loyal"] = 50,
+	["ambitious"] = -25,
+	["malcontent"] = -100,
+	["discontent"] = -25,
+	["puppet"] = 100,
+	["allies"] = 25,
+	["powerful"] = 25,
+};
+
 FACTIONS_HRE_START = {
 	"mk_fact_hre",
 	"mk_fact_bologna",
@@ -27,6 +49,29 @@ FACTIONS_HRE_START = {
 	"mk_fact_lorraine",
 	"mk_fact_schwyz",
 	"mk_fact_pisa"
+};
+
+FACTIONS_HRE_STATES_START = {
+	["mk_fact_hre"] = "emperor",
+	["mk_fact_bologna"] = "discontent",
+	["mk_fact_verona"] = "discontent",
+	["mk_fact_savoy"] = "discontent",
+	["mk_fact_friesland"] = "neutral",
+	["mk_fact_brabant"] = "neutral",
+	["mk_fact_provence"] = "discontent",
+	["mk_fact_dauphine"] = "discontent",
+	["mk_fact_milan"] = "discontent",
+	["mk_fact_genoa"] = "discontent",
+	["mk_fact_brandenburg"] = "loyal",
+	["mk_fact_saxony"] = "loyal",
+	["mk_fact_bavaria"] = "discontent",
+	["mk_fact_bohemia"] = "ambitious",
+	["mk_fact_trier"] = "neutral",
+	["mk_fact_austria"] = "discontent",
+	["mk_fact_lorraine"] = "neutral",
+	["mk_fact_schwyz"] = "discontent",
+	["mk_fact_pisa"] = "discontent",
+	["mk_fact_sicily"] = "pretender"
 };
 
 FACTIONS_HRE_VOTES_START = {
@@ -129,17 +174,8 @@ HRE_REGION_FACTION_PIPS_LOCATIONS = {
 	["att_reg_venetia_verona"] = {299, 464},
 };
 
--- Order: effect_bundle_key, dilemma_key, title localisation, description localisation.
-HRE_REFORMS = {
-	["hre_reform_kufursten"] = {"mk_effect_bundle_reform_1", "mk_dilemma_hre_reform_1", "Confirm Permanent Prince-Electors (Kurf??rsten)", "The emperor is only elected by a select group of electors."},
-	["hre_reform_reichstag"] = {"mk_effect_bundle_reform_2",  "mk_dilemma_hre_reform_2", "Formalize the Imperial Diet (Reichstag)", "The Imperial Diet becomes the formal consultative and legislative body of the empire with representatives from the empire's estates."},
-	["hre_reform_reichspfennig"] = {"mk_effect_bundle_reform_3", "mk_dilemma_hre_reform_3", "Institute the Common Penny (Reichspfennig)", "Institute the levy of a widespread poll tax."},
-	["hre_reform_reichskreise"] = {"mk_effect_bundle_reform_4", "mk_dilemma_hre_reform_4", "Organize the Imperial Circles (Reichskreise)", "Regroup regions of the empire into administrative territories to better manage the empire."},
-	["hre_reform_ewiger_landfriede"] = {"mk_effect_bundle_reform_5", "mk_dilemma_hre_reform_5", "Enact Perpetual Public Peace (Ewiger Landfriede)", "Outlaws feuds and organizes legal structure into a single body, with the Emperor as the ultimate arbiter."},
-	["hre_reform_reichskammergericht"] = {"mk_effect_bundle_reform_6", "mk_dilemma_hre_reform_6", "Establish the Imperial Chamber Court (Reichskammergericht)", "Creates the Imperial Chamber Court to hear cases and apply imperial law."},
-	["hre_reform_reichsregiment"] = {"mk_effect_bundle_reform_7", "mk_dilemma_hre_reform_7", "Establish the Imperial Government (Reichsregiment)", "Create an executive organ led by the estates, acting as representatives of the emperor."},
-	["hre_reform_erbkaisertum"] = {"mk_effect_bundle_reform_8", "mk_dilemma_hre_reform_8", "Adopt Hereditary Succession of the Imperial Throne (Erbkaisertum)", "Abolishes elections and institutes a hereditary monarchy."},
-	["hre_reform_renovatio_imperii"] = {"mk_effect_bundle_reform_9", "mk_dilemma_hre_reform_9", "Renovatio Imperii", "Absorb all territories in the empire into your faction."}
+HRE_RANDOM_DILEMMAS = {
+	
 };
 
 HRE_EMPERORS_NAMES_NUMBERS = {
@@ -168,9 +204,10 @@ HRE_EMPERORS_NAMES_NUMBERS = {
 	["names_name_2147364750"] = 6,
 	["names_name_2147333418"] = 2,
 	["names_name_2147362735"] = 2,
-	["names_name_2147384398"] = 1,
-	["names_name_2147380847"] = 1,
-	["names_name_2147372482"] = 1
+	["names_name_2147384398"] = 2,
+	["names_name_2147380847"] = 2,
+	["names_name_2147372482"] = 2,
+	["names_name_2147370877"] = 2
 };
 
 HRE_EMPERORS_ROMAN_NUMERALS = {

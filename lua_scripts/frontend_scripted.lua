@@ -48,8 +48,8 @@ scripting = require "lua_scripts.EpisodicScripting";
 
 adopted = false;
 cutscenes_enabled = true; -- default to true
-version_number = 1000;
-version_number_string = "v1.0.8";
+version_number = 1100;
+version_number_string = "v1.1.0";
 
 --require("lua_scripts.logging_callbacks");
 
@@ -90,7 +90,7 @@ eh:add_listener(
 );
 
 function OnUICreated(context)
-	if util.fileExists("MK1212_config.txt") == true then
+	--[[if util.fileExists("MK1212_config.txt") == true then
 		if tonumber(dev.settings["cutscenesEnabled"]) == 0 then
 			--cutscenes_enabled = false;
 
@@ -101,19 +101,19 @@ function OnUICreated(context)
 		end
 	else
 		dev.writeSettings("MK1212_config.txt");
-	end
+	end]]--
 
 	scripting.m_root:CreateComponent("button_random_faction", "ui/new/button_small_randfact");
-	--scripting.m_root:CreateComponent("checkbox_campaign_cutscenes", "ui/templates/checkbox");
-	--scripting.m_root:CreateComponent("text_campaign_cutscenes", "ui/campaign ui/script_dummy");
+	scripting.m_root:CreateComponent("checkbox_ironman", "ui/templates/checkbox");
+	scripting.m_root:CreateComponent("text_ironman", "ui/campaign ui/script_dummy");
 	local button_random_faction_uic = UIComponent(scripting.m_root:Find("button_random_faction"));
-	--local checkbox_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes"));
-	--local text_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("text_campaign_cutscenes"));
-	--checkbox_campaign_cutscenes_uic:SetTooltipText("Check this box to enable campaign cutscenes. Note that these will be unskippable.");
-	--text_campaign_cutscenes_uic:SetStateText("[[rgba:255:255:242:150]]Enable Campaign Cutscenes[[/rgba:255:255:242:150]]");
+	local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
+	local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
+	checkbox_ironman_uic:SetTooltipText("Check this box to enable Ironman mode.\n---------------------------------------------\n- Manual saving is disabled.\n- The game automatically saves at the start and end of your turn.\n- The game automatically saves before and after battles.\n- The game automatically saves when war is declared by or upon you, or when a peace deal is made.");
+	text_ironman_uic:SetStateText("[[rgba:255:255:242:150]]Enable Ironman[[/rgba:255:255:242:150]]");
 	button_random_faction_uic:SetVisible(false);	
-	--checkbox_campaign_cutscenes_uic:SetVisible(false);
-	--text_campaign_cutscenes_uic:SetVisible(false);
+	checkbox_ironman_uic:SetVisible(false);
+	text_ironman_uic:SetVisible(false);
 
 	ChangeFrontend(context);
 	ChangeCampaignsPanel();
@@ -130,18 +130,15 @@ function ChangeFrontend(context)
 	text_version_number_uic:MoveTo(curX - 8, curY);
 	text_version_number_uic:SetMoveable(false);
 
-	--local checkbox_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes"));
-	--local text_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("text_campaign_cutscenes"));
-	--checkbox_campaign_cutscenes_uic:SetVisible(false);
+	local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
+	local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
+	checkbox_ironman_uic:SetVisible(false);
+	checkbox_ironman_uic:SetState("active");				
 
-	--[[if cutscenes_enabled == true then
-		checkbox_campaign_cutscenes_uic:SetState("selected");
-	else
-		checkbox_campaign_cutscenes_uic:SetState("active");				
-	end]]--
+	svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
 
-	--text_campaign_cutscenes_uic:SetStateText("");
-	--text_campaign_cutscenes_uic:SetVisible(false);
+	text_ironman_uic:SetStateText("");
+	text_ironman_uic:SetVisible(false);
 
 	local button_historical_battle_uic = UIComponent(scripting.m_root:Find("button_historical_battle"));
 	button_historical_battle_uic:SetState("inactive");
@@ -228,18 +225,16 @@ function OnComponentLClickUp(context)
 		);
 	elseif context.string == "button_introduction" then
 		adopted = false;
-	elseif context.string == "checkbox_campaign_cutscenes" then	
-		if util.fileExists("MK1212_config.txt") == false then
+	elseif context.string == "checkbox_ironman" then	
+		--[[if util.fileExists("MK1212_config.txt") == false then
 			writeSettings("MK1212_config.txt");
-		end
-
-		--[[if UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes")):CurrentState() == "selected_down" or UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes")):CurrentState() == "active" then
-			dev.changeSetting("MK1212_config.txt", "cutscenesEnabled", 0);
-			cutscenes_enabled = false;
-		elseif UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes")):CurrentState() == "down" or UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes")):CurrentState() == "selected" then
-			dev.changeSetting("MK1212_config.txt", "cutscenesEnabled", 1);
-			cutscenes_enabled = true;
 		end]]--
+
+		if UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "selected_down" or UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "active" then
+			svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
+		elseif UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "down" or UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "selected" then
+			svr:SaveBool("SBOOL_IRONMAN_ENABLED", true);
+		end
 	elseif context.string == "button_random_faction" then
 		if CHAPTER_SELECTED == 1 then
 			local faction_id = math.random(#FACTIONS_CAMPAIGN_1);
@@ -311,12 +306,12 @@ function OnComponentLClickUp(context)
 	tm:callback(
 		function()
 			if UIComponent(scripting.m_root:Find("3D_window")):Visible() == false or UIComponent(scripting.m_root:Find("3D_window")):Visible() == nil then
-				--local checkbox_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes"));
+				local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
 				local button_random_faction_uic = UIComponent(scripting.m_root:Find("button_random_faction"));
-				--local text_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("text_campaign_cutscenes"));
-				--checkbox_campaign_cutscenes_uic:SetVisible(false);
-				--text_campaign_cutscenes_uic:SetStateText("");
-				--text_campaign_cutscenes_uic:SetVisible(false);
+				local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
+				checkbox_ironman_uic:SetVisible(false);
+				text_ironman_uic:SetStateText("");
+				text_ironman_uic:SetVisible(false);
 				button_random_faction_uic:SetVisible(false);
 			end
 		end, 
@@ -504,27 +499,25 @@ function ChangeEffects()
 	--dev.log(faction_trait_icon_uic:InterfaceFunction("CampaignEffectsBundleIcon"));
 	
 	-- Right Side
-	--local checkbox_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("checkbox_campaign_cutscenes"));
+	local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
 	local button_random_faction_uic = UIComponent(scripting.m_root:Find("button_random_faction"));
-	--local text_campaign_cutscenes_uic = UIComponent(scripting.m_root:Find("text_campaign_cutscenes"));
+	local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
 
-	--checkbox_campaign_cutscenes_uic:SetMoveable(true);
-	--checkbox_campaign_cutscenes_uic:MoveTo(curX + 80, curY + 583);
-	--checkbox_campaign_cutscenes_uic:MoveTo(curX + 78, curY - 20);
-	--checkbox_campaign_cutscenes_uic:SetMoveable(false);
+	checkbox_ironman_uic:SetMoveable(true);
+	checkbox_ironman_uic:MoveTo(curX + 114, curY - 20);
+	checkbox_ironman_uic:SetMoveable(false);
 	button_random_faction_uic:SetMoveable(true);
 	button_random_faction_uic:MoveTo(curX + 795, curY - 55);
 	button_random_faction_uic:SetMoveable(false);
-	--text_campaign_cutscenes_uic:Resize(200, 48);
-	--text_campaign_cutscenes_uic:SetMoveable(true);
-	--text_campaign_cutscenes_uic:MoveTo(curX + 110, curY + 591);
-	--text_campaign_cutscenes_uic:MoveTo(curX + 108, curY - 12);
-	--text_campaign_cutscenes_uic:SetMoveable(false);
-	--checkbox_campaign_cutscenes_uic:SetVisible(true);
+	text_ironman_uic:Resize(200, 48);
+	text_ironman_uic:SetMoveable(true);
+	text_ironman_uic:MoveTo(curX + 144, curY - 12);
+	text_ironman_uic:SetMoveable(false);
+	checkbox_ironman_uic:SetVisible(true);
 	button_random_faction_uic:SetTooltipText("Select random faction!");
 	button_random_faction_uic:SetVisible(true);
-	--text_campaign_cutscenes_uic:SetStateText("[[rgba:255:255:242:150]]Enable Campaign Cutscenes[[/rgba:255:255:242:150]]");
-	--text_campaign_cutscenes_uic:SetVisible(true);
+	text_ironman_uic:SetStateText("[[rgba:255:255:242:150]]Enable Ironman[[/rgba:255:255:242:150]]");
+	text_ironman_uic:SetVisible(true);
 
 	local maps_uic = UIComponent(scripting.m_root:Find("maps"));
 	local map_rome_uic = find_uicomponent_by_table(scripting.m_root, {"sp_grand_campaign", "docker", "details_panel", "maps", "map_rome"});

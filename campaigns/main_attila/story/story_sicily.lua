@@ -159,7 +159,7 @@ function DilemmaChoiceMadeEvent_Sicily(context)
 
 	if context:dilemma() == "mk_dilemma_story_sicily_war_with_hre" then
 		if context:choice() == 0 then
-			-- Choice made to war on HRE!
+			-- Choice made to declare war on HRE!
 			cm:force_declare_war(HRE_KEY, SICILY_KEY);
 			HRE_WAR_WERE_DECLARED = true;
 			SICILIAN_MISSION_ACTIVE = true;
@@ -196,6 +196,8 @@ function DilemmaChoiceMadeEvent_Sicily(context)
 					cm:force_diplomacy(FACTIONS_HRE_START[i], SICILY_KEY, "war", true, true);
 				end
 			end
+
+			HRE_Vanquish_Pretender();
 		end
 	end
 end
@@ -273,6 +275,7 @@ function Sicily_Story_End_Mission(success, reason)
 			);
 		end
 
+		HRE_Vanquish_Pretender();
 		SetFactionsNeutral(SICILY_KEY, HRE_KEY);
 	end
 end

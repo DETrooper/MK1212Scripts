@@ -376,20 +376,22 @@ function RefreshDecisionsPanel()
 	local root = cm:ui_root();
 	local panDecisions = UIComponent(root:Find("Decisions_Panel"));
 	local panDecisionsView = UIComponent(panDecisions:Find("Decisions_Panel_View"));
+	local curX, curY = panDecisions:Position();
 	local txt_title_uic = UIComponent(panDecisions:Find("tx_title"));
 	txt_title_uic:SetStateText(Get_DFN_Localisation(cm:get_local_faction()));
 	panDecisionsView:DestroyChildren();
  
 	if #PRIORITY_DECISIONS > 0 then
 		for i = 1, #PRIORITY_DECISIONS do
-			panDecisionsView:CreateComponent(PRIORITY_DECISIONS[i][1].."_Decision_Button", "UI/new/button_small_accept");
-			panDecisionsView:CreateComponent(PRIORITY_DECISIONS[i][1].."_Decision_Tooltip", "UI/new/decision_question");
-			panDecisionsView:CreateComponent(PRIORITY_DECISIONS[i][1].."_Text", "UI/campaign ui/city_info_bar_horde");
+			local decision_key = PRIORITY_DECISIONS[i][1];
 
-			local btnDecisions = UIComponent(panDecisionsView:Find(PRIORITY_DECISIONS[i][1].."_Decision_Button"));
-			local tltipDecisions = UIComponent(panDecisionsView:Find(PRIORITY_DECISIONS[i][1].."_Decision_Tooltip"));
-			local textDecisions = UIComponent(panDecisionsView:Find(PRIORITY_DECISIONS[i][1].."_Text"));
-			local curX, curY = panDecisions:Position();
+			panDecisionsView:CreateComponent(decision_key.."_Decision_Button", "UI/new/button_small_accept");
+			panDecisionsView:CreateComponent(decision_key.."_Decision_Tooltip", "UI/new/decision_question");
+			panDecisionsView:CreateComponent(decision_key.."_Text", "UI/campaign ui/city_info_bar_horde");
+
+			local btnDecisions = UIComponent(panDecisionsView:Find(decision_key.."_Decision_Button"));
+			local tltipDecisions = UIComponent(panDecisionsView:Find(decision_key.."_Decision_Tooltip"));
+			local textDecisions = UIComponent(panDecisionsView:Find(decision_key.."_Text"));
 			local mon_frame = UIComponent(textDecisions:Find("mon_frame"));
 			local mon_24 = UIComponent(textDecisions:Find("mon_24"));
 			local dy_name = UIComponent(textDecisions:Find("dy_name"));
@@ -409,20 +411,20 @@ function RefreshDecisionsPanel()
 			tltipDecisions:SetMoveable(false);
 			--tltipDecisions:SetInteractive(false);
 
-			if HasValue(MAP_DECISIONS, PRIORITY_DECISIONS[i][1]) then
-				panDecisionsView:CreateComponent(PRIORITY_DECISIONS[i][1].."_Decision_Map_Button", "UI/new/button_small_decision_map");
+			if HasValue(MAP_DECISIONS, decision_key) then
+				panDecisionsView:CreateComponent(decision_key.."_Decision_Map_Button", "UI/new/button_small_decision_map");
 
-				local mapDecisions = UIComponent(panDecisionsView:Find(PRIORITY_DECISIONS[i][1].."_Decision_Map_Button"));
+				local mapDecisions = UIComponent(panDecisionsView:Find(decision_key.."_Decision_Map_Button"));
 
 				mapDecisions:Resize(24, 24);
 				mapDecisions:SetMoveable(true);
 				mapDecisions:MoveTo(curX + 540, curY + 103 + ((i - 1) * 32));
 				mapDecisions:SetMoveable(false);
 
-				local mapParchment = UIComponent(panDecisions:Find(PRIORITY_DECISIONS[i][1].."_Map_Parchment"));
+				local mapParchment = UIComponent(panDecisions:Find(decision_key.."_Map_Parchment"));
 
 				if mapParchment:Address() == nil then
-					Create_Decisions_Map(PRIORITY_DECISIONS[i][1]);
+					Create_Decisions_Map(decision_key);
 				end
 			end
 
@@ -431,7 +433,7 @@ function RefreshDecisionsPanel()
 			textDecisions:SetMoveable(false);
 			textDecisions:SetInteractive(false);
 
-			dy_name:SetStateText(DECISIONS_STRINGS[PRIORITY_DECISIONS[i][1]]);
+			dy_name:SetStateText(DECISIONS_STRINGS[decision_key]);
 			mon_frame:SetVisible(false);
 			mon_24:SetVisible(false);
 			diplomatic_relations_fill:SetVisible(false);
@@ -442,14 +444,15 @@ function RefreshDecisionsPanel()
 
 	if #AVAILABLE_DECISIONS > 0 then
 		for i = 1, #AVAILABLE_DECISIONS do
-			panDecisionsView:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Decision_Button", "UI/new/button_small_accept");
-			panDecisionsView:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Decision_Tooltip", "UI/new/decision_question");
-			panDecisionsView:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Text", "UI/campaign ui/city_info_bar_horde");
+			local decision_key = AVAILABLE_DECISIONS[i][1];
 
-			local btnDecisions = UIComponent(panDecisionsView:Find(AVAILABLE_DECISIONS[i][1].."_Decision_Button"));
-			local tltipDecisions = UIComponent(panDecisionsView:Find(AVAILABLE_DECISIONS[i][1].."_Decision_Tooltip"));
-			local textDecisions = UIComponent(panDecisionsView:Find(AVAILABLE_DECISIONS[i][1].."_Text"));
-			local curX, curY = panDecisions:Position();
+			panDecisionsView:CreateComponent(decision_key.."_Decision_Button", "UI/new/button_small_accept");
+			panDecisionsView:CreateComponent(decision_key.."_Decision_Tooltip", "UI/new/decision_question");
+			panDecisionsView:CreateComponent(decision_key.."_Text", "UI/campaign ui/city_info_bar_horde");
+
+			local btnDecisions = UIComponent(panDecisionsView:Find(decision_key.."_Decision_Button"));
+			local tltipDecisions = UIComponent(panDecisionsView:Find(decision_key.."_Decision_Tooltip"));
+			local textDecisions = UIComponent(panDecisionsView:Find(decision_key.."_Text"));
 			local mon_frame = UIComponent(textDecisions:Find("mon_frame"));
 			local mon_24 = UIComponent(textDecisions:Find("mon_24"));
 			local dy_name = UIComponent(textDecisions:Find("dy_name"));
@@ -469,20 +472,20 @@ function RefreshDecisionsPanel()
 			tltipDecisions:SetMoveable(false);
 			--tltipDecisions:SetInteractive(false);
 
-			if HasValue(MAP_DECISIONS, AVAILABLE_DECISIONS[i][1]) then
-				panDecisionsView:CreateComponent(AVAILABLE_DECISIONS[i][1].."_Decision_Map_Button", "UI/new/button_small_decision_map");
+			if HasValue(MAP_DECISIONS, decision_key) then
+				panDecisionsView:CreateComponent(decision_key.."_Decision_Map_Button", "UI/new/button_small_decision_map");
 
-				local mapDecisions = UIComponent(panDecisionsView:Find(AVAILABLE_DECISIONS[i][1].."_Decision_Map_Button"));
+				local mapDecisions = UIComponent(panDecisionsView:Find(decision_key.."_Decision_Map_Button"));
 
 				mapDecisions:Resize(24, 24);
 				mapDecisions:SetMoveable(true);
 				mapDecisions:MoveTo(curX + 540, curY + 103 + ((i - 1) * 32));
 				mapDecisions:SetMoveable(false);
 
-				local mapParchment = UIComponent(panDecisions:Find(AVAILABLE_DECISIONS[i][1].."_Map_Parchment"));
+				local mapParchment = UIComponent(panDecisions:Find(decision_key.."_Map_Parchment"));
 
 				if mapParchment:Address() == nil then
-					Create_Decisions_Map(AVAILABLE_DECISIONS[i][1]);
+					Create_Decisions_Map(decision_key);
 				end
 			end
 
@@ -491,7 +494,7 @@ function RefreshDecisionsPanel()
 			textDecisions:SetMoveable(false);
 			textDecisions:SetInteractive(false);
 
-			dy_name:SetStateText(DECISIONS_STRINGS[AVAILABLE_DECISIONS[i][1]]);
+			dy_name:SetStateText(DECISIONS_STRINGS[decision_key]);
 			mon_frame:SetVisible(false);
 			mon_24:SetVisible(false);
 			diplomatic_relations_fill:SetVisible(false);

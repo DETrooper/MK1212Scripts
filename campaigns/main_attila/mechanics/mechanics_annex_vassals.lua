@@ -121,42 +121,26 @@ function AnnexVassalsSetup()
 	for i = 0, faction_list:num_items() - 1 do
 		local faction_name = faction_list:item_at(i):name();
 
-		if faction_name == "mk_fact_almohads" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+		if faction_name == cm:get_local_faction() then
+			if faction_name == "mk_fact_almohads" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_hafsids");
-			end
-		elseif faction_name == "mk_fact_ayyubids" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			elseif faction_name == "mk_fact_ayyubids" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_mecca");
-			end
-		elseif faction_name == "mk_fact_bulgaria" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			elseif faction_name == "mk_fact_bulgaria" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_wallachia");
-			end
-		elseif faction_name == "mk_fact_france" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			elseif faction_name == "mk_fact_france" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_burgundy");
-			end
-		elseif faction_name == "mk_fact_hungary" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			elseif faction_name == "mk_fact_hungary" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_croatia");
-			end
-		elseif faction_name == "mk_fact_kiev" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			elseif faction_name == "mk_fact_kiev" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_chernigov");
-			end
-		elseif faction_name == "mk_fact_khwarazm" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			elseif faction_name == "mk_fact_khwarazm" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_hazaraspids");
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_salghurids");
-			end
-		elseif faction_name == "mk_fact_georgia" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			elseif faction_name == "mk_fact_georgia" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_alania");
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_shirvan");
-			end
-		elseif faction_name == "mk_fact_latinempire" then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			elseif faction_name == "mk_fact_latinempire" then
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_achaea");
 				table.insert(FACTIONS_VASSALIZED, "mk_fact_thessalonica");
 			end
@@ -256,7 +240,7 @@ function FactionTurnStart_Annex(context)
 end
 
 function FactionBecomesLiberationVassal_Annex(context)
-	if context:liberating_character():faction():name() == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+	if context:liberating_character():faction():name() == cm:get_local_faction() then
 		table.insert(FACTIONS_VASSALIZED, context:faction():name());
 		cm:add_time_trigger("vassal_check", 0.1);
 	end
@@ -276,7 +260,7 @@ end
 
 function FactionLeaderDeclaresWar_Annex(context)
 	if HasValue(FACTIONS_VASSALIZED, context:character():faction():name()) == true then
-		if context:character():faction():at_war_with(cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1])) then
+		if context:character():faction():at_war_with(cm:model():world():faction_by_key(cm:get_local_faction())) then
 			for i = 1, #FACTIONS_VASSALIZED do
 				if FACTIONS_VASSALIZED[i] == context:character():faction():name() then
 					table.remove(FACTIONS_VASSALIZED, i);
@@ -284,7 +268,7 @@ function FactionLeaderDeclaresWar_Annex(context)
 				end
 			end
 		end
-	elseif context:character():faction():name() == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+	elseif context:character():faction():name() == cm:get_local_faction() then
 		for i = 1, #FACTIONS_VASSALIZED do
 			if context:character():faction():at_war_with(cm:model():world():faction_by_key(FACTIONS_VASSALIZED[i])) then
 				table.remove(FACTIONS_VASSALIZED, i);
@@ -311,7 +295,7 @@ function OnComponentMouseOn_Annex_UI(context)
 				end
 			end
 
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			if faction_name == cm:get_local_faction() then
 				turns = VASSAL_SELECTED_ANNEXATION_TIME;
 			end
 
@@ -334,7 +318,7 @@ function OnComponentLClickUp_Annex_UI(context)
 		local faction_name = FACTION_TURN;
 
 		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
-			if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+			if faction_name == cm:get_local_faction() then
 				VASSAL_SELECTED_CURRENTLY_ANNEXING = true;
 
 				for i = 1, #ANNEX_VASSALS_SIZES do
@@ -389,7 +373,7 @@ function OnSettlementSelected_Annex(context)
 	local faction_name = FACTION_TURN;
 	local region_owner_name = context:garrison_residence():region():owning_faction():name();
 
-	if faction_name == cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1]):name() then
+	if faction_name == cm:get_local_faction() then
 		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
 			if HasValue(FACTIONS_VASSALIZED, region_owner_name) == true then
 				VASSAL_SELECTED = region_owner_name;

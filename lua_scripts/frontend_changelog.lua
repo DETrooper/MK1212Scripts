@@ -3,9 +3,9 @@ local util = require "lua_scripts.util";
 
 local changelogpriority = false; -- If true, always display.
 local changelogstring = 	"Welcome to the MK1212 Campaign Open Alpha!\n\n"..
-			"After nearly 5 years of developing our campaign on Total War: Attila, we've finally gotten around to releasing an Open Alpha available to all players.\n\n"..
-			"The campaign as it stands is obviously in an incomplete state, though we have plans to add much content in the near future. It currently includes 57 playable factions and various scripted mechanics, though many of these are incomplete. Notably missing from the campaign are expansive technology trees, naval units, mercenaries, and the HRE system, though these will be added in due time. Do note that the support of scripted features in multiplayer campaigns is precarious at best, while some features are excluded entirely due to the extreme difficulty or outright impossibility of networking them.\n\n"..
-			"We'd like to extend our thanks to our testers, both old and new for their spirited and helpful feedback. Be sure to join our discord to participate in community discussion and give any feedback to the developers of the mod.\n\n"..
+			"\n\n"..
+			"\n\n"..
+			"\n\n"..
 			"Discord Link: discord.gg/WzbeUxR (May be subject to change).";
 
 changelogcreated = false;
