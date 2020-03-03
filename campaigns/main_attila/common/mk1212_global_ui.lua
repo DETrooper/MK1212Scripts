@@ -215,3 +215,51 @@ function Create_Image(component, name)
 	component:Adopt(uic:Address());
 	garbage:DestroyChildren();
 end
+
+function Round_Number_Text(number)
+	-- Attila really doesn't like floats, so this does some rounding for the purposes of displaying floating point numbers as text.
+	local number = tostring(number);
+
+	for i = 1, string.len(number) do
+		local char = string.sub(number, i, i);
+
+		if char == "." then
+			local tenth = string.sub(number, i + 1, i + 1);
+			local hundredth = string.sub(number, i + 2, i + 2);
+			
+			tenth = tonumber(tenth);
+			hundredth = tonumber(hundredth);
+			
+			if hundredth < 5 then
+				if tenth ~= 0 then
+					tenth = tenth - 1;
+					
+					if tenth == 0 then
+						number = string.sub(number, 0, i - 1);
+						return number;
+					end
+				else
+					number = string.sub(number, 0, i - 1);
+					return number;
+				end
+			elseif hundredth >= 5 then
+				if tenth ~= 9 then
+					tenth = tenth + 1;
+				else
+					number = string.sub(number, 0, i - 1);
+					
+					local new_num = tonumber(number) + 1;
+					return tostring(new_num);
+				end
+			else
+				number = string.sub(number, 0, i - 1);
+				return number;
+			end
+			
+			number = string.sub(number, 0, i)..tostring(tenth);
+			return number;
+		end
+	end
+
+	return number;
+end

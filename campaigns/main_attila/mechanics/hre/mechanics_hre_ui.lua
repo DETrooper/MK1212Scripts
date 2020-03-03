@@ -290,7 +290,7 @@ function OnComponentLClickUp_HRE_UI(context)
 	elseif string.find(context.string, "button_decree_") then
 		local decree_number = string.gsub(context.string, "button_decree_", "");
 
-		if HRE_ACTIVE_DECREE == nil then
+		if HRE_ACTIVE_DECREE == "nil" then
 			Activate_Decree(HRE_DECREES[tonumber(decree_number)]["key"]);
 		end
 
@@ -460,6 +460,7 @@ function OpenHREPanel()
 
 	tx_objectives_uic2:SetStateText("Imperial Territory: ("..tostring(hre_regions_owned).."/"..tostring(#HRE_REGIONS)..")");]]--
 
+	Update_Map_Regions_HRE_UI(root);
 	Setup_Faction_Info_HRE_UI(root, cm:get_local_faction());
 	Update_Reforms_HRE_UI();
 	Update_Active_Decrees_HRE_UI();
@@ -482,8 +483,6 @@ function Create_Map_Regions_HRE_UI(root)
 
 	for i = 1, #HRE_REGIONS do
 		local region_name = HRE_REGIONS[i];
-		local region = cm:model():world():region_manager():region_by_key(region_name);
-		local owning_faction_name = region:owning_faction():name();
 		local image_name = HRE_REGIONS_TO_IMAGES[region_name];
 
 		Create_Image(map_uic, image_name);
@@ -491,6 +490,24 @@ function Create_Map_Regions_HRE_UI(root)
 		image_uic:SetMoveable(true);
 		image_uic:MoveTo(map_uicX, map_uicY);
 		image_uic:SetMoveable(false);
+	end
+
+	Update_Map_Regions_HRE_UI(root);
+end
+
+function Update_Map_Regions_HRE_UI(root)
+	local panHRE = UIComponent(root:Find("HRE_Panel"));
+	local map_uic = UIComponent(panHRE:Find("hre_map_img"));
+	local map_uicX, map_uicY = map_uic:Position();
+
+	for i = 1, #HRE_REGIONS do
+		local region_name = HRE_REGIONS[i];
+		local region = cm:model():world():region_manager():region_by_key(region_name);
+		local owning_faction_name = region:owning_faction():name();
+		local image_name = HRE_REGIONS_TO_IMAGES[region_name];
+		local image_uic = UIComponent(map_uic:Find(image_name));
+
+		image_uic:DestroyChildren();
 
 		if owning_faction_name == HRE_EMPEROR_KEY then
 			image_uic:PropagateImageColour(255, 215, 0, 150);
@@ -502,12 +519,12 @@ function Create_Map_Regions_HRE_UI(root)
 
 		-- Temporary if statement until all faction logo UI files are made.
 		if HasValue(FACTIONS_WITH_IMAGES, owning_faction_name) then
-			map_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/"..owning_faction_name.."_flag_small");
+			image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/"..owning_faction_name.."_flag_small");
 		else
-			map_uic:CreateComponent(region_name.."_logo", "UI/campaign ui/faction_flag_small");
+			image_uic:CreateComponent(region_name.."_logo", "UI/campaign ui/faction_flag_small");
 		end
 
-		local faction_logo_uic = UIComponent(map_uic:Find(region_name.."_logo"));
+		local faction_logo_uic = UIComponent(image_uic:Find(region_name.."_logo"));
 		faction_logo_uic:SetMoveable(true);
 		faction_logo_uic:MoveTo(map_uicX + HRE_REGION_FACTION_PIPS_LOCATIONS[region_name][1], map_uicY + HRE_REGION_FACTION_PIPS_LOCATIONS[region_name][2]);
 		faction_logo_uic:SetMoveable(false);
@@ -618,7 +635,7 @@ function Update_Active_Decrees_HRE_UI()
 	local btnHREPolicies_tab_child_uic = UIComponent(btnHREPolicies:Find("tab_child"));
 	local tx_decrees_uic = UIComponent(btnHREPolicies_tab_child_uic:Find("tx_decrees"));
 
-	if HRE_ACTIVE_DECREE == nil then
+	if HRE_ACTIVE_DECREE == "nil" then
 		tx_decrees_uic:SetStateText("There is currently no active decree!");
 
 		if HRE_ACTIVE_DECREE_TURNS_LEFT > 0 then
@@ -670,7 +687,54 @@ function Update_Authority_HRE_UI()
 	local btnHREPolicies_tab_child_uic = UIComponent(btnHREPolicies:Find("tab_child"));
 	local tx_authority_uic = UIComponent(btnHREPolicies_tab_child_uic:Find("tx_authority"));
 
-	tx_authority_uic:SetStateText("Imperial Authority: ("..tostring(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_IMPERIAL_AUTHORITY_MAX)..")");
+	tx_authority_uic:SetStateText("Imperial Authority: ("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_IMPERIAL_AUTHORITY_MAX)..")");
+end
+
+function Round_Imperial_Authority_HRE_UI()
+	local authority = tostring(HRE_IMPERIAL_AUTHORITY);
+
+	for i = 1, string.len(authority) do
+		local char = string.sub(authority, i, i);
+
+		if char == "." then
+			local tenth = string.sub(authority, i + 1, i + 1);
+			local hundredth = string.sub(authority, i + 2, i + 2);
+			
+			tenth = tonumber(tenth);
+			hundredth = tonumber(hundredth);
+			
+			if hundredth < 5 then
+				if tenth ~= 0 then
+					tenth = tenth - 1;
+					
+					if tenth == 0 then
+						authority = string.sub(authority, 0, i - 1);
+						return authority;
+					end
+				else
+					authority = string.sub(authority, 0, i - 1);
+					return authority;
+				end
+			elseif hundredth >= 5 then
+				if tenth ~= 9 then
+					tenth = tenth + 1;
+				else
+					authority = string.sub(authority, 0, i - 1);
+					
+					local new_num = tonumber(authority) + 1;
+					return tostring(new_num);
+				end
+			else
+				authority = string.sub(authority, 0, i - 1);
+				return authority;
+			end
+			
+			authority = string.sub(authority, 0, i);
+			return authority;
+		end
+	end
+
+	return authority;
 end
 
 function Setup_Faction_Info_HRE_UI(root, faction_name)
@@ -809,7 +873,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 			dy_imperium_uic:SetStateText(HRE_STATES[FACTIONS_HRE_STATES[faction_name]][1]);
 		elseif faction_name == HRE_EMPEROR_KEY then
 			tx_imperium_uic:SetStateText("Authority:");
-			dy_imperium_uic:SetStateText(tostring(HRE_IMPERIAL_AUTHORITY).."/100");
+			dy_imperium_uic:SetStateText(Round_Number_Text(HRE_IMPERIAL_AUTHORITY).."/100");
 		elseif faction_name == HRE_EMPEROR_PRETENDER_KEY then
 			tx_imperium_uic:SetStateText("Authority:");
 			dy_imperium_uic:SetStateText("N/A");

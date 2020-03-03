@@ -494,6 +494,13 @@ function Compute_Region_Growth(region)
 			end		
 		end
 
+		if HRE_ACTIVE_DECREE == "hre_decree_lessen_tax_burdens" then
+			if i == 2 or i == 3 then
+				growth[i] = growth[i] + 0.005;
+				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."imperial_decree_"..tostring(i).."#"..tostring(0.005 * 100).."#@";
+			end	
+		end
+
 		-- Apply soft/hard cap to positive growth.
 		growth[i] = growth[i] * growth_modifier;
 

@@ -13,7 +13,7 @@ ENGLAND_REBEL_KEY = "mk_fact_earldoms";
 TOULOUSE_KEY = "mk_fact_toulouse";
 CATHAR_REVOLT_CRUSHED = false;
 CATHAR_REVOLT_TRIGGERED = false;
-CATHAR_REVOLT_TURN = nil;
+CATHAR_REVOLT_TURN = 0;
 ENGLISH_INVASION_TURN = 2;
 FRANCE_MISSION_ACTIVE = false;
 FRANCE_MISSION_WIN_TURN = 6;
@@ -276,7 +276,7 @@ cm:register_loading_game_callback(
 	function(context)
 		CATHAR_REVOLT_CRUSHED = cm:load_value("CATHAR_REVOLT_CRUSHED", false, context);
 		CATHAR_REVOLT_TRIGGERED = cm:load_value("CATHAR_REVOLT_TRIGGERED", false, context);
-		CATHAR_REVOLT_TURN = cm:load_value("CATHAR_REVOLT_TURN", nil, context);
+		CATHAR_REVOLT_TURN = cm:load_value("CATHAR_REVOLT_TURN", 0, context);
 		FRANCE_MISSION_ACTIVE = cm:load_value("FRANCE_MISSION_ACTIVE", false, context);
 		FRANCE_MADE_PEACE = cm:load_value("FRANCE_MADE_PEACE", false, context);
 		FRANCE_SECOND_DILEMMA_ISSUED = cm:load_value("FRANCE_SECOND_DILEMMA_ISSUED", false, context);

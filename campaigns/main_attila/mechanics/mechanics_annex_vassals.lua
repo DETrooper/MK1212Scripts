@@ -156,13 +156,13 @@ function FactionTurnStart_Annex(context)
 	local faction_name = context:faction():name();
 
 	if context:faction():is_human() == true then
-		for i = 1, #FACTIONS_VASSALIZED do
-			if tonumber(FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]]) > 0 then
-				FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]] = tostring(tonumber(FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]]) - 1);
+		for k, v in pairs(FACTIONS_VASSALIZED_DELAYS) do
+			if tonumber(v) > 0 then
+				FACTIONS_VASSALIZED_DELAYS[k] = tostring(tonumber(v) - 1);
 			end
 		end
 
-		if HasValue(FACTIONS_VASSALIZED, VASSAL_SELECTED) == true then
+		if HasValue(FACTIONS_VASSALIZED, VASSAL_SELECTED) then
 			if VASSAL_SELECTED_CURRENTLY_ANNEXING == true then
 				if cm:model():world():faction_by_key(VASSAL_SELECTED):has_home_region() == true then
 					if VASSAL_SELECTED_ANNEXATION_TIME > 0 then
@@ -241,8 +241,12 @@ end
 
 function FactionBecomesLiberationVassal_Annex(context)
 	if context:liberating_character():faction():name() == cm:get_local_faction() then
-		table.insert(FACTIONS_VASSALIZED, context:faction():name());
-		cm:add_time_trigger("vassal_check", 0.1);
+		if not HasValue(FACTIONS_VASSALIZED, context:faction():name()) then
+			table.insert(FACTIONS_VASSALIZED, context:faction():name());
+			cm:add_time_trigger("vassal_check", 0.1);
+		else
+			-- Something has gone horribly wrong!!!!!!
+		end
 	end
 end
 
@@ -441,7 +445,13 @@ function OnTimeTrigger_Annex(context)
 		if PROPOSER ~= nil and RECIPIENT ~= nil and VASSAL ~= nil then
 			if RECIPIENT == VASSAL then
 				dev.log("RECIPIENT == VASSAL");
-				table.insert(FACTIONS_VASSALIZED, RECIPIENT);
+
+				if not HasValue(FACTIONS_VASSALIZED, RECIPIENT) then
+					table.insert(FACTIONS_VASSALIZED, RECIPIENT);
+				else
+					-- Something has gone horribly wrong!!!!!!
+				end
+
 				FACTIONS_VASSALIZED_DELAYS[RECIPIENT] = tostring(ANNEX_TURN_REQUIREMENT);
 			end
 

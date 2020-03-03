@@ -8,7 +8,7 @@
 --------------------------------------------------------------------------------------------------------------------------------------------------
 -- System for the HRE's emperor to pass decrees with various boons and drawbacks for themself and the empire at large.
 
-HRE_ACTIVE_DECREE = nil;
+HRE_ACTIVE_DECREE = "nil";
 HRE_ACTIVE_DECREE_TURNS_LEFT = 0;
 HRE_DECREE_DURATION = 15;
 
@@ -83,22 +83,26 @@ end
 function FactionTurnStart_HRE_Decrees(context)
 	local turn_number = cm:model():turn_number();
 
-	if HRE_ACTIVE_DECREE_TURNS_LEFT > 0 then
-		HRE_ACTIVE_DECREE_TURNS_LEFT = HRE_ACTIVE_DECREE_TURNS_LEFT - 1;
+	if FACTIONS_HRE_STATES[context:faction():name()] == "emperor" then
+		if HRE_ACTIVE_DECREE_TURNS_LEFT > 0 then
+			HRE_ACTIVE_DECREE_TURNS_LEFT = HRE_ACTIVE_DECREE_TURNS_LEFT - 1;
 
-		if HRE_ACTIVE_DECREE_TURNS_LEFT == 0 then
-			HRE_ACTIVE_DECREE = nil;
+			if HRE_ACTIVE_DECREE_TURNS_LEFT == 0 then
+				HRE_ACTIVE_DECREE = "nil";
+			end
 		end
-	end
 
-	if not context:faction():is_human() and FACTIONS_HRE_STATES[faction_name] == "emperor" then
-		if HRE_ACTIVE_DECREE == false and HRE_IMPERIAL_AUTHORITY >= 25 then
-			Activate_Decree(HRE_DECREES[cm:random_number(#HRE_DECREES)]["key"]);
+		if not context:faction():is_human() then
+			if HRE_ACTIVE_DECREE == "nil" and HRE_IMPERIAL_AUTHORITY >= 25 then
+				Activate_Decree(HRE_DECREES[cm:random_number(#HRE_DECREES)]["key"]);
+			end
 		end
 	end
 end
 
 function Activate_Decree(decree_key)
+	local faction_list = cm:model():world():faction_list();
+
 	for i = 1, #HRE_DECREES do
 		if HRE_DECREES[i]["key"] == decree_key then
 			Apply_Decree_Effect_Bundle(HRE_DECREES[i]["emperor_effect_bundle_key"], HRE_DECREES[i]["member_effect_bundle_key"]);
@@ -107,21 +111,40 @@ function Activate_Decree(decree_key)
 			HRE_ACTIVE_DECREE = decree_key;
 			HRE_ACTIVE_DECREE_TURNS_LEFT = HRE_DECREE_DURATION;
 
-			cm:show_message_event(
-				cm:get_local_faction(),
-				"message_event_text_text_mk_event_hre_decree_title",
-				"message_event_text_text_mk_event_hre_decree_primary_"..decree_key,
-				"message_event_text_text_mk_event_hre_decree_secondary",
-				true, 
-				707
-			);
+			if HasValue(FACTIONS_HRE, cm:get_local_faction()) then
+				cm:show_message_event(
+					cm:get_local_faction(),
+					"message_event_text_text_mk_event_hre_decree_title",
+					"message_event_text_text_mk_event_hre_decree_primary_"..decree_key,
+					"message_event_text_text_mk_event_hre_decree_secondary",
+					true, 
+					704
+				);
+			end
 
 			return;
+		end
+	end
+
+	-- Some decrees increase population growth, so re-compute region growth.
+	for i = 0, faction_list:num_items() - 1 do
+		local current_faction = faction_list:item_at(i);
+
+		if current_faction:is_horde() == false and current_faction:region_list():num_items() > 0 then
+			local regions = current_faction:region_list();
+
+			for j = 0, regions:num_items() - 1 do
+				local region = regions:item_at(j);
+
+				POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+			end
 		end
 	end
 end
 
 function Deactivate_Decree(decree_key)
+	local faction_list = cm:model():world():faction_list();
+
 	for i = 1, #HRE_DECREES do
 		if HRE_DECREES[i]["key"] == decree_key then
 			if HRE_DECREES[i]["emperor_effect_bundle_key"] ~= "none" then
@@ -136,10 +159,25 @@ function Deactivate_Decree(decree_key)
 				end
 			end
 
-			HRE_ACTIVE_DECREE = nil;
+			HRE_ACTIVE_DECREE = "nil";
 			HRE_ACTIVE_DECREE_TURNS_LEFT = 0;
 
 			return;
+		end
+	end
+
+	-- Some decrees increase population growth, so re-compute region growth.
+	for i = 0, faction_list:num_items() - 1 do
+		local current_faction = faction_list:item_at(i);
+
+		if current_faction:is_horde() == false and current_faction:region_list():num_items() > 0 then
+			local regions = current_faction:region_list();
+
+			for j = 0, regions:num_items() - 1 do
+				local region = regions:item_at(j);
+
+				POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+			end
 		end
 	end
 end
@@ -203,7 +241,7 @@ cm:register_saving_game_callback(
 
 cm:register_loading_game_callback(
 	function(context)
-		HRE_ACTIVE_DECREE = cm:load_value("HRE_ACTIVE_DECREE", nil, context);
+		HRE_ACTIVE_DECREE = cm:load_value("HRE_ACTIVE_DECREE", "nil", context);
 		HRE_ACTIVE_DECREE_TURNS_LEFT = cm:load_value("HRE_ACTIVE_DECREE_TURNS_LEFT", 0, context);
 	end
 );

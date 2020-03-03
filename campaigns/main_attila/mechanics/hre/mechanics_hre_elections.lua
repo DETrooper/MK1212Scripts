@@ -87,7 +87,7 @@ function Process_Election_Result_HRE_Elections()
 				faction_string,
 				"message_event_text_text_mk_event_hre_imperial_succession_secondary",
 				true, 
-				707
+				713
 			);
 		else
 			-- Display unique message event for retaining emperorship.
@@ -98,7 +98,7 @@ function Process_Election_Result_HRE_Elections()
 				faction_string,
 				"message_event_text_text_mk_event_hre_imperial_title_retained_secondary",
 				true, 
-				707
+				713
 			);
 		end
 	else
@@ -111,12 +111,17 @@ function Find_Strongest_Disloyal_Faction_HRE_Elections()
 	local strongest_faction = nil;
 	local strongest_faction_strength = 0;
 
+	-- If there is a pretender, always vote for them.
+	if HRE_EMPEROR_PRETENDER_KEY ~= nil then
+		return HRE_EMPEROR_PRETENDER_KEY;
+	end
+
 	for i = 1, #FACTIONS_HRE do
 		local faction_name = FACTIONS_HRE[i];
 		local faction = cm:model():world():faction_by_key(faction_name);
 		local faction_state = FACTIONS_HRE_STATES[faction_name];
 
-		if faction_state == "malcontent" or faction_state == "discontent" or faction_state == "ambitious" or faction_state == "pretender" then
+		if faction_state == "malcontent" or faction_state == "discontent" or faction_state == "ambitious" then
 			local faction_strength = (faction:region_list():num_items() * 10) + (faction:num_allies() * 15);
 
 			local forces = faction:military_force_list();
@@ -159,10 +164,13 @@ function Check_Faction_Votes_HRE_Elections(faction_name)
 
 	if faction_state == "loyal" or faction_state == "puppet" then
 		Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
-	elseif faction_state == "ambitious" then
+	elseif faction_state == "ambitious" or faction_state == "emperor" then
 		Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 	elseif faction_state == "malcontent" or faction_state == "discontent" then
 		Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Disloyal_Faction_HRE_Elections());
+	else
+		-- Faction doesn't have a state?
+		Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 	end
 end
 

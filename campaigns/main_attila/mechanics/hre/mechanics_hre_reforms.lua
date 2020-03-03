@@ -133,14 +133,16 @@ function Pass_HRE_Reform(reform_number)
 		end
 	end
 
-	cm:show_message_event(
-		cm:get_local_faction(),
-		"message_event_text_text_mk_event_hre_reform_title",
-		"message_event_text_text_mk_event_hre_reform_primary_"..tostring(reform_number),
-		"message_event_text_text_mk_event_hre_reform_secondary",
-		true, 
-		707
-	);
+	if HasValue(FACTIONS_HRE, cm:get_local_faction()) then
+		cm:show_message_event(
+			cm:get_local_faction(),
+			"message_event_text_text_mk_event_hre_reform_title",
+			"message_event_text_text_mk_event_hre_reform_primary_"..tostring(reform_number),
+			"message_event_text_text_mk_event_hre_reform_secondary",
+			true, 
+			704
+		);
+	end
 
 	Calculate_Reform_Votes();
 end
@@ -182,7 +184,7 @@ function Get_Reform_Tooltip(reform_key)
 					color2 = "[[rgba:8:201:27:150]]";
 				end
 
-				reformstring = reformstring.."\n\n"..color1.."Imperial Authority: ("..tostring(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_REFORM_COST)..")[[/rgba]]\n"..color2.."Votes: ("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(math.ceil((#FACTIONS_HRE - 1) / 2)).." Required)[[/rgba]]";
+				reformstring = reformstring.."\n\n"..color1.."Imperial Authority: ("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_REFORM_COST)..")[[/rgba]]\n"..color2.."Votes: ("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(math.ceil((#FACTIONS_HRE - 1) / 2)).." Required)[[/rgba]]";
 			elseif CURRENT_HRE_REFORM > i - 1 then
 				reformstring = reformstring.."\n\nThis reform has already been unlocked!";
 			end

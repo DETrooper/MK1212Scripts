@@ -141,6 +141,12 @@ function Get_DFN_Localisation(faction_name)
 		faction_string = FACTIONS_NAMES_LOCALISATION[faction_name];
 	end
 
+	if faction_name == HRE_EMPEROR_KEY then
+		faction_string = FACTIONS_NAMES_LOCALISATION["mk_fact_hre"];
+	elseif faction_name == "mk_fact_hre" then
+		faction_string = "Kingdom of Germany";
+	end
+
 	return faction_string;
 end
 
@@ -165,11 +171,59 @@ function DFN_Set_Faction_Rank(faction_name, rank)
 	end
 end
 
+function DFN_Disable_Forming_Kingdoms(faction_name)
+	if cm:is_multiplayer() == false then
+		Remove_Decision("found_a_kingdom");
+		Remove_Decision("found_an_empire");
+	end
+end
+
+function DFN_Enable_Forming_Kingdoms(faction_name)
+	if cm:is_multiplayer() == false then
+		local faction = cm:model():world():faction_by_key(faction_name);
+
+		if FACTIONS_DFN_LEVEL[faction_name] == nil then
+			FACTIONS_DFN_LEVEL[faction_name] = 1;
+		end
+
+		if faction:is_human() then
+			if FACTIONS_DFN_LEVEL[faction_name] < 2 then
+				Add_Decision("found_a_kingdom", faction_name, false, false);
+			end
+
+			if FACTIONS_DFN_LEVEL[faction_name] < 3 then
+				Add_Decision("found_an_empire", faction_name, false, false);
+			end
+		end
+	end
+end
+
+function DFN_Refresh_Faction_Name(faction_name)
+	local rank = FACTIONS_DFN_LEVEL[faction_name];
+	local newname = faction_name.."_lvl"..tostring(rank);
+
+	if faction_name == HRE_EMPEROR_KEY then
+		newname = "mk_fact_hre_lvl3";
+	else
+		if faction_name == "mk_fact_hre" then
+			newname = "mk_fact_hre_non_emperor";
+		end
+	end
+
+	Rename_Faction(faction_name, newname);
+end
+
 function GetConditionsString_DFN_Kingdom()
 	local faction_name = cm:get_local_faction();
 	local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
 	local conditionstring = "Conditions:\n\n";
-	
+
+	if faction_name == HRE_EMPEROR_KEY then
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+	else
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+	end
+
 	if num_regions >= NUM_REQUIRED_REGIONS_LVL2 then
 		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL2).." regions.\n";
 	else
@@ -186,6 +240,12 @@ function GetConditionsString_DFN_Empire()
 	local faction_name = cm:get_local_faction();
 	local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
 	local conditionstring = "Conditions:\n\n";
+
+	if faction_name == HRE_EMPEROR_KEY then
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+	else
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+	end
 	
 	if num_regions >= NUM_REQUIRED_REGIONS_LVL3 then
 		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL3).." regions\n.";

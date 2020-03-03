@@ -109,11 +109,19 @@ function OnComponentLClickUp_Challenge_Menu(context)
 	elseif context.string == "button_challenges" then
 		local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
 		local sp_challenge_menu_uic = UIComponent(sp_grand_campaign_uic:Find("sp_challenge_menu"));
+		local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
+		local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
 
 		if sp_challenge_menu_uic:Visible() == true then
 			sp_challenge_menu_uic:SetVisible(false);
+			checkbox_ironman_uic:SetVisible(true);
+			text_ironman_uic:SetStateText("[[rgba:255:255:242:150]]Enable Ironman[[/rgba:255:255:242:150]]");
+			text_ironman_uic:SetVisible(true);
 		else
 			sp_challenge_menu_uic:SetVisible(true);
+			checkbox_ironman_uic:SetVisible(false);
+			text_ironman_uic:SetStateText("");
+			text_ironman_uic:SetVisible(false);
 		end
 	elseif context.string == "button_victory" or context.string == "button_options" then
 		local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));

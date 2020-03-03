@@ -515,6 +515,7 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 		local faction_trait_growth = "";
 		local building_growth = "";
 		local capital_bonus = "";
+		local imperial_decree = "";
 		local cap_exceeded = "";
 		local under_siege = "";
 		local food_shortage = "";
@@ -544,6 +545,9 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 				elseif second_split[1] == "capital_bonus_"..tostring(class) then
 					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 9);
 					capital_bonus = "Faction Capital: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
+				elseif second_split[1] == "imperial_decree_"..tostring(class) then
+					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 9);
+					imperial_decree = "Imperial Decree: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "hard_cap_exceeded" then
 					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
 					cap_exceeded = "Hard Cap Exceeded: ".."[[rgba:255:0:0:150]](-"..second_split[2].."% of growth)[[/rgba]]\n";
@@ -566,7 +570,7 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 			end
 		end
 
-		description_window_uic:SetStateText(class_population..faction_trait_growth..building_growth..capital_bonus..cap_exceeded..under_siege..food_shortage..public_order..region_raided..projected_growth..projected_growth_num);
+		description_window_uic:SetStateText(class_population..faction_trait_growth..building_growth..capital_bonus..imperial_decree..cap_exceeded..under_siege..food_shortage..public_order..region_raided..projected_growth..projected_growth_num);
 		nobility_uic:SetVisible(false);
 		artisans_uic:SetVisible(false);
 		peasantry_uic:SetVisible(false);

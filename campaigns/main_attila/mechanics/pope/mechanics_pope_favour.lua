@@ -498,9 +498,7 @@ function MissionFailed_Check_Mission(context)
 	local faction_name = context:faction():name();
 	local mission_name = context:mission():mission_record_key();
 
-	if mission_name == "att_religious_catholic_assassinate_character_1" then
-		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
-	elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_legendary_1" then
+	if mission_name == "att_religious_catholic_construct_bch_religion_catholic_legendary_1" then
 		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
 	elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_major_1" then
 		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
@@ -509,8 +507,6 @@ function MissionFailed_Check_Mission(context)
 	elseif mission_name == "att_religious_catholic_construct_building_religious_1" then
 		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
 	elseif mission_name == "att_religious_catholic_convert_region_1" then
-		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
-	elseif mission_name == "att_religious_catholic_declare_war_1" then
 		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
 	elseif mission_name == "att_religious_catholic_recruit_agent_1" then
 		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
