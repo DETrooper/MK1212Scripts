@@ -51,6 +51,13 @@ FACTIONS_HRE_START = {
 	"mk_fact_pisa"
 };
 
+FACTIONS_HRE_HISTORICAL_ELECTORS = {
+	"mk_fact_bohemia",
+	"mk_fact_brandenburg",
+	"mk_fact_saxony",
+	"mk_fact_trier"
+};
+
 FACTIONS_HRE_STATES_START = {
 	["mk_fact_hre"] = "emperor",
 	["mk_fact_bologna"] = "discontent",

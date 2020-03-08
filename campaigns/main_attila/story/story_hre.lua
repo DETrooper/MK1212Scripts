@@ -10,7 +10,7 @@
 
 HRE_KEY = "mk_fact_hre";
 
-HRE_PEACE_COUNTDOWN = 20;
+HRE_PEACE_COUNTDOWN = 10;
 
 function Add_HRE_Story_Events_Listeners()
 	local hre = cm:model():world():faction_by_key(HRE_KEY);
@@ -24,9 +24,9 @@ function Add_HRE_Story_Events_Listeners()
 	);
 
 	if cm:is_new_game() then
-		-- Make sure the HRE doesn't dissolve immediately by implementing a 20 turn or so realm peace.
+		-- Make sure the HRE doesn't dissolve immediately by implementing a 10 turn or so realm peace.
 		for i = 1, #FACTIONS_HRE_START do
-			if FACTIONS_HRE_START[i] ~= "mk_fact_hre" then
+			if FACTIONS_HRE_START[i] ~= "mk_fact_hre" and cm:model():world():faction_by_key(FACTIONS_HRE_START[i]):is_human() == false then
 				cm:force_diplomacy(FACTIONS_HRE_START[i], HRE_KEY, "war", false, false);
 			end
 		end
@@ -72,6 +72,6 @@ cm:register_saving_game_callback(
 
 cm:register_loading_game_callback(
 	function(context)
-		HRE_PEACE_COUNTDOWN = cm:load_value("HRE_PEACE_COUNTDOWN", 20, context);
+		HRE_PEACE_COUNTDOWN = cm:load_value("HRE_PEACE_COUNTDOWN", 10, context);
 	end
 );

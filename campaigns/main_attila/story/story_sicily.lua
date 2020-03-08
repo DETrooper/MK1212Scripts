@@ -7,9 +7,20 @@
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 
-SICILY_BECAME_EMPEROR = false;
-SICILY_KING_CQI = 0;
 SICILY_KEY = "mk_fact_sicily";
+SICILY_SEPARATIST_KEY = "mk_fact_separatists_sicily";
+
+SICILY_BECAME_EMPEROR = false;
+SICILY_DILEMMA_CHOICE = 0;
+SICILY_DILEMMA_ISSUED = false;
+SICILY_KING_CQI = 0;
+
+REGIONS_SICILY = {
+	"att_reg_italia_neapolis",
+	"att_reg_magna_graecia_tarentum",
+	"att_reg_magna_graecia_rhegium",
+	"att_reg_magna_graecia_syracusae"
+};
 
 function Add_Sicily_Story_Events_Listeners()
 	local sicily = cm:model():world():faction_by_key(SICILY_KEY);
@@ -68,12 +79,19 @@ function FactionTurnStart_Sicily(context)
 				cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
 				cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
 				cm:trigger_dilemma(SICILY_KEY, "mk_dilemma_story_sicily_war_with_hre");
+			elseif SICILY_BECAME_EMPEROR == true and SICILY_DILEMMA_ISSUED == false then
+				cm:trigger_dilemma(SICILY_KEY, "mk_dilemma_story_sicily_divest_lands");
+				SICILY_DILEMMA_ISSUED = true;				
 			end
 		elseif sicily:is_human() == false and hre:is_human() == false then
 			if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false then
 				cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
 				cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
 				cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
+			elseif SICILY_BECAME_EMPEROR == true and SICILY_DILEMMA_ISSUED == false then
+				Force_Excommunication(SICILY_KEY);
+				SICILY_DILEMMA_CHOICE = 2;
+				SICILY_DILEMMA_ISSUED = true;
 			end
 		end
 
@@ -142,6 +160,25 @@ function DilemmaChoiceMadeEvent_Sicily(context)
 
 			HRE_Vanquish_Pretender();
 		end
+
+		SICILY_DILEMMA_CHOICE = context:choice() + 1;
+	elseif context:dilemma() == "mk_dilemma_story_sicily_divest_lands" then
+		if context:choice() == 0 then
+			-- Choice made to divest your lands!
+			for i = 1, #REGIONS_SICILY do
+				local region = cm:model():world():region_manager():region_by_key(REGIONS_SICILY[i]);
+
+				if region:owning_faction():name() == SICILY_KEY then
+					cm:transfer_region_to_faction(REGIONS_SICILY[i], SICILY_SEPARATIST_KEY);
+				end
+			end
+
+			Rename_Faction(SICILY_SEPARATIST_KEY, "factions_screen_name_mk_fact_sicily");
+		elseif context:choice() == 1 then
+			-- Choice made not to divest your lands!
+			Subtract_Pope_Favour(SICILY_KEY, 8, "refused_demands");
+			Update_Pope_Favour(SICILY_KEY);
+		end
 	end
 end
 
@@ -151,6 +188,8 @@ end
 cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("SICILY_BECAME_EMPEROR", SICILY_BECAME_EMPEROR, context);
+		cm:save_value("SICILY_DILEMMA_CHOICE", SICILY_DILEMMA_CHOICE, context);
+		cm:save_value("SICILY_DILEMMA_ISSUED", SICILY_DILEMMA_ISSUED, context);
 		cm:save_value("SICILY_KING_CQI", SICILY_KING_CQI, context);
 	end
 );
@@ -158,6 +197,8 @@ cm:register_saving_game_callback(
 cm:register_loading_game_callback(
 	function(context)
 		SICILY_BECAME_EMPEROR = cm:load_value("SICILY_BECAME_EMPEROR", false, context);
+		SICILY_DILEMMA_CHOICE = cm:load_value("SICILY_DILEMMA_CHOICE", 0, context);
+		SICILY_DILEMMA_ISSUED = cm:load_value("SICILY_DILEMMA_ISSUED", false, context);
 		SICILY_KING_CQI = cm:load_value("SICILY_KING_CQI", 0, context);
 	end
 );

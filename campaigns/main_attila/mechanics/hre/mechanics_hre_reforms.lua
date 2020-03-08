@@ -85,15 +85,13 @@ function Add_HRE_Reforms_Listeners()
 end
 
 function FactionTurnStart_HRE_Reforms(context)
-	local turn_number = cm:model():turn_number();
-
-	if not context:faction():is_human() then
-		if FACTIONS_HRE_STATES[faction_name] == "emperor" then
+	if context:faction():is_human() == false then
+		if HRE_Get_Faction_State(context:faction():name()) == "emperor" then
 			if HRE_IMPERIAL_AUTHORITY == HRE_REFORM_COST and #HRE_REFORMS_VOTES >= (#HRE_FACTIONS - 1)  then
 				Pass_HRE_Reform(CURRENT_HRE_REFORM + 1);
 			end
 		end
-	elseif context:faction():is_human() then
+	else
 		Calculate_Reform_Votes();
 	end
 end
@@ -102,10 +100,14 @@ function Calculate_Reform_Votes()
 	local tab = {};
 
 	for i = 1, #FACTIONS_HRE do
-		local faction_state = HRE_Get_Faction_State(FACTIONS_HRE[i]);
+		local faction_name = FACTIONS_HRE[i];
+		local faction = cm:model():world():faction_by_key(faction_name);
+		local faction_state = HRE_Get_Faction_State(faction_name);
 
-		if faction_state == "loyal" or faction_state == "puppet" or faction_state == "neutral" then
-			table.insert(tab, FACTIONS_HRE[i]);
+		if cm:is_new_game() or faction:is_human() == false then
+			if faction_state == "loyal" or faction_state == "puppet" or faction_state == "neutral" then
+				table.insert(tab, faction_name);
+			end
 		end
 	end
 
@@ -121,16 +123,57 @@ function Pass_HRE_Reform(reform_number)
 
 	cm:apply_effect_bundle("mk_effect_bundle_reform_"..tostring(reform_number), HRE_EMPEROR_KEY, 0);
 
-	if CURRENT_HRE_REFORM == 9 then
+	if reform_number == 1 then
+		-- We need to add 7 Prince-Electors.
+
+		for i = 1, #FACTIONS_HRE_HISTORICAL_ELECTORS do
+			local faction_name = FACTIONS_HRE_HISTORICAL_ELECTORS[i];
+
+			if FactionIsAlive(faction_name) and HasValue(FACTIONS_HRE, faction_name) then
+				table.insert(FACTIONS_HRE_ELECTORS, faction_name);
+			end
+		end
+
+		if #FACTIONS_HRE_ELECTORS < 7 then
+			Add_New_Electors_HRE_Elections();
+		end
+	elseif reform_number == 5 then
+		for i = 1, #FACTIONS_HRE do
+			local faction_name = FACTIONS_HRE[i];
+
+			for j = 1, #FACTIONS_HRE do
+				local faction2_name = FACTIONS_HRE[j];
+
+				if faction_name ~= HRE_EMPEROR_KEY and faction2_name ~= HRE_EMPEROR_KEY then
+					cm:force_diplomacy(faction_name, faction2_name, "war", false, false);
+
+					if cm:model():world():faction_by_key(faction_name):at_war_with(cm:model():world():faction_by_key(faction2_name)) then
+						cm:force_make_peace(faction_name, faction2_name);
+					end
+				end
+			end
+		end
+	elseif reform_number == 8 then
+		
+	elseif reform_number == 9 then
 		local turn_number = cm:model():turn_number();
 
 		for i = 1, #FACTIONS_HRE do
 			local faction_name = FACTIONS_HRE[i];
 
-			if FACTIONS_HRE_STATES[faction_name] ~= "emperor" then
+			if HRE_Get_Faction_State(faction_name) ~= "emperor" then
 				cm:grant_faction_handover(HRE_EMPEROR_KEY, faction_name, turn_number-1, turn_number-1, context);
 			end
 		end
+
+		HRE_Vanquish_Pretender();
+		CloseHREPanel();
+
+		FACTIONS_HRE = {};
+		FACTIONS_HRE_STATES = {};
+		FACTIONS_HRE_STATE_CHANGE_COOLDOWNS = {};
+
+		HRE_Button_Check();
 	end
 
 	if HasValue(FACTIONS_HRE, cm:get_local_faction()) then
@@ -145,6 +188,7 @@ function Pass_HRE_Reform(reform_number)
 	end
 
 	Calculate_Reform_Votes();
+	HRE_Change_Imperial_Authority(-HRE_REFORM_COST);
 end
 
 function Cast_Vote_For_Current_Reform_HRE(faction_name)

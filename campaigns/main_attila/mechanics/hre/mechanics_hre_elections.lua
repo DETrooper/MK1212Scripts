@@ -19,13 +19,6 @@ function Add_HRE_Election_Listeners()
 		function(context) FactionTurnStart_HRE_Elections(context) end,
 		true
 	);
-	cm:add_listener(
-		"CharacterBecomesFactionLeader_HRE_Elections",
-		"CharacterBecomesFactionLeader",
-		true,
-		function(context) CharacterBecomesFactionLeader_HRE_Elections(context) end,
-		true
-	);
 
 	if cm:is_new_game() then
 		FACTIONS_HRE_VOTES = DeepCopy(FACTIONS_HRE_VOTES_START);
@@ -33,28 +26,33 @@ function Add_HRE_Election_Listeners()
 end
 
 function FactionTurnStart_HRE_Elections(context)
+	if context:faction():name() == HRE_EMPEROR_KEY then
+		if #FACTIONS_HRE_ELECTORS > 0 then
+			for i = 1, #FACTIONS_HRE_ELECTORS do
+				if not FactionIsAlive(FACTIONS_HRE_ELECTORS[i]) then
+					table.remove(FACTIONS_HRE_ELECTORS, i);
+				end
+			end
+		end
+	end
+
 	-- Has the first reform limiting the electors to a small group been passed?
 	if CURRENT_HRE_REFORM < 1 then
 		-- All factions in the HRE can currently vote.
-		if HasValue(FACTIONS_HRE, context:faction():name()) then
+
+		--[[if HasValue(FACTIONS_HRE, context:faction():name()) then
 			Check_Faction_Votes_HRE_Elections(context:faction():name());
-		end
+		end]]--
 	-- Has the eighth reform which abolishes elections been passed?
 	elseif CURRENT_HRE_REFORM < 8 then
 		-- Only the prince-electors (and emperor) can vote.
-		if HasValue(FACTIONS_HRE_ELECTORS, context:faction():name()) or context:faction():name() == HRE_EMPEROR_KEY then
-			Check_Faction_Votes_HRE_Elections(context:faction():name());
+		if #FACTIONS_HRE_ELECTORS < 7 then
+			Add_New_Electors_HRE_Elections();
 		end
-	end
-end
 
-function CharacterBecomesFactionLeader_HRE_Elections(context)
-	local faction_name = context:character():faction():name();
-
-	if faction_name == HRE_EMPEROR_KEY then
-		Process_Election_Result_HRE_Elections();
-	elseif HasValue(FACTIONS_HRE, faction_name) then
-		Check_Faction_Votes_HRE_Elections(faction_name);
+		--[[if HasValue(FACTIONS_HRE_ELECTORS, context:faction():name()) or context:faction():name() == HRE_EMPEROR_KEY then
+			Check_Faction_Votes_HRE_Elections(context:faction():name());
+		end]]--
 	end
 end
 
@@ -102,8 +100,20 @@ function Process_Election_Result_HRE_Elections()
 			);
 		end
 	else
-		-- Todo: Fix ties.
+		-- There was a tie or something, so make the emperor keep his post.
+		local faction_string = "factions_screen_name_"..HRE_EMPEROR_KEY;
+
+		cm:show_message_event(
+			cm:get_local_faction(),
+			"message_event_text_text_mk_event_hre_imperial_title_retained_title",
+			faction_string,
+			"message_event_text_text_mk_event_hre_imperial_title_retained_secondary",
+			true, 
+			713
+		);
 	end
+
+	Refresh_HRE_Elections();
 end
 
 function Find_Strongest_Disloyal_Faction_HRE_Elections()
@@ -119,7 +129,7 @@ function Find_Strongest_Disloyal_Faction_HRE_Elections()
 	for i = 1, #FACTIONS_HRE do
 		local faction_name = FACTIONS_HRE[i];
 		local faction = cm:model():world():faction_by_key(faction_name);
-		local faction_state = FACTIONS_HRE_STATES[faction_name];
+		local faction_state = HRE_Get_Faction_State(faction_name);
 
 		if faction_state == "malcontent" or faction_state == "discontent" or faction_state == "ambitious" then
 			local faction_strength = (faction:region_list():num_items() * 10) + (faction:num_allies() * 15);
@@ -159,17 +169,86 @@ function Find_Strongest_Disloyal_Faction_HRE_Elections()
 	return strongest_faction;
 end
 
-function Check_Faction_Votes_HRE_Elections(faction_name)
-	local faction_state = FACTIONS_HRE_STATES[faction_name];
+function Refresh_HRE_Elections()
+	for k, v in pairs(FACTIONS_HRE_VOTES) do
+		if not HasValue(FACTIONS_HRE, k) then
+			FACTIONS_HRE_VOTES[k] = nil;
+		end
 
-	if faction_state == "loyal" or faction_state == "puppet" then
+		if CURRENT_HRE_REFORM >= 1 then
+			if not HasValue(FACTIONS_HRE_ELECTORS, k) then
+				FACTIONS_HRE_VOTES[k] = nil;
+			end
+		end
+	end
+
+	if CURRENT_HRE_REFORM < 1 then
+		for i = 1, #FACTIONS_HRE do
+			Check_Faction_Votes_HRE_Elections(FACTIONS_HRE[i]);
+		end
+	else
+		for i = 1, #FACTIONS_HRE_ELECTORS do
+			Check_Faction_Votes_HRE_Elections(FACTIONS_HRE_ELECTORS[i]);
+		end
+	end
+end
+
+function Add_New_Electors_HRE_Elections()
+	local factions = {};
+	local new_elector = nil;
+	local new_elector_strength = 0;
+
+	while #FACTIONS_HRE_ELECTORS < 7 do
+		for i = 1, #FACTIONS_HRE do
+			local faction_name = FACTIONS_HRE[i];
+			local faction = cm:model():world():faction_by_key(faction_name);
+			local faction_state = HRE_Get_Faction_State(faction_name);
+
+			if faction_state == "malcontent" or faction_state == "discontent" or faction_state == "ambitious" then
+				local faction_strength = (faction:region_list():num_items() * 10) + (faction:num_allies() * 15);
+
+				local forces = faction:military_force_list();
+
+				for i = 0, forces:num_items() - 1 do
+					local force = forces:item_at(i);
+					local unit_list = forces:item_at(i):unit_list();
+
+					faction_strength = faction_strength + unit_list:num_items();
+				end
+
+				table.insert(factions, {faction_name, faction_strength});
+			end
+		end
+
+		for i = 1, #factions do
+			if factions[i][2] > new_elector_strength then
+				new_elector = factions[i][1];
+				new_elector_strength = factions[i][2];
+			end
+		end
+
+		if new_elector ~= nil then
+			table.insert(FACTIONS_HRE_ELECTORS, new_elector);
+		else
+			return;
+		end
+	end
+
+	Refresh_HRE_Elections();
+end
+
+function Check_Faction_Votes_HRE_Elections(faction_name)
+	local faction_state = HRE_Get_Faction_State(faction_name);
+
+	if faction_state == "normal" or faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor" then
 		Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
-	elseif faction_state == "ambitious" or faction_state == "emperor" then
+	elseif faction_state == "ambitious" then
 		Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 	elseif faction_state == "malcontent" or faction_state == "discontent" then
 		Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Disloyal_Faction_HRE_Elections());
 	else
 		-- Faction doesn't have a state?
+		HRE_State_Check(faction_name);
 		Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 	end
 end

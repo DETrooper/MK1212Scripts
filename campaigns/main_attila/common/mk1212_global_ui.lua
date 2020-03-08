@@ -231,14 +231,7 @@ function Round_Number_Text(number)
 			hundredth = tonumber(hundredth);
 			
 			if hundredth < 5 then
-				if tenth ~= 0 then
-					tenth = tenth - 1;
-					
-					if tenth == 0 then
-						number = string.sub(number, 0, i - 1);
-						return number;
-					end
-				else
+				if tenth == 0 then
 					number = string.sub(number, 0, i - 1);
 					return number;
 				end

@@ -16,14 +16,14 @@ GOLDEN_HORDE_ALT_INVASION_ARMY =
 	"mk_mon_t1_golden_horse_archers,mk_mon_t1_golden_horse_archers,mk_mon_t1_golden_horse_archers,mk_mon_t1_golden_horse_archers,mk_mon_t1_golden_horse_archers,mk_mon_t1_golden_horse_archers,mk_mon_t1_golden_horse_archers,".. -- Light Horse Archers
 	"mk_mon_t1_catapult,mk_mon_t1_catapult"; -- Artillery
 
-ILKHANATE_HORDE_INVASION_ARMY = 
+ILKHANATE_INVASION_ARMY = 
 	"mk_mon_t1_ilkhan_heavy_lancers,mk_mon_t1_ilkhan_heavy_lancers,".. -- Heavy Shock Cav
 	"mk_mon_t1_ilkhan_lancers,mk_mon_t1_ilkhan_lancers,mk_mon_t1_ilkhan_lancers,mk_mon_t1_ilkhan_lancers,".. -- Light Shock Cav
 	"mk_mon_t1_ilkhan_heavy_horse_archers,mk_mon_t1_ilkhan_heavy_horse_archers,mk_mon_t1_ilkhan_heavy_horse_archers,mk_mon_t1_ilkhan_heavy_horse_archers,".. -- Heavy Horse Archers
 	"mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers"; -- Light Horse Archers
 
 
-ILKHANATE_HORDE_ALT_INVASION_ARMY = 
+ILKHANATE_ALT_INVASION_ARMY = 
 	"mk_mon_t1_ilkhan_heavy_lancers,mk_mon_t1_ilkhan_heavy_lancers,mk_mon_t1_ilkhan_heavy_lancers,mk_mon_t1_ilkhan_heavy_lancers,".. -- Heavy Shock Cav
 	"mk_mon_t1_ilkhan_heavy_horse_archers,mk_mon_t1_ilkhan_heavy_horse_archers,mk_mon_t1_ilkhan_heavy_horse_archers,mk_mon_t1_ilkhan_heavy_horse_archers,mk_mon_t1_ilkhan_heavy_horse_archers,mk_mon_t1_ilkhan_heavy_horse_archers,".. -- Heavy Horse Archers
 	"mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,mk_mon_t1_ilkhan_horse_archers,".. -- Light Horse Archers

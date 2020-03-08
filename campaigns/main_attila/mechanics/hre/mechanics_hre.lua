@@ -13,6 +13,7 @@ require("mechanics/hre/mechanics_hre_decrees");
 require("mechanics/hre/mechanics_hre_elections");
 require("mechanics/hre/mechanics_hre_events");
 require("mechanics/hre/mechanics_hre_reforms");
+require("mechanics/hre/mechanics_hre_regions");
 require("mechanics/hre/mechanics_hre_ui");
 
 function Add_HRE_Listeners()
@@ -31,7 +32,7 @@ function HRE_Button_Check()
 	local btnHRE = UIComponent(root:Find("button_hre"));
 	local faction_name = cm:get_local_faction();
 
-	if HasValue(FACTIONS_HRE, faction_name) or faction_name == HRE_EMPEROR_PRETENDER_KEY then
+	if (HasValue(FACTIONS_HRE, faction_name) or faction_name == HRE_EMPEROR_PRETENDER_KEY) and CURRENT_HRE_REFORM ~= 9 then
 		btnHRE:SetVisible(true);
 	else
 		btnHRE:SetVisible(false);

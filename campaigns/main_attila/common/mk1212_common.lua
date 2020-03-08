@@ -88,6 +88,16 @@ function Check_Last_Character_Force()
 	end
 end
 
+function FactionIsAlive(faction_name)
+	local faction = cm:model():world():faction_by_key(faction_name);
+
+	if faction:has_home_region() or faction:military_force_list():num_items() > 0 then
+		return true;
+	end
+
+	return false;
+end
+
 function FindClosestRegion(x, y, faction)
 	local region_name = "";
 	local distance = 10000; 

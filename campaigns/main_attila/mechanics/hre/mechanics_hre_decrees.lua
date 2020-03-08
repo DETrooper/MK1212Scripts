@@ -83,7 +83,7 @@ end
 function FactionTurnStart_HRE_Decrees(context)
 	local turn_number = cm:model():turn_number();
 
-	if FACTIONS_HRE_STATES[context:faction():name()] == "emperor" then
+	if HRE_Get_Faction_State(context:faction():name()) == "emperor" then
 		if HRE_ACTIVE_DECREE_TURNS_LEFT > 0 then
 			HRE_ACTIVE_DECREE_TURNS_LEFT = HRE_ACTIVE_DECREE_TURNS_LEFT - 1;
 
@@ -194,7 +194,7 @@ function Apply_Decree_Effect_Bundle(emperor_effect_bundle_key, member_effect_bun
 	for i = 1, #FACTIONS_HRE do
 		local faction_name = FACTIONS_HRE[i];
 
-		if FACTIONS_HRE_STATES[faction_name] == "emperor" then
+		if HRE_Get_Faction_State(faction_name) == "emperor" then
 			cm:apply_effect_bundle(emperor_effect_bundle_key, faction_name, HRE_DECREE_DURATION);
 		else
 			cm:apply_effect_bundle(member_effect_bundle_key, faction_name, HRE_DECREE_DURATION);

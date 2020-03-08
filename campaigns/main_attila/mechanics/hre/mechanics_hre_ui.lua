@@ -169,6 +169,8 @@ function OnComponentMouseOn_HRE_UI(context)
 				UIComponent(context.component):SetTooltipText(HRE_STATES[FACTIONS_HRE_STATES[HRE_FACTION_SELECTED]][2]);
 			end
 		end
+	elseif context.string == "tx_authority" then
+		UIComponent(context.component):SetTooltipText(Get_Authority_Tooltip());
 	elseif string.find(context.string, "button_decree_") then
 		local tltipDecree = UIComponent(context.component);
 		local decree_number = string.gsub(context.string, "button_decree_", "");
@@ -298,7 +300,7 @@ function OnComponentLClickUp_HRE_UI(context)
 	elseif string.find(context.string, "_Reform_Button") then
 		if UIComponent(context.component):CurrentState() ~= "inactive" then
 			if cm:get_local_faction() == HRE_EMPEROR_KEY then
-				Pass_HRE_Reform(CURRENT_HRE_REFORM);
+				Pass_HRE_Reform(CURRENT_HRE_REFORM + 1);
 				Update_Authority_HRE_UI();
 			else
 				if HasValue(HRE_REFORMS_VOTES, cm:get_local_faction()) then
@@ -763,6 +765,8 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		in_hre = " This faction is the Emperor!";
 	elseif faction_name == HRE_EMPEROR_PRETENDER_KEY then
 		in_hre = " This faction is a pretender to the throne!";
+	elseif HasValue(FACTIONS_HRE_ELECTORS, faction_name) then
+		in_hre = " This faction is a Prince-Elector!";
 	elseif not HasValue(FACTIONS_HRE, faction_name) then
 		in_hre = " This faction is not in the Holy Roman Empire!";
 	end
@@ -797,7 +801,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		local child_2 = UIComponent(parchment_uic:Find(1));
 		UIComponent(child_1:Find("hbar")):SetVisible(true);
 
-		if faction_name == HRE_EMPEROR_PRETENDER_KEY then
+		if faction_name == HRE_EMPEROR_PRETENDER_KEY or (CURRENT_HRE_REFORM > 0 and HasValue(FACTIONS_HRE_ELECTORS, faction_name) == false) then
 			UIComponent(child_2:Find("tx_title")):SetVisible(false);
 		else
 			UIComponent(child_2:Find("tx_title")):SetVisible(true);
@@ -934,124 +938,147 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 	local human_faction_name = cm:get_local_faction();
 
 	if info_faction_name ~= HRE_EMPEROR_PRETENDER_KEY then
-		election_ui_layer_uic:CreateComponent("candidate", "UI/new/hre_candidates/"..faction_name.."_candidate");
-		election_ui_layer_uic:CreateComponent("candidate_name", "UI/campaign ui/city_info_bar_horde");
-		election_ui_layer_uic:CreateComponent(faction_name.."_logo", "UI/new/faction_flags/"..faction_name.."_flag_small");
+		if (CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(FACTIONS_HRE_ELECTORS, info_faction_name))) and CURRENT_HRE_REFORM < 8 then
+			election_ui_layer_uic:CreateComponent("candidate", "UI/new/hre_candidates/"..faction_name.."_candidate");
+			election_ui_layer_uic:CreateComponent("candidate_name", "UI/campaign ui/city_info_bar_horde");
+			election_ui_layer_uic:CreateComponent(faction_name.."_logo", "UI/new/faction_flags/"..faction_name.."_flag_small");
 
-		local candidate_uic = UIComponent(election_ui_layer_uic:Find("candidate"));
-		local candidate_name_uic = UIComponent(election_ui_layer_uic:Find("candidate_name"));
-		local dy_candidate_name_uic = UIComponent(candidate_name_uic:Find("dy_name"));
-		local candidate_icon_uic = UIComponent(election_ui_layer_uic:Find(faction_name.."_logo"));
-		local mon_frame_candidate = UIComponent(candidate_name_uic:Find("mon_frame"));
-		local mon_24_candidate = UIComponent(candidate_name_uic:Find("mon_24"));
-		local diplomatic_relations_fill_candidate = UIComponent(candidate_name_uic:Find("diplomatic_relations_fill"));
-		local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
-		local dy_hordes_owned_uic = UIComponent(tx_hordes_owned_uic:Find("dy_hordes_owned"));
-		local bar_uic = UIComponent(parchment_uic:Find("bar"));
+			local candidate_uic = UIComponent(election_ui_layer_uic:Find("candidate"));
+			local candidate_name_uic = UIComponent(election_ui_layer_uic:Find("candidate_name"));
+			local dy_candidate_name_uic = UIComponent(candidate_name_uic:Find("dy_name"));
+			local candidate_icon_uic = UIComponent(election_ui_layer_uic:Find(faction_name.."_logo"));
+			local mon_frame_candidate = UIComponent(candidate_name_uic:Find("mon_frame"));
+			local mon_24_candidate = UIComponent(candidate_name_uic:Find("mon_24"));
+			local diplomatic_relations_fill_candidate = UIComponent(candidate_name_uic:Find("diplomatic_relations_fill"));
+			local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
+			local dy_hordes_owned_uic = UIComponent(tx_hordes_owned_uic:Find("dy_hordes_owned"));
+			local bar_uic = UIComponent(parchment_uic:Find("bar"));
 
-		candidate_uic:SetMoveable(true);
-		candidate_uic:MoveTo(parchment_uicX + 286, parchment_uicY + 435);
-		candidate_uic:SetMoveable(false);
-		candidate_uic:SetInteractive(false);
-		candidate_name_uic:SetMoveable(true);
-		candidate_name_uic:MoveTo(parchment_uicX + 201, parchment_uicY + 543);
-		candidate_name_uic:SetMoveable(false);
-		dy_candidate_name_uic:SetStateText(NAMES_TO_LOCALISATION[faction:faction_leader():get_forename()].." ");
-		candidate_icon_uic:SetMoveable(true);
-		candidate_icon_uic:MoveTo(parchment_uicX + 291, parchment_uicY + 514);
-		candidate_icon_uic:SetMoveable(false);
-		mon_frame_candidate:SetVisible(false);
-		mon_24_candidate:SetVisible(false);
-		diplomatic_relations_fill_candidate:SetVisible(false);
+			candidate_uic:SetMoveable(true);
+			candidate_uic:MoveTo(parchment_uicX + 286, parchment_uicY + 435);
+			candidate_uic:SetMoveable(false);
+			candidate_uic:SetInteractive(false);
+			candidate_name_uic:SetMoveable(true);
+			candidate_name_uic:MoveTo(parchment_uicX + 201, parchment_uicY + 543);
+			candidate_name_uic:SetMoveable(false);
+			dy_candidate_name_uic:SetStateText(NAMES_TO_LOCALISATION[faction:faction_leader():get_forename()].." ");
+			candidate_icon_uic:SetMoveable(true);
+			candidate_icon_uic:MoveTo(parchment_uicX + 291, parchment_uicY + 514);
+			candidate_icon_uic:SetMoveable(false);
+			mon_frame_candidate:SetVisible(false);
+			mon_24_candidate:SetVisible(false);
+			diplomatic_relations_fill_candidate:SetVisible(false);
 
-		local num_votes = Calculate_Num_Votes_HRE_Elections(faction_name);
+			local num_votes = Calculate_Num_Votes_HRE_Elections(faction_name);
 
-		tx_hordes_owned_uic:SetStateText("Chosen Candidate:");
-		dy_hordes_owned_uic:SetStateText("Votes: "..tostring(num_votes));
+			tx_hordes_owned_uic:SetVisible(true);
+			dy_hordes_owned_uic:SetVisible(true);
+			tx_hordes_owned_uic:SetStateText("Chosen Candidate:");
+			dy_hordes_owned_uic:SetStateText("Votes: "..tostring(num_votes));
 
-		if num_votes > 0 then
-			bar_uic:Resize((26 * num_votes) + 4, 24);
-			bar_uic:SetVisible(true);
-			bar_uic:SetInteractive(false);
-		else
-			bar_uic:SetVisible(false);
-		end
-
-		num_votes = num_votes / 2;
-
-		for k, v in pairs(FACTIONS_HRE_VOTES) do
-			if faction_name == v then
-				election_ui_layer_uic:CreateComponent(tostring(k).."_logo", "UI/new/faction_flags/"..tostring(k).."_flag_small");
-				local current_logo_uic = UIComponent(election_ui_layer_uic:Find(election_ui_layer_uic:ChildCount() - 1));
-
-				current_logo_uic:SetMoveable(true);
-				current_logo_uic:MoveTo(parchment_uicX + 302 + (26 * num_votes), parchment_uicY + 600);
-				current_logo_uic:SetMoveable(false);
-				bar_uic:SetMoveable(true);
-				bar_uic:MoveTo(parchment_uicX + 299 + (26 * num_votes), parchment_uicY + 600);
-				bar_uic:SetMoveable(false);
-
-				num_votes = num_votes - 1;
+			if num_votes > 0 then
+				bar_uic:Resize((26 * num_votes) + 4, 24);
+				bar_uic:SetVisible(true);
+				bar_uic:SetInteractive(false);
+			else
+				bar_uic:SetVisible(false);
 			end
+
+			num_votes = num_votes / 2;
+
+			for k, v in pairs(FACTIONS_HRE_VOTES) do
+				if faction_name == v then
+					election_ui_layer_uic:CreateComponent(tostring(k).."_logo", "UI/new/faction_flags/"..tostring(k).."_flag_small");
+					local current_logo_uic = UIComponent(election_ui_layer_uic:Find(election_ui_layer_uic:ChildCount() - 1));
+
+					current_logo_uic:SetMoveable(true);
+					current_logo_uic:MoveTo(parchment_uicX + 302 + (26 * num_votes), parchment_uicY + 600);
+					current_logo_uic:SetMoveable(false);
+					bar_uic:SetMoveable(true);
+					bar_uic:MoveTo(parchment_uicX + 299 + (26 * num_votes), parchment_uicY + 600);
+					bar_uic:SetMoveable(false);
+
+					num_votes = num_votes - 1;
+				end
+			end
+		else
+			local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
+			local dy_hordes_owned_uic = UIComponent(tx_hordes_owned_uic:Find("dy_hordes_owned"));
+			local bar_uic = UIComponent(parchment_uic:Find("bar"));
+
+			tx_hordes_owned_uic:SetStateText("");
+			dy_hordes_owned_uic:SetStateText("");
+			bar_uic:SetVisible(false);
 		end
 	end
 
-	if info_faction_name == HRE_EMPEROR_PRETENDER_KEY then
-		local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
-		local bar_uic = UIComponent(parchment_uic:Find("bar"));
+	if CURRENT_HRE_REFORM < 8 then
+		if info_faction_name == HRE_EMPEROR_PRETENDER_KEY then
+			local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
+			local bar_uic = UIComponent(parchment_uic:Find("bar"));
 
-		election_ui_layer_uic:SetVisible(false);
-		tx_hordes_owned_uic:SetVisible(false);
-		btnVote:SetVisible(true);
-		btnVote:SetMoveable(true);
-		btnVote:MoveTo(parchment_uicX + 193, parchment_uicY + 644);
-		btnVote:SetMoveable(false);
-		btnBackCandidate:SetVisible(false);
-		bar_uic:SetVisible(false);
-
-		if not HasValue(FACTIONS_HRE, cm:get_local_faction()) then
-			btnVote:SetVisible(false);
-			return;
-		end
-
-		if FACTIONS_HRE_VOTES[human_faction_name] == info_faction_name then
-			btnVote:SetState("inactive");
-		else
-			btnVote:SetState("active");
-		end
-	else
-		local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
-
-		election_ui_layer_uic:SetVisible(true);
-		tx_hordes_owned_uic:SetVisible(true);
-
-		if not HasValue(FACTIONS_HRE, cm:get_local_faction()) then
-			btnBackCandidate:SetVisible(false);
-			btnVote:SetVisible(false);
-			return;
-		end
-
-		if human_faction_name == info_faction_name or FACTIONS_HRE_VOTES[faction_name] == info_faction_name then
+			election_ui_layer_uic:SetVisible(false);
+			tx_hordes_owned_uic:SetVisible(false);
+			btnVote:SetVisible(true);
+			btnVote:SetMoveable(true);
 			btnVote:MoveTo(parchment_uicX + 193, parchment_uicY + 644);
+			btnVote:SetMoveable(false);
 			btnBackCandidate:SetVisible(false);
-		elseif FACTIONS_HRE_VOTES[human_faction_name] == FACTIONS_HRE_VOTES[info_faction_name] then
-			btnVote:MoveTo(parchment_uicX + 53, parchment_uicY + 644);
-			btnBackCandidate:MoveTo(parchment_uicX + 333, parchment_uicY + 644);
-			btnBackCandidate:SetVisible(true);
-			btnBackCandidate:SetState("inactive");
-		else
-			btnVote:MoveTo(parchment_uicX + 53, parchment_uicY + 644);
-			btnBackCandidate:MoveTo(parchment_uicX + 333, parchment_uicY + 644);
-			btnBackCandidate:SetVisible(true);
-			btnBackCandidate:SetState("active");
-		end
+			bar_uic:SetVisible(false);
 
-		btnVote:SetVisible(true);
+			if not HasValue(FACTIONS_HRE, cm:get_local_faction()) then
+				btnVote:SetVisible(false);
+				return;
+			end
 
-		if FACTIONS_HRE_VOTES[human_faction_name] == info_faction_name then
-			btnVote:SetState("inactive");
+			if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(FACTIONS_HRE_ELECTORS, human_faction_name)) then
+				if FACTIONS_HRE_VOTES[human_faction_name] == info_faction_name then
+					btnVote:SetState("inactive");
+				else
+					btnVote:SetState("active");
+				end
+			else
+				btnVote:SetVisible(false);
+			end
 		else
-			btnVote:SetState("active");
+			local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
+
+			election_ui_layer_uic:SetVisible(true);
+			tx_hordes_owned_uic:SetVisible(true);
+
+			if not HasValue(FACTIONS_HRE, cm:get_local_faction()) then
+				btnBackCandidate:SetVisible(false);
+				btnVote:SetVisible(false);
+				return;
+			end
+
+			if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(FACTIONS_HRE_ELECTORS, human_faction_name)) then
+				if human_faction_name == info_faction_name or FACTIONS_HRE_VOTES[faction_name] == info_faction_name then
+					btnVote:MoveTo(parchment_uicX + 193, parchment_uicY + 644);
+					btnBackCandidate:SetVisible(false);
+				elseif FACTIONS_HRE_VOTES[human_faction_name] == FACTIONS_HRE_VOTES[info_faction_name] then
+					btnVote:MoveTo(parchment_uicX + 53, parchment_uicY + 644);
+					btnBackCandidate:MoveTo(parchment_uicX + 333, parchment_uicY + 644);
+					btnBackCandidate:SetVisible(true);
+					btnBackCandidate:SetState("inactive");
+				else
+					btnVote:MoveTo(parchment_uicX + 53, parchment_uicY + 644);
+					btnBackCandidate:MoveTo(parchment_uicX + 333, parchment_uicY + 644);
+					btnBackCandidate:SetVisible(true);
+					btnBackCandidate:SetState("active");
+				end
+
+				btnVote:SetVisible(true);
+
+				if FACTIONS_HRE_VOTES[human_faction_name] == info_faction_name then
+					btnVote:SetState("inactive");
+				else
+					btnVote:SetState("active");
+				end
+			else
+				btnBackCandidate:SetVisible(false);
+				btnVote:SetVisible(false);
+			end
 		end
 	end
 end

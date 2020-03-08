@@ -10,23 +10,26 @@
 
 HRE_EMPEROR_KEY = "mk_fact_hre"; -- Starting emperor.
 HRE_EMPEROR_CQI = 0;
+HRE_EMPEROR_MISSION_AUTHORITY_REWARD = 25; -- The amount of Imperial Authority rewarded for beating a pretender.
 HRE_EMPEROR_MISSION_WIN_TURN = 0;
 HRE_EMPEROR_MISSION_ACTIVE = false;
 HRE_EMPEROR_PRETENDER_KEY = "mk_fact_sicily"; -- Starting pretender, isn't in the HRE proper though.
 HRE_EMPEROR_PRETENDER_COOLDOWN = 0; -- Every time a pretender is vanquished there will be a cooldown before the Pope can make a new one.
 HRE_EMPEROR_PRETENDER_CQI = 0;
-HRE_IMPERIAL_AUTHORITY = 40; -- Starting Imperial Authority.
+HRE_IMPERIAL_AUTHORITY_START = 40; -- Starting Imperial Authority. New emperors should also start with this amount.
+HRE_IMPERIAL_AUTHORITY = 40; -- Imperial Authority (Can be spent on decrees, reforms, or in events).
 HRE_IMPERIAL_AUTHORITY_GAIN_RATE = 1; -- Base Imperial Authority gain per turn.
 HRE_IMPERIAL_AUTHORITY_GAIN_PER_REGION = 0.1; -- Imperial Authority gain per region in the HRE.
 HRE_IMPERIAL_AUTHORITY_MIN = 0; -- Minimum Imperial Authority.
 HRE_IMPERIAL_AUTHORITY_MAX = 100; -- Maximum Imperial Authority.
-HRE_REGIONS_IN_EMPIRE = 21;
+HRE_FACTION_STATE_CHANGE_COOLDOWN = 10; -- How many turns before a faction's state can change after it has been changed?
 
 HRE_FRANKFURT_KEY = "att_reg_germania_uburzis";
 HRE_FRANKFURT_STATUS = "capital";
 
 FACTIONS_HRE = {};
 FACTIONS_HRE_STATES = {};
+FACTIONS_HRE_STATE_CHANGE_COOLDOWNS = {};
 
 function Add_HRE_Faction_Listeners()
 	cm:add_listener(
@@ -70,11 +73,19 @@ function Add_HRE_Faction_Listeners()
 		FACTIONS_HRE_STATES = DeepCopy(FACTIONS_HRE_STATES_START);
 		HRE_EMPEROR_CQI = cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():command_queue_index();
 		HRE_EMPEROR_PRETENDER_CQI = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY):faction_leader():command_queue_index();
+
+		for i = 1, #FACTIONS_HRE do
+			FACTIONS_HRE_STATE_CHANGE_COOLDOWNS[FACTIONS_HRE[i]] = HRE_FACTION_STATE_CHANGE_COOLDOWN;
+		end
 	end
+
+	HRE_Regions_Setup();
 end
 
 function FactionTurnStart_HRE_Factions(context)
-	if context:faction():name() == HRE_EMPEROR_KEY then
+	local faction_name = context:faction():name();
+
+	if context:faction():name() == HRE_EMPEROR_KEY and CURRENT_HRE_REFORM < 9 then
 		local faction_list = cm:model():world():faction_list();
 
 		for i = 0, faction_list:num_items() - 1 do
@@ -105,12 +116,19 @@ function FactionTurnStart_HRE_Factions(context)
 			HRE_EMPEROR_PRETENDER_COOLDOWN = HRE_EMPEROR_PRETENDER_COOLDOWN - 1;
 		end
 
-		if HRE_MISSION_ACTIVE ~= true and HRE_EMPEROR_PRETENDER_KEY ~= nil then
-			cm:trigger_mission(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender");
-			HRE_MISSION_ACTIVE = true;
-			HRE_MISSION_WIN_TURN  = cm:model():turn_number() + 10;
+		for k, v in pairs(FACTIONS_HRE_STATE_CHANGE_COOLDOWNS) do
+			if FACTIONS_HRE_STATE_CHANGE_COOLDOWNS[k] > 0 then
+				FACTIONS_HRE_STATE_CHANGE_COOLDOWNS[k] = FACTIONS_HRE_STATE_CHANGE_COOLDOWNS[k] - 1;
+			end
+		end
+
+		if HRE_EMPEROR_MISSION_ACTIVE == false then
+			if HRE_EMPEROR_PRETENDER_KEY ~= nil then
+				cm:trigger_mission(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender");
+				HRE_EMPEROR_MISSION_ACTIVE = true;
+			end
 		else
-			if cm:model():turn_number() == HRE_MISSION_WIN_TURN then
+			if cm:model():turn_number() == HRE_EMPEROR_MISSION_WIN_TURN then
 				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
 				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
 
@@ -121,16 +139,31 @@ function FactionTurnStart_HRE_Factions(context)
 
 				HRE_Pretender_End_Mission(false, "death");
 			elseif cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_CQI then
-				cm:override_mission_succeeded_status(HRE_KEY, "mk_mission_story_hre_survive_pretender", false);
+				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
 				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
 
 				HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
 			end
 		end
+
+		for i = 1, #FACTIONS_HRE do
+			local faction_name = FACTIONS_HRE[i];
+		
+			if not FactionIsAlive(faction_name) then
+				HRE_Remove_From_Empire(faction_name);
+			end
+		end
+
+		for i = 1, #FACTIONS_HRE_START do
+			local faction_name = FACTIONS_HRE_START[i];
+		
+			if FactionIsAlive(faction_name) and HasValue(FACTIONS_HRE, faction_name) == false then
+				HRE_Add_To_Empire(faction_name);
+			end	
+		end
 	end
 
 	HRE_Button_Check(); -- Check every turn if the HRE panel should be hidden or not.
-	HRE_Check_Regions_In_Empire();
 end
 
 function CharacterBecomesFactionLeader_HRE_Factions(context)
@@ -140,21 +173,29 @@ function CharacterBecomesFactionLeader_HRE_Factions(context)
 	-- When faction leaders of HRE member states die, set their attitude to neutral if not a puppet, then check to see if their state should be something else.
 	if HasValue(FACTIONS_HRE, faction_name) and faction_name ~= HRE_EMPEROR_KEY then
 		if faction_state ~= "puppet" then
-			HRE_Set_Faction_State(faction_name, "neutral");
+			HRE_Set_Faction_State(faction_name, "neutral", true);
 			HRE_State_Check(faction_name);
+			Check_Faction_Votes_HRE_Elections(faction_name);
 		end
 	end
 
-	if cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_PRETENDER_CQI then
-		cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
-		cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+	if HRE_EMPEROR_PRETENDER_KEY ~= nil then
+		if cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_PRETENDER_CQI then
+			cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
+			cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
 
-		HRE_Pretender_End_Mission(false, "death");
-	elseif cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_CQI then
-		cm:override_mission_succeeded_status(HRE_KEY, "mk_mission_story_hre_survive_pretender", false);
-		cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+			HRE_Pretender_End_Mission(false, "death");
+		elseif cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_CQI then
+			cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
+			cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
 
-		HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
+			HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
+		end
+	elseif CURRENT_HRE_REFORM < 8 then
+		if faction_name == HRE_EMPEROR_KEY then
+			-- Emperor died and there was no pretender, so elect a new emperor!
+			Process_Election_Result_HRE_Elections();
+		end
 	end
 end
 
@@ -184,6 +225,7 @@ function DilemmaChoiceMadeEvent_HRE_Pretender(context)
 
 			cm:force_declare_war(HRE_EMPEROR_KEY, pretender);
 			SetFactionsHostile(pretender, HRE_EMPEROR_KEY);
+			Refresh_HRE_Elections();
 		elseif context:choice() == 1 then
 			-- Choice made to reject the Pope's offer!
 			HRE_Assign_New_Pretender(true);
@@ -192,7 +234,6 @@ function DilemmaChoiceMadeEvent_HRE_Pretender(context)
 		HRE_Button_Check();
 	end
 end
-
 
 function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 	local frankfurt_owner_name = cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name();
@@ -206,7 +247,7 @@ function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 			end
 		else
 			if frankfurt_owner_name == HRE_EMPEROR_PRETENDER_KEY then
-				cm:override_mission_succeeded_status(HRE_KEY, "mk_mission_story_hre_survive_pretender", false);
+				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
 				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
 
 				HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
@@ -223,11 +264,19 @@ function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 end
 
 function MissionIssued_HRE_Factions(context)
+	local mission_name = context:mission():mission_record_key();
+
 	if context:faction():name() == HRE_EMPEROR_PRETENDER_KEY then
 		if mission_name == "mk_mission_story_pretender_take_frankfurt" then
 			if HRE_FRANKFURT_STATUS == "capital" then
 				cm:make_region_seen_in_shroud(context:faction():name(), HRE_FRANKFURT_KEY);
 			end
+
+			HRE_EMPEROR_MISSION_WIN_TURN = cm:model():turn_number() + 9;
+		end
+	elseif context:faction():name() == HRE_EMPEROR_KEY then
+		if mission_name == "mk_mission_story_hre_survive_pretender" then
+			HRE_EMPEROR_MISSION_WIN_TURN = cm:model():turn_number() + 9;
 		end
 	end
 end
@@ -242,7 +291,7 @@ function HRE_State_Check(faction_name)
 	-- If the HRE member state is not malcontent but is at war with the emperor, make them malcontent.
 	if faction_state ~= "malcontent" then
 		if faction:at_war_with(emperor_faction) then
-			HRE_Set_Faction_State(faction_name, "malcontent");
+			HRE_Set_Faction_State(faction_name, "malcontent", true);
 			return;
 		end
 	end
@@ -250,7 +299,7 @@ function HRE_State_Check(faction_name)
 	if faction_state ~= "puppet" then
 		if emperor_faction:is_human() then
 			if HasValue(FACTIONS_VASSALIZED, faction_name) then
-				HRE_Set_Faction_State(faction_name, "puppet");
+				HRE_Set_Faction_State(faction_name, "puppet", true);
 				return;
 			end
 		end
@@ -261,7 +310,7 @@ function HRE_State_Check(faction_name)
 
 			if faction:allied_with(possible_ally) == true and HasValue(FACTIONS_HRE, possible_ally:name()) then
 				if possible_ally:at_war_with(emperor_faction) then
-					HRE_Set_Faction_State(possible_ally:name(), "discontent");
+					HRE_Set_Faction_State(possible_ally:name(), "discontent", false);
 					return;
 				end
 			end
@@ -271,8 +320,15 @@ end
 
 function HRE_Calculate_Imperial_Authority()
 	local authority = HRE_IMPERIAL_AUTHORITY;
+	local gain = HRE_IMPERIAL_AUTHORITY_GAIN_RATE + (HRE_IMPERIAL_AUTHORITY_GAIN_PER_REGION * #HRE_REGIONS_IN_EMPIRE);
 
-	authority = authority + HRE_IMPERIAL_AUTHORITY_GAIN_RATE + (HRE_IMPERIAL_AUTHORITY_GAIN_PER_REGION * HRE_REGIONS_IN_EMPIRE);
+	if CURRENT_HRE_REFORM < 5 then
+		authority = authority + gain;
+	elseif CURRENT_HRE_REFORM >= 5 then
+		authority = authority + (gain * 1.25);
+	elseif CURRENT_HRE_REFORM >= 7 then
+		authority = authority + (gain * 1.5);
+	end
 
 	if authority > HRE_IMPERIAL_AUTHORITY_MAX then
 		authority = 100;
@@ -304,8 +360,33 @@ function HRE_Replace_Emperor(faction_name)
 		cm:transfer_region_to_faction(HRE_FRANKFURT_KEY, faction_name);
 	end
 
+	for i = 1, #FACTIONS_HRE do
+		if FACTIONS_HRE[i] == old_emperor then
+			if not HasValue(FACTIONS_HRE_START, old_emperor) then
+				table.remove(FACTIONS_HRE, i);
+				break;
+			end
+		end
+	end
+
+	if not HasValue(FACTIONS_HRE, faction_name) then
+		table.insert(FACTIONS_HRE, faction_name);
+	end
+
+	-- Sicily has the option to divest its lands, so it should re-inherit them after losing the emperorship.
+	if old_emperor == "mk_fact_sicily" and SICILY_DILEMMA_CHOICE == 1 then
+		local turn_number = cm:model():turn_number();
+
+		cm:grant_faction_handover(old_emperor, SICILY_SEPARATIST_KEY, turn_number-1, turn_number-1, context);
+	end
+
 	HRE_Vanquish_Pretender();
+
 	HRE_EMPEROR_KEY = faction_name;
+	HRE_EMPEROR_CQI = cm:model():world():faction_by_key(faction_name):faction_leader():command_queue_index();
+	HRE_IMPERIAL_AUTHORITY = HRE_IMPERIAL_AUTHORITY_START;
+
+	HRE_Set_Faction_State(old_emperor, "neutral", true);
 	HRE_Button_Check();
 
 	DFN_Disable_Forming_Kingdoms(faction_name);
@@ -358,6 +439,7 @@ function HRE_Assign_New_Pretender(player_rejected)
 			cm:trigger_dilemma(faction_name, "mk_dilemma_hre_pretender_nomination");
 		else
 			HRE_EMPEROR_PRETENDER_KEY = pretender;
+			HRE_EMPEROR_PRETENDER_CQI = cm:model():world():faction_by_key(pretender):faction_leader():command_queue_index();
 			local faction_string = "factions_screen_name_"..pretender;
 
 			if FACTIONS_DFN_LEVEL[pretender] ~= nil then
@@ -383,6 +465,7 @@ function HRE_Assign_New_Pretender(player_rejected)
 		HRE_Vanquish_Pretender(); -- Reset cooldown.
 	end
 
+	Refresh_HRE_Elections();
 	HRE_Button_Check();
 end
 
@@ -398,6 +481,8 @@ function HRE_Vanquish_Pretender()
 
 	HRE_EMPEROR_PRETENDER_COOLDOWN = 10;
 	HRE_EMPEROR_PRETENDER_KEY = nil;
+
+	Refresh_HRE_Elections();
 	HRE_Button_Check();
 end
 
@@ -413,6 +498,8 @@ function HRE_Pretender_End_Mission(success, reason)
 	end
 
 	if success == false then
+		HRE_Change_Imperial_Authority(HRE_EMPEROR_MISSION_AUTHORITY_REWARD);
+
 		if reason == "death" then
 			cm:show_message_event(
 				HRE_EMPEROR_PRETENDER_KEY,
@@ -437,8 +524,12 @@ function HRE_Pretender_End_Mission(success, reason)
 	end
 end
 
-function HRE_Set_Faction_State(faction_name, state)
-	FACTIONS_HRE_STATES[faction_name] = state;
+function HRE_Set_Faction_State(faction_name, state, ignore_cooldown)
+	if ignore_cooldown == true or FACTIONS_HRE_STATE_CHANGE_COOLDOWNS[faction_name] == 0 then
+		FACTIONS_HRE_STATES[faction_name] = state;
+		FACTIONS_HRE_STATE_CHANGE_COOLDOWNS[faction_name] = HRE_FACTION_STATE_CHANGE_COOLDOWN;
+		Refresh_HRE_Elections();
+	end
 end
 
 function HRE_Get_Faction_State(faction_name)
@@ -449,22 +540,61 @@ function HRE_Get_Faction_State(faction_name)
 	return FACTIONS_HRE_STATES[faction_name];
 end
 
+function HRE_Add_To_Empire(faction_name)
+	if not HasValue(FACTIONS_HRE, faction_name) then
+		table.insert(FACTIONS_HRE, faction_name);
+	end
+	
+	HRE_State_Check(faction_name);
+end
+
 function HRE_Remove_From_Empire(faction_name)
 	for i = 1, #FACTIONS_HRE do
 		if FACTIONS_HRE[i] == faction_name then
+			FACTIONS_HRE_STATES[faction_name] = nil;
+			FACTIONS_HRE_STATE_CHANGE_COOLDOWNS[faction_name] = 0;
 			table.remove(FACTIONS_HRE, i);
 		end	
 	end
+
+	Refresh_HRE_Elections();
+end
+
+function HRE_Change_Imperial_Authority(amount)
+	local authority = HRE_IMPERIAL_AUTHORITY + amount;
+
+	if authority > HRE_IMPERIAL_AUTHORITY_MAX then
+		authority = 100;
+	elseif authority < HRE_IMPERIAL_AUTHORITY_MIN then
+		authority = 0;
+	end
+
+	HRE_IMPERIAL_AUTHORITY = authority;
 end
 
 function Get_Authority_Tooltip()
-	local num_regions = #HRE_REGIONS;
+	local num_regions = #HRE_REGIONS_IN_EMPIRE;
 
 	local authoritystring = "Current Imperial Authority: "..Round_Number_Text(HRE_IMPERIAL_AUTHORITY);
 	authoritystring = authoritystring.."\n\nEmperorship Held: [[rgba:8:201:27:150]]+"..Round_Number_Text(HRE_IMPERIAL_AUTHORITY_GAIN_RATE).."[[/rgba]]";
 	authoritystring = authoritystring.."\nRegions in the HRE: [[rgba:8:201:27:150]]+"..Round_Number_Text(HRE_IMPERIAL_AUTHORITY_GAIN_PER_REGION * num_regions).."[[/rgba]]";
-	authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:8:201:27:150]]"..Round_Number_Text(HRE_Calculate_Imperial_Authority() - HRE_IMPERIAL_AUTHORITY).."[[/rgba]]";
-	authoritystring = authoritystring.."\nProjected Imperial Authority: [[rgba:8:201:27:150]]"..Round_Number_Text(HRE_Calculate_Imperial_Authority()).."[[/rgba]]";
+
+	if CURRENT_HRE_REFORM >= 5 then
+		authoritystring = authoritystring.."\nReforms: [[rgba:8:201:27:150]]+25%[[/rgba]]";
+	elseif CURRENT_HRE_REFORM >= 7 then
+		authoritystring = authoritystring.."\nReforms: [[rgba:8:201:27:150]]+50%[[/rgba]]";
+	end
+
+	if HRE_IMPERIAL_AUTHORITY == HRE_IMPERIAL_AUTHORITY_MAX then
+		authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:255:0:0:150]]None[[/rgba]]";
+		authoritystring = authoritystring.."\nProjected Imperial Authority: [[rgba:8:201:27:150]]100[[/rgba]]";
+	elseif HRE_Calculate_Imperial_Authority() > HRE_IMPERIAL_AUTHORITY_MAX then
+		authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:255:255:0:150]]+"..Round_Number_Text(HRE_Calculate_Imperial_Authority() - HRE_IMPERIAL_AUTHORITY_MAX).."[[/rgba]]";
+		authoritystring = authoritystring.."\nProjected Imperial Authority: [[rgba:8:201:27:150]]100[/rgba]]";
+	else
+		authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:8:201:27:150]]+"..Round_Number_Text(HRE_Calculate_Imperial_Authority() - HRE_IMPERIAL_AUTHORITY).."[[/rgba]]";
+		authoritystring = authoritystring.."\nProjected Imperial Authority: [[rgba:8:201:27:150]]"..Round_Number_Text(HRE_Calculate_Imperial_Authority()).."[[/rgba]]";
+	end
 
 	return authoritystring;
 end
@@ -476,6 +606,7 @@ cm:register_saving_game_callback(
 	function(context)
 		SaveTable(context, FACTIONS_HRE, "FACTIONS_HRE");
 		SaveKeyPairTable(context, FACTIONS_HRE_STATES, "FACTIONS_HRE_STATES");
+		SaveKeyPairTable(context, FACTIONS_HRE_STATE_CHANGE_COOLDOWNS, "FACTIONS_HRE_STATE_CHANGE_COOLDOWNS");
 		cm:save_value("HRE_EMPEROR_KEY", HRE_EMPEROR_KEY, context);
 		cm:save_value("HRE_EMPEROR_CQI", HRE_EMPEROR_CQI, context);
 		cm:save_value("HRE_EMPEROR_MISSION_ACTIVE", HRE_EMPEROR_MISSION_ACTIVE, context);
@@ -493,6 +624,7 @@ cm:register_loading_game_callback(
 	function(context)
 		FACTIONS_HRE = LoadTable(context, "FACTIONS_HRE");
 		FACTIONS_HRE_STATES = LoadKeyPairTable(context, "FACTIONS_HRE_STATES");
+		FACTIONS_HRE_STATE_CHANGE_COOLDOWNS = LoadKeyPairTableNumbers(context, "FACTIONS_HRE_STATE_CHANGE_COOLDOWNS");
 		HRE_EMPEROR_KEY = cm:load_value("HRE_EMPEROR_KEY", "mk_fact_hre", context);
 		HRE_EMPEROR_CQI = cm:load_value("HRE_EMPEROR_CQI", 0, context);
 		HRE_EMPEROR_MISSION_ACTIVE = cm:load_value("HRE_EMPEROR_MISSION_ACTIVE", false, context);
