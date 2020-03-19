@@ -60,9 +60,9 @@ function Add_Sicily_Story_Events_Listeners()
 		SICILY_KING_CQI = cm:model():world():faction_by_key(SICILY_KEY):faction_leader():command_queue_index();
 
 		-- For the duration of Sicily's mission, ensure that the HRE's tributaries do not get involved in the war with Sicily.
-		for i = 1, #FACTIONS_HRE_START do
-			if FACTIONS_HRE_START[i] ~= HRE_EMPEROR_KEY then
-				cm:force_diplomacy(FACTIONS_HRE_START[i], SICILY_KEY, "war", false, false);
+		for i = 1, #HRE_FACTIONS_START do
+			if HRE_FACTIONS_START[i] ~= HRE_EMPEROR_KEY then
+				cm:force_diplomacy(HRE_FACTIONS_START[i], SICILY_KEY, "war", false, false);
 			end
 		end
 	end
@@ -96,8 +96,8 @@ function FactionTurnStart_Sicily(context)
 		end
 
 		if SICILY_BECAME_EMPEROR == false and SICILY_KEY == HRE_EMPEROR_PRETENDER_KEY then
-			for i = 1, #FACTIONS_HRE_START do
-				cm:force_diplomacy(FACTIONS_HRE_START[i], SICILY_KEY, "war", true, true);
+			for i = 1, #HRE_FACTIONS_START do
+				cm:force_diplomacy(HRE_FACTIONS_START[i], SICILY_KEY, "war", true, true);
 			end
 
 			SICILY_BECAME_EMPEROR = true;
@@ -154,8 +154,8 @@ function DilemmaChoiceMadeEvent_Sicily(context)
 				704
 			);
 
-			for i = 1, #FACTIONS_HRE_START do
-				cm:force_diplomacy(FACTIONS_HRE_START[i], SICILY_KEY, "war", true, true);
+			for i = 1, #HRE_FACTIONS_START do
+				cm:force_diplomacy(HRE_FACTIONS_START[i], SICILY_KEY, "war", true, true);
 			end
 
 			HRE_Vanquish_Pretender();

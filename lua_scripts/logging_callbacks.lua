@@ -167,6 +167,7 @@ function output_uicomponent(uic)
 	dev.log("current anim:\t\t"..tostring(uic:CurrentAnimationId()));
 	dev.log("visible:\t\t" .. tostring(uic:Visible()));
 	dev.log("priority:\t\t" .. tostring(uic:Priority()));
+	dev.log("text:\t\t" .. tostring(uic:GetStateText()));
 	dev.log("children:");
 	
 	if __game_mode == __lib_type_campaign then

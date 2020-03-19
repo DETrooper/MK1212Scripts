@@ -32,6 +32,7 @@ DECISIONS_STRINGS_MAP = {
 };
 
 MAP_DECISIONS = {
+	"restore_roman_empire",
 	"form_kingdom_armenia",
 	"form_kingdom_italy",
 	"form_kingdom_poland",

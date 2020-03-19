@@ -19,17 +19,14 @@ HRE_STATES = {
 	["puppet"] = {"Puppet", "This faction exists only in name, being completely subservient to the whims of the emperor"}
 };
 
-HRE_ELECTION_FACTORS = {
-	["loyal"] = 50,
-	["ambitious"] = -25,
-	["malcontent"] = -100,
-	["discontent"] = -25,
-	["puppet"] = 100,
-	["allies"] = 25,
-	["powerful"] = 25,
+HRE_EVENTS_DILEMMAS = {
+	["mk_dilemma_hre_border_dispute"] = {0, 0, -10},
+	["mk_dilemma_hre_imperial_immediacy"] = {15, -15},
+	["mk_dilemma_hre_noble_conflict"] = {10, 10, -10},
+	["mk_dilemma_hre_imperial_diet"] = {25, 25, 0, 10}
 };
 
-FACTIONS_HRE_START = {
+HRE_FACTIONS_START = {
 	"mk_fact_hre",
 	"mk_fact_bologna",
 	"mk_fact_verona",
@@ -51,14 +48,14 @@ FACTIONS_HRE_START = {
 	"mk_fact_pisa"
 };
 
-FACTIONS_HRE_HISTORICAL_ELECTORS = {
+HRE_FACTIONS_HISTORICAL_ELECTORS = {
 	"mk_fact_bohemia",
 	"mk_fact_brandenburg",
 	"mk_fact_saxony",
 	"mk_fact_trier"
 };
 
-FACTIONS_HRE_STATES_START = {
+HRE_FACTIONS_STATES_START = {
 	["mk_fact_hre"] = "emperor",
 	["mk_fact_bologna"] = "discontent",
 	["mk_fact_verona"] = "discontent",
@@ -81,7 +78,7 @@ FACTIONS_HRE_STATES_START = {
 	["mk_fact_sicily"] = "pretender"
 };
 
-FACTIONS_HRE_VOTES_START = {
+HRE_FACTIONS_VOTES_START = {
 	["mk_fact_hre"] = "mk_fact_hre",
 	["mk_fact_bologna"] = "mk_fact_sicily",
 	["mk_fact_verona"] = "mk_fact_sicily",
@@ -101,6 +98,39 @@ FACTIONS_HRE_VOTES_START = {
 	["mk_fact_lorraine"] = "mk_fact_hre",
 	["mk_fact_schwyz"] = "mk_fact_sicily",
 	["mk_fact_pisa"] = "mk_fact_sicily"
+};
+
+HRE_FACTIONS_WITH_CANDIDATE_IMAGES = {
+	"mk_fact_aragon",
+	"mk_fact_austria",
+	"mk_fact_bavaria",
+	"mk_fact_bohemia",
+	"mk_fact_bologna",
+	"mk_fact_brabant",
+	"mk_fact_brandenburg",
+	"mk_fact_castile",
+	"mk_fact_dauphine",
+	"mk_fact_denmark",
+	"mk_fact_england",
+	"mk_fact_france",
+	"mk_fact_friesland",
+	"mk_fact_genoa",
+	"mk_fact_hre",
+	"mk_fact_hungary",
+	"mk_fact_latinempire",
+	"mk_fact_lorraine",
+	"mk_fact_milan",
+	"mk_fact_navarre",
+	"mk_fact_pisa",
+	"mk_fact_portugal",
+	"mk_fact_provence",
+	"mk_fact_savoy",
+	"mk_fact_saxony",
+	"mk_fact_schwyz",
+	"mk_fact_sicily",
+	"mk_fact_toulouse",
+	"mk_fact_trier",
+	"mk_fact_verona",
 };
 
 HRE_REGIONS = {
@@ -179,10 +209,6 @@ HRE_REGION_FACTION_PIPS_LOCATIONS = {
 	["att_reg_raetia_et_noricum_virunum"] = {389, 386},
 	["att_reg_venetia_ravenna"] = {320, 528},
 	["att_reg_venetia_verona"] = {299, 464},
-};
-
-HRE_RANDOM_DILEMMAS = {
-	
 };
 
 HRE_EMPERORS_NAMES_NUMBERS = {

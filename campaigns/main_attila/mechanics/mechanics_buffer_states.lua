@@ -7,10 +7,6 @@
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
 
-WARNING_PANEL_OPEN = false;
-
-local dev = require("lua_scripts.dev");
-
 function Add_Buffer_States_Listeners()
 	cm:add_listener(
 		"OnComponentMouseOn_Buffer_UI",
@@ -66,12 +62,12 @@ function CreateBufferButton()
 	btnBuffer:SetState("inactive"); 
 	btnBuffer:SetVisible(false);
 
-	root:CreateComponent("Buffer_Warning", "UI/common ui/confirm_overwrite");
+	root:CreateComponent("Buffer_Warning", "UI/new/buffer_warning");
 	local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
 	local curX, curY = panBufferWarning:Position();
 
 	UIComponent(panBufferWarning:Find("heading_txt")):SetStateText("Release Buffer State?");
-	UIComponent(panBufferWarning:Find("dy_filename")):SetStateText("Faction: ".."\nRegion: ");
+	UIComponent(panBufferWarning:Find("dy_buffer_info")):SetStateText("Faction: ".."\nRegion: ");
 	UIComponent(panBufferWarning:Find("txt")):SetStateText("This faction will become your vassal.");
 
 	panBufferWarning:SetVisible(false);
@@ -87,29 +83,48 @@ function OnComponentMouseOn_Buffer_UI(context)
 end
 
 function OnComponentLClickUp_Buffer_UI(context)
-	if context.string == "Buffer_Button" and WARNING_PANEL_OPEN == false then
-		WARNING_PANEL_OPEN = true;
-
+	if context.string == "Buffer_Button" then
 		local root = cm:ui_root();
 		local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
-		local faction_string = FACTIONS_NAMES_LOCALISATION[REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]];
-		local region_string = REGIONS_NAMES_LOCALISATION[REGION_SELECTED];
+	
+		if panBufferWarning:Visible() == false then
+			local faction_string = FACTIONS_NAMES_LOCALISATION[REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]];
+			local region_string = REGIONS_NAMES_LOCALISATION[REGION_SELECTED];
+			local dy_buffer_info_uic = UIComponent(panBufferWarning:Find("dy_buffer_info"));
+			local scroll_frame_uic = UIComponent(panBufferWarning:Find("scroll_frame"));
 
-		UIComponent(panBufferWarning:Find("dy_filename")):SetStateText("Faction: "..faction_string.."\nRegion: "..region_string);
-		panBufferWarning:SetVisible(true);
-	elseif context.string == "button_ok" and WARNING_PANEL_OPEN == true then
+			dy_buffer_info_uic:SetStateText("Faction: "..faction_string.."\nRegion: "..region_string);
+
+			scroll_frame_uic:DestroyChildren();
+			scroll_frame_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..REGIONS_LIBERATION_FACTIONS[REGION_SELECTED].."_flag_big");
+
+			local faction_logo_uic = UIComponent(scroll_frame_uic:Find(0));
+			local scroll_frame_uicX, scroll_frame_uicY = scroll_frame_uic:Position();
+			faction_logo_uic:SetMoveable(true);
+			faction_logo_uic:MoveTo(scroll_frame_uicX + 152, scroll_frame_uicY + 70);
+			faction_logo_uic:SetMoveable(false);
+
+			panBufferWarning:SetVisible(true);
+		else
+			BufferPanelClosed();
+		end
+	elseif context.string == "button_buffer_confirm" then
 		local faction_name = FACTION_TURN;
 		local faction = cm:model():world():faction_by_key(faction_name);
-		local vassal_faction = cm:model():world():faction_by_key(REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]);
+		local vassal_faction_name = REGIONS_LIBERATION_FACTIONS[REGION_SELECTED];
+		local vassal_faction = cm:model():world():faction_by_key(vassal_faction_name);
 
-		if vassal_faction:has_home_region() ~= true and vassal_faction:has_faction_leader() ~= true and vassal_faction:military_force_list():num_items() == 0 then
+		local spear_unit = BUFFER_STATE_SPEAR_UNITS[vassal_faction_name];
+		local unit_list = spear_unit..","..spear_unit..","..spear_unit..","..spear_unit;
+
+		if not FactionIsAlive(vassal_faction_name) then
 			local region = cm:model():world():region_manager():region_by_key(REGION_SELECTED);
 			local region_x = region:settlement():logical_position_x();
 			local region_y = region:settlement():logical_position_y();
 
 			cm:create_force(
-				REGIONS_LIBERATION_FACTIONS[REGION_SELECTED],
-				"mk_ayy_t1_jund_spearmen",
+				vassal_faction_name,
+				unit_list,
 				REGION_SELECTED,
 				region_x,
 				region_y,
@@ -120,21 +135,24 @@ function OnComponentLClickUp_Buffer_UI(context)
 				end
 			);
 
-			cm:force_make_vassal(faction_name, REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]);
+			cm:force_make_vassal(faction_name, vassal_faction_name);
 			cm:add_time_trigger("region_transfer", 0.1);
 
 			if FACTIONS_VASSALIZED ~= nil then
-				table.insert(FACTIONS_VASSALIZED, vassal_faction:name());
+				table.insert(FACTIONS_VASSALIZED, vassal_faction_name);
+			else
+				FACTIONS_VASSALIZED = {};
+				table.insert(FACTIONS_VASSALIZED, vassal_faction_name);
 			end
 		else
-			cm:transfer_region_to_faction(REGION_SELECTED, REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]);
+			cm:transfer_region_to_faction(REGION_SELECTED, vassal_faction_name);
 		end
 
 		BufferPanelClosed();
 		local root = cm:ui_root();
 		local btnBuffer = UIComponent(root:Find("Buffer_Button"));
 		btnBuffer:SetVisible(false);
-	elseif context.string == "button_cancel" and WARNING_PANEL_OPEN == true or context.string == "Buffer_Button" and WARNING_PANEL_OPEN == true then
+	elseif context.string == "button_buffer_cancel" then
 		BufferPanelClosed();
 	elseif context.string == "root" then
 		local root = cm:ui_root();
@@ -151,7 +169,7 @@ function OnSettlementSelected_Buffer(context)
 	if region_owner_name == faction_name then
 		local vassal_faction = cm:model():world():faction_by_key(REGIONS_LIBERATION_FACTIONS[region_name]);
 
-		if REGIONS_LIBERATION_FACTIONS[region_name] ~= faction_name and vassal_faction:has_home_region() ~= true and vassal_faction:has_faction_leader() ~= true then
+		if not FactionIsAlive(REGIONS_LIBERATION_FACTIONS[region_name]) then
 			local root = cm:ui_root();
 			local btnBuffer = UIComponent(root:Find("Buffer_Button"));
 
@@ -201,7 +219,6 @@ function BufferPanelClosed()
 	local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
 	local btnBuffer = UIComponent(root:Find("Buffer_Button"));
 
-	WARNING_PANEL_OPEN = false;
 	panBufferWarning:SetVisible(false);
 	btnBuffer:SetState("active");
 end

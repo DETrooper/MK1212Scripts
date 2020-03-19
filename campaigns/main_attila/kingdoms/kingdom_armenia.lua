@@ -103,6 +103,7 @@ function GetConditionsString_Armenia()
 			conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_ARMENIA[i]]..".\n";
 		end
 	end
+
 	conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Armenia[[/rgba]].";
 
 	return conditionstring;

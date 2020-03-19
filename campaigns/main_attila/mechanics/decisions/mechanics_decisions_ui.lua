@@ -45,26 +45,7 @@ function Add_Decisions_UI_Listeners()
 		true
 	);
 
-	--CreateDecisionsButton();
 	CreateDecisionsPanel();
-
-	cm:add_time_trigger("Decisions_Button_Check", 0.5);
-end
-
-function CreateDecisionsButton()
-	local root = cm:ui_root();
-	local hud_center_uic = UIComponent(root:Find("hud_center"));
-	local button_group_management_uic = UIComponent(hud_center_uic:Find("button_group_management"));
-	local mission = UIComponent(root:Find("button_missions"));
-	local missionX, missionY = mission:Position();
-
-	root:CreateComponent("Decisions_Button", "UI/new/basic_toggle_decisions");
-	local btnDecisions = UIComponent(root:Find("Decisions_Button"));
-	btnDecisions:SetMoveable(true);
-	btnDecisions:MoveTo(missionX - 60, missionY);
-	btnDecisions:SetMoveable(false);
-	btnDecisions:PropagatePriority(1);
-	--button_group_management_uic:Adopt(btnDecisions:Address());
 end
 
 function CreateDecisionsPanel()
@@ -129,6 +110,7 @@ function Create_Decisions_Map(decision)
 	sortable_list_factions_uic:DestroyChildren();
 
 	Create_Image(mapParchment, MAP_DECISIONS_MAP_NAMES[decision][1]);
+	--mapParchment:CreateComponent(MAP_DECISIONS_MAP_NAMES[decision][1], "UI/new/maps/"..MAP_DECISIONS_MAP_NAMES[decision][1]);
 	local map_uic = UIComponent(mapParchment:Find(MAP_DECISIONS_MAP_NAMES[decision][1]));
 	local map_uicX, map_uicY = map_uic:Position();
 
@@ -160,7 +142,6 @@ function Create_Decisions_Map(decision)
 		image_uic:MoveTo(map_uicX, map_uicY);
 		image_uic:SetMoveable(false);
 	end
-
 
 	local mapParchmentX, mapParchmentY = mapParchment:Position();
 	local mapParchmentbX, mapParchmentbY = mapParchment:Bounds();
@@ -241,12 +222,8 @@ function Refresh_Decisions_Map(decision)
 			image_uic:PropagateImageColour(204, 0, 0, 150);
 		end
 
-		-- Temporary if statement until all faction logo UI files are made.
-		if HasValue(FACTIONS_WITH_IMAGES, owning_faction_name) then
-			image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/"..owning_faction_name.."_flag_small");
-		else
-			image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/mk_fact_unknown_flag_small");
-		end
+
+		image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/"..owning_faction_name.."_flag_small");
 
 		local faction_logo_uic = UIComponent(image_uic:Find(region_name.."_logo"));
 		faction_logo_uic:SetMoveable(true);

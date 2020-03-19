@@ -58,6 +58,10 @@ function FactionTurnStart_Timurid_Preservation(context)
 		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
 		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
 		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
+		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
+		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
+		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
+		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_ALT_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
 		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_ALT_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
 		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_ALT_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
 

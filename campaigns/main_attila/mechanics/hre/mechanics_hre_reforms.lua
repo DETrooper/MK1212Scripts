@@ -86,7 +86,7 @@ end
 
 function FactionTurnStart_HRE_Reforms(context)
 	if context:faction():is_human() == false then
-		if HRE_Get_Faction_State(context:faction():name()) == "emperor" then
+		if context:faction():name() == HRE_EMPEROR_KEY then
 			if HRE_IMPERIAL_AUTHORITY == HRE_REFORM_COST and #HRE_REFORMS_VOTES >= (#HRE_FACTIONS - 1)  then
 				Pass_HRE_Reform(CURRENT_HRE_REFORM + 1);
 			end
@@ -99,13 +99,17 @@ end
 function Calculate_Reform_Votes()
 	local tab = {};
 
-	for i = 1, #FACTIONS_HRE do
-		local faction_name = FACTIONS_HRE[i];
+	for i = 1, #HRE_FACTIONS do
+		local faction_name = HRE_FACTIONS[i];
 		local faction = cm:model():world():faction_by_key(faction_name);
 		local faction_state = HRE_Get_Faction_State(faction_name);
 
 		if cm:is_new_game() or faction:is_human() == false then
 			if faction_state == "loyal" or faction_state == "puppet" or faction_state == "neutral" then
+				table.insert(tab, faction_name);
+			end
+		elseif faction:is_human() == true then
+			if HasValue(HRE_REFORMS_VOTES, faction_name) then
 				table.insert(tab, faction_name);
 			end
 		end
@@ -126,23 +130,23 @@ function Pass_HRE_Reform(reform_number)
 	if reform_number == 1 then
 		-- We need to add 7 Prince-Electors.
 
-		for i = 1, #FACTIONS_HRE_HISTORICAL_ELECTORS do
-			local faction_name = FACTIONS_HRE_HISTORICAL_ELECTORS[i];
+		for i = 1, #HRE_FACTIONS_HISTORICAL_ELECTORS do
+			local faction_name = HRE_FACTIONS_HISTORICAL_ELECTORS[i];
 
-			if FactionIsAlive(faction_name) and HasValue(FACTIONS_HRE, faction_name) then
-				table.insert(FACTIONS_HRE_ELECTORS, faction_name);
+			if FactionIsAlive(faction_name) and HasValue(HRE_FACTIONS, faction_name) then
+				table.insert(HRE_FACTIONS_ELECTORS, faction_name);
 			end
 		end
 
-		if #FACTIONS_HRE_ELECTORS < 7 then
+		if #HRE_FACTIONS_ELECTORS < 7 then
 			Add_New_Electors_HRE_Elections();
 		end
 	elseif reform_number == 5 then
-		for i = 1, #FACTIONS_HRE do
-			local faction_name = FACTIONS_HRE[i];
+		for i = 1, #HRE_FACTIONS do
+			local faction_name = HRE_FACTIONS[i];
 
-			for j = 1, #FACTIONS_HRE do
-				local faction2_name = FACTIONS_HRE[j];
+			for j = 1, #HRE_FACTIONS do
+				local faction2_name = HRE_FACTIONS[j];
 
 				if faction_name ~= HRE_EMPEROR_KEY and faction2_name ~= HRE_EMPEROR_KEY then
 					cm:force_diplomacy(faction_name, faction2_name, "war", false, false);
@@ -158,8 +162,8 @@ function Pass_HRE_Reform(reform_number)
 	elseif reform_number == 9 then
 		local turn_number = cm:model():turn_number();
 
-		for i = 1, #FACTIONS_HRE do
-			local faction_name = FACTIONS_HRE[i];
+		for i = 1, #HRE_FACTIONS do
+			local faction_name = HRE_FACTIONS[i];
 
 			if HRE_Get_Faction_State(faction_name) ~= "emperor" then
 				cm:grant_faction_handover(HRE_EMPEROR_KEY, faction_name, turn_number-1, turn_number-1, context);
@@ -169,14 +173,14 @@ function Pass_HRE_Reform(reform_number)
 		HRE_Vanquish_Pretender();
 		CloseHREPanel();
 
-		FACTIONS_HRE = {};
-		FACTIONS_HRE_STATES = {};
-		FACTIONS_HRE_STATE_CHANGE_COOLDOWNS = {};
+		HRE_FACTIONS = {};
+		HRE_FACTIONS_STATES = {};
+		HRE_FACTIONS_STATE_CHANGE_COOLDOWNS = {};
 
 		HRE_Button_Check();
 	end
 
-	if HasValue(FACTIONS_HRE, cm:get_local_faction()) then
+	if HasValue(HRE_FACTIONS, cm:get_local_faction()) then
 		cm:show_message_event(
 			cm:get_local_faction(),
 			"message_event_text_text_mk_event_hre_reform_title",
@@ -224,11 +228,11 @@ function Get_Reform_Tooltip(reform_key)
 					color1 = "[[rgba:8:201:27:150]]";
 				end
 
-				if #HRE_REFORMS_VOTES >= math.ceil((#FACTIONS_HRE - 1) / 2) then
+				if #HRE_REFORMS_VOTES >= math.ceil((#HRE_FACTIONS - 1) / 2) then
 					color2 = "[[rgba:8:201:27:150]]";
 				end
 
-				reformstring = reformstring.."\n\n"..color1.."Imperial Authority: ("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_REFORM_COST)..")[[/rgba]]\n"..color2.."Votes: ("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(math.ceil((#FACTIONS_HRE - 1) / 2)).." Required)[[/rgba]]";
+				reformstring = reformstring.."\n\n"..color1.."Imperial Authority: ("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_REFORM_COST)..")[[/rgba]]\n"..color2.."Votes: ("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(math.ceil((#HRE_FACTIONS - 1) / 2)).." Required)[[/rgba]]";
 			elseif CURRENT_HRE_REFORM > i - 1 then
 				reformstring = reformstring.."\n\nThis reform has already been unlocked!";
 			end

@@ -22,6 +22,7 @@ function Add_HRE_Listeners()
 	Add_HRE_Election_Listeners();
 	Add_HRE_Event_Listeners();
 	Add_HRE_Reforms_Listeners();
+	Add_HRE_Region_Listeners();
 	Add_HRE_UI_Listeners();
 
 	HRE_Button_Check();
@@ -32,7 +33,7 @@ function HRE_Button_Check()
 	local btnHRE = UIComponent(root:Find("button_hre"));
 	local faction_name = cm:get_local_faction();
 
-	if (HasValue(FACTIONS_HRE, faction_name) or faction_name == HRE_EMPEROR_PRETENDER_KEY) and CURRENT_HRE_REFORM ~= 9 then
+	if (HasValue(HRE_FACTIONS, faction_name) or faction_name == HRE_EMPEROR_PRETENDER_KEY) and CURRENT_HRE_REFORM ~= 9 then
 		btnHRE:SetVisible(true);
 	else
 		btnHRE:SetVisible(false);

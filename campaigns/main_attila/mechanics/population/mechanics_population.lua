@@ -22,8 +22,8 @@ POPULATION_HARD_CAP_PERCENTAGE = 0.1; -- How much to scale growth by when a regi
 POPULATION_CAPITAL_BONUS = 0.02; -- How much should a capital region's population be boosted?
 POPULATION_SIEGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement is under siege?
 POPULATION_FOOD_SHORTAGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement has a food shortage?
-POPULATION_LOW_PUBLIC_ORDER_POPULATION_LOSS = 0.00001; -- How much percentage of population should be lost every turn due to low public order (scales with public order);
 POPULATION_RAIDING_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a region is being raided?
+POPULATION_REBELLION_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost when a rebellion fires?
 
 POPULATION_REGIONS_POPULATIONS = {};
 POPULATION_REGIONS_MANPOWER = {};
@@ -116,6 +116,13 @@ function Add_Population_Listeners()
 		"ForceAdoptsStance",
 		true,
 		function(context) ForceAdoptsStance_Population(context) end,
+		true
+	);
+	cm:add_listener(
+		"RegionRebels_Population",
+		"RegionRebels",
+		true,
+		function(context) RegionRebels_Population(context) end,
 		true
 	);
 	cm:add_listener(
@@ -418,6 +425,18 @@ function ForceAdoptsStance_Population(context)
 	POPULATION_REGIONS_GROWTH_RATES[region_name] = Compute_Region_Growth(region);
 end
 
+function RegionRebels_Population(context)
+	local region_name = context:region():name();
+
+	for i = 1, 5 do
+		local population = POPULATION_REGIONS_POPULATIONS[region_name][i];
+		local manpower = POPULATION_REGIONS_MANPOWER[region_name][i];
+	
+		POPULATION_REGIONS_POPULATIONS[region_name][i] = toupper(population - (population * POPULATION_REBELLION_POPULATION_LOSS));
+		POPULATION_REGIONS_MANPOWER[region_name][i] = toupper(manpower - (manpower * POPULATION_REBELLION_POPULATION_LOSS));
+	end
+end
+
 function UnitTrained_Population(context)
 	local unit = context:unit();
 
@@ -445,8 +464,6 @@ function Compute_Region_Growth(region)
 	local buildings_list = region:garrison_residence():buildings();
 	local under_siege = region:garrison_residence():is_under_siege();
 	local food_shortage = region:owning_faction():has_food_shortage();
-	local public_order = region:public_order();
-	local public_order_loss = -1 * (public_order * POPULATION_LOW_PUBLIC_ORDER_POPULATION_LOSS);
 
 	POPULATION_REGIONS_GROWTH_FACTORS[region_name]= "";
 
@@ -513,10 +530,6 @@ function Compute_Region_Growth(region)
 		if food_shortage == true then
 			growth[i] = growth[i] - POPULATION_FOOD_SHORTAGE_POPULATION_LOSS;
 		end
-
-		if public_order < 0 then
-			growth[i] = growth[i] - public_order_loss;
-		end
 	end
 
 	if under_siege == true then
@@ -525,10 +538,6 @@ function Compute_Region_Growth(region)
 
 	if food_shortage == true then
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."food_shortage#"..tostring(POPULATION_FOOD_SHORTAGE_POPULATION_LOSS * 100).."#@";
-	end
-
-	if public_order < 0 then
-		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."public_order#"..tostring(public_order_loss * 100).."#@";
 	end
 
 	for k, v in pairs(POPULATION_REGIONS_CHARACTERS_RAIDING) do

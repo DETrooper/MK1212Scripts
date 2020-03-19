@@ -96,9 +96,9 @@ function Population_UI_Get_Growth(region_name, class)
 		color = "[[rgba:255:0:0:150]]";
 		symbol = "";
 
-		growth = Trim_Growth_Percentage_Population_UI(growth, 9);
+		growth = Round_Number_Text(growth);
 	else
-		growth = Trim_Growth_Percentage_Population_UI(growth, 8);
+		growth = Round_Number_Text(growth);
 	end
 
 	return color.."("..symbol..growth.."%)".."[[/rgba]]";
@@ -119,39 +119,12 @@ function Population_UI_Get_Growth_Factor(growth)
 		color = "[[rgba:255:0:0:150]]";
 		symbol = "";
 
-		growth = Trim_Growth_Percentage_Population_UI(growth, 9);
+		growth = Round_Number_Text(growth);
 	else
-		growth = Trim_Growth_Percentage_Population_UI(growth, 8);
+		growth = Round_Number_Text(growth);
 	end
 
 	return "\nProjected Growth: "..color.."("..symbol..growth.."%)".."[[/rgba]]";
-end
-
-function Trim_Growth_Percentage_Population_UI(growth, max)
-	local period_reached = false;
-
-	for i = 1, string.len(growth) do
-		if i == max then
-			growth = string.sub(tostring(growth), 0, max);
-			break;
-		else
-			local char = string.sub(growth, i, i);
-
-			if char == "." then
-				period_reached = true;
-			end
-
-			if char ~= "0" and char ~= "." and char ~= "-" then
-				if string.len(growth) > i then
-					if string.sub(growth, i + 1, i + 1) == "0" and period_reached == true then
-						growth = string.sub(growth, 0, i);
-					end
-				end
-			end
-		end
-	end
-
-	return growth;
 end
 
 function OnComponentMouseOn_Population_UI(context)
@@ -519,7 +492,6 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 		local cap_exceeded = "";
 		local under_siege = "";
 		local food_shortage = "";
-		local public_order = "";
 		local region_raided = "";
 
 		if POPULATION_REGIONS_GROWTH_FACTORS[key] ~= "" then
@@ -529,7 +501,7 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 				local second_split = SplitString(first_split[i], "#");
 
 				if second_split[1] == "faction_trait_"..tostring(class) then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
+					second_split[2] = Round_Number_Text(second_split[2]);
 
 					if tonumber(second_split[2]) < 0 then
 						faction_trait_growth = "Growth From Faction Trait: ".."[[rgba:255:0:0:150]]("..second_split[2].."%)[[/rgba]]\n";
@@ -540,37 +512,34 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 						faction_trait_growth = "Growth From Faction Trait: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 					end
 				elseif second_split[1] == "buildings_"..tostring(class) then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 9);
+					second_split[2] = Round_Number_Text(second_split[2]);
 					building_growth = "Growth From Buildings: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "capital_bonus_"..tostring(class) then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 9);
+					second_split[2] = Round_Number_Text(second_split[2]);
 					capital_bonus = "Faction Capital: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "imperial_decree_"..tostring(class) then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 9);
+					second_split[2] = Round_Number_Text(second_split[2]);
 					imperial_decree = "Imperial Decree: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "hard_cap_exceeded" then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
+					second_split[2] = Round_Number_Text(second_split[2]);
 					cap_exceeded = "Hard Cap Exceeded: ".."[[rgba:255:0:0:150]](-"..second_split[2].."% of growth)[[/rgba]]\n";
 				elseif second_split[1] == "soft_cap_exceeded" then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
+					second_split[2] = Round_Number_Text(second_split[2]);
 					cap_exceeded = "Soft Cap Exceeded: ".."[[rgba:255:0:0:150]](-"..second_split[2].."% of growth)[[/rgba]]\n";
 				elseif second_split[1] == "under_siege" then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
+					second_split[2] = Round_Number_Text(second_split[2]);
 					under_siege = "Under Siege: ".."[[rgba:255:0:0:150]](-"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "food_shortage" then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
+					second_split[2] = Round_Number_Text(second_split[2]);
 					food_shortage = "Food Shortage: ".."[[rgba:255:0:0:150]](-"..second_split[2].."%)[[/rgba]]\n";
-				elseif second_split[1] == "public_order" then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
-					public_order = "Low Public Order: ".."[[rgba:255:0:0:150]](-"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "region_raided" then
-					second_split[2] = Trim_Growth_Percentage_Population_UI(second_split[2], 8);
+					second_split[2] = Round_Number_Text(second_split[2]);
 					region_raided = "Region Being Raided: ".."[[rgba:255:0:0:150]](-"..second_split[2].."%)[[/rgba]]\n";
 				end
 			end
 		end
 
-		description_window_uic:SetStateText(class_population..faction_trait_growth..building_growth..capital_bonus..imperial_decree..cap_exceeded..under_siege..food_shortage..public_order..region_raided..projected_growth..projected_growth_num);
+		description_window_uic:SetStateText(class_population..faction_trait_growth..building_growth..capital_bonus..imperial_decree..cap_exceeded..under_siege..food_shortage..region_raided..projected_growth..projected_growth_num);
 		nobility_uic:SetVisible(false);
 		artisans_uic:SetVisible(false);
 		peasantry_uic:SetVisible(false);

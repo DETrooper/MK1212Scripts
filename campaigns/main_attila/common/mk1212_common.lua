@@ -188,6 +188,29 @@ function GetTurnFromYear(year)
 	return year - 1211;
 end
 
+-- From War Weariness.
+
+function Does_Faction_Border_Faction(faction_name, query_faction_name)
+	local faction = cm:model():world():faction_by_key(faction_name);	
+	local regions = faction:region_list();
+	
+	for i = 0, regions:num_items() - 1 do
+		local region = regions:item_at(i);
+		local border_regions = region:adjacent_region_list();
+		
+		for j = 0, border_regions:num_items() - 1 do
+			local border_region = border_regions:item_at(j);
+			
+			if border_region:owning_faction():is_null_interface() == false then
+				if border_region:owning_faction():name() == query_faction_name then
+					return true;
+				end
+			end
+		end
+	end
+	return false;
+end
+
 -- Some cool functions from Thrones of Britannia.
 
 ----------------------

@@ -79,13 +79,13 @@ BYZ_REGIONS_PENTARCHY = {
 	"att_reg_thracia_constantinopolis",
 };
 
-REGIONS_ROME = {
+--[[REGIONS_ROME = {
+	"att_reg_aegyptus_alexandria",
+	"att_reg_aegyptus_berenice",
+	"att_reg_aegyptus_oxyrhynchus",
 	"att_reg_africa_carthago",
 	"att_reg_africa_constantina",
 	"att_reg_africa_hadrumentum",
-	"att_reg_tripolitana_leptis_magna",
-	"att_reg_tripolitana_macomades",
-	"att_reg_tripolitana_sabrata",
 	"att_reg_asia_cyzicus",
 	"att_reg_asia_ephesus",
 	"att_reg_asia_synnada",
@@ -101,32 +101,45 @@ REGIONS_ROME = {
 	"att_reg_dalmatia_domavia",
 	"att_reg_dalmatia_salona",
 	"att_reg_dalmatia_siscia",
-	"att_reg_aegyptus_alexandria",
-	"att_reg_aegyptus_berenice",
-	"att_reg_aegyptus_oxyrhynchus",
 	"att_reg_liguria_mediolanum",
 	"att_reg_liguria_segusio",
 	"att_reg_liguria_genua",
-	"att_reg_venetia_verona",
-	"att_reg_venetia_aquileia",
-	"att_reg_venetia_ravenna",
 	"att_reg_italia_fiorentia",
 	"att_reg_italia_roma",
 	"att_reg_italia_neapolis",
-	"att_reg_magna_graecia_tarentum",
-	"att_reg_magna_graecia_rhegium",
-	"att_reg_magna_graecia_syracusae",
 	"att_reg_macedonia_corinthus",
 	"att_reg_macedonia_dyrrhachium",
 	"att_reg_macedonia_thessalonica",
+	"att_reg_magna_graecia_tarentum",
+	"att_reg_magna_graecia_rhegium",
+	"att_reg_magna_graecia_syracusae",
 	"att_reg_thracia_trimontium",
 	"att_reg_thracia_constantinopolis",
+	"att_reg_tripolitana_leptis_magna",
+	"att_reg_tripolitana_macomades",
+	"att_reg_tripolitana_sabrata",
 	"att_reg_palaestinea_aila",
 	"att_reg_palaestinea_aelia_capitolina",
 	"att_reg_palaestinea_nova_trajana_bostra",
 	"att_reg_syria_antiochia",
 	"att_reg_syria_emesa",
-	"att_reg_syria_tyrus"
+	"att_reg_syria_tyrus",
+	"att_reg_venetia_verona",
+	"att_reg_venetia_aquileia",
+	"att_reg_venetia_ravenna"
+};]]--
+
+REGIONS_ROME = {
+	"att_reg_aegyptus_alexandria",
+	"att_reg_africa_carthago",
+	"att_reg_bithynia_nicomedia",
+	"att_reg_cappadocia_trapezus",
+	"att_reg_italia_roma",
+	"att_reg_liguria_mediolanum",
+	"att_reg_macedonia_thessalonica",
+	"att_reg_thracia_constantinopolis",
+	"att_reg_palaestinea_aelia_capitolina",
+	"att_reg_syria_antiochia"
 };
 
 REGIONS_ROME_FACTION_PIPS_LOCATIONS = {

@@ -111,7 +111,7 @@ function Activate_Decree(decree_key)
 			HRE_ACTIVE_DECREE = decree_key;
 			HRE_ACTIVE_DECREE_TURNS_LEFT = HRE_DECREE_DURATION;
 
-			if HasValue(FACTIONS_HRE, cm:get_local_faction()) then
+			if HasValue(HRE_FACTIONS, cm:get_local_faction()) then
 				cm:show_message_event(
 					cm:get_local_faction(),
 					"message_event_text_text_mk_event_hre_decree_title",
@@ -152,8 +152,8 @@ function Deactivate_Decree(decree_key)
 			end
 
 			if HRE_DECREES[i]["member_effect_bundle_key"] ~= "none" then
-				for j = 1, #FACTIONS_HRE do
-					local faction_name = FACTIONS_HRE[j];
+				for j = 1, #HRE_FACTIONS do
+					local faction_name = HRE_FACTIONS[j];
 
 					cm:remove_effect_bundle(HRE_DECREES[i]["member_effect_bundle_key"], faction_name);
 				end
@@ -191,8 +191,8 @@ function Get_Decree_Property(decree_key, decree_property)
 end
 
 function Apply_Decree_Effect_Bundle(emperor_effect_bundle_key, member_effect_bundle_key)
-	for i = 1, #FACTIONS_HRE do
-		local faction_name = FACTIONS_HRE[i];
+	for i = 1, #HRE_FACTIONS do
+		local faction_name = HRE_FACTIONS[i];
 
 		if HRE_Get_Faction_State(faction_name) == "emperor" then
 			cm:apply_effect_bundle(emperor_effect_bundle_key, faction_name, HRE_DECREE_DURATION);
