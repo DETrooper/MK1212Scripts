@@ -63,6 +63,10 @@ function Add_HRE_Event_Listeners()
 			function(context) PanelOpenedCampaign_HRE_Events(context) end,
 			true
 		);
+
+		if cm:is_new_game() then
+			HRE_EVENTS_TIMER = cm:random_number(HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX - 1, HRE_EVENTS_MIN_TURN - 1);
+		end
 	end
 end
 
@@ -85,9 +89,7 @@ function FactionTurnStart_HRE_Events(context)
 			if HRE_EVENTS_TIMER > 0 then
 				HRE_EVENTS_TIMER = HRE_EVENTS_TIMER - 1;
 			elseif HRE_EVENTS_TIMER <= 0 then
-				if turn_number >= HRE_EVENTS_MIN_TURN then
-					HRE_Event_Pick_Random_Event();
-				end
+				HRE_Event_Pick_Random_Event();
 			end
 		end
 	end

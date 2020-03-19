@@ -52,8 +52,6 @@ function HRE_Check_Regions_In_Empire()
 	local factions_to_regions_in_empire = {};
 
 	for i = 1, #HRE_FACTIONS do
-		factions_to_regions_in_empire[HRE_FACTIONS[i]] = {};
-
 		HRE_Remove_Imperial_Expansion_Effect_Bundles(HRE_FACTIONS[i]);
 	end
 
@@ -65,7 +63,11 @@ function HRE_Check_Regions_In_Empire()
 			table.insert(regions_in_empire, region_name);
 
 			if region_name ~= HRE_FRANKFURT_KEY then
-				factions_to_regions_in_empire[egion_owning_faction_name] = region_name;
+				if factions_to_regions_in_empire[region_owning_faction_name] == nil then
+					factions_to_regions_in_empire[region_owning_faction_name] = {};
+				end
+
+				factions_to_regions_in_empire[region_owning_faction_name] = region_name;
 			end
 
 			if not HasValue(HRE_REGIONS_IN_EMPIRE, region_name) then
