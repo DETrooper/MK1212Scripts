@@ -13,6 +13,7 @@ FRANCE_KEY = "mk_fact_france";
 HRE_KEY = "mk_fact_hre";
 ENGLAND_WAR_WERE_DECLARED = false;
 ENGLISH_MISSION_ACTIVE = false;
+ENGLISH_MISSION_TURN = 2;
 ENGLAND_DUE_FOR_DILEMMA = false;
 ENGLAND_FIRST_DILEMMA = "NIL";
 ENGLAND_SECOND_DILEMMA_CHOICE = "NIL";
@@ -97,7 +98,8 @@ function FactionTurnStart_England(context)
 				cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_magna_carta_renew");
 				ENGLAND_DUE_FOR_DILEMMA = false;
 			end
-			if cm:model():turn_number() == 2 then
+
+			if cm:model():turn_number() == ENGLISH_MISSION_TURN then
 				cm:force_diplomacy(ENGLAND_KEY, FRANCE_KEY, "war", true, true); -- Re-enable war with France.
 
 				-- Issue England a mission telling them to declare war on France, or face the consequences!
@@ -109,10 +111,12 @@ function FactionTurnStart_England(context)
 					cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_war_with_france");
 				end
 			end
+
 			if ENGLAND_FIRST_DILEMMA == "ISSUE" then
 				cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_magna_carta");
 				ENGLAND_FIRST_DILEMMA = "NIL";
 			end
+
 			if ENGLAND_SECOND_DILEMMA_CHOICE == "REFUSE" then
 				ENGLAND_SECOND_DILEMMA_CHOICE = "NIL";
 				CreateCivilWarArmy("att_reg_britannia_superior_londinium", "english", ENGLAND_REBEL_KEY, "eng_barons_war_1", 156, 565);
@@ -145,26 +149,20 @@ function FactionTurnStart_England(context)
 				end
 			end
 		elseif england:is_human() == false and france:is_human() == false then
-			if cm:model():turn_number() == 2 and england:at_war_with(france) == false then
+			if cm:model():turn_number() == ENGLISH_MISSION_TURN and england:at_war_with(france) == false then
 				cm:force_declare_war(ENGLAND_KEY, FRANCE_KEY);
 			end
 		end
-	end
-
-	if france:is_human() == true and context:faction():name() == FRANCE_KEY then
+	elseif france:is_human() == true and context:faction():name() == FRANCE_KEY then
 		if cm:model():turn_number() == FRANCE_MISSION_WIN_TURN and FRANCE_MISSION_ACTIVE == true then
 			cm:override_mission_succeeded_status(FRANCE_KEY, "mk_mission_story_france_survive_invasion", true);
 		end
-	end
-
-	if context:faction():name() == ENGLAND_REBEL_KEY then
+	elseif context:faction():name() == ENGLAND_REBEL_KEY then
 		if england:at_war_with(pretenders) == false and pretenders:is_null_interface() == false then
 			cm:force_declare_war(ENGLAND_KEY, ENGLAND_REBEL_KEY);
 		end
-	end
-
-	if context:faction():name() == HRE_KEY then
-		if cm:model():turn_number() >= 3 and ENGLAND_HRE_MESSAGE_SENT == false and england:at_war_with(france) == true then
+	elseif context:faction():name() == HRE_KEY and ENGLAND_HRE_MESSAGE_SENT == false then
+		if cm:model():turn_number() >= ENGLISH_MISSION_TURN + 1 and england:at_war_with(france) == true then
 			local hre = cm:model():world():faction_by_key(HRE_KEY);
 
 			if hre:is_human() == true and hre:allied_with(england) == true then
@@ -228,8 +226,7 @@ function DilemmaChoiceMadeEvent_England(context)
 			);
 			ENGLAND_FIRST_DILEMMA = "ISSUE";
 		end
-	end
-	if context:dilemma() == "mk_dilemma_story_england_magna_carta" then
+	elseif context:dilemma() == "mk_dilemma_story_england_magna_carta" then
 		if context:choice() == 0 then
 			-- Choice made to sign Magna Carta!
 			cm:add_listener(
@@ -244,8 +241,7 @@ function DilemmaChoiceMadeEvent_England(context)
 			-- Choice made to refuse!
 			ENGLAND_SECOND_DILEMMA_CHOICE = "REFUSE";
 		end
-	end
-	if context:dilemma() == "mk_dilemma_story_england_magna_carta_renew" then
+	elseif context:dilemma() == "mk_dilemma_story_england_magna_carta_renew" then
 		if context:choice() == 1 then
 			-- Choice made to refuse!
 			ENGLAND_SECOND_DILEMMA_CHOICE = "REFUSE";

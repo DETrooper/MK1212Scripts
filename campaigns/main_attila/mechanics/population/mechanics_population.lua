@@ -20,6 +20,7 @@ POPULATION_MANPOWER_DEGENERATION_RATE = 0.2; -- If manpower is growing too fast,
 POPULATION_SOFT_CAP_PERCENTAGE = 0.5; -- How much to scale growth by when a region's population soft cap is exceeded?
 POPULATION_HARD_CAP_PERCENTAGE = 0.1; -- How much to scale growth by when a region's population soft cap is exceeded?
 POPULATION_CAPITAL_BONUS = 0.02; -- How much should a capital region's population be boosted?
+POPULATION_IMPERIAL_DECREE_BONUS = 0.005; -- How much should be added to a region that has a growth-boosting imperial decree (HRE)?
 POPULATION_SIEGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement is under siege?
 POPULATION_FOOD_SHORTAGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement has a food shortage?
 POPULATION_RAIDING_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a region is being raided?
@@ -252,7 +253,6 @@ function BattleCompleted_Population(context)
 		end
 	end
 
-	dev.log(cm:model():pending_battle():has_contested_garrison());
 	if cm:model():pending_battle():has_contested_garrison() then
 		local region = cm:model():pending_battle():contested_garrison():region();
 
@@ -512,10 +512,12 @@ function Compute_Region_Growth(region)
 		end
 
 		if HRE_ACTIVE_DECREE == "hre_decree_lessen_tax_burdens" then
-			if i == 2 or i == 3 then
-				growth[i] = growth[i] + 0.005;
-				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."imperial_decree_"..tostring(i).."#"..tostring(0.005 * 100).."#@";
-			end	
+			if HasValue(HRE_FACTIONS, region_owning_faction:name()) then
+				if i == 2 or i == 3 then
+					growth[i] = growth[i] + POPULATION_IMPERIAL_DECREE_BONUS;
+					POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."imperial_decree_"..tostring(i).."#"..tostring(POPULATION_IMPERIAL_DECREE_BONUS * 100).."#@";
+				end
+			end
 		end
 
 		-- Apply soft/hard cap to positive growth.
@@ -661,6 +663,24 @@ function Change_Manpower_Region(region_name, class, amount)
 	Change_Population_Region(region_name, class, amount);
 end
 
+function Refresh_Region_Growths_Population()
+	local faction_list = cm:model():world():faction_list();
+
+	for i = 0, faction_list:num_items() - 1 do
+		local current_faction = faction_list:item_at(i);
+
+		if current_faction:region_list():num_items() > 0 then
+			local regions = current_faction:region_list();
+
+			for j = 0, regions:num_items() - 1 do
+				local region = regions:item_at(j);
+
+				POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+			end
+		end
+	end
+end
+
 ------------------------------------------------
 ---------------- Saving/Loading ----------------
 ------------------------------------------------
@@ -672,6 +692,7 @@ cm:register_saving_game_callback(
 		SaveFactionPopulationNumbersTable(context, POPULATION_FACTION_TOTAL_POPULATIONS, "POPULATION_FACTION_TOTAL_POPULATIONS");
 		SaveKeyPairTable(context, POPULATION_REGIONS_GROWTH_FACTORS, "POPULATION_REGIONS_GROWTH_FACTORS");
 		SaveKeyPairTable(context, POPULATION_REGIONS_CHARACTERS_RAIDING, "POPULATION_REGIONS_CHARACTERS_RAIDING");
+		SaveKeyPairTables(context, POPULATION_UNITS_IN_RECRUITMENT, "POPULATION_UNITS_IN_RECRUITMENT");
 	end
 );
 
@@ -683,6 +704,7 @@ cm:register_loading_game_callback(
 		POPULATION_FACTION_TOTAL_POPULATIONS = LoadFactionPopulationNumbersTable(context, "POPULATION_FACTION_TOTAL_POPULATIONS");
 		POPULATION_REGIONS_GROWTH_FACTORS = LoadKeyPairTable(context, "POPULATION_REGIONS_GROWTH_FACTORS");
 		POPULATION_REGIONS_CHARACTERS_RAIDING = LoadKeyPairTable(context, "POPULATION_REGIONS_CHARACTERS_RAIDING");
+		POPULATION_UNITS_IN_RECRUITMENT = LoadKeyPairTables(context, "POPULATION_UNITS_IN_RECRUITMENT");
 	end
 );
 

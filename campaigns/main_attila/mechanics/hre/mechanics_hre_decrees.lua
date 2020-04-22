@@ -101,8 +101,6 @@ function FactionTurnStart_HRE_Decrees(context)
 end
 
 function Activate_Decree(decree_key)
-	local faction_list = cm:model():world():faction_list();
-
 	for i = 1, #HRE_DECREES do
 		if HRE_DECREES[i]["key"] == decree_key then
 			Apply_Decree_Effect_Bundle(HRE_DECREES[i]["emperor_effect_bundle_key"], HRE_DECREES[i]["member_effect_bundle_key"]);
@@ -122,29 +120,15 @@ function Activate_Decree(decree_key)
 				);
 			end
 
-			return;
+			break;
 		end
 	end
 
 	-- Some decrees increase population growth, so re-compute region growth.
-	for i = 0, faction_list:num_items() - 1 do
-		local current_faction = faction_list:item_at(i);
-
-		if current_faction:is_horde() == false and current_faction:region_list():num_items() > 0 then
-			local regions = current_faction:region_list();
-
-			for j = 0, regions:num_items() - 1 do
-				local region = regions:item_at(j);
-
-				POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
-			end
-		end
-	end
+	Refresh_Region_Growths_Population();
 end
 
 function Deactivate_Decree(decree_key)
-	local faction_list = cm:model():world():faction_list();
-
 	for i = 1, #HRE_DECREES do
 		if HRE_DECREES[i]["key"] == decree_key then
 			if HRE_DECREES[i]["emperor_effect_bundle_key"] ~= "none" then
@@ -162,24 +146,12 @@ function Deactivate_Decree(decree_key)
 			HRE_ACTIVE_DECREE = "nil";
 			HRE_ACTIVE_DECREE_TURNS_LEFT = 0;
 
-			return;
+			break;
 		end
 	end
 
 	-- Some decrees increase population growth, so re-compute region growth.
-	for i = 0, faction_list:num_items() - 1 do
-		local current_faction = faction_list:item_at(i);
-
-		if current_faction:is_horde() == false and current_faction:region_list():num_items() > 0 then
-			local regions = current_faction:region_list();
-
-			for j = 0, regions:num_items() - 1 do
-				local region = regions:item_at(j);
-
-				POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
-			end
-		end
-	end
+	Refresh_Region_Growths_Population();
 end
 
 function Get_Decree_Property(decree_key, decree_property)

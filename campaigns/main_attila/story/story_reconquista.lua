@@ -11,7 +11,7 @@ ARAGON_KEY = "mk_fact_aragon";
 CASTILE_KEY = "mk_fact_castile";
 NAVARRE_KEY = "mk_fact_navarre";
 PORTUGAL_KEY = "mk_fact_portugal";
-RECONQUISTA_MISSION_TURN = 3;
+RECONQUISTA_MISSION_TURN = 2;
 
 ARAGON_RELIGION = "att_rel_chr_catholic";
 CASTILE_RELIGION = "att_rel_chr_catholic";

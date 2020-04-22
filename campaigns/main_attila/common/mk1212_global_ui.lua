@@ -93,33 +93,35 @@ function Round_Number_Text(number)
 		local char = string.sub(number, i, i);
 
 		if char == "." then
-			local tenth = string.sub(number, i + 1, i + 1);
-			local hundredth = string.sub(number, i + 2, i + 2);
+			if string.len(number) >= i + 2 then
+				local tenth = string.sub(number, i + 1, i + 1);
+				local hundredth = string.sub(number, i + 2, i + 2);
 			
-			tenth = tonumber(tenth);
-			hundredth = tonumber(hundredth);
+				tenth = tonumber(tenth);
+				hundredth = tonumber(hundredth);
 			
-			if hundredth < 5 then
-				if tenth == 0 then
+				if hundredth < 5 then
+					if tenth == 0 then
+						number = string.sub(number, 0, i - 1);
+						return number;
+					end
+				elseif hundredth >= 5 then
+					if tenth ~= 9 then
+						tenth = tenth + 1;
+					else
+						number = string.sub(number, 0, i - 1);
+					
+						local new_num = tonumber(number) + 1;
+						return tostring(new_num);
+					end
+				else
 					number = string.sub(number, 0, i - 1);
 					return number;
 				end
-			elseif hundredth >= 5 then
-				if tenth ~= 9 then
-					tenth = tenth + 1;
-				else
-					number = string.sub(number, 0, i - 1);
-					
-					local new_num = tonumber(number) + 1;
-					return tostring(new_num);
-				end
-			else
-				number = string.sub(number, 0, i - 1);
-				return number;
-			end
 			
-			number = string.sub(number, 0, i)..tostring(tenth);
-			return number;
+				number = string.sub(number, 0, i)..tostring(tenth);
+				break;
+			end
 		end
 	end
 

@@ -1083,5 +1083,8 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 				btnVote:SetVisible(false);
 			end
 		end
+	else
+		btnVote:SetVisible(false);
+		btnBackCandidate:SetVisible(false);
 	end
 end

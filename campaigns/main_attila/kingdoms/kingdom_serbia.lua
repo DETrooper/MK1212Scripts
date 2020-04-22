@@ -9,6 +9,7 @@
 
 SERBIA_KEY = "mk_fact_serbia";
 SERBIAN_KINGDOM_FACTION = "NIL";
+SERBIAN_KINGDOM_TURN = 10;
 
 function Add_Kingdom_Serbia_Listeners()
 	if SERBIAN_KINGDOM_FACTION == "NIL" then
@@ -28,7 +29,7 @@ function Serbia_Check(context)
 	local faction = context:faction();
 	
 	if faction_name == SERBIA_KEY then
-		if turn_number == 6 then
+		if turn_number == SERBIAN_KINGDOM_TURN then
 			if faction:is_human() then
 				cm:trigger_incident(SERBIA_KEY, "mk_incident_story_serbia_kingdom");
 

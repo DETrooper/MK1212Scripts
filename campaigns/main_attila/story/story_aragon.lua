@@ -10,7 +10,7 @@
 ARAGON_KEY = "mk_fact_aragon";
 FRANCE_KEY = "mk_fact_france";
 TOULOUSE_KEY = "mk_fact_toulouse";
-ARAGON_INTERVENTION_TURN = 2;
+ARAGON_INTERVENTION_TURN = 3;
 
 ARAGON_CHOICE_MADE = false;
 

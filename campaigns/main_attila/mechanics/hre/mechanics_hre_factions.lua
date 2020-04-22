@@ -161,7 +161,9 @@ function FactionTurnStart_HRE_Factions(context)
 		end
 	end
 
-	HRE_Button_Check(); -- Check every turn if the HRE panel should be hidden or not.
+	if context:faction():is_human() then
+		HRE_Button_Check(); -- Check every turn if the HRE panel should be hidden or not.
+	end
 end
 
 function CharacterBecomesFactionLeader_HRE_Factions(context)
@@ -457,11 +459,13 @@ function HRE_Assign_New_Pretender(player_rejected)
 				local num_regions = current_faction:region_list():num_items();
 				local num_units = 0;
 
-				for j = 0, forces:num_items() - 1 do
-					local force = forces:item_at(j);
-					local unit_list = forces:item_at(i):unit_list();
+				if forces:num_items() > 0 then
+					for j = 0, forces:num_items() - 1 do
+						local force = forces:item_at(j);
+						local unit_list = forces:item_at(j):unit_list();
 
-					num_units = num_units + unit_list:num_items();
+						num_units = num_units + unit_list:num_items();
+					end
 				end
 
 				local weight = num_units + (num_regions * 10);

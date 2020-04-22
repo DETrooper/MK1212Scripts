@@ -44,6 +44,7 @@ function Are_Regions_Religion(religion_key, region_list)
 			return false;
 		end
 	end
+
 	return true;
 end
 

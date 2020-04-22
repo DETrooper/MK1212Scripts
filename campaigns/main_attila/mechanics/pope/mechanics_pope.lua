@@ -20,10 +20,10 @@ PAPAL_STATES_KEY = "mk_fact_papacy";
 PAPAL_STATES_DEAD = false;
 CURRENT_POPE = 1;
 LAST_POPE = 0;
-POPE_MIN_AGE = 40;
-POPE_MAX_AGE = 51;
-MIN_YEARS_YEARS_IN_OFFICE = 10; -- The minimum number of years a generated Pope must be in office before we consider replacing him
-MAX_YEARS_YEARS_IN_OFFICE = 20; -- The maximum number of years a generated Pope can be in office before we replace him
+POPE_MIN_AGE = 40; -- Minimum age for generated popes.
+POPE_MAX_AGE = 70; -- Maximum age for generated popes.
+MIN_YEARS_YEARS_IN_OFFICE = 10; -- The minimum number of years a generated Pope must be in office before we consider replacing him.
+MAX_YEARS_YEARS_IN_OFFICE = 20; -- The maximum number of years a generated Pope can be in office before we replace him.
 
 function Add_Pope_Listeners()
 	cm:add_listener(
@@ -142,29 +142,35 @@ function Pope_Term_Check(context)
 end
 
 function Pope_Changeover(context)
-	local POPE_AGE = cm:random_number(POPE_MAX_AGE, POPE_MIN_AGE);
-	local IS_HEIR = true;
+	local age = cm:random_number(POPE_MAX_AGE, POPE_MIN_AGE);
+	local forename = GENERIC_POPE_NAMES[cm:random_number(#GENERIC_POPE_NAMES)];
+
+	if POPE_LIST[CURRENT_POPE] ~= nil then
+		age = POPE_LIST[CURRENT_POPE].age;
+		forename = POPE_LIST[CURRENT_POPE].name;
+	end
 	
 	-- Get a new Pope ready...
 	cm:spawn_character_into_family_tree(
-		PAPAL_STATES_KEY,				-- Faction Key
-		POPE_LIST[CURRENT_POPE].name,	-- Forename Key
-		"",								-- Family Name Key
-		"",								-- Clan Name Key
+		PAPAL_STATES_KEY,					-- Faction Key
+		POPE_LIST[CURRENT_POPE].name,				-- Forename Key
+		"",							-- Family Name Key
+		"",							-- Clan Name Key
 		"", 							-- Other Name Key
-		POPE_AGE, 						-- Age
+		age, 							-- Age
 		true, 							-- Is Male?
 		"", 							-- Father Lookup
 		"", 							-- Mother Lookup
 		true, 							-- Is Immortal?
-		"cha_pope", 					-- Art Set ID
-		IS_HEIR, 						-- Make Heir?
+		"cha_pope", 						-- Art Set ID
+		true, 							-- Make Heir?
 		false							-- Is Attila?
 	);
 	
 	-- Remove current Pope
 	if context:faction():has_faction_leader() then
 		local current_pope = context:faction():faction_leader();
+
 		cm:set_character_immortality("character_cqi:"..current_pope:command_queue_index(), false);
 		cm:kill_character("character_cqi:"..current_pope:command_queue_index(), false, false);
 	end
@@ -172,31 +178,19 @@ function Pope_Changeover(context)
 	-- Give the new Pope his trait
 	if context:faction():has_faction_leader() then
 		local current_pope = context:faction():faction_leader();
+
 		cm:force_add_trait("character_cqi:"..current_pope:command_queue_index(), "cha_trait_pope", false);
 	end
 	
 	-- Hide the new Pope
 	if context:faction():has_faction_leader() then
 		local current_pope = context:faction():faction_leader();
+
 		cm:hide_character("character_cqi:"..current_pope:command_queue_index(), true);
 	end
 	
 	-- Tell everyone about the new Pope!
 	local faction_list = cm:model():world():faction_list();
-	local POPE_NAME = "";
-
-	-- add more later!	
-	if POPE_LIST[CURRENT_POPE].id == "Innocentius III" then
-		POPE_NAME = "_innocentius_3";
-	elseif POPE_LIST[CURRENT_POPE].id == "Honorius III" then
-		POPE_NAME = "_honorious_3";
-	elseif POPE_LIST[CURRENT_POPE].id == "Gregorius IX" then
-		POPE_NAME = "_gregorius_9";
-	elseif POPE_LIST[CURRENT_POPE].id == "Coelestinus IV" then
-		POPE_NAME = "_coelestinus_1";
-	elseif POPE_LIST[CURRENT_POPE].id == "Innocentius IV" then
-		POPE_NAME = "_innocentius_4";
-	end
 	
 	for i = 0, faction_list:num_items() - 1 do
 		local current_faction = faction_list:item_at(i);
@@ -207,7 +201,7 @@ function Pope_Changeover(context)
 				cm:show_message_event(
 					current_faction:name(),
 					"message_event_text_text_mk_event_pope_new_pope_title",
-					"message_event_text_text_mk_event_pope_new_pope_primary_detail"..POPE_NAME,
+					POPE_LIST[CURRENT_POPE].name,
 					"message_event_text_text_mk_event_pope_new_pope_secondary_detail",
 					true,
 					666
@@ -219,6 +213,7 @@ end
 
 function IsPopeAlive()
 	local faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
+
 	if faction:is_null_interface() == false and faction:has_faction_leader() then
 		return true;
 	else
@@ -239,29 +234,9 @@ function NextPope()
 			end
 		end
 	end
+
 	return POPE_LIST[CURRENT_POPE + 1];
 end
-
-POPE_LIST = {
-	{id = "Innocentius III",	name = "names_name_2147380345", turn = -99},
-	{id = "Honorius III",		name = "names_name_2147380346", turn = 4},
-	{id = "Gregorius IX",		name = "names_name_2147380347", turn = 16},
-	{id = "Coelestinus IV",	name = "names_name_2147380353", turn = 30},
-	{id = "Innocentius IV",	name = "names_name_2147380363", turn = 32},
-	{id = "Alexander IV",	name = "names_name_2147380367", turn = 43},
-	{id = "Urbanus IV",		name = "names_name_2147380369", turn = 50},
-	{id = "Clemens IV",		name = "names_name_2147380378", turn = 54},
-	{id = "Gregorius X",		name = "names_name_2147380386", turn = 60},
-	{id = "Ioannes XXI",		name = "names_name_2147380401", turn = 65},
-	{id = "Nicolaus III",		name = "names_name_2147380406", turn = 66},
-	{id = "Martinus IV",		name = "names_name_2147380412", turn = 70},
-	{id = "Honorius IV",		name = "names_name_2147380421", turn = 74},
-	{id = "Nicolaus IV",		name = "names_name_2147380426", turn = 77},
-	{id = "Bonfatius VIII",	name = "names_name_2147380432", turn = 83},
-	{id = "Benedictus XI",	name = "names_name_2147380442", turn = 92},
-	{id = "Clemens V",		name = "names_name_2147380449", turn = 94},
-	{id = "Ioannes XXII",	name = "names_name_2147380458", turn = 105}
-};
 
 ------------------------------------------------
 ---------------- Saving/Loading ----------------

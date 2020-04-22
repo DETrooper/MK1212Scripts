@@ -515,10 +515,10 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 					second_split[2] = Round_Number_Text(second_split[2]);
 					building_growth = "Growth From Buildings: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "capital_bonus_"..tostring(class) then
-					second_split[2] = Round_Number_Text(second_split[2]);
+					--second_split[2] = Round_Number_Text(second_split[2]);
 					capital_bonus = "Faction Capital: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "imperial_decree_"..tostring(class) then
-					second_split[2] = Round_Number_Text(second_split[2]);
+					--second_split[2] = Round_Number_Text(second_split[2]);
 					imperial_decree = "Imperial Decree: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "hard_cap_exceeded" then
 					second_split[2] = Round_Number_Text(second_split[2]);

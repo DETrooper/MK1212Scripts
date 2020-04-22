@@ -372,6 +372,22 @@ function SaveBooleanPairTable(context, tab, savename)
 	cm:save_value(savename, savestring, context);
 end
 
+function SaveKeyPairTables(context, tab, savename)
+	local savestring = "";
+	
+	for key, value in pairs(tab) do
+		savestring = savestring..key..",";
+
+		for i = 1, #value do
+			savestring = savestring..value[i]..",";
+		end
+
+		savestring = savestring..";";
+	end
+
+	cm:save_value(savename, savestring, context);
+end
+
 function LoadKeyPairTable(context, savename)
 	local savestring = cm:load_value(savename, "", context);
 	local tab = {};
@@ -416,6 +432,30 @@ function LoadBooleanPairTable(context, savename)
 			else
 				tab[second_split[1]] = false;				
 			end
+		end
+	end
+
+	return tab;
+end
+
+function LoadKeyPairTables(context, savename)
+	local savestring = cm:load_value(savename, "", context);
+	local tab = {};
+	local tab2 = {};
+	
+	if savestring ~= "" then
+		local first_split = SplitString(savestring, ";");
+
+		for i = 1, #first_split do
+			local second_split = SplitString(first_split[i], ",");
+
+			if #second_split > 1 then
+				for j = 2, #second_split do
+					table.insert(tab2, second_split[j]);
+				end
+			end
+
+			tab[second_split[1]] = tab2;
 		end
 	end
 

@@ -35,7 +35,7 @@ function World_Story_Events(context)
 	local turn_number = cm:model():turn_number();
 
 	if context:faction():is_human() then
-		if turn_number == 89 then
+		if turn_number == 176 then
 			cm:show_message_event(
 				context:faction():name(),
 				"message_event_text_text_mk_event_14th_century_title", 
@@ -44,7 +44,7 @@ function World_Story_Events(context)
 				true,
 				726
 			);
-		elseif turn_number == 104 then
+		elseif turn_number == 206 then
 			cm:show_message_event(
 				context:faction():name(),
 				"message_event_text_text_mk_event_great_famine_title", 
@@ -53,7 +53,7 @@ function World_Story_Events(context)
 				true,
 				724
 			);
-		elseif turn_number == 107 then
+		elseif turn_number == 212 then
 			cm:show_message_event(
 				context:faction():name(),
 				"message_event_text_text_mk_event_little_ice_age_title", 
@@ -62,7 +62,7 @@ function World_Story_Events(context)
 				true,
 				725
 			);
-		elseif turn_number == 189 then
+		elseif turn_number == 376 then
 			cm:show_message_event(
 				context:faction():name(),
 				"message_event_text_text_mk_event_15th_century_title", 

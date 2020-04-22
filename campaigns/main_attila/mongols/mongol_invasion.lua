@@ -17,7 +17,7 @@ TOLUI_KEY = "mk_fact_ilkhanate";
 INDEPENDENCE_JOCHI = false;
 INDEPENDENCE_TOLUI = false;
 MONGOL_INVASION_STARTED = false;
-MONGOL_INVASION_TURN = 8;
+MONGOL_INVASION_TURN = 15;
 
 MIN_ARMY_STRENGTH_FORCES = 3; -- # of armies.
 MIN_ARMY_STRENGTH_UNITS = 14; -- # of units before an army is considered too small.
@@ -245,8 +245,8 @@ end
 
 function SpawnMongolArmyInZone(faction_name, unit_list, region, zone)
 	local turn_number = cm:model():turn_number();
-	local x = math.random(zone.x1 , zone.x2);
-	local y = math.random(zone.y2 , zone.y1);
+	local x = math.random(zone.x1, zone.x2);
+	local y = math.random(zone.y2, zone.y1);
 
 	cm:create_force(
 		faction_name, 					-- name of faction

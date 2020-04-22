@@ -12,7 +12,7 @@
 TIMURIDS_KEY = "mk_fact_timurids";
 
 TIMURID_INVASION_STARTED = false;
-TIMURID_INVASION_TURN = 169;
+TIMURID_INVASION_TURN = 337;
 TIMURID_PROTECTION_TURNS = 5; -- How many turns after the invasion turn should the Timurids be protected?
 
 MIN_ARMY_STRENGTH_FORCES = 4; -- # of armies.
@@ -45,12 +45,6 @@ end
 
 function FactionTurnStart_Timurid_Preservation(context)
 	local turn_number = cm:model():turn_number();
-
-	if context:faction():name() == TIMURIDS_KEY then
-		if TIMURID_INVASION_STARTED == true and turn_number < TIMURID_INVASION_TURN + TIMURID_PROTECTION_TURNS then
-			TimuridArmyChecks(TIMURIDS_KEY);
-		end
-	end
 
 	if turn_number == TIMURID_INVASION_TURN and TIMURID_INVASION_STARTED == false then
 		TIMURID_INVASION_STARTED = true;
@@ -89,6 +83,10 @@ function FactionTurnStart_Timurid_Preservation(context)
 				715
 			);
 		end
+	elseif context:faction():name() == TIMURIDS_KEY then
+		if TIMURID_INVASION_STARTED == true and turn_number < TIMURID_INVASION_TURN + TIMURID_PROTECTION_TURNS then
+			TimuridArmyChecks(TIMURIDS_KEY);
+		end
 	end
 end
 
@@ -116,8 +114,8 @@ end
 
 function SpawnTimuridArmyInZone(faction_name, unit_list, region, zone)
 	local turn_number = cm:model():turn_number();
-	local x = math.random(zone.x1 , zone.x2);
-	local y = math.random(zone.y2 , zone.y1);
+	local x = math.random(zone.x1, zone.x2);
+	local y = math.random(zone.y2, zone.y1);
 
 	cm:create_force(
 		faction_name, 					-- name of faction
@@ -128,7 +126,7 @@ function SpawnTimuridArmyInZone(faction_name, unit_list, region, zone)
 		faction_name..tostring(x)..tostring(y)..tostring(turn_number), 	-- string id for army
 		true,
 		function(cqi)
-			cm:apply_effect_bundle_to_characters_force("mk_bundle_army_timurid_invasion", cqi, 20, true)
+			--cm:apply_effect_bundle_to_characters_force("mk_bundle_army_timurid_invasion", cqi, 20, true)
 		end
 	);
 end

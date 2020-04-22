@@ -12,7 +12,7 @@
 
 BUBONIC_PLAGUE_KEY = "black_death";
 PLAGUE_PHASE = "DORMANT";			-- Used for tracking plague progress.
-PLAGUE_START_TURN = 135;			-- Plague starts in 1346 (turn 135).
+PLAGUE_START_TURN = 269;			-- Plague starts in 1346 (turn 269).
 PLAGUE_CONTRACTION_CHANCE = 33;		-- The chance of characters contracting the plague.
 PLAGUE_TRAIT = "mk_trait_bubonic_plague";		-- Trait given to characters when they contract the plague.
 SANITATION_SAFE_LEVEL = 10;			-- The level of sanitation at which a region becomes safe from the plague.
@@ -108,7 +108,7 @@ function OnFactionTurnStart_Plague(context)
 				714
 			);
 		end
-	elseif turn_number == PLAGUE_START_TURN + 1 and PLAGUE_PHASE == "1346" then
+	elseif turn_number == PLAGUE_START_TURN + 2 and PLAGUE_PHASE == "1346" then
 		PLAGUE_PHASE = "1347";
 				
 		-- Make sure these regions get infected
@@ -149,7 +149,7 @@ function OnFactionTurnStart_Plague(context)
 				end
 			end
 		end
-	elseif turn_number == PLAGUE_START_TURN + 2 and PLAGUE_PHASE == "1347" then
+	elseif turn_number == PLAGUE_START_TURN + 4 and PLAGUE_PHASE == "1347" then
 		PLAGUE_PHASE = "1348";
 				
 		-- Make sure these regions get infected
@@ -190,7 +190,7 @@ function OnFactionTurnStart_Plague(context)
 				end
 			end
 		end
-	elseif turn_number == PLAGUE_START_TURN + 3 and PLAGUE_PHASE == "1348" then
+	elseif turn_number == PLAGUE_START_TURN + 6 and PLAGUE_PHASE == "1348" then
 		PLAGUE_PHASE = "1349";
 				
 		-- Make sure these regions get infected
@@ -231,7 +231,7 @@ function OnFactionTurnStart_Plague(context)
 				end
 			end
 		end
-	elseif turn_number == PLAGUE_START_TURN + 4 and PLAGUE_PHASE == "1349" then
+	elseif turn_number == PLAGUE_START_TURN + 8 and PLAGUE_PHASE == "1349" then
 		PLAGUE_PHASE = "1350";
 				
 		-- Make sure these regions get infected
@@ -272,7 +272,7 @@ function OnFactionTurnStart_Plague(context)
 				end
 			end
 		end
-	elseif turn_number == PLAGUE_START_TURN + 5 and PLAGUE_PHASE == "1350" then
+	elseif turn_number == PLAGUE_START_TURN + 10 and PLAGUE_PHASE == "1350" then
 		PLAGUE_PHASE = "1351";
 				
 		-- Make sure these regions get infected
@@ -313,7 +313,7 @@ function OnFactionTurnStart_Plague(context)
 				end
 			end
 		end
-	elseif turn_number == PLAGUE_START_TURN + 6 and PLAGUE_PHASE == "1351" then
+	elseif turn_number == PLAGUE_START_TURN + 12 and PLAGUE_PHASE == "1351" then
 		PLAGUE_PHASE = "1352";
 				
 		-- Make sure these regions get infected
@@ -354,7 +354,7 @@ function OnFactionTurnStart_Plague(context)
 				end
 			end
 		end
-	elseif turn_number == PLAGUE_START_TURN + 10 and PLAGUE_PHASE == "1352" then
+	elseif turn_number == PLAGUE_START_TURN + 20 and PLAGUE_PHASE == "1352" then
 		PLAGUE_PHASE = "ENDED";
 	end
 end
