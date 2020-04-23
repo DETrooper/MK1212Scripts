@@ -85,7 +85,7 @@ function CharacterSelected_Pope_UI(context)
 	local faction_name = cm:get_local_faction();
 	LAST_CHARACTER_SELECTED = context:character();
 
-	if FIFTH_CRUSADE_TRIGGERED == true and FIFTH_CRUSADE_ENDED == false then
+	if CRUSADE_ACTIVE == true then
 		if context:character():faction():state_religion() == "att_rel_chr_catholic" and context:character():faction():name() == faction_name then
 			if context:character():military_force():unit_list():num_items() > 1 then
 				-- Not an agent or lone general.
@@ -193,7 +193,7 @@ end
 function TimeTrigger_Pope_UI(context)
 	if context.string == "Check_Army_Details_Visible" then
 		local root = cm:ui_root();
-		if ARMY_SELECTED == true and FIFTH_CRUSADE_TRIGGERED == true and FIFTH_CRUSADE_ENDED == false then
+		if ARMY_SELECTED == true and CRUSADE_ACTIVE == true then
 			local btnCrusade = UIComponent(root:Find("Crusade_Button"));
 			btnCrusade:SetVisible(true);
 		end

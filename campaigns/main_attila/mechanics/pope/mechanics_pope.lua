@@ -11,6 +11,7 @@
 -- Also serves as a hub for all papal-related scripts.
 
 -- Other Pope stuff!!!
+require("mechanics/pope/mechanics_pope_lists");
 require("mechanics/pope/mechanics_pope_favour");
 require("mechanics/pope/mechanics_pope_crusades");
 --require("mechanics/pope/mechanics_pope_missions");

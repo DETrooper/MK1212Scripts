@@ -30,7 +30,7 @@ end
 
 function FactionTurnStart_Ayyubids(context)
 	if context:faction():name() == AYYUBIDS_KEY and AYYUBIDS_MISSION_ISSUED == false then
-		if FIFTH_CRUSADE_TRIGGERED == true then
+		if CRUSADE_ACTIVE == true then
 			if CURRENT_CRUSADE_TARGET_OWNER == AYYUBIDS_KEY then
 				cm:trigger_mission(AYYUBIDS_KEY, "mk_mission_story_ayyubids_crusade_defense");
 				AYYUBIDS_MISSION_ISSUED = true;
