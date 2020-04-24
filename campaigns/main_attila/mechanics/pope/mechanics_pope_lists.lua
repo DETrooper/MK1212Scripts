@@ -1,17 +1,14 @@
+JERUSALEM_KEY = "mk_fact_jerusalem";
 JERUSALEM_REGION_KEY = "att_reg_palaestinea_aelia_capitolina";
 ALEXANDRIA_REGION_KEY = "att_reg_aegyptus_alexandria";
-FRANCE_KEY = "mk_fact_france";
-HRE_KEY = "mk_fact_hre";
-HUNGARY_KEY = "mk_fact_hungary";
-JERUSALEM_KEY = "mk_fact_jerusalem";
 
 SCRIPTED_CRUSADES_LIST = {
-	-- Scripted target region, optional message turn, begin turn.
+	-- Scripted target region, optional message turn, begin turn, custom mission key.
 	[1] = {},
 	[2] = {},
 	[3] = {},
 	[4] = {},
-	[5] = {"att_reg_aegyptus_oxyrhynchus", 7, 11}
+	[5] = {"att_reg_aegyptus_oxyrhynchus", 7, 11, "mk_mission_crusades_take_cairo_fifth_crusade", {"mk_fact_france", "mk_fact_hre", "mk_fact_hungary", "mk_fact_jerusalem"}}
 }
 
 CRUSADE_TARGET_RELIGIONS = {
@@ -21,7 +18,7 @@ CRUSADE_TARGET_RELIGIONS = {
 
 CRUSADE_REGIONS = {
 	-- Core European territories recieve priority over faraway lands.
-	["att_reg_italia_roma"] = 5000, -- Rome
+	["att_reg_italia_roma"] = 10000, -- Rome
 	["att_reg_aquitania_elusa"] = 2500, -- Toulouse
 	["att_reg_britannia_superior_londinium"] = 2500, -- London
 	["att_reg_germania_uburzis"] = 2500, -- Frankfurt

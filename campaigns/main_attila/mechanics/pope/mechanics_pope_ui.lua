@@ -136,13 +136,13 @@ function OnComponentLClickUp_Pope_UI(context)
 			cm:force_diplomacy(faction_name, CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
 			cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, faction_name, "peace", false, false);
 
-			cm:trigger_mission(faction_name, "mk_mission_crusades_take_cairo");
+			cm:trigger_mission(faction_name, CURRENT_CRUSADE_MISSION_KEY);
 
 			cm:show_message_event(
 				faction_name, 
-				"message_event_text_text_mk_event_crusade_fifth_crusade_title", 
-				"message_event_text_text_mk_event_crusade_fifth_crusade_joined_primary", 
-				"message_event_text_text_mk_event_crusade_fifth_crusade_joined_secondary", 
+				"message_event_text_text_mk_event_"..tostring(CURRENT_CRUSADE).."_crusade_title", 
+				"message_event_text_text_mk_event_crusade_joined_primary", 
+				"message_event_text_text_mk_event_crusade_joined_secondary", 
 				true,
 				706
 			);
@@ -181,6 +181,32 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 		local root = cm:ui_root();
 		local btnCrusade = UIComponent(root:Find("Crusade_Button"));
 		btnCrusade:SetVisible(false);
+	elseif context.string == "events" then
+		if CRUSADE_END_EVENT_OPEN == true then
+			local num_owned_regions = 0;
+			local option3_button = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma3_window", "dilemma3_template", "choice_button"});
+			local option4_button = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma4_window", "dilemma4_template", "choice_button"});
+
+			option4_button:SetState("inactive"); -- Default to inactive in case player owns only the crusade target.
+
+			if cm:model():world():region_manager():region_by_key(JERUSALEM_KEY):owning_faction():state_religion() == "att_rel_chr_catholic" then
+				option3_button:SetState("inactive");
+			end
+
+			for i = 1, #CURRENT_CRUSADE_TARGET_OWNED_REGIONS do
+				if cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i]):owning_faction():name() == cm:get_local_faction() then
+					num_owned_regions = num_owned_regions + 1;
+
+					if num_owned_regions < 1 then
+						-- Player owns more than just the crusade target so enable the option to only give away the crusade target and keep the other conquered land.
+						option4_button:SetState("active");
+						break;
+					end
+				end
+			end
+
+			CRUSADE_END_EVENT_OPEN = false;
+		end
 	end
 end
 
