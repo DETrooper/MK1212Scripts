@@ -271,13 +271,13 @@ function OnComponentLClickUp_Decisions_UI(context)
 			RefreshDecisionsPanel();
 			DECISION_PANEL_OPEN = true;
 		else
-			CloseDecisionsPanel();
+			CloseDecisionsPanel(true);
 		end
 
 		Unhighlight_Decisions_Button();
 	elseif DECISION_PANEL_OPEN == true then
 		if context.string == "root" then
-			CloseDecisionsPanel();
+			CloseDecisionsPanel(false);
 		elseif string.find(context.string, "_Decision_Button") then
 			local root = cm:ui_root();
 			UIComponent(context.component):SetState("inactive");
@@ -301,12 +301,12 @@ end
 
 function FactionTurnEnd_Decisions_UI(context)
 	if context:faction():is_human() then
-		CloseDecisionsPanel();
+		CloseDecisionsPanel(false);
 	end
 end
 
 function OnPanelOpenedCampaign_Decisions_UI(context)
-	CloseDecisionsPanel();
+	CloseDecisionsPanel(false);
 end
 
 function TimeTrigger_Decisions_UI(context)
@@ -315,7 +315,7 @@ function TimeTrigger_Decisions_UI(context)
 	end
 end
 
-function CloseDecisionsPanel()
+function CloseDecisionsPanel(hover)
 	local root = cm:ui_root();
 	local panDecisions = UIComponent(root:Find("Decisions_Panel"));
 	local btnDecisions = UIComponent(root:Find("button_decisions"));
@@ -345,7 +345,13 @@ function CloseDecisionsPanel()
 	end
 
 	panDecisions:SetVisible(false);
-	btnDecisions:SetState("active");
+
+	if hover == true then
+		btnDecisions:SetState("hover");
+	else
+		btnDecisions:SetState("active");
+	end
+
 	DECISION_PANEL_OPEN = false;
 end
 

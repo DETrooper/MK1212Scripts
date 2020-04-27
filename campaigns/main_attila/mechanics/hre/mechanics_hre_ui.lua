@@ -267,13 +267,13 @@ function OnComponentLClickUp_HRE_UI(context)
 			OpenHREPanel();
 			HRE_PANEL_OPEN = true;
 		else
-			CloseHREPanel();
+			CloseHREPanel(true);
 		end
 	elseif context.string == "root" and HRE_PANEL_OPEN == true then
-		CloseHREPanel();
+		CloseHREPanel(false);
 	elseif context.string == "button_close" then
 		if UIComponent(UIComponent(UIComponent(context.component):Parent()):Parent()):Id() == "HRE_Panel" then
-			CloseHREPanel();
+			CloseHREPanel(false);
 		end
 	elseif context.string == "button_vote" then
 		local root = cm:ui_root();
@@ -333,12 +333,12 @@ end
 
 function FactionTurnEnd_HRE_UI(context)
 	if context:faction():is_human() then
-		CloseHREPanel();
+		CloseHREPanel(false);
 	end
 end
 
 function OnPanelOpenedCampaign_HRE_UI(context)
-	CloseHREPanel();
+	CloseHREPanel(false);
 end
 
 function TimeTrigger_HRE_UI(context)
@@ -467,12 +467,18 @@ function OpenHREPanel()
 	panHRE:SetVisible(true);
 end
 
-function CloseHREPanel()
+function CloseHREPanel(hover)
 	local root = cm:ui_root();
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
 	local btnHRE = UIComponent(root:Find("button_hre"));
 	panHRE:SetVisible(false);
-	btnHRE:SetState("active");
+
+	if hover == true then
+		btnHRE:SetState("hover");
+	else
+		btnHRE:SetState("active");
+	end
+
 	HRE_PANEL_OPEN = false;
 end
 

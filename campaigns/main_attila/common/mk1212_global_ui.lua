@@ -7,9 +7,8 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
-local dev = require("lua_scripts.dev");
-
-SETTLEMENT_PANEL_OPEN = false;
+local convert_panel_open = false;
+local settlement_panel_open = false;
 
 function Add_MK1212_Global_UI_Listeners()
 	cm:add_listener(
@@ -48,24 +47,32 @@ end
 function OnComponentLClickUp_Global_UI(context)
 	if context.string == "button_create_army" then
 		cm:add_time_trigger("disable_navy_recruitment", 0.0);
+	elseif context.string == "button_convert" then
+		convert_panel_open = true;
+	elseif convert_panel_open == true then
+		if context.string == "button_tick" or context.string == "button_cancel" or context.string == "clan" then
+			cm:add_time_trigger("religion_possibly_changed", 0.0);
+			convert_panel_open = false;
+		end
 	end
 end
-
 function OnPanelOpenedCampaign_Global_UI(context)
 	if context.string == "settlement_panel" then
-		SETTLEMENT_PANEL_OPEN = true;
+		settlement_panel_open = true;
 	end
 end
 
 function OnPanelClosedCampaign_Global_UI(context)
 	if context.string == "settlement_panel" then
-		SETTLEMENT_PANEL_OPEN = false;
+		settlement_panel_open = false;
 	end
 end
 
 function OnTimeTrigger_Global_UI(context)
 	if context.string == "disable_navy_recruitment" then
 		Disable_Naval_Recruitment();
+	elseif context.string == "religion_possibly_changed" then
+		Religion_Possibly_Changed(cm:get_local_faction());
 	end
 end
 
@@ -73,6 +80,36 @@ function Disable_Naval_Recruitment()
 	local root = cm:ui_root();
 	local button_raise_fleet_uic = UIComponent(root:Find("button_raise_fleet"));
 	button_raise_fleet_uic:SetState("inactive");
+end
+
+function Religion_Possibly_Changed(faction_name)
+	local faction = cm:model():world():faction_by_key(faction_name);
+
+	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
+		if faction:state_religion() == "att_rel_chr_catholic" then
+			if faction_name == CURRENT_CRUSADE_TARGET then
+				End_Crusade("aborted");
+			end
+
+			Update_Pope_Favour(faction);
+		elseif PLAYER_POPE_FAVOUR[faction_name] ~= nil then
+			PLAYER_POPE_FAVOUR[faction_name] = nil;
+
+			for i = 0, 10 do
+				cm:remove_effect_bundle("mk_bundle_pope_favour_"..i, faction_name);
+			end
+	
+			Remove_Excommunication_Manual(faction_name);
+	
+			if faction:is_human() and cm:is_multiplayer() == false then
+				Remove_Decision("ask_pope_for_money");
+			end
+
+			if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, faction_name) then
+				Remove_Faction_From_Crusade(faction_name);
+			end
+		end
+	end
 end
 
 function Create_Image(component, name)

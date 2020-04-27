@@ -67,7 +67,7 @@ function Add_Crusade_Event_Listeners()
 			CURRENT_CRUSADE_FACTIONS_JOINED[current_faction:name()] = "not joined";
 		end
  
-		NEXT_CRUSADE_START_TURN = SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE + 1][3];
+		NEXT_CRUSADE_START_TURN = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][3];
 	elseif CRUSADE_ACTIVE == true then
 		cm:add_listener(
 			"CharacterEntersGarrison_Crusade",
@@ -95,30 +95,28 @@ function Add_Crusade_Event_Listeners()
 end
 
 function FactionTurnStart_Pope_Crusades(context)
-	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true and (CURRENT_CRUSADE > MAX_NUM_OF_CRUSADES or CRUSADE_ACTIVE == true) then
-		if cm:model():turn_number() == SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE + 1][2] then
-			local owner = cm:model():world():region_manager():region_by_key(SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE + 1][1]):owning_faction();
+	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true and (CURRENT_CRUSADE < MAX_NUM_OF_CRUSADES or CRUSADE_ACTIVE == true) then
+		if cm:model():turn_number() == SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][2] then
+			local owner = cm:model():world():region_manager():region_by_key(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][1]):owning_faction();
 			local owner_religion = owner:state_religion();
 
 			if HasValue(CRUSADE_TARGET_RELIGIONS, owner_religion) then
 				cm:show_message_event(
 					context:faction():name(),
-					"message_event_text_text_mk_event_crusade_"..tostring(CURRENT_CRUSADE).."_title",  
-					"message_event_text_text_mk_event_crusade_preliminary_"..tostring(CURRENT_CRUSADE).."_primary", 
-					"message_event_text_text_mk_event_crusade_preliminary_"..tostring(CURRENT_CRUSADE).."_secondary", 
+					"message_event_text_text_mk_event_crusade_"..tostring(CURRENT_CRUSADE + 1).."_title",  
+					"message_event_text_text_mk_event_crusade_preliminary_"..tostring(CURRENT_CRUSADE + 1).."_primary", 
+					"message_event_text_text_mk_event_crusade_preliminary_"..tostring(CURRENT_CRUSADE + 1).."_secondary", 
 					true,
 					706
 				);
 			end
-		end
-
-		if cm:model():turn_number() == NEXT_CRUSADE_START_TURN then
+		elseif cm:model():turn_number() == NEXT_CRUSADE_START_TURN then
 			if CRUSADE_ACTIVE == false then
 				local target = JERUSALEM_REGION_KEY;
 
-				if SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE + 1] ~= nil then
-					if SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE + 1][1] ~= nil then
-						target = SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE + 1][1];
+				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)] ~= nil then
+					if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][1] ~= nil then
+						target = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][1];
 					end
 				else
 					target = GetCrusadeTarget_Crusades();
@@ -182,8 +180,8 @@ function FactionTurnStart_Pope_Crusades(context)
 						end
 					end
 
-					if SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE][4] ~= nil then
-						CURRENT_CRUSADE_MISSION_KEY = SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE][4];
+					if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][4] ~= nil then
+						CURRENT_CRUSADE_MISSION_KEY = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][4];
 					else
 						CURRENT_CRUSADE_MISSION_KEY = "mk_mission_crusades_take_"..target_short.."_crusade";
 					end
@@ -202,6 +200,10 @@ function FactionTurnStart_Pope_Crusades(context)
 						true,
 						706
 					);
+
+					if CURRENT_CRUSADE_TARGET_OWNER == cm:get_local_faction() then
+						cm:trigger_mission(CURRENT_CRUSADE_TARGET_OWNER, "mk_mission_crusades_defense_"..target_short);
+					end
 				else
 					cm:show_message_event(
 						cm:get_local_faction(),
@@ -217,8 +219,14 @@ function FactionTurnStart_Pope_Crusades(context)
 			elseif context:faction():is_human() == false and CRUSADE_ACTIVE == true then
 				local owner = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET):owning_faction();
 
-				if SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE][5] ~= nil then
-					if HasValue(SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE][5], context:faction():name()) then
+				if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, context:faction():name()) and context:faction():state_religion() ~= "att_rel_chr_catholic" then
+					Remove_Faction_From_Crusade(context:faction():name());
+				elseif context:faction():name() == CURRENT_CRUSADE_TARGET and context:faction():state_religion() == "att_rel_chr_catholic" then
+					End_Crusade("aborted");
+				end
+
+				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][5] ~= nil then
+					if HasValue(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][5], context:faction():name()) and context:faction():state_religion() == "att_rel_chr_catholic" then
 						if context:faction():at_war_with(owner) == false then
 							cm:force_declare_war(context:faction():name(), owner:name());
 						end
@@ -228,7 +236,7 @@ function FactionTurnStart_Pope_Crusades(context)
 					end
 				else
 					if context:faction():state_religion() == "att_rel_chr_catholic" then
-						if context:faction():name() == JERUSALEM_KEY or context:faction():region_list():num_items() <= CRUSADE_CANDIDATE_MIN_REGIONS then
+						if context:faction():name() == JERUSALEM_KEY or context:faction():region_list():num_items() >= CRUSADE_CANDIDATE_MIN_REGIONS then
 							if context:faction():at_war_with(owner) == false then
 								cm:force_declare_war(context:faction():name(), owner:name());
 							end
@@ -241,7 +249,7 @@ function FactionTurnStart_Pope_Crusades(context)
 			end
 		end
 
-		if cm:model():turn_number() == SCRIPTED_CRUSADES_LIST[CURRENT_CRUSADE][2] + CRUSADE_DURATION and CRUSADE_ACTIVE == true then
+		if cm:model():turn_number() == SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][2] + CRUSADE_DURATION and CRUSADE_ACTIVE == true then
 			End_Crusade("lost");
 			cm:override_mission_succeeded_status(context:faction():name(), CURRENT_CRUSADE_MISSION_KEY, false);
 		end
@@ -387,10 +395,12 @@ function End_Crusade(reason)
 	if cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER):is_human() == false then
 		Purge_Crusade_Defensive_Armies();
 	else
+		local target_short = string.gsub(CURRENT_CRUSADE_TARGET, "att_reg_", "");
+
 		if reason == "lost" then
-			cm:override_mission_succeeded_status(CURRENT_CRUSADE_TARGET_OWNER, "mk_mission_story_ayyubids_crusade_defense", true);
+			cm:override_mission_succeeded_status(CURRENT_CRUSADE_TARGET_OWNER, "mk_mission_crusades_defense_"..target_short, true);
 		else
-			cm:override_mission_succeeded_status(CURRENT_CRUSADE_TARGET_OWNER, "mk_mission_story_ayyubids_crusade_defense", false);
+			cm:override_mission_succeeded_status(CURRENT_CRUSADE_TARGET_OWNER, "mk_mission_crusades_defense_"..target_short, false);
 		end
 	end
 
@@ -445,7 +455,7 @@ function End_Crusade(reason)
 		end
 	end
 
-	if CURRENT_CRUSADE > MAX_NUM_OF_CRUSADES then
+	if CURRENT_CRUSADE < MAX_NUM_OF_CRUSADES then
 		NEXT_CRUSADE_START_TURN = cm:model():turn_number() + cm:random_number(TURNS_BETWEEN_CRUSADES_MAX, TURNS_BETWEEN_CRUSADES_MIN);
 	else
 		NEXT_CRUSADE_START_TURN = -1; -- End crusades system.
@@ -510,6 +520,25 @@ function GetCrusadeTarget_Crusades()
 		-- No valid target for the next crusade.
 		NEXT_CRUSADE_START_TURN = cm:model():turn_number() + 1;
 		return;
+	end
+end
+
+function Remove_Faction_From_Crusade(faction_name)
+	local faction = cm:model():world():faction_by_key(faction_name);
+	local faction_list = cm:model():world():faction_list();
+
+	if faction:state_religion() == "att_rel_chr_catholic" and faction:at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) then
+		cm:force_diplomacy(faction_name, CURRENT_CRUSADE_TARGET_OWNER, "peace", true, true);
+		cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, faction_name, "peace", true, true);
+		cm:force_make_peace(CURRENT_CRUSADE_TARGET_OWNER, faction_name);
+
+		for i = 0, faction_list:num_items() - 1 do
+			local possible_ally = faction_list:item_at(i);
+					
+			if faction:allied_with(possible_ally) == true and possible_ally:at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) then
+				cm:force_make_peace(CURRENT_CRUSADE_TARGET_OWNER, possible_ally:name());
+			end
+		end
 	end
 end
 
@@ -578,14 +607,15 @@ cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("CRUSADE_ACTIVE", CRUSADE_ACTIVE, context);
 		cm:save_value("CRUSADE_END_EVENT_OPEN", CRUSADE_END_EVENT_OPEN, context);
+		cm:save_value("CRUSADE_INTRO_CUTSCENE_PLAYED", CRUSADE_INTRO_CUTSCENE_PLAYED, context);
 		cm:save_value("CURRENT_CRUSADE", CURRENT_CRUSADE, context);
 		cm:save_value("CURRENT_CRUSADE_MISSION_KEY", CURRENT_CRUSADE_MISSION_KEY, context);
 		cm:save_value("CURRENT_CRUSADE_TARGET", CURRENT_CRUSADE_TARGET, context);
 		cm:save_value("CURRENT_CRUSADE_TARGET_OWNER", CURRENT_CRUSADE_TARGET_OWNER, context);
-		cm:save_value("CRUSADE_INTRO_CUTSCENE_PLAYED", CRUSADE_INTRO_CUTSCENE_PLAYED, context);
 		cm:save_value("MISSION_TAKE_JERUSALEM_ACTIVE", MISSION_TAKE_JERUSALEM_ACTIVE, context);
-		SaveTable(context, CURRENT_CRUSADE_TARGET_OWNED_REGIONS, "CURRENT_CRUSADE_TARGET_OWNED_REGIONS");
+		cm:save_value("NEXT_CRUSADE_START_TURN", NEXT_CRUSADE_START_TURN, context);
 		SaveTable(context, CRUSADE_DEFENSIVE_FORCES, "CRUSADE_DEFENSIVE_FORCES");
+		SaveTable(context, CURRENT_CRUSADE_TARGET_OWNED_REGIONS, "CURRENT_CRUSADE_TARGET_OWNED_REGIONS");
 		SaveKeyPairTable(context, CURRENT_CRUSADE_FACTIONS_JOINED, "CURRENT_CRUSADE_FACTIONS_JOINED");
 	end
 );
@@ -594,14 +624,15 @@ cm:register_loading_game_callback(
 	function(context)
 		CRUSADE_ACTIVE = cm:load_value("CRUSADE_ACTIVE", false, context);
 		CRUSADE_END_EVENT_OPEN = cm:load_value("CRUSADE_END_EVENT_OPEN", false, context);
+		CRUSADE_INTRO_CUTSCENE_PLAYED = cm:load_value("CRUSADE_INTRO_CUTSCENE_PLAYED", false, context);
 		CURRENT_CRUSADE = cm:load_value("CURRENT_CRUSADE", 4, context);
 		CURRENT_CRUSADE_MISSION_KEY = cm:load_value("CURRENT_CRUSADE_MISSION_KEY", "nil", context);
 		CURRENT_CRUSADE_TARGET = cm:load_value("CURRENT_CRUSADE_TARGET", "nil", context);
 		CURRENT_CRUSADE_TARGET_OWNER = cm:load_value("CURRENT_CRUSADE_TARGET_OWNER", "nil", context);
-		CRUSADE_INTRO_CUTSCENE_PLAYED = cm:load_value("CRUSADE_INTRO_CUTSCENE_PLAYED", false, context);
 		MISSION_TAKE_JERUSALEM_ACTIVE = cm:load_value("MISSION_TAKE_JERUSALEM_ACTIVE", false, context);
-		CURRENT_CRUSADE_TARGET_OWNED_REGIONS = LoadTable(context, "CURRENT_CRUSADE_TARGET_OWNED_REGIONS");
+		NEXT_CRUSADE_START_TURN = cm:load_value("NEXT_CRUSADE_START_TURN", -1, context);
 		CRUSADE_DEFENSIVE_FORCES = LoadTableNumbers(context, "CRUSADE_DEFENSIVE_FORCES");
+		CURRENT_CRUSADE_TARGET_OWNED_REGIONS = LoadTable(context, "CURRENT_CRUSADE_TARGET_OWNED_REGIONS");
 		CURRENT_CRUSADE_FACTIONS_JOINED = LoadKeyPairTable(context, "CURRENT_CRUSADE_FACTIONS_JOINED");
 	end
 );

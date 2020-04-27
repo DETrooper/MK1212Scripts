@@ -10,7 +10,7 @@
 STORY_EVENTS_ENABLED = true;
 
 require("story/story_aragon");
-require("story/story_ayyubids");
+--require("story/story_ayyubids");
 require("story/story_england");
 require("story/story_france");
 require("story/story_hungary");
@@ -23,7 +23,7 @@ require("story/story_world");
 function Story_Initializer()
 	if STORY_EVENTS_ENABLED == true then
 		Add_Aragon_Story_Events_Listeners();
-		Add_Ayyubid_Story_Events_Listeners();
+		--Add_Ayyubid_Story_Events_Listeners();
 		Add_England_Story_Events_Listeners();
 		Add_France_Story_Events_Listeners();
 		Add_Hungary_Story_Events_Listeners();

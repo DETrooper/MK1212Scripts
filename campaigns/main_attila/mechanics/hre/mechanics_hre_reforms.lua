@@ -171,7 +171,7 @@ function Pass_HRE_Reform(reform_number)
 		end
 
 		HRE_Vanquish_Pretender();
-		CloseHREPanel();
+		CloseHREPanel(false);
 
 		HRE_FACTIONS = {};
 		HRE_FACTIONS_STATES = {};

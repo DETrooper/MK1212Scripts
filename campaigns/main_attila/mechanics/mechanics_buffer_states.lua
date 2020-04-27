@@ -106,7 +106,7 @@ function OnComponentLClickUp_Buffer_UI(context)
 
 			panBufferWarning:SetVisible(true);
 		else
-			BufferPanelClosed();
+			BufferPanelClosed(true);
 		end
 	elseif context.string == "button_buffer_confirm" then
 		local faction_name = FACTION_TURN;
@@ -148,12 +148,12 @@ function OnComponentLClickUp_Buffer_UI(context)
 			cm:transfer_region_to_faction(REGION_SELECTED, vassal_faction_name);
 		end
 
-		BufferPanelClosed();
+		BufferPanelClosed(false);
 		local root = cm:ui_root();
 		local btnBuffer = UIComponent(root:Find("Buffer_Button"));
 		btnBuffer:SetVisible(false);
 	elseif context.string == "button_buffer_cancel" then
-		BufferPanelClosed();
+		BufferPanelClosed(false);
 	elseif context.string == "root" then
 		local root = cm:ui_root();
 		local btnBuffer = UIComponent(root:Find("Buffer_Button"));
@@ -214,11 +214,16 @@ function OnTimeTrigger_Buffer(context)
 	end
 end
 
-function BufferPanelClosed()
+function BufferPanelClosed(hover)
 	local root = cm:ui_root();
 	local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
 	local btnBuffer = UIComponent(root:Find("Buffer_Button"));
 
 	panBufferWarning:SetVisible(false);
-	btnBuffer:SetState("active");
+
+	if hover == true then
+		btnBuffer:SetState("hover");
+	else
+		btnBuffer:SetState("active");
+	end
 end
