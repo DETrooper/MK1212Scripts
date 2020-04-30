@@ -441,12 +441,12 @@ end
 function LoadKeyPairTables(context, savename)
 	local savestring = cm:load_value(savename, "", context);
 	local tab = {};
-	local tab2 = {};
 	
 	if savestring ~= "" then
 		local first_split = SplitString(savestring, ";");
 
 		for i = 1, #first_split do
+			local tab2 = {};
 			local second_split = SplitString(first_split[i], ",");
 
 			if #second_split > 1 then
@@ -455,7 +455,9 @@ function LoadKeyPairTables(context, savename)
 				end
 			end
 
-			tab[second_split[1]] = tab2;
+			if #tab2 > 0 then
+				tab[second_split[1]] = DeepCopy(tab2);
+			end
 		end
 	end
 

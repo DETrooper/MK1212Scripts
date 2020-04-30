@@ -8,6 +8,7 @@
 -------------------------------------------------------------------------------------------------------------------------------------
 
 POPULATION_UNITS_TO_POPULATION = {
+	-- Order: Manpower cost at ultra unit scale, primary class, secondary class.
 	["mk_afr_t1_ballista"] = {40, 2},
 	["mk_afr_t1_ballista_bastion"] = {10, 2},
 	["mk_afr_t1_catapult"] = {40, 2},

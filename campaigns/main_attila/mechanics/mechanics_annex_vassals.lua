@@ -6,9 +6,12 @@
 --
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
-local dev = require("lua_scripts.dev");
 
-ANNEX_TURN_REQUIREMENT = 10; -- How long until annexation can begin when you've made a new vassal?
+local proposer = nil;
+local recipient = nil;
+local vassal = nil;
+
+ANNEX_TURN_REQUIREMENT = 20; -- How long until annexation can begin when you've made a new vassal?
 ANNEX_TURNS_PER_REGION = 3; -- Once annexation process has started, how many turns per region should it take to complete?
 
 FACTIONS_VASSALIZED = {};
@@ -16,10 +19,6 @@ FACTIONS_VASSALIZED_DELAYS = {};
 VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
 VASSAL_SELECTED = "";
 VASSAL_SELECTED_ANNEXATION_TIME = 0;
-
-PROPOSER = nil;
-RECIPIENT = nil;
-VASSAL = nil;
 
 function Add_Annex_Vassals_Listeners()
 	cm:add_listener(
@@ -52,7 +51,7 @@ function Add_Annex_Vassals_Listeners()
 	);
 	cm:add_listener(
 		"FactionLeaderDeclaresWar_Annex",
-		"FactionLeaderDeclaresWar", -- the event to listen for
+		"FactionLeaderDeclaresWar",
 		true,
 		function(context) FactionLeaderDeclaresWar_Annex(context) end,
 		true
@@ -72,47 +71,23 @@ function Add_Annex_Vassals_Listeners()
 		true
 	);
 	cm:add_listener(
-		"SettlementSelected_Annex",
-		"SettlementSelected",
+		"OnPanelOpenedCampaign_Annex_UI",
+		"PanelOpenedCampaign",
 		true,
-		function(context) OnSettlementSelected_Annex(context) end,
+		function(context) OnPanelOpenedCampaign_Annex_UI(context) end,
 		true
 	);
 	cm:add_listener(
-		"SettlementDeselected_Annex",
-		"SettlementDeselected",
-		true,
-		function(context) OnSettlementDeselected_Annex(context) end,
-		true
-	);
-	cm:add_listener(
-		"TimeTrigger_Annex",
+		"TimeTrigger_Annex_UI",
 		"TimeTrigger",
 		true,
-		function(context) OnTimeTrigger_Annex(context) end,
+		function(context) TimeTrigger_Annex_UI(context) end,
 		true
 	);
-
-	CreateAnnexButton();
 
 	if cm:is_new_game() then
 		AnnexVassalsSetup();
 	end
-end
-
-function CreateAnnexButton()
-	local root = cm:ui_root();
-	local army_details = UIComponent(root:Find("button_army_details"))
-	local army_detailsX, army_detailsY = army_details:Position();
-
-	root:CreateComponent("Annex_Button", "UI/new/basic_toggle_annex");
-	local btnAnnex = UIComponent(root:Find("Annex_Button"));
-	btnAnnex:SetMoveable(true);
-	btnAnnex:MoveTo(army_detailsX + 60, army_detailsY);
-	btnAnnex:SetMoveable(false);
-	btnAnnex:PropagatePriority(60);
-	btnAnnex:SetState("inactive"); 
-	btnAnnex:SetVisible(false);
 end
 
 function AnnexVassalsSetup()
@@ -251,13 +226,13 @@ function FactionBecomesLiberationVassal_Annex(context)
 end
 
 function FactionSubjugatesOtherFaction_Annex(context)
-	VASSAL = context:other_faction():name();
+	vassal = context:other_faction():name();
 end
 
 function PositiveDiplomaticEvent_Annex(context)
 	if context:proposer():is_human() == true then
-		PROPOSER = context:proposer():name();
-		RECIPIENT = context:recipient():name();
+		proposer = context:proposer():name();
+		recipient = context:recipient():name();
 		cm:add_time_trigger("diplo_vassal_check", 0.5);
 	end
 end
@@ -283,29 +258,29 @@ function FactionLeaderDeclaresWar_Annex(context)
 end
 
 function OnComponentMouseOn_Annex_UI(context)
-	if context.string == "Annex_Button" then
-		local root = cm:ui_root();
-		local btnAnnex = UIComponent(root:Find("Annex_Button"));
-		local faction_name = FACTION_TURN;
-		local vassal_string = Get_DFN_Localisation(VASSAL_SELECTED);
+	if context.string == "button_annex_vassal" then
+		local faction_name = cm:get_local_faction();
+		local vassal_string = Get_DFN_Localisation(DIPLOMACY_SELECTED_FACTION);
 		local cost = "n";
 		local turns = "n";
 
-		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
-			for i = 1, #ANNEX_VASSALS_SIZES do
-				if (cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i])) then
-					cost = ANNEX_VASSALS_PERCENTAGES[i];
-					break;
+		if HasValue(FACTIONS_VASSALIZED, DIPLOMACY_SELECTED_FACTION) then
+			if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
+				for i = 1, #ANNEX_VASSALS_SIZES do
+					if cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
+						cost = ANNEX_VASSALS_PERCENTAGES[i];
+						break;
+					end
 				end
-			end
 
-			if faction_name == cm:get_local_faction() then
 				turns = VASSAL_SELECTED_ANNEXATION_TIME;
-			end
 
-			btnAnnex:SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
+				UIComponent(context.component):SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
+			else
+				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..VASSAL_SELECTED_ANNEXATION_TIME.." turns left.[[/rgba]]");
+			end
 		else
-			btnAnnex:SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..VASSAL_SELECTED_ANNEXATION_TIME.." turns left.[[/rgba]]");
+			UIComponent(context.component):SetTooltipText("The "..vassal_string.." is not your vassal!");
 		end
 	elseif string.find(context.string, "mk_bundle_annex_vassal_regions_") then
 		local root = cm:ui_root();
@@ -318,24 +293,18 @@ function OnComponentMouseOn_Annex_UI(context)
 end
 
 function OnComponentLClickUp_Annex_UI(context)
-	if context.string == "Annex_Button" then
-		local faction_name = FACTION_TURN;
+	if context.string == "button_annex_vassal" then
+		local faction_name = cm:get_local_faction();
 
 		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
-			if faction_name == cm:get_local_faction() then
-				VASSAL_SELECTED_CURRENTLY_ANNEXING = true;
+			VASSAL_SELECTED_CURRENTLY_ANNEXING = true;
 
-				for i = 1, #ANNEX_VASSALS_SIZES do
-					if (cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i])) then
-						cm:apply_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name, 0);
-						break;
-					end
+			for i = 1, #ANNEX_VASSALS_SIZES do
+				if cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
+					cm:apply_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name, 0);
+					break;
 				end
 			end
-
-			local root = cm:ui_root();
-			local btnAnnex = UIComponent(root:Find("Annex_Button"));
-			btnAnnex:SetVisible(false);
 		else
 			local faction_string = "factions_screen_name_"..VASSAL_SELECTED;
 
@@ -354,79 +323,56 @@ function OnComponentLClickUp_Annex_UI(context)
 				704
 			);
 
-
-			VASSAL_SELECTED_ANNEXATION_TIME = 0;
 			VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
 
 			for i = 1, #ANNEX_VASSALS_SIZES do
 				cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name);
 			end
-
-			local root = cm:ui_root();
-			local btnAnnex = UIComponent(root:Find("Annex_Button"));
-			btnAnnex:SetVisible(false);
 		end
-	elseif context.string == "root" then
-		local root = cm:ui_root();
-		local btnAnnex = UIComponent(root:Find("Annex_Button"));
-		btnAnnex:SetVisible(false);
-	end
-end
 
-function OnSettlementSelected_Annex(context)
-	local faction_name = FACTION_TURN;
-	local region_owner_name = context:garrison_residence():region():owning_faction():name();
+		local vassal_string = Get_DFN_Localisation(DIPLOMACY_SELECTED_FACTION);
+		local cost = "n";
+		local turns = "n";
 
-	if faction_name == cm:get_local_faction() then
-		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
-			if HasValue(FACTIONS_VASSALIZED, region_owner_name) == true then
-				VASSAL_SELECTED = region_owner_name;
-				VASSAL_SELECTED_ANNEXATION_TIME = context:garrison_residence():region():owning_faction():region_list():num_items() * ANNEX_TURNS_PER_REGION;
-
-				if cm:get_local_faction() == FACTION_TURN then
-					local root = cm:ui_root();
-					local btnAnnex = UIComponent(root:Find("Annex_Button"));
-
-					if tonumber(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]) == 0 then
-						btnAnnex:SetState("active"); 
-					else
-						btnAnnex:SetState("inactive");
+		if HasValue(FACTIONS_VASSALIZED, DIPLOMACY_SELECTED_FACTION) then
+			if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
+				for i = 1, #ANNEX_VASSALS_SIZES do
+					if cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
+						cost = ANNEX_VASSALS_PERCENTAGES[i];
+						break;
 					end
-
-					btnAnnex:SetVisible(true);
 				end
-			end
-		elseif VASSAL_SELECTED_CURRENTLY_ANNEXING == true and region_owner_name == VASSAL_SELECTED then
-			if cm:get_local_faction() == FACTION_TURN then
-				local root = cm:ui_root();
-				local btnAnnex = UIComponent(root:Find("Annex_Button"));
 
-				btnAnnex:SetState("active");
-				btnAnnex:SetVisible(true);
+				turns = VASSAL_SELECTED_ANNEXATION_TIME;
+
+				UIComponent(context.component):SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
+			else
+				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..VASSAL_SELECTED_ANNEXATION_TIME.." turns left.[[/rgba]]");
 			end
+		else
+			UIComponent(context.component):SetTooltipText("The "..vassal_string.." is not your vassal!");
+		end
+	elseif DIPLOMACY_PANEL_OPEN == true then
+		if context.string == "map" or context.string == "button_icon" or string.find(context.string, "faction_row_entry_") then
+			cm:add_time_trigger("annex_diplo_hud_check", 0.1);
 		end
 	end
 end
 
-function OnSettlementDeselected_Annex(context)
-	local root = cm:ui_root();
-	local btnAnnex = UIComponent(root:Find("Annex_Button"));
-
-	if btnAnnex:Visible() == true then
-		btnAnnex:SetState("inactive"); 
-		btnAnnex:SetVisible(false);
+function OnPanelOpenedCampaign_Annex_UI(context)
+	if context.string == "diplomacy_dropdown" then
+		cm:add_time_trigger("annex_diplo_hud_check", 0.1);
 	end
 end
 
-
-function OnTimeTrigger_Annex(context)
+function TimeTrigger_Annex_UI(context)
 	if context.string == "vassal_check" then
-		local faction_name = FACTION_TURN;
+		local faction_name = cm:get_local_faction();
 		local faction = cm:model():world():faction_by_key(faction_name);
 		local vassalized_faction = cm:model():world():faction_by_key(FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED]);
 		local is_ally = faction:allied_with(vassalized_faction);
 		
-		dev.log("VASSAL CHECK: "..FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED].." - Is Ally: "..tostring(is_ally));
+		--dev.log("VASSAL CHECK: "..FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED].." - Is Ally: "..tostring(is_ally));
 		
 		if is_ally == true then
 			-- They were liberated instead of vassalized, so remove them.
@@ -436,30 +382,52 @@ function OnTimeTrigger_Annex(context)
 			FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED]] = tostring(ANNEX_TURN_REQUIREMENT);
 		end
 		
-		dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
+		--dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
 
-		PROPOSER = nil;
-		RECIPIENT = nil;
-		VASSAL = nil;
+		proposer = nil;
+		recipient = nil;
+		vassal = nil;
 	elseif context.string == "diplo_vassal_check" then
-		if PROPOSER ~= nil and RECIPIENT ~= nil and VASSAL ~= nil then
-			if RECIPIENT == VASSAL then
-				dev.log("RECIPIENT == VASSAL");
+		if proposer ~= nil and recipient ~= nil and vassal ~= nil then
+			if recipient == vassal then
+				--dev.log("RECIPIENT == VASSAL");
 
-				if not HasValue(FACTIONS_VASSALIZED, RECIPIENT) then
-					table.insert(FACTIONS_VASSALIZED, RECIPIENT);
+				if not HasValue(FACTIONS_VASSALIZED, recipient) then
+					table.insert(FACTIONS_VASSALIZED, recipient);
 				else
 					-- Something has gone horribly wrong!!!!!!
 				end
 
-				FACTIONS_VASSALIZED_DELAYS[RECIPIENT] = tostring(ANNEX_TURN_REQUIREMENT);
+				FACTIONS_VASSALIZED_DELAYS[recipient] = tostring(ANNEX_TURN_REQUIREMENT);
 			end
 
-			dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
+			--dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
 
-			PROPOSER = nil;
-			RECIPIENT = nil;
-			VASSAL = nil;
+			proposer = nil;
+			recipient = nil;
+			vassal = nil;
+		end
+	elseif context.string == "annex_diplo_hud_check" then
+		local root = cm:ui_root();
+		local btnAnnex = UIComponent(root:Find("button_annex_vassal"));
+	
+		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
+			if HasValue(FACTIONS_VASSALIZED, DIPLOMACY_SELECTED_FACTION) then
+				VASSAL_SELECTED = DIPLOMACY_SELECTED_FACTION;
+				VASSAL_SELECTED_ANNEXATION_TIME = cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() * ANNEX_TURNS_PER_REGION;
+	
+				if tonumber(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]) == 0 then
+					btnAnnex:SetState("active"); 
+				else
+					btnAnnex:SetState("inactive");
+				end
+			else
+				btnAnnex:SetState("inactive");
+			end
+		elseif VASSAL_SELECTED_CURRENTLY_ANNEXING == true and DIPLOMACY_SELECTED_FACTION == VASSAL_SELECTED then
+			btnAnnex:SetState("active");
+		else
+			btnAnnex:SetState("inactive");
 		end
 	end
 end

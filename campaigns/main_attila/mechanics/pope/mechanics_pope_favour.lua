@@ -197,7 +197,6 @@ function Deactivate_Papal_Favour_System()
 	cm:remove_listener("DilemmaChoiceMadeEvent_Pope");
 	cm:remove_listener("MissionFailed_Check_Mission");
 	cm:remove_listener("MissionSucceeded_Check_Mission");
-	cm:remove_listener("TimeTrigger_Pope");
 
 	local faction_list = cm:model():world():faction_list();
 
@@ -365,10 +364,8 @@ function Check_Excommunication_Pope_War(context)
 end
 
 function CharacterCompletedBattle_Pope_Favour(context)
-	Character_Battle(context:character());
-end
+	local character = context:character();
 
-function Character_Battle(character)
 	if character:faction():state_religion() == "att_rel_chr_catholic" and character:faction():is_human() then	
 		local character_force_cqi = -1;
 		
@@ -387,6 +384,7 @@ function Character_Battle(character)
 		if pending_battle:has_attacker() then
 			attacker_result = pending_battle:attacker_battle_result();
 		end
+		
 		if pending_battle:has_defender() then
 			defender_result = pending_battle:defender_battle_result();
 		end

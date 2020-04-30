@@ -10,6 +10,9 @@
 local convert_panel_open = false;
 local settlement_panel_open = false;
 
+DIPLOMACY_SELECTED_FACTION = nil;
+DIPLOMACY_PANEL_OPEN = false;
+
 function Add_MK1212_Global_UI_Listeners()
 	cm:add_listener(
 		"OnComponentLClickUp_Global_UI",
@@ -54,17 +57,32 @@ function OnComponentLClickUp_Global_UI(context)
 			cm:add_time_trigger("religion_possibly_changed", 0.0);
 			convert_panel_open = false;
 		end
+	elseif DIPLOMACY_PANEL_OPEN == true then
+		if context.string == "map" or context.string == "button_icon" then
+			cm:add_time_trigger("diplo_hud_check", 0.0);
+		elseif string.find(context.string, "faction_row_entry_") then
+			local faction_name = string.gsub(context.string, "faction_row_entry_", "");
+
+			DIPLOMACY_SELECTED_FACTION = faction_name;
+		end
 	end
 end
+
 function OnPanelOpenedCampaign_Global_UI(context)
 	if context.string == "settlement_panel" then
 		settlement_panel_open = true;
+	elseif context.string == "diplomacy_dropdown" then
+		DIPLOMACY_PANEL_OPEN = true;
+
+		Diplomacy_Hud_Check(UIComponent(context.component));
 	end
 end
 
 function OnPanelClosedCampaign_Global_UI(context)
 	if context.string == "settlement_panel" then
 		settlement_panel_open = false;
+	elseif context.string == "diplomacy_dropdown" then
+		DIPLOMACY_PANEL_OPEN = false;
 	end
 end
 
@@ -73,6 +91,11 @@ function OnTimeTrigger_Global_UI(context)
 		Disable_Naval_Recruitment();
 	elseif context.string == "religion_possibly_changed" then
 		Religion_Possibly_Changed(cm:get_local_faction());
+	elseif context.string == "diplo_hud_check" then
+		local root = cm:ui_root();
+		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
+
+		Diplomacy_Hud_Check(diplomacy_dropdown_uic);
 	end
 end
 
@@ -80,6 +103,29 @@ function Disable_Naval_Recruitment()
 	local root = cm:ui_root();
 	local button_raise_fleet_uic = UIComponent(root:Find("button_raise_fleet"));
 	button_raise_fleet_uic:SetState("inactive");
+end
+
+function Diplomacy_Hud_Check(diplomacy_dropdown_uic)
+	local faction_name = nil;
+	local faction_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("faction_panel"));
+	local sortable_list_factions_uic = UIComponent(faction_panel_uic:Find("sortable_list_factions"));
+	local list_box_uic = UIComponent(sortable_list_factions_uic:Find("list_box"));
+
+	for i = 0, list_box_uic:ChildCount() - 1 do
+		local child = UIComponent(list_box_uic:Find(i));
+
+		if child:CurrentState() == "selected" or child:CurrentState() == "selected_hover" then
+			faction_name = string.gsub(child:Id(), "faction_row_entry_", "");
+
+			DIPLOMACY_SELECTED_FACTION = faction_name;
+			return;
+		end
+	end
+
+	if faction_name == nil then
+		-- Something went wrong or there's only one faction left (the player's).
+		DIPLOMACY_SELECTED_FACTION = cm:get_local_faction();
+	end
 end
 
 function Religion_Possibly_Changed(faction_name)

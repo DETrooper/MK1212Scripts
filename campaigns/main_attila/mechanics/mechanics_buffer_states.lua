@@ -9,13 +9,6 @@
 
 function Add_Buffer_States_Listeners()
 	cm:add_listener(
-		"OnComponentMouseOn_Buffer_UI",
-		"ComponentMouseOn",
-		true,
-		function(context) OnComponentMouseOn_Buffer_UI(context) end,
-		true
-	);
-	cm:add_listener(
 		"OnComponentLClickUp_Buffer_UI",
 		"ComponentLClickUp",
 		true,
@@ -44,46 +37,23 @@ function Add_Buffer_States_Listeners()
 		true
 	);
 
-	CreateBufferButton();
+	CreateBufferStateUI();
 end
 
-function CreateBufferButton()
+function CreateBufferStateUI()
 	local root = cm:ui_root();
-	local army_details = UIComponent(root:Find("button_army_details"))
-	local army_detailsX, army_detailsY = army_details:Position();
-
-	root:CreateComponent("Buffer_Button", "UI/new/basic_toggle_buffer");
-	local btnBuffer = UIComponent(root:Find("Buffer_Button"));
-	btnBuffer:SetMoveable(true);
-	btnBuffer:MoveTo(army_detailsX + 60, army_detailsY);
-	btnBuffer:SetMoveable(false);
-	btnBuffer:PropagatePriority(60);
-	btnBuffer:SetTooltipText("Release a vassalized buffer state faction in this region.");
-	btnBuffer:SetState("inactive"); 
-	btnBuffer:SetVisible(false);
 
 	root:CreateComponent("Buffer_Warning", "UI/new/buffer_warning");
 	local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
-	local curX, curY = panBufferWarning:Position();
 
 	UIComponent(panBufferWarning:Find("heading_txt")):SetStateText("Release Buffer State?");
 	UIComponent(panBufferWarning:Find("dy_buffer_info")):SetStateText("Faction: ".."\nRegion: ");
 	UIComponent(panBufferWarning:Find("txt")):SetStateText("This faction will become your vassal.");
-
 	panBufferWarning:SetVisible(false);
 end
 
-function OnComponentMouseOn_Buffer_UI(context)
-	if context.string == "Buffer_Button" then
-		local root = cm:ui_root();
-		local btnBuffer = UIComponent(root:Find("Buffer_Button"));
-
-		btnBuffer:SetTooltipText("Release a vassalized buffer state faction in this region.");
-	end
-end
-
 function OnComponentLClickUp_Buffer_UI(context)
-	if context.string == "Buffer_Button" then
+	if context.string == "button_release_buffer_state" then
 		local root = cm:ui_root();
 		local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
 	
@@ -150,13 +120,13 @@ function OnComponentLClickUp_Buffer_UI(context)
 
 		BufferPanelClosed(false);
 		local root = cm:ui_root();
-		local btnBuffer = UIComponent(root:Find("Buffer_Button"));
+		local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
 		btnBuffer:SetVisible(false);
 	elseif context.string == "button_buffer_cancel" then
 		BufferPanelClosed(false);
 	elseif context.string == "root" then
 		local root = cm:ui_root();
-		local btnBuffer = UIComponent(root:Find("Buffer_Button"));
+		local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
 		btnBuffer:SetVisible(false);
 	end
 end
@@ -171,7 +141,7 @@ function OnSettlementSelected_Buffer(context)
 
 		if not FactionIsAlive(REGIONS_LIBERATION_FACTIONS[region_name]) then
 			local root = cm:ui_root();
-			local btnBuffer = UIComponent(root:Find("Buffer_Button"));
+			local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
 
 			if cm:get_local_faction() == FACTION_TURN then
 				btnBuffer:SetState("active"); 
@@ -193,7 +163,7 @@ end
 
 function OnSettlementDeselected_Buffer(context)
 	local root = cm:ui_root();
-	local btnBuffer = UIComponent(root:Find("Buffer_Button"));
+	local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
 
 	if btnBuffer:Visible() == true then
 		btnBuffer:SetState("inactive"); 
@@ -217,7 +187,7 @@ end
 function BufferPanelClosed(hover)
 	local root = cm:ui_root();
 	local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
-	local btnBuffer = UIComponent(root:Find("Buffer_Button"));
+	local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
 
 	panBufferWarning:SetVisible(false);
 

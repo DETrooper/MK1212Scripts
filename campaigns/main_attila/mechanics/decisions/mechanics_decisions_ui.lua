@@ -37,13 +37,6 @@ function Add_Decisions_UI_Listeners()
 		function(context) OnPanelOpenedCampaign_Decisions_UI(context) end,
 		true
 	);
-	cm:add_listener(
-		"TimeTrigger_Decisions_UI",
-		"TimeTrigger",
-		true,
-		function(context) TimeTrigger_Decisions_UI(context) end,
-		true
-	);
 
 	CreateDecisionsPanel();
 end
@@ -309,12 +302,6 @@ function OnPanelOpenedCampaign_Decisions_UI(context)
 	CloseDecisionsPanel(false);
 end
 
-function TimeTrigger_Decisions_UI(context)
-	if context.string == "Refresh_Delay" then
-		RefreshDecisionsPanel();
-	end
-end
-
 function CloseDecisionsPanel(hover)
 	local root = cm:ui_root();
 	local panDecisions = UIComponent(root:Find("Decisions_Panel"));
@@ -553,5 +540,4 @@ function Decision_Button_Pressed(decision)
 	end
 
 	RefreshDecisionsPanel();
-	--cm:add_time_trigger("Refresh_Delay", 1);
 end

@@ -264,7 +264,7 @@ function CharacterTurnStart_Population(context)
 	CheckArmyReplenishment(context:character());
 
 	if context:character():region():owning_faction() ~= context:character():faction() then
-		POPULATION_UNITS_IN_RECRUITMENT[tostring(context:character():cqi())] = {};
+		POPULATION_UNITS_IN_RECRUITMENT[tostring(context:character():cqi())] = nil;
 	end
 
 	if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] ~= nil then
@@ -278,7 +278,7 @@ function CharacterTurnEnd_Population(context)
 	CheckArmyReplenishment(context:character());
 
 	if context:character():region():owning_faction() ~= context:character():faction() then
-		POPULATION_UNITS_IN_RECRUITMENT[tostring(context:character():cqi())] = {};
+		POPULATION_UNITS_IN_RECRUITMENT[tostring(context:character():cqi())] = nil;
 	end
 
 	if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] ~= nil then
@@ -441,11 +441,15 @@ function UnitTrained_Population(context)
 	local unit = context:unit();
 
 	if unit:faction():is_human() then
-		for i = 1, #POPULATION_UNITS_IN_RECRUITMENT[tostring(unit:force_commander():cqi())] do
-			if POPULATION_UNITS_IN_RECRUITMENT[tostring(unit:force_commander():cqi())][i] == unit:unit_key() then
-				dev.log("Removing "..unit:unit_key().." from queue.");
-				table.remove(POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())], i);
-				break;
+		local cqi = tostring(unit:force_commander():cqi());
+		
+		if POPULATION_UNITS_IN_RECRUITMENT[cqi] ~= nil then
+			for i = 1, #POPULATION_UNITS_IN_RECRUITMENT[cqi] do
+				if POPULATION_UNITS_IN_RECRUITMENT[cqi][i] == unit:unit_key() then
+					dev.log("Removing "..unit:unit_key().." from queue.");
+					table.remove(POPULATION_UNITS_IN_RECRUITMENT[cqi], i);
+					break;
+				end
 			end
 		end
 	end

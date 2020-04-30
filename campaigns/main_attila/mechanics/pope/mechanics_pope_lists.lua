@@ -56,8 +56,8 @@ GENERIC_POPE_NAMES = {
 };
 
 SCRIPTED_CRUSADES_LIST = {
-	-- Scripted target region, optional message turn, begin turn, custom mission key.
-	["5"] = {"att_reg_aegyptus_oxyrhynchus", 7, 11, "mk_mission_crusades_take_cairo_fifth_crusade", {"mk_fact_france", "mk_fact_hre", "mk_fact_hungary", "mk_fact_jerusalem"}}
+	-- Scripted target region, optional message turn, begin turn, crusader mission key, defender mission key, scripted participants.
+	["5"] = {"att_reg_aegyptus_oxyrhynchus", 7, 11, "mk_mission_crusades_take_cairo_fifth_crusade", "mk_mission_crusades_defense_cairo", {"mk_fact_france", "mk_fact_hre", "mk_fact_hungary", "mk_fact_jerusalem"}}
 }
 
 CRUSADE_TARGET_RELIGIONS = {
@@ -71,9 +71,9 @@ CRUSADE_REGIONS = {
 	["att_reg_aquitania_elusa"] = 2500, -- Toulouse
 	["att_reg_britannia_superior_londinium"] = 2500, -- London
 	["att_reg_germania_uburzis"] = 2500, -- Frankfurt
-	["att_reg_carthaginensis_toletum"] = 2500,
-	["att_reg_lugdunensis_turonum"] = 2500,
-	["att_reg_tarraconensis_tarraco"] = 2500,
+	["att_reg_carthaginensis_toletum"] = 2500, -- Toledo
+	["att_reg_lugdunensis_turonum"] = 2500, -- Paris
+	["att_reg_tarraconensis_tarraco"] = 2500, -- Barcelona
 	-- Orthodox territories to be reconquered if lost to non-Christians.
 	["att_reg_thracia_constantinopolis"] = 2000, -- Constantinople
 	["att_reg_macedonia_thessalonica"] = 1500, -- Thessalonica
@@ -84,6 +84,13 @@ CRUSADE_REGIONS = {
 	["att_reg_syria_antiochia"] = 500, -- Antioch
 	["att_reg_africa_carthago"] = 250, -- Tunis
 	["att_reg_aegyptus_alexandria"] = 250 -- Alexandria
+}
+
+CRUSADE_REGIONS_IN_MIDDLE_EAST = {
+	"att_reg_aegyptus_alexandria",
+	"att_reg_aegyptus_oxyrhynchus",
+	"att_reg_palaestinea_aelia_capitolina",
+	"att_reg_syria_antiochia"
 }
 
 CRUSADE_DEFENSE_UNIT_LIST = 	"mk_ayy_t1_jund_spearmen,mk_ayy_t1_jund_spearmen,mk_ayy_t1_jund_spearmen,mk_ayy_t1_jund_spearmen,".. -- Spears
