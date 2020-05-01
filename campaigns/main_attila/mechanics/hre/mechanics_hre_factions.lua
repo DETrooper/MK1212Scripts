@@ -102,7 +102,7 @@ function FactionTurnStart_HRE_Factions(context)
 
 		HRE_IMPERIAL_AUTHORITY = HRE_Calculate_Imperial_Authority();
 
-		if HRE_EMPEROR_PRETENDER_KEY == "nil" and PLAYER_EXCOMMUNICATED[faction_name] == true and HRE_EMPEROR_PRETENDER_COOLDOWN <= 0 then
+		if HRE_EMPEROR_PRETENDER_KEY == "nil" and FACTION_EXCOMMUNICATED[faction_name] == true and HRE_EMPEROR_PRETENDER_COOLDOWN <= 0 then
 			HRE_Assign_New_Pretender(false);
 		elseif HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
 			if cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY):has_home_region() == false then
@@ -203,7 +203,7 @@ function DilemmaChoiceMadeEvent_HRE_Pretender(context)
 	if context:dilemma() == "mk_dilemma_hre_pretender_nomination" then
 		if context:choice() == 0 then
 			-- Choice made to become a pretender!
-			local pretender = cm:get_local_faction();
+			local pretender = context:faction():name();
 
 			HRE_EMPEROR_PRETENDER_KEY = pretender;
 			local faction_string = "factions_screen_name_"..pretender;
@@ -228,6 +228,7 @@ function DilemmaChoiceMadeEvent_HRE_Pretender(context)
 			Refresh_HRE_Elections();
 		elseif context:choice() == 1 then
 			-- Choice made to reject the Pope's offer!
+			Subtract_Pope_Favour(context:faction():name(), 2, "refused_pretender");
 			HRE_Assign_New_Pretender(true);
 		end
 
@@ -453,8 +454,8 @@ function HRE_Assign_New_Pretender(player_rejected)
 		local current_faction = faction_list:item_at(i);
 		local current_faction_name = current_faction:name();
 
-		if HasValue(HRE_FACTIONS, current_faction_name) ~= true and current_faction:state_religion() == "att_rel_chr_catholic" then
-			if current_faction:allied_with(emperor_faction) ~= true and PLAYER_EXCOMMUNICATED[current_faction_name] ~= true then
+		if HasValue(HRE_FACTIONS, current_faction_name) ~= true and current_faction:state_religion() == "att_rel_chr_catholic" and current_faction:is_horde() == false then
+			if current_faction:allied_with(emperor_faction) ~= true and FACTION_EXCOMMUNICATED[current_faction_name] ~= true then
 				local forces = current_faction:military_force_list();
 				local num_regions = current_faction:region_list():num_items();
 				local num_units = 0;
@@ -462,7 +463,7 @@ function HRE_Assign_New_Pretender(player_rejected)
 				if forces:num_items() > 0 then
 					for j = 0, forces:num_items() - 1 do
 						local force = forces:item_at(j);
-						local unit_list = forces:item_at(j):unit_list();
+						local unit_list = force:unit_list();
 
 						num_units = num_units + unit_list:num_items();
 					end
@@ -487,7 +488,7 @@ function HRE_Assign_New_Pretender(player_rejected)
 
 	if pretender ~= nil then
 		if cm:model():world():faction_by_key(pretender):is_human() then
-			cm:trigger_dilemma(faction_name, "mk_dilemma_hre_pretender_nomination");
+			cm:trigger_dilemma(pretender, "mk_dilemma_hre_pretender_nomination");
 		else
 			HRE_EMPEROR_PRETENDER_KEY = pretender;
 			HRE_EMPEROR_PRETENDER_CQI = cm:model():world():faction_by_key(pretender):faction_leader():command_queue_index();
@@ -523,19 +524,21 @@ function HRE_Assign_New_Pretender(player_rejected)
 end
 
 function HRE_Vanquish_Pretender()
-	local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
-	local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
+	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
+		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+		local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
 
-	if pretender_faction:at_war_with(emperor_faction) then
-		cm:force_make_peace(HRE_EMPEROR_KEY, HRE_EMPEROR_PRETENDER_KEY);
-	end
+		if pretender_faction:at_war_with(emperor_faction) then
+			cm:force_make_peace(HRE_EMPEROR_KEY, HRE_EMPEROR_PRETENDER_KEY);
+		end
 
-	SetFactionsNeutral(HRE_EMPEROR_KEY, HRE_EMPEROR_PRETENDER_KEY);
+		SetFactionsNeutral(HRE_EMPEROR_KEY, HRE_EMPEROR_PRETENDER_KEY);
 
-	if not HasValue(HRE_FACTIONS_START, HRE_EMPEROR_PRETENDER_KEY) then
-		HRE_Set_Faction_State(HRE_EMPEROR_PRETENDER_KEY, "not_in_empire", true);
-	else
-		HRE_Set_Faction_State(HRE_EMPEROR_PRETENDER_KEY, "neutral", true);
+		if not HasValue(HRE_FACTIONS_START, HRE_EMPEROR_PRETENDER_KEY) then
+			HRE_Set_Faction_State(HRE_EMPEROR_PRETENDER_KEY, "not_in_empire", true);
+		else
+			HRE_Set_Faction_State(HRE_EMPEROR_PRETENDER_KEY, "neutral", true);
+		end
 	end
 
 	HRE_EMPEROR_PRETENDER_COOLDOWN = 10;

@@ -138,8 +138,8 @@ function Religion_Possibly_Changed(faction_name)
 			end
 
 			Update_Pope_Favour(faction);
-		elseif PLAYER_POPE_FAVOUR[faction_name] ~= nil then
-			PLAYER_POPE_FAVOUR[faction_name] = nil;
+		elseif FACTION_POPE_FAVOUR[faction_name] ~= nil then
+			FACTION_POPE_FAVOUR[faction_name] = nil;
 
 			for i = 0, 10 do
 				cm:remove_effect_bundle("mk_bundle_pope_favour_"..i, faction_name);

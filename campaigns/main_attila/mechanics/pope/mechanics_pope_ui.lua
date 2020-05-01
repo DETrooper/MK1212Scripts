@@ -62,26 +62,22 @@ function Add_Pope_UI_Listeners()
 end
 
 function CharacterSelected_Pope_UI(context)
-	if CRUSADE_ACTIVE == true then
-		local root = cm:ui_root();
-		local btnCrusade = UIComponent(root:Find("button_join_crusade"));
-		local faction_name = cm:get_local_faction();
+	local root = cm:ui_root();
+	local btnCrusade = UIComponent(root:Find("button_join_crusade"));
 
-		btnCrusade:SetState("inactive"); -- Default to inactive.
-		btnCrusade:SetVisible(false); -- Default to not visible.
+	btnCrusade:SetState("inactive"); -- Default to inactive.
+	btnCrusade:SetVisible(false); -- Default to not visible.
+
+	if CRUSADE_ACTIVE == true then
+		local faction_name = cm:get_local_faction();
 		
 		if context:character():faction():state_religion() == "att_rel_chr_catholic" and context:character():faction():name() == faction_name then
 			if context:character():military_force():unit_list():num_items() > 1 then
 				-- Not an agent or lone general.
 				btnCrusade:SetVisible(true);
 
-				for i = 0, #CHARACTERS_ON_CRUSADE do
-					if CHARACTERS_ON_CRUSADE[i] == LAST_CHARACTER_SELECTED:cqi() then
-						btnCrusade:SetState("inactive");
-						break;
-					else
-						btnCrusade:SetState("active");
-					end
+				if not HasValue(CHARACTERS_ON_CRUSADE, LAST_CHARACTER_SELECTED:cqi()) then
+					btnCrusade:SetState("active");
 				end
 			end
 		end
@@ -128,7 +124,7 @@ function OnComponentLClickUp_Pope_UI(context)
 				706
 			);
 
-			if PLAYER_EXCOMMUNICATED[faction_name] == true then
+			if FACTION_EXCOMMUNICATED[faction_name] == true then
 				Remove_Excommunication_Manual(faction_name);
 			end
 

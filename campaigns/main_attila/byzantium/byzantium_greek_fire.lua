@@ -16,7 +16,7 @@ GREEK_FIRE_UNITS = {
 	"mk_byz_t1_siphonatores"
 }
 
-EXPLOSION_TRIGGERED = false;
+GREEK_FIRE_EXPLOSION_TRIGGERED = false;
 GREEK_FIRE_EPIRUS = true;
 GREEK_FIRE_EPIRUS_TIMER = 0;
 GREEK_FIRE_NICAEA = true;
@@ -67,8 +67,8 @@ function Byzantium_Greek_Fire_Check(context)
 		end
 
 		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_name then
-			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
-				EXPLOSION_TRIGGERED = true;
+			if GREEK_FIRE_EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
+				GREEK_FIRE_EXPLOSION_TRIGGERED = true;
 
 				if context:faction():is_human() then
 					cm:trigger_dilemma(EPIRUS_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
@@ -87,8 +87,8 @@ function Byzantium_Greek_Fire_Check(context)
 		end
 
 		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_name then
-			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
-				EXPLOSION_TRIGGERED = true;
+			if GREEK_FIRE_EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
+				GREEK_FIRE_EXPLOSION_TRIGGERED = true;
 
 				if context:faction():is_human() then
 					cm:trigger_dilemma(NICAEA_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
@@ -107,8 +107,8 @@ function Byzantium_Greek_Fire_Check(context)
 		end
 
 		if cm:model():world():region_manager():region_by_key(CONSTANTINOPLE_KEY):owning_faction():name() == faction_name then
-			if EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
-				EXPLOSION_TRIGGERED = true;
+			if GREEK_FIRE_EXPLOSION_TRIGGERED == false and cm:model():random_percent(1) then
+				GREEK_FIRE_EXPLOSION_TRIGGERED = true;
 
 				if context:faction():is_human() then
 					cm:trigger_dilemma(TREBIZOND_KEY, "mk_dilemma_byzantium_greek_fire_explosion");
@@ -193,7 +193,7 @@ end
 --------------------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		cm:save_value("EXPLOSION_TRIGGERED", EXPLOSION_TRIGGERED, context);
+		cm:save_value("GREEK_FIRE_EXPLOSION_TRIGGERED", GREEK_FIRE_EXPLOSION_TRIGGERED, context);
 		cm:save_value("GREEK_FIRE_EPIRUS", GREEK_FIRE_EPIRUS, context);
 		cm:save_value("GREEK_FIRE_EPIRUS_TIMER", GREEK_FIRE_EPIRUS_TIMER, context);
 		cm:save_value("GREEK_FIRE_NICAEA", GREEK_FIRE_NICAEA, context);
@@ -205,7 +205,7 @@ cm:register_saving_game_callback(
 
 cm:register_loading_game_callback(
 	function(context)
-		EXPLOSION_TRIGGERED = cm:load_value("EXPLOSION_TRIGGERED", false, context);
+		GREEK_FIRE_EXPLOSION_TRIGGERED = cm:load_value("GREEK_FIRE_EXPLOSION_TRIGGERED", false, context);
 		GREEK_FIRE_EPIRUS = cm:load_value("GREEK_FIRE_EPIRUS", true, context);
 		GREEK_FIRE_EPIRUS_TIMER = cm:load_value("GREEK_FIRE_EPIRUS_TIMER", 0, context);
 		GREEK_FIRE_NICAEA = cm:load_value("GREEK_FIRE_NICAEA", true, context);

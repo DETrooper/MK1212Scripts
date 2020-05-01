@@ -11,17 +11,15 @@
 -- Favour works from 0 to 10, similar to Medieval II. Being at 1 is a mild chance of excommunication, while 0 is excommunication for sure!
 -- This script also handles the 'borrow money from the pope' decision for Catholic factions.
 
-local dev = require("lua_scripts.dev");
-
 PAPAL_STATES_KEY = "mk_fact_papacy";
 
 PAPAL_FAVOUR_SYSTEM_ACTIVE = true; -- Disabled if Papal States faction does not exist.
 PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED = false; -- Papal favour will never restart even if the Papal States faction is alive.
-PLAYER_POPE_FAVOUR = {};
+FACTION_POPE_FAVOUR = {};
+FACTION_EXCOMMUNICATED = {};
 MAX_POPE_FAVOUR = 10;
 MIN_POPE_FAVOUR = 0;
 AT_WAR_WITH_POPE = {};
-PLAYER_EXCOMMUNICATED = {};
 FAVOUR_LAST_ATTACKED_GARRISON = "";
 POSTBATTLE_DECISION_MADE_RECENTLY = false;
 POPE_DEPOSED = false;
@@ -51,7 +49,7 @@ function Add_Pope_Favour_Listeners()
 			if current_faction:state_religion() == "att_rel_chr_catholic" and current_faction ~= pope_faction then
 				if current_faction:name() ~= "mk_fact_hre" and current_faction:name() ~= "mk_fact_portugal" then
 					cm:apply_effect_bundle("mk_bundle_pope_favour_5", current_faction:name(), 0);
-					PLAYER_POPE_FAVOUR[current_faction:name()] = 5;
+					FACTION_POPE_FAVOUR[current_faction:name()] = 5;
 
 					if current_faction:is_human() and cm:is_multiplayer() == false then
 						Add_Decision("ask_pope_for_money", current_faction:name(), false, false);
@@ -165,7 +163,7 @@ function Reactivate_Papal_Favour_System()
 
 			if current_faction:state_religion() == "att_rel_chr_catholic" then
 				cm:apply_effect_bundle("mk_bundle_pope_favour_5", current_faction:name(), 0);
-				PLAYER_POPE_FAVOUR[current_faction:name()] = 5;
+				FACTION_POPE_FAVOUR[current_faction:name()] = 5;
 
 				if current_faction:is_human() and cm:is_multiplayer() == false then
 					Add_Decision("ask_pope_for_money", current_faction:name(), false, false);
@@ -205,7 +203,7 @@ function Deactivate_Papal_Favour_System()
 
 		AT_WAR_WITH_POPE[current_faction:name()] = false;
 
-		if PLAYER_EXCOMMUNICATED[current_faction:name()] == true then
+		if FACTION_EXCOMMUNICATED[current_faction:name()] == true then
 			Remove_Excommunication_Manual(current_faction:name());
 		end
 
@@ -243,9 +241,9 @@ function Check_Catholic_Nations(context)
 		if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
 			Update_Pope_Favour(context:faction());
 		end
-	elseif faction_religion ~= "att_rel_chr_catholic" and PLAYER_POPE_FAVOUR[faction_name] ~= nil then
+	elseif faction_religion ~= "att_rel_chr_catholic" and FACTION_POPE_FAVOUR[faction_name] ~= nil then
 		-- Faction is no longer Catholic!
-		PLAYER_POPE_FAVOUR[faction_name] = nil;
+		FACTION_POPE_FAVOUR[faction_name] = nil;
 
 		for i = 0, 10 do
 			cm:remove_effect_bundle("mk_bundle_pope_favour_"..i, faction_name);
@@ -450,7 +448,7 @@ function DilemmaChoiceMadeEvent_Pope(context)
 		if context:choice() == 0 then
 			-- Choice made to keep a puppet pope!
 			Remove_Excommunication_Manual(context:faction():name());
-			PLAYER_POPE_FAVOUR[context:faction():name()] = 10;
+			FACTION_POPE_FAVOUR[context:faction():name()] = 10;
 			Update_Pope_Favour(context:faction());
 		elseif context:choice() == 1 then
 			-- Choice made to depose the pope!
@@ -521,10 +519,10 @@ function Update_Pope_Favour(faction)
 	local pope_favour = 5;
 	local bundle_applied = false;
 	
-	if PLAYER_POPE_FAVOUR[faction:name()] ~= nil then
-		pope_favour = PLAYER_POPE_FAVOUR[faction:name()];
+	if FACTION_POPE_FAVOUR[faction:name()] ~= nil then
+		pope_favour = FACTION_POPE_FAVOUR[faction:name()];
 	else
-		PLAYER_POPE_FAVOUR[faction:name()] = 5;
+		FACTION_POPE_FAVOUR[faction:name()] = 5;
 	end
 
 	-- Remove every Pope favour effect bundle from 0 to 10.
@@ -554,9 +552,9 @@ function Update_Pope_Favour(faction)
 end
 
 function Check_Excommunication_Low_Favour(faction)
-	if PLAYER_POPE_FAVOUR[faction:name()] == 0 and PLAYER_EXCOMMUNICATED[faction:name()] == false then
+	if FACTION_POPE_FAVOUR[faction:name()] == 0 and FACTION_EXCOMMUNICATED[faction:name()] == false then
 		cm:apply_effect_bundle("mk_bundle_pope_excommunication", faction:name(), 0);
-		PLAYER_EXCOMMUNICATED[faction:name()] = true;
+		FACTION_EXCOMMUNICATED[faction:name()] = true;
 
 		if faction:is_human() and cm:is_multiplayer() == false then
 			Remove_Decision("ask_pope_for_money");
@@ -574,9 +572,9 @@ function Check_Excommunication_Low_Favour(faction)
 end
 
 function Force_Excommunication(faction_name)
-	if PLAYER_EXCOMMUNICATED[faction_name] ~= true then
-		PLAYER_POPE_FAVOUR[faction_name] = 0;
-		PLAYER_EXCOMMUNICATED[faction_name] = true;
+	if FACTION_EXCOMMUNICATED[faction_name] ~= true then
+		FACTION_POPE_FAVOUR[faction_name] = 0;
+		FACTION_EXCOMMUNICATED[faction_name] = true;
 
 		for i = 0, 10 do
 			cm:remove_effect_bundle("mk_bundle_pope_favour_"..i, faction_name);
@@ -624,12 +622,12 @@ end
 function Remove_Excommunication(context)
 	-- This faction has a new leader, so lets remove their excommunication!
 
-	if PLAYER_EXCOMMUNICATED[context:character():faction():name()] == true then
-		PLAYER_EXCOMMUNICATED[context:character():faction():name()] = false;
+	if FACTION_EXCOMMUNICATED[context:character():faction():name()] == true then
+		FACTION_EXCOMMUNICATED[context:character():faction():name()] = false;
 		cm:remove_effect_bundle("mk_bundle_pope_excommunication", context:character():faction():name());
 
 		if context:character():faction():state_religion() == "att_rel_chr_catholic" then
-			PLAYER_POPE_FAVOUR[context:character():faction():name()] = 2;
+			FACTION_POPE_FAVOUR[context:character():faction():name()] = 2;
 
 			if context:character():faction():is_human() and cm:is_multiplayer() == false then
 				Add_Decision("ask_pope_for_money", context:character():faction():name(), false, false);
@@ -669,11 +667,11 @@ end
 function Remove_Excommunication_Manual(faction_name)
 	local faction = cm:model():world():faction_by_key(faction_name);
 
-	PLAYER_EXCOMMUNICATED[faction_name] = false;
+	FACTION_EXCOMMUNICATED[faction_name] = false;
 	cm:remove_effect_bundle("mk_bundle_pope_excommunication", faction_name);
 
 	if faction:state_religion() == "att_rel_chr_catholic" and PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
-		PLAYER_POPE_FAVOUR[faction_name] = 2;
+		FACTION_POPE_FAVOUR[faction_name] = 2;
 
 		if faction:is_human() and cm:is_multiplayer() == false then
 			Add_Decision("ask_pope_for_money", faction_name, false, false);
@@ -715,21 +713,21 @@ function GetConditionsString_Pope_Money(faction_name)
 	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is religion: Catholic.\n";
 	local money = "5000";
 	
-	if PLAYER_EXCOMMUNICATED[faction_name] == true then
+	if FACTION_EXCOMMUNICATED[faction_name] == true then
 		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not excommunicated.\n";
 	else
 		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not excommunicated.\n";
 	end
 
-	if PLAYER_POPE_FAVOUR[faction_name] > 7 then
+	if FACTION_POPE_FAVOUR[faction_name] > 7 then
 		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Papal Favour is greater than 7.\n";
 	else
 		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Papal Favour is greater than 7.\n";
 	end
 
-	if PLAYER_POPE_FAVOUR[faction_name] == 9 then
+	if FACTION_POPE_FAVOUR[faction_name] == 9 then
 		money = "7500";
-	elseif PLAYER_POPE_FAVOUR[faction_name] == 10 then
+	elseif FACTION_POPE_FAVOUR[faction_name] == 10 then
 		money = "10000";
 	end
 
@@ -741,11 +739,11 @@ end
 function Decision_Pope_Money(faction_name)
 	local faction =  cm:model():world():faction_by_key(faction_name);
 
-	if PLAYER_POPE_FAVOUR[faction_name] == 8 then
+	if FACTION_POPE_FAVOUR[faction_name] == 8 then
 		cm:treasury_mod(faction_name, 5000);
-	elseif PLAYER_POPE_FAVOUR[faction_name] == 9 then
+	elseif FACTION_POPE_FAVOUR[faction_name] == 9 then
 		cm:treasury_mod(faction_name, 7500);
-	elseif PLAYER_POPE_FAVOUR[faction_name] == 10 then
+	elseif FACTION_POPE_FAVOUR[faction_name] == 10 then
 		cm:treasury_mod(faction_name, 10000);
 	end
 
@@ -755,14 +753,14 @@ end
 function Add_Pope_Favour(faction_name, amount, reason)
 	local faction =  cm:model():world():faction_by_key(faction_name);
 
-	if PLAYER_POPE_FAVOUR[faction_name] == nil then
-		PLAYER_POPE_FAVOUR[faction_name] = 5 + amount;
-		PLAYER_POPE_FAVOUR[faction_name] = math.max(PLAYER_POPE_FAVOUR[faction_name], MIN_POPE_FAVOUR);
-		PLAYER_POPE_FAVOUR[faction_name] = math.min(PLAYER_POPE_FAVOUR[faction_name], MAX_POPE_FAVOUR);
+	if FACTION_POPE_FAVOUR[faction_name] == nil then
+		FACTION_POPE_FAVOUR[faction_name] = 5 + amount;
+		FACTION_POPE_FAVOUR[faction_name] = math.max(FACTION_POPE_FAVOUR[faction_name], MIN_POPE_FAVOUR);
+		FACTION_POPE_FAVOUR[faction_name] = math.min(FACTION_POPE_FAVOUR[faction_name], MAX_POPE_FAVOUR);
 	else
-		PLAYER_POPE_FAVOUR[faction_name] = PLAYER_POPE_FAVOUR[faction_name] + amount;
-		PLAYER_POPE_FAVOUR[faction_name] = math.max(PLAYER_POPE_FAVOUR[faction_name], MIN_POPE_FAVOUR);
-		PLAYER_POPE_FAVOUR[faction_name] = math.min(PLAYER_POPE_FAVOUR[faction_name], MAX_POPE_FAVOUR);
+		FACTION_POPE_FAVOUR[faction_name] = FACTION_POPE_FAVOUR[faction_name] + amount;
+		FACTION_POPE_FAVOUR[faction_name] = math.max(FACTION_POPE_FAVOUR[faction_name], MIN_POPE_FAVOUR);
+		FACTION_POPE_FAVOUR[faction_name] = math.min(FACTION_POPE_FAVOUR[faction_name], MAX_POPE_FAVOUR);
 	end
 
 	cm:show_message_event(
@@ -780,14 +778,14 @@ end
 function Subtract_Pope_Favour(faction_name, amount, reason)
 	local faction =  cm:model():world():faction_by_key(faction_name);
 
-	if PLAYER_POPE_FAVOUR[faction_name] == nil then
-		PLAYER_POPE_FAVOUR[faction_name] = 5 - amount;
-		PLAYER_POPE_FAVOUR[faction_name] = math.max(PLAYER_POPE_FAVOUR[faction_name], MIN_POPE_FAVOUR);
-		PLAYER_POPE_FAVOUR[faction_name] = math.min(PLAYER_POPE_FAVOUR[faction_name], MAX_POPE_FAVOUR);
+	if FACTION_POPE_FAVOUR[faction_name] == nil then
+		FACTION_POPE_FAVOUR[faction_name] = 5 - amount;
+		FACTION_POPE_FAVOUR[faction_name] = math.max(FACTION_POPE_FAVOUR[faction_name], MIN_POPE_FAVOUR);
+		FACTION_POPE_FAVOUR[faction_name] = math.min(FACTION_POPE_FAVOUR[faction_name], MAX_POPE_FAVOUR);
 	else
-		PLAYER_POPE_FAVOUR[faction_name] = PLAYER_POPE_FAVOUR[faction_name] - amount;
-		PLAYER_POPE_FAVOUR[faction_name] = math.max(PLAYER_POPE_FAVOUR[faction_name], MIN_POPE_FAVOUR);
-		PLAYER_POPE_FAVOUR[faction_name] = math.min(PLAYER_POPE_FAVOUR[faction_name], MAX_POPE_FAVOUR);
+		FACTION_POPE_FAVOUR[faction_name] = FACTION_POPE_FAVOUR[faction_name] - amount;
+		FACTION_POPE_FAVOUR[faction_name] = math.max(FACTION_POPE_FAVOUR[faction_name], MIN_POPE_FAVOUR);
+		FACTION_POPE_FAVOUR[faction_name] = math.min(FACTION_POPE_FAVOUR[faction_name], MAX_POPE_FAVOUR);
 	end
 
 	cm:show_message_event(
@@ -807,8 +805,8 @@ end
 ------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		SaveKeyPairTable(context, PLAYER_POPE_FAVOUR, "PLAYER_POPE_FAVOUR");
-		SaveBooleanPairTable(context, PLAYER_EXCOMMUNICATED, "PLAYER_EXCOMMUNICATED");
+		SaveKeyPairTable(context, FACTION_POPE_FAVOUR, "FACTION_POPE_FAVOUR");
+		SaveBooleanPairTable(context, FACTION_EXCOMMUNICATED, "FACTION_EXCOMMUNICATED");
 		cm:save_value("PAPAL_FAVOUR_SYSTEM_ACTIVE", PAPAL_FAVOUR_SYSTEM_ACTIVE, context);
 		cm:save_value("PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED", PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED, context);
 		cm:save_value("FAVOUR_LAST_ATTACKED_GARRISON", FAVOUR_LAST_ATTACKED_GARRISON, context);
@@ -818,8 +816,8 @@ cm:register_saving_game_callback(
 
 cm:register_loading_game_callback(
 	function(context)
-		PLAYER_POPE_FAVOUR = LoadKeyPairTableNumbers(context, "PLAYER_POPE_FAVOUR");
-		PLAYER_EXCOMMUNICATED = LoadBooleanPairTable(context, "PLAYER_EXCOMMUNICATED");
+		FACTION_POPE_FAVOUR = LoadKeyPairTableNumbers(context, "FACTION_POPE_FAVOUR");
+		FACTION_EXCOMMUNICATED = LoadBooleanPairTable(context, "FACTION_EXCOMMUNICATED");
 		PAPAL_FAVOUR_SYSTEM_ACTIVE = cm:load_value("PAPAL_FAVOUR_SYSTEM_ACTIVE", true, context);
 		PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED = cm:load_value("PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED", false, context);
 		FAVOUR_LAST_ATTACKED_GARRISON = cm:load_value("FAVOUR_LAST_ATTACKED_GARRISON", "", context);

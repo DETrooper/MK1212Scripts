@@ -6,7 +6,7 @@
 --
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
-local dev = require("lua_scripts.dev");
+--local dev = require("lua_scripts.dev");
 
 require("mechanics/decisions/mechanics_decisions_lists");
 require("mechanics/decisions/mechanics_decisions_ui");
@@ -31,17 +31,17 @@ end
 function Remove_Decision(decision_name)
 	for i = 1, #PRIORITY_DECISIONS do
 		if PRIORITY_DECISIONS[i][1] == decision_name then
-			dev.log("Removing decision: "..PRIORITY_DECISIONS[i][1]);
+			--dev.log("Removing decision: "..PRIORITY_DECISIONS[i][1]);
 			table.remove(PRIORITY_DECISIONS, i);
-			dev.log("Decision removed.");
+			--dev.log("Decision removed.");
 		end	
 	end
 
 	for i = 1, #AVAILABLE_DECISIONS do
 		if AVAILABLE_DECISIONS[i][1] == decision_name then
-			dev.log("Removing decision: "..AVAILABLE_DECISIONS[i][1]);
+			--dev.log("Removing decision: "..AVAILABLE_DECISIONS[i][1]);
 			table.remove(AVAILABLE_DECISIONS, i);
-			dev.log("Decision removed.");
+			--dev.log("Decision removed.");
 		end	
 	end
 end
@@ -51,7 +51,7 @@ function Enable_Decision(decision_name)
 		if PRIORITY_DECISIONS[i][1] == decision_name and PRIORITY_DECISIONS[i][3] == false then
 			PRIORITY_DECISIONS[i][3] = true;
 			Highlight_Decisions_Button();
-			dev.log("Enabled decision: "..PRIORITY_DECISIONS[i][1]);
+			--dev.log("Enabled decision: "..PRIORITY_DECISIONS[i][1]);
 		end	
 	end
 
@@ -59,7 +59,7 @@ function Enable_Decision(decision_name)
 		if AVAILABLE_DECISIONS[i][1] == decision_name and AVAILABLE_DECISIONS[i][3] == false then
 			AVAILABLE_DECISIONS[i][3] = true;
 			Highlight_Decisions_Button();
-			dev.log("Enabled decision: "..AVAILABLE_DECISIONS[i][1]);
+			--dev.log("Enabled decision: "..AVAILABLE_DECISIONS[i][1]);
 		end	
 	end
 end
@@ -68,14 +68,14 @@ function Disable_Decision(decision_name)
 	for i = 1, #PRIORITY_DECISIONS do
 		if PRIORITY_DECISIONS[i][1] == decision_name then
 			PRIORITY_DECISIONS[i][3] = false;
-			dev.log("Disabled decision: "..PRIORITY_DECISIONS[i][1]);
+			--dev.log("Disabled decision: "..PRIORITY_DECISIONS[i][1]);
 		end	
 	end
 
 	for i = 1, #AVAILABLE_DECISIONS do
 		if AVAILABLE_DECISIONS[i][1] == decision_name then
 			AVAILABLE_DECISIONS[i][3] = false;
-			dev.log("Disabled decision: "..AVAILABLE_DECISIONS[i][1]);
+			--dev.log("Disabled decision: "..AVAILABLE_DECISIONS[i][1]);
 		end	
 	end
 end

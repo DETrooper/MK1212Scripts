@@ -88,19 +88,19 @@ function FactionTurnStart_Sicily(context)
 				cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
 				cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
 				cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
-			elseif SICILY_BECAME_EMPEROR == true and SICILY_DILEMMA_ISSUED == false then
-				Force_Excommunication(SICILY_KEY);
-				SICILY_DILEMMA_CHOICE = 2;
-				SICILY_DILEMMA_ISSUED = true;
 			end
 		end
 
-		if SICILY_BECAME_EMPEROR == false and SICILY_KEY == HRE_EMPEROR_PRETENDER_KEY then
+		if SICILY_BECAME_EMPEROR == false and SICILY_KEY == HRE_EMPEROR_KEY then
 			for i = 1, #HRE_FACTIONS_START do
 				cm:force_diplomacy(HRE_FACTIONS_START[i], SICILY_KEY, "war", true, true);
 			end
 
 			SICILY_BECAME_EMPEROR = true;
+		elseif SICILY_BECAME_EMPEROR == true and SICILY_DILEMMA_ISSUED == false and sicily:is_human() == false then
+			Force_Excommunication(SICILY_KEY);
+			SICILY_DILEMMA_CHOICE = 2;
+			SICILY_DILEMMA_ISSUED = true;
 		end
 	elseif context:faction():name() == HRE_EMPEROR_KEY and hre:is_human() then
 		if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false and sicily:is_human() == false then
@@ -177,7 +177,7 @@ function DilemmaChoiceMadeEvent_Sicily(context)
 		elseif context:choice() == 1 then
 			-- Choice made not to divest your lands!
 			Subtract_Pope_Favour(SICILY_KEY, 8, "refused_demands");
-			Update_Pope_Favour(SICILY_KEY);
+			Update_Pope_Favour(cm:model():world():faction_by_key(SICILY_KEY));
 		end
 	end
 end

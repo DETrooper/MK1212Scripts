@@ -6,7 +6,7 @@
 --
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
-local dev = require("lua_scripts.dev");
+--local dev = require("lua_scripts.dev");
 
 require("mechanics/population/mechanics_population_economy");
 require("mechanics/population/mechanics_population_lists");
@@ -306,9 +306,9 @@ function CheckArmyReplenishment(character)
 				local y = character:logical_position_y();
 
 				region = FindClosestPort(x, y, character:faction());
-				dev.log("Character port region for replenishment: "..region:name());
+				--dev.log("Character port region for replenishment: "..region:name());
 			else
-				dev.log("No replenishment for armies in the water");
+				--dev.log("No replenishment for armies in the water");
 				cm:apply_effect_bundle_to_characters_force("mk_bundle_population_no_replenishment_sea", character:cqi(), 0, true);
 				return;
 			end
@@ -327,7 +327,7 @@ function CheckArmyReplenishment(character)
 
 			for i = 1, 5 do
 				if replenishment_costs[i] > POPULATION_REGIONS_MANPOWER[region:name()][i] then
-					dev.log("Not enough class "..i.." population in "..REGIONS_NAMES_LOCALISATION[region_name]);
+					--dev.log("Not enough class "..i.." population in "..REGIONS_NAMES_LOCALISATION[region_name]);
 					cm:apply_effect_bundle_to_characters_force("mk_bundle_population_no_replenishment", character:cqi(), 0, true);
 					return;
 				end
@@ -341,9 +341,11 @@ function CharacterBesiegesSettlement_Population(context)
 end
 
 function CharacterEntersGarrison_Population(context)
+	CheckArmyReplenishment(context:character());
+
 	if context:character():has_region() then
 		local region = context:character():region();
-		dev.log("Entered Garrison "..region:name().."!");
+		--dev.log("Entered Garrison "..region:name().."!");
 		POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
 	end
 end
@@ -351,7 +353,7 @@ end
 function CharacterPerformsOccupationDecisionOccupy_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	dev.log("Occupied "..region:name().."!");
+	--dev.log("Occupied "..region:name().."!");
 
 	for i = 1, 5 do
 		POPULATION_REGIONS_POPULATIONS[region:name()][i] = math.floor(POPULATION_REGIONS_POPULATIONS[region:name()][i] * 0.95);
@@ -365,7 +367,7 @@ end
 function CharacterPerformsOccupationDecisionLootSack_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	dev.log("Looted & Occupied or Sacked "..region:name().."!");
+	--dev.log("Looted & Occupied or Sacked "..region:name().."!");
 
 	if SackExploitCheck_Population(context:character():region():name()) == true then
 		for i = 1, 5 do
@@ -381,7 +383,7 @@ end
 function CharacterPerformsOccupationDecisionRaze_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	dev.log("Razed "..region:name().."!");
+	--dev.log("Razed "..region:name().."!");
 
 	for i = 1, 5 do
 		POPULATION_REGIONS_POPULATIONS[region:name()][i] = 0;
@@ -394,7 +396,7 @@ end
 function CharacterPerformsOccupationDecisionResettle_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	dev.log("Resettled "..region:name().."!");
+	--dev.log("Resettled "..region:name().."!");
 
 	POPULATION_REGIONS_POPULATIONS[region:name()][1] = 100;
 	POPULATION_REGIONS_POPULATIONS[region:name()][2] = 400;
@@ -446,7 +448,7 @@ function UnitTrained_Population(context)
 		if POPULATION_UNITS_IN_RECRUITMENT[cqi] ~= nil then
 			for i = 1, #POPULATION_UNITS_IN_RECRUITMENT[cqi] do
 				if POPULATION_UNITS_IN_RECRUITMENT[cqi][i] == unit:unit_key() then
-					dev.log("Removing "..unit:unit_key().." from queue.");
+					--dev.log("Removing "..unit:unit_key().." from queue.");
 					table.remove(POPULATION_UNITS_IN_RECRUITMENT[cqi], i);
 					break;
 				end

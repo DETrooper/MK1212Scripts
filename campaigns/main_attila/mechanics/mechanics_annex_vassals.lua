@@ -324,6 +324,7 @@ function OnComponentLClickUp_Annex_UI(context)
 			);
 
 			VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
+			VASSAL_SELECTED_ANNEXATION_TIME = cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() * ANNEX_TURNS_PER_REGION;
 
 			for i = 1, #ANNEX_VASSALS_SIZES do
 				cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name);
