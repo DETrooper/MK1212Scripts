@@ -136,7 +136,7 @@ function Save_Game_Ironman(disable_delay)
 	cm:add_time_trigger("disable_saving", disable_delay);
 end
 
-function OnTimeTrigger_Annex(context)
+function TimeTrigger_Ironman(context)
 	if context.string == "disable_saving" then
 		cm:disable_saving_game(true);
 	end

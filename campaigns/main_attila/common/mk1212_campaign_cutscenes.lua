@@ -37,7 +37,7 @@ function Cutscene_Play(cutscene_name)
 	CURRENT_CUTSCENE = cutscene_name;
 
 	cm:play_movie_in_ui(CUTSCENES_LIST[cutscene_name][1]);
-	cm:play_sound(CUTSCENES_LIST[cutscene_name][2]);
+	cm:play_sound(CUTSCENES_LIST[cutscene_name][2]); -- This method of adding audio can desync but it's better than nothing :(
 end
 
 function Cutscene_Skipped(cutscene_name)

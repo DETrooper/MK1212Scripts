@@ -451,8 +451,9 @@ end
 
 function Check_Trait_Crusade_Battle_Victory(character)
 	local character_cqi = character:cqi();
+	local character_faction_name = character:faction():name();
 
-	if HasValue(CHARACTERS_ON_CRUSADE, character_cqi) then
+	if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, character_faction_name) then
 		if character:is_faction_leader() and character:trait_level("mk_trait_crusades_crusader_king") < 3 then
 			cm:force_add_trait("character_cqi:"..character_cqi, "mk_trait_crusades_crusader_king", true);
 		elseif character:is_faction_leader() == false and character:trait_level("mk_trait_crusades_crusader") < 3 then
@@ -481,6 +482,7 @@ function CharacterEntersGarrison_Jerusalem(context)
 	if context:character():has_region() and context:character():region():name() == JERUSALEM_REGION_KEY then
 		if context:character():faction():state_religion() == "att_rel_chr_catholic" then
 			MISSION_TAKE_JERUSALEM_ACTIVE = false;
+			Make_Peace_Crusades(context:character():faction():name());
 			cm:override_mission_succeeded_status(context:character():faction():name(), "mk_mission_crusades_take_jerusalem_dilemma", true);
 			cm:add_time_trigger("Transfer_Jerusalem_Crusades", 0.5);
 			cm:remove_listener("CharacterEntersGarrison_Jerusalem");
@@ -497,6 +499,7 @@ function MissionFailed_Crusades(context)
 	elseif mission_name == "mk_mission_crusades_take_jerusalem_dilemma" then
 		MISSION_TAKE_JERUSALEM_ACTIVE = false;
 		cm:remove_listener("CharacterEntersGarrison_Jerusalem");
+		Make_Peace_Crusades(faction_name);
 		Subtract_Pope_Favour(faction_name, 8, "mission_fail_take_jerusalem_dilemma");
 	end
 end

@@ -24,8 +24,6 @@ function AddEventCallBack(event, func, add_to_user_defined_list)
 	end
 end
 
-
-
 --
 --	Script support for historic battle and prologue frontend
 -- 
@@ -109,8 +107,8 @@ function OnUICreated(context)
 	local button_random_faction_uic = UIComponent(scripting.m_root:Find("button_random_faction"));
 	local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
 	local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
-	checkbox_ironman_uic:SetTooltipText("Check this box to enable Ironman mode.\n---------------------------------------------\n- Manual saving is disabled.\n- The game automatically saves at the start and end of your turn.\n- The game automatically saves before and after battles.\n- The game automatically saves when war is declared by or upon you, or when a peace deal is made.");
-	text_ironman_uic:SetStateText("[[rgba:255:255:242:150]]Enable Ironman[[/rgba:255:255:242:150]]");
+	checkbox_ironman_uic:SetTooltipText(FRONTEND_STRINGS["ironman_tooltip"]);
+	text_ironman_uic:SetStateText(FRONTEND_STRINGS["ironman_title"]);
 	button_random_faction_uic:SetVisible(false);	
 	checkbox_ironman_uic:SetVisible(false);
 	text_ironman_uic:SetVisible(false);
@@ -125,7 +123,7 @@ function ChangeFrontend(context)
 	local text_version_number_uic = UIComponent(scripting.m_root:Find("version_number"));
 	local curX, curY = text_version_number_uic:Position();
 
-	text_version_number_uic:SetStateText("Medieval Kingdoms 1212: Campaign Build "..version_number_string);
+	text_version_number_uic:SetStateText(FRONTEND_STRINGS["text_version_string"]..version_number_string);
 	text_version_number_uic:SetMoveable(true);
 	text_version_number_uic:MoveTo(curX - 8, curY);
 	text_version_number_uic:SetMoveable(false);
@@ -157,6 +155,27 @@ function OnComponentLClickUp(context)
 			end, 
 			1
 		);
+
+		if string.find(context.string, "mk_fact") then
+			local start_year_uic = UIComponent(scripting.m_root:Find("dy_start_year"));
+			local strength_text = "NOT FOUND";
+			local weakness_text = "NOT FOUND"
+	
+			if FACTION_STRENGTHS[context.string] ~= nil then 
+				strength_text = FACTION_STRENGTHS[context.string];
+			end
+	
+			if FACTION_WEAKNESSES[context.string] ~= nil then
+				weakness_text = FACTION_WEAKNESSES[context.string];
+			end
+	
+			start_year_uic:SetStateText("[[rgba:63:35:13:150]]"..FRONTEND_STRINGS["faction_strength"]..strength_text.."\n"..FRONTEND_STRINGS["faction_weakness"]..weakness_text.."[[/rgba:63:35:13:150]]");
+	
+			if FACTION_POPULATIONS[context.string] ~= nil then
+				local effect_description_window_uic = UIComponent(scripting.m_root:Find("effect_description_window"));
+				effect_description_window_uic:SetStateText("Population: "..FACTION_POPULATIONS[context.string]);
+			end
+		end
 	end
 
 	if context.string == "button_new_campaign" then
@@ -172,12 +191,10 @@ function OnComponentLClickUp(context)
 				local start_year_uic = UIComponent(scripting.m_root:Find("dy_start_year"));
 				local effect_title_uic = UIComponent(scripting.m_root:Find("effect_title"));
 				start_year_uic:Resize(400, 64, true);
-				start_year_uic:SetStateText("[[rgba:63:35:13:150]]"..FACTION_STRENGTHS[FACTIONS_CAMPAIGN_1[1]].."\n"..FACTION_WEAKNESSES[FACTIONS_CAMPAIGN_1[1]].."[[/rgba:63:35:13:150]]");
-				
-				local faction_id = math.random(#FACTIONS_CAMPAIGN_1);
+
 				local faction_button_group_uic = UIComponent(scripting.m_root:Find("faction_button_group"));
-				local faction_uic = UIComponent(faction_button_group_uic:Find(FACTIONS_CAMPAIGN_1[faction_id]));
-				--faction_uic:ClearSound();
+				local faction_id = math.random(faction_button_group_uic:ChildCount() - 1);
+				local faction_uic = UIComponent(faction_button_group_uic:Find(faction_id));
 				faction_uic:SimulateClick(); -- Click random faction.
 				faction_uic:SetState("selected");
 
@@ -204,22 +221,31 @@ function OnComponentLClickUp(context)
 				faction_panel_uic:MoveTo(curX, curY - 74);
 				faction_panel_uic:SetMoveable(false);
 
-				local start_year_uic = UIComponent(scripting.m_root:Find("dy_start_year"));
-				local effect_title_uic = UIComponent(scripting.m_root:Find("effect_title"));
-				start_year_uic:Resize(400, 64, true);
-				start_year_uic:SetStateText("[[rgba:63:35:13:150]]"..FACTION_STRENGTHS[FACTIONS_CAMPAIGN_2[1]].."\n"..FACTION_WEAKNESSES[FACTIONS_CAMPAIGN_2[1]].."[[/rgba:63:35:13:150]]");
-
 				local button_purchase_uic = UIComponent(scripting.m_root:Find("button_purchase"));
 				button_purchase_uic:SetVisible(false);
 				local button_start_campaign_uic = UIComponent(scripting.m_root:Find("button_start_campaign"));
 				button_start_campaign_uic:SetVisible(true);
 
-				local faction_id = math.random(#FACTIONS_CAMPAIGN_2);
+				local start_year_uic = UIComponent(scripting.m_root:Find("dy_start_year"));
+				local effect_title_uic = UIComponent(scripting.m_root:Find("effect_title"));
+				start_year_uic:Resize(400, 64, true);
+
 				local faction_button_group_uic = UIComponent(scripting.m_root:Find("faction_group_button_group"));
-				local faction_uic = UIComponent(faction_button_group_uic:Find(FACTIONS_CAMPAIGN_2[faction_id]));
-				--faction_uic:ClearSound();
+				local faction_id = math.random(faction_button_group_uic:ChildCount() - 1);
+				local faction_uic = UIComponent(faction_button_group_uic:Find(faction_id));
 				faction_uic:SimulateClick(); -- Click 1st faction.
 				faction_uic:SetState("selected");
+
+				local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
+				local button_start_campaign_uic = UIComponent(sp_grand_campaign_uic:Find("button_start_campaign"));
+				button_start_campaign_uic:SetInteractive(false);
+
+				tm:callback(
+					function() 
+						button_start_campaign_uic:SetInteractive(true);
+					end,
+					1000
+				);
 			end, 
 			1
 		);
@@ -237,28 +263,18 @@ function OnComponentLClickUp(context)
 		end
 	elseif context.string == "button_random_faction" then
 		if CHAPTER_SELECTED == 1 then
-			local faction_id = math.random(#FACTIONS_CAMPAIGN_1);
 			local faction_button_group_uic = UIComponent(scripting.m_root:Find("faction_button_group"));
-			local faction_uic = UIComponent(faction_button_group_uic:Find(FACTIONS_CAMPAIGN_1[faction_id]));
+			local faction_id = math.random(faction_button_group_uic:ChildCount() - 1);
+			local faction_uic = UIComponent(faction_button_group_uic:Find(faction_id));
 			faction_uic:SimulateClick(); -- Click random faction.
 			faction_uic:SetState("selected");	
 		else
-			local faction_id = math.random(#FACTIONS_CAMPAIGN_2);
 			local faction_button_group_uic = UIComponent(scripting.m_root:Find("faction_group_button_group"));
-			local faction_uic = UIComponent(faction_button_group_uic:Find(FACTIONS_CAMPAIGN_2[faction_id]));
+			local faction_id = math.random(faction_button_group_uic:ChildCount() - 1);
+			local faction_uic = UIComponent(faction_button_group_uic:Find(faction_id));
 			faction_uic:SimulateClick(); -- Click random faction.
 			faction_uic:SetState("selected");	
 		end
-	end
-
-	if FACTION_WEAKNESSES[context.string] ~= nil then
-		local start_year_uic = UIComponent(scripting.m_root:Find("dy_start_year"));
-		start_year_uic:SetStateText("[[rgba:63:35:13:150]]"..FACTION_STRENGTHS[context.string].."\n"..FACTION_WEAKNESSES[context.string].."[[/rgba:63:35:13:150]]");
-	end
-
-	if FACTION_POPULATIONS[context.string] ~= nil then
-		local effect_description_window_uic = UIComponent(scripting.m_root:Find("effect_description_window"));
-		effect_description_window_uic:SetStateText("Population: "..FACTION_POPULATIONS[context.string]);
 	end
 
 	--[[if context.string == "att_fact_group_barbarian" then
@@ -416,53 +432,88 @@ function ChangeEffects()
 	local effects_dlc_uic = UIComponent(sp_grand_campaign_uic:Find("effects_dlc"));
 	local leader_window_uic = UIComponent(sp_grand_campaign_uic:Find("3D_window"));
 	local curX, curY = leader_window_uic:Position();
+	local max_columns = 19;
+	local spacing = 67;
+	local factions = {};
+
+	tx_header_uic:SetStateText(FRONTEND_STRINGS["campaign_title_"..tostring(CHAPTER_SELECTED)]);
 
 	if CHAPTER_SELECTED == 1 then
-		tx_header_uic:SetStateText("Early Campaign - 1212 AD");
-		tx_factions_uic:SetStateText("Faction");
 		local faction_button_group_uic = UIComponent(scripting.m_root:Find("faction_button_group"));
 		local att_fact_group_roman_uic = UIComponent(scripting.m_root:Find("att_fact_group_roman"));
+		local col = 0;
+		local row = 1;
+
 		att_fact_group_roman_uic:SetVisible(false);
 
-		for i = 1, #FACTIONS_CAMPAIGN_1 do
-			local faction_uic = UIComponent(faction_button_group_uic:Find(FACTIONS_CAMPAIGN_1[i]));
+		--Alphabetically sort the factions.
+		for i = 0, faction_button_group_uic:ChildCount() - 1 do
+			local faction_uic = UIComponent(faction_button_group_uic:Find(i));
+			local faction_id = faction_uic:Id();
+
+			table.insert(factions, faction_id);
+		end
+
+		table.sort(factions);
+
+		for i = 1, #factions do
+			local faction_uic = UIComponent(faction_button_group_uic:Find(factions[i]));
 			faction_uic:SetMoveable(true);
-			if i < 19 or i == 19 then
-				faction_uic:MoveTo(curX - 528 + (67 * i), curY - 249);
-			elseif i > 19 and i < 38 or i == 38  then
-				faction_uic:MoveTo(curX - 528 + (67 * (i - 19)), curY - 182);
-			elseif i > 38 then
-				faction_uic:MoveTo(curX - 528 + (67 * (i - 38)), curY - 115);
+
+			col = col + 1;
+
+			if col > max_columns then
+				col = 1;
+				row = row + 1;
 			end
+
+			faction_uic:MoveTo(curX - 528 + (spacing * col), curY - (249 - spacing * (row - 1)));
 			faction_uic:SetMoveable(false);
  		end
 
 		local faction_details_parent_uic = UIComponent(scripting.m_root:Find("faction_details_parent"));
 		faction_details_parent_uic:Resize(436, 616);
+		tx_factions_uic:SetStateText("Faction");
 	elseif CHAPTER_SELECTED == 2 then	
-		tx_header_uic:SetStateText("Late Campaign - 1337 AD");
-		--[[local faction_details_parent_uic = UIComponent(scripting.m_root:Find("faction_details_parent"));
-		faction_details_parent_uic:Resize(436, 465);]]--
-
 		local faction_group_button_group_uic = UIComponent(scripting.m_root:Find("faction_group_button_group"));
 		local att_fact_group_barbarian_m_uic = UIComponent(scripting.m_root:Find("att_fact_group_barbarian_m"));
+		local col = 0;
+		local row = 1;
+
 		att_fact_group_barbarian_m_uic:SetVisible(false);
 
-		for i = 1, #FACTIONS_CAMPAIGN_2 do
-			local faction_uic = UIComponent(faction_group_button_group_uic:Find(FACTIONS_CAMPAIGN_2[i]));
+		--Alphabetically sort the factions.
+		for i = 0, faction_button_group_uic:ChildCount() - 1 do
+			local faction_uic = UIComponent(faction_button_group_uic:Find(i));
+			local faction_id = faction_uic:Id();
+
+			table.insert(factions, faction_id);
+		end
+
+		table.sort(factions);
+
+		for i = 1, #factions do
+			local faction_uic = UIComponent(faction_group_button_group_uic:Find(factions[i]));
+
 			UIComponent(faction_uic:Find("label")):SetVisible(false);
 			UIComponent(faction_uic:Find("icon_new_content")):SetVisible(false);
 			faction_uic:SetMoveable(true);
-			if i < 19 or i == 19 then
-				faction_uic:MoveTo(curX - 528 + (67 * i), curY - 249);
-			elseif i > 19 and i < 38 or i == 38  then
-				faction_uic:MoveTo(curX - 528 + (67 * (i - 19)), curY - 182);
-			elseif i > 38 then
-				faction_uic:MoveTo(curX - 528 + (67 * (i - 38)), curY - 115);
+
+			col = col + 1;
+
+			if col > max_columns then
+				col = 1;
+				row = row + 1;
 			end
+
+			faction_uic:MoveTo(curX - 528 + (spacing * col), curY - (249 - spacing * (row - 1)));
 			faction_uic:SetMoveable(false);
- 		end
+		 end
+		 
 		effects_uic:SetVisible(true);
+
+		local faction_details_parent_uic = UIComponent(scripting.m_root:Find("faction_details_parent"));
+		faction_details_parent_uic:Resize(436, 465);
 	end
 
 	-- Left Side
@@ -514,9 +565,9 @@ function ChangeEffects()
 	text_ironman_uic:MoveTo(curX + 144, curY - 12);
 	text_ironman_uic:SetMoveable(false);
 	checkbox_ironman_uic:SetVisible(true);
-	button_random_faction_uic:SetTooltipText("Select random faction!");
+	button_random_faction_uic:SetTooltipText(FRONTEND_STRINGS["select_random_faction_tooltip"]);
 	button_random_faction_uic:SetVisible(true);
-	text_ironman_uic:SetStateText("[[rgba:255:255:242:150]]Enable Ironman[[/rgba:255:255:242:150]]");
+	text_ironman_uic:SetStateText(FRONTEND_STRINGS["ironman_title"]);
 	text_ironman_uic:SetVisible(true);
 
 	local maps_uic = UIComponent(scripting.m_root:Find("maps"));

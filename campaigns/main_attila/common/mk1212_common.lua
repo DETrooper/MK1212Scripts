@@ -188,6 +188,24 @@ function GetTurnFromYear(year)
 	return year - 1211;
 end
 
+-- From AoC Kingdoms.
+
+function Rename_Faction(faction_name, rename_key)
+	cm:set_faction_name_override(faction_name, "campaign_localised_strings_string_"..rename_key);
+end
+
+function Has_Required_Regions(faction_name, region_list)
+	for i = 1, #region_list do
+		local region = cm:model():world():region_manager():region_by_key(region_list[i]);
+		
+		if region:owning_faction():name() ~= faction_name then
+			return false;
+		end
+	end
+	
+	return true;
+end
+
 -- From War Weariness.
 
 function Does_Faction_Border_Faction(faction_name, query_faction_name)

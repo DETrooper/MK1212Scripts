@@ -374,8 +374,6 @@ function HRE_Replace_Emperor(faction_name)
 	local old_emperor = HRE_EMPEROR_KEY;
 	local old_emperor_faction = cm:model():world():faction_by_key(old_emperor);
 
-	cm:set_faction_name_override(faction_name, "campaign_localised_strings_string_mk_faction_holy_roman_empire");
-
 	if HRE_FRANKFURT_STATUS == "capital" and cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name() ~= faction_name then
 		cm:transfer_region_to_faction(HRE_FRANKFURT_KEY, faction_name);
 	end
@@ -423,9 +421,6 @@ function HRE_Replace_Emperor(faction_name)
 		Remove_HRE_Event_Listeners();
 	end
 
-	HRE_Vanquish_Pretender();
-	HRE_Remove_Unlawful_Territory_Effect_Bundles(faction_name)
-
 	HRE_EMPEROR_KEY = faction_name;
 	HRE_EMPEROR_CQI = new_emperor_faction:faction_leader():command_queue_index();
 	HRE_IMPERIAL_AUTHORITY = HRE_IMPERIAL_AUTHORITY_START;
@@ -436,12 +431,14 @@ function HRE_Replace_Emperor(faction_name)
 		HRE_EMPERORS_NAMES_NUMBERS[new_emperor_faction:faction_leader():get_forename()] = 1;
 	end
 
-	HRE_Set_Faction_State(faction_name, "emperor", true);
-	HRE_Button_Check();
-
 	DFN_Disable_Forming_Kingdoms(faction_name);
 	DFN_Enable_Forming_Kingdoms(old_emperor);
-	DFN_Refresh_Faction_Name(old_emperor); -- Make sure the old emperor isn't still named 'Holy Roman Empire'.
+	DFN_Refresh_Faction_Name(faction_name);
+	DFN_Refresh_Faction_Name(old_emperor);
+	HRE_Vanquish_Pretender();
+	HRE_Remove_Unlawful_Territory_Effect_Bundles(faction_name);
+	HRE_Set_Faction_State(faction_name, "emperor", true);
+	HRE_Button_Check();
 end
 
 function HRE_Assign_New_Pretender(player_rejected)
