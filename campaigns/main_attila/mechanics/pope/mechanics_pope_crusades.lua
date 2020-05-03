@@ -131,6 +131,7 @@ function FactionTurnStart_Pope_Crusades(context)
 				target = GetCrusadeTarget_Crusades();
 
 				if target == nil then
+					NEXT_CRUSADE_START_TURN = cm:model():turn_number() + 1;
 					return;
 				end
 			end
@@ -221,14 +222,25 @@ function FactionTurnStart_Pope_Crusades(context)
 					CRUSADE_INTRO_CUTSCENE_PLAYED = true;
 				end
 
-				cm:show_message_event(
-					context:faction():name(),
-					"message_event_text_text_mk_event_crusade_"..tostring(CURRENT_CRUSADE).."_title", 
-					"message_event_text_text_mk_event_crusade_go_"..target_short.."_primary", 
-					"message_event_text_text_mk_event_crusade_go_"..target_short.."_secondary", 
-					true,
-					706
-				);
+				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
+					cm:show_message_event(
+						context:faction():name(),
+						"message_event_text_text_mk_event_crusade_"..tostring(CURRENT_CRUSADE).."_title", 
+						"message_event_text_text_mk_event_crusade_go_crusade_"..tostring(CURRENT_CRUSADE).."_primary", 
+						"message_event_text_text_mk_event_crusade_go_crusade_"..tostring(CURRENT_CRUSADE).."_secondary", 
+						true,
+						706
+					);
+				else
+					cm:show_message_event(
+						context:faction():name(),
+						"message_event_text_text_mk_event_crusade_"..tostring(CURRENT_CRUSADE).."_title", 
+						"message_event_text_text_mk_event_crusade_go_"..target_short.."_primary", 
+						"message_event_text_text_mk_event_crusade_go_"..target_short.."_secondary", 
+						true,
+						706
+					);
+				end
 
 				if CURRENT_CRUSADE_TARGET_OWNER == cm:get_local_faction() then
 					if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
@@ -472,7 +484,6 @@ function CharacterEntersGarrison_Crusades(context)
 			cm:override_mission_succeeded_status(context:character():faction():name(), CURRENT_CRUSADE_MISSION_KEY, true);
 			End_Crusade("won");
 		elseif context:character():faction():state_religion() == "att_rel_chr_orthodox" or context:character():faction():state_religion() == "att_rel_church_east" then
-			cm:cancel_custom_mission(context:character():faction():name(), CURRENT_CRUSADE_MISSION_KEY);
 			End_Crusade("aborted");
 		end
 	end
@@ -588,6 +599,7 @@ function End_Crusade(reason)
 				cm:apply_effect_bundle("mk_bundle_crusade_failure", possible_christian_faction:name(), 10);
 				Make_Peace_Crusades(possible_christian_faction:name());
 			elseif reason == "aborted" then
+				cm:cancel_custom_mission(cm:get_local_faction(), CURRENT_CRUSADE_MISSION_KEY);
 				Make_Peace_Crusades(possible_christian_faction:name());
 			elseif reason == "won" then
 				cm:apply_effect_bundle("mk_bundle_crusade_victory", possible_christian_faction:name(), 10);
@@ -646,18 +658,22 @@ function Remove_Crusade_Effects()
 end
 
 function GetCrusadeTarget_Crusades()
-	local valid_targets = {};
+	local valid_targets = nil;
 
 	for k, v in pairs(CRUSADE_REGIONS) do
 		local owner = cm:model():world():region_manager():region_by_key(k):owning_faction();
 		local owner_religion = owner:state_religion();
 
 		if HasValue(CRUSADE_TARGET_RELIGIONS, owner_religion) then
+			if valid_targets == nil then
+				valid_targets = {};
+			end
+
 			valid_targets[k] = v;
 		end
 	end
 
-	if #valid_targets > 0 then
+	if valid_targets ~= nil then
 		local amount_stepped = 0;
 		local total_weight = 0;
 
@@ -665,9 +681,7 @@ function GetCrusadeTarget_Crusades()
 			total_weight = total_weight + v;
 		end
 
-		local selected_weight = cm:random_number(total_weight);
-
-		for k, v in pairs(trait_list) do
+		for k, v in pairs(valid_targets) do
 			amount_stepped = amount_stepped + v;
 
 			local chance = (amount_stepped / total_weight) * 100;
@@ -677,9 +691,21 @@ function GetCrusadeTarget_Crusades()
 				return k;
 			end
 		end
+
+		-- Still haven't found a target so pick the one with the highest weight.
+		local max_weight = 0;
+		local max_weight_region = nil;
+
+		for k, v in pairs(valid_targets) do
+			if v > max_weight then
+				max_weight = v;
+				max_weight_region = k;
+			end
+		end
+
+		return max_weight_region;
 	else
 		-- No valid target for the next crusade.
-		NEXT_CRUSADE_START_TURN = cm:model():turn_number() + 1;
 		return;
 	end
 end

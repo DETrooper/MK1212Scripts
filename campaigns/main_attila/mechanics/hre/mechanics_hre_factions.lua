@@ -168,10 +168,11 @@ end
 
 function CharacterBecomesFactionLeader_HRE_Factions(context)
 	local faction_name = context:character():faction():name();
-	local faction_state = HRE_Get_Faction_State(faction_name);
 
 	-- When faction leaders of HRE member states die, set their attitude to neutral if not a puppet, then check to see if their state should be something else.
 	if HasValue(HRE_FACTIONS, faction_name) and faction_name ~= HRE_EMPEROR_KEY then
+		local faction_state = HRE_Get_Faction_State(faction_name);
+
 		if faction_state ~= "puppet" then
 			HRE_Set_Faction_State(faction_name, "neutral", true);
 			HRE_State_Check(faction_name);
@@ -374,10 +375,6 @@ function HRE_Replace_Emperor(faction_name)
 	local old_emperor = HRE_EMPEROR_KEY;
 	local old_emperor_faction = cm:model():world():faction_by_key(old_emperor);
 
-	if HRE_FRANKFURT_STATUS == "capital" and cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name() ~= faction_name then
-		cm:transfer_region_to_faction(HRE_FRANKFURT_KEY, faction_name);
-	end
-
 	for i = 1, #HRE_FACTIONS do
 		if HRE_FACTIONS[i] == old_emperor then
 			if not HasValue(HRE_FACTIONS_START, old_emperor) then
@@ -435,10 +432,22 @@ function HRE_Replace_Emperor(faction_name)
 	DFN_Enable_Forming_Kingdoms(old_emperor);
 	DFN_Refresh_Faction_Name(faction_name);
 	DFN_Refresh_Faction_Name(old_emperor);
+
+	if faction_name == HRE_EMPEROR_PRETENDER_KEY then
+		if old_emperor_faction:at_war_with(new_emperor_faction) then
+			cm:force_make_peace(faction_name, old_emperor);
+			SetFactionsNeutral(faction_name, old_emperor);
+		end
+	end
+
 	HRE_Vanquish_Pretender();
 	HRE_Remove_Unlawful_Territory_Effect_Bundles(faction_name);
 	HRE_Set_Faction_State(faction_name, "emperor", true);
 	HRE_Button_Check();
+
+	if HRE_FRANKFURT_STATUS == "capital" and cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name() ~= faction_name then
+		cm:transfer_region_to_faction(HRE_FRANKFURT_KEY, faction_name);
+	end
 end
 
 function HRE_Assign_New_Pretender(player_rejected)
@@ -521,7 +530,7 @@ function HRE_Assign_New_Pretender(player_rejected)
 end
 
 function HRE_Vanquish_Pretender()
-	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
+	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" and HRE_EMPEROR_PRETENDER_KEY ~= HRE_EMPEROR_KEY then
 		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 		local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
 

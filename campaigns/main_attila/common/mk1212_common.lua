@@ -505,6 +505,16 @@ function HasValue(tab, val)
 	return false;
 end
 
+function GetTableSize(tab)
+	local size = 0;
+
+    for index, value in ipairs(tab) do
+        size = size + 1;
+	end
+	
+    return size;
+end
+
 function DeepCopy(tab)
 	local tab_type = type(tab);
 	local copy;

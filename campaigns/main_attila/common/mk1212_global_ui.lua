@@ -133,7 +133,7 @@ function Religion_Possibly_Changed(faction_name)
 
 	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
 		if faction:state_religion() == "att_rel_chr_catholic" then
-			if faction_name == CURRENT_CRUSADE_TARGET then
+			if faction_name == CURRENT_CRUSADE_TARGET_OWNER then
 				End_Crusade("aborted");
 			end
 
@@ -147,8 +147,17 @@ function Religion_Possibly_Changed(faction_name)
 	
 			Remove_Excommunication_Manual(faction_name);
 	
-			if faction:is_human() and cm:is_multiplayer() == false then
-				Remove_Decision("ask_pope_for_money");
+			if faction:is_human() then 
+				if cm:is_multiplayer() == false then
+					Remove_Decision("ask_pope_for_money");
+				end
+
+				if MISSION_TAKE_JERUSALEM_ACTIVE == true then
+					MISSION_TAKE_JERUSALEM_ACTIVE = false;
+					cm:remove_listener("CharacterEntersGarrison_Jerusalem");
+					cm:cancel_custom_mission(faction_name, "mk_mission_crusades_take_jerusalem_dilemma");
+					Make_Peace_Crusades(faction_name);
+				end
 			end
 
 			if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, faction_name) then
