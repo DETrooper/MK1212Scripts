@@ -166,7 +166,7 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 
 			option4_button:SetState("inactive"); -- Default to inactive in case player owns only the crusade target.
 
-			if cm:model():world():region_manager():region_by_key(JERUSALEM_KEY):owning_faction():state_religion() == "att_rel_chr_catholic" then
+			if cm:model():world():region_manager():region_by_key(JERUSALEM_KEY):owning_faction():state_religion() == "att_rel_chr_catholic" or HasValue(CURRENT_CRUSADE_TARGET_OWNED_REGIONS, JERUSALEM_KEY) ~= true then
 				option3_button:SetState("inactive");
 			end
 

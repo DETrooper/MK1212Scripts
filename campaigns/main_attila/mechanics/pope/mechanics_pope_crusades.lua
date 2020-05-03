@@ -277,37 +277,47 @@ function FactionTurnStart_Pope_Crusades(context)
 			end
 		end
 
-		if context:faction():is_human() == false and CRUSADE_ACTIVE == true then
-			local owner = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET):owning_faction();
+		if CRUSADE_ACTIVE == true then
+			local owner = cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER);
+			local true_owner = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET):owning_faction();
 
-			if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, context:faction():name()) and context:faction():state_religion() ~= "att_rel_chr_catholic" then
-				Remove_Faction_From_Crusade(context:faction():name());
-			elseif context:faction():name() == CURRENT_CRUSADE_TARGET and context:faction():state_religion() == "att_rel_chr_catholic" then
-				End_Crusade("aborted");
-			end
-
-			if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
-				if HasValue(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][6], context:faction():name()) and context:faction():state_religion() == "att_rel_chr_catholic" then
-					if context:faction():at_war_with(owner) == false then
-						cm:force_declare_war(context:faction():name(), owner:name());
-					end
-
-					cm:force_diplomacy(context:faction():name(), CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
-					cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, context:faction():name(), "peace", false, false);
-
-					table.insert(CURRENT_CRUSADE_FACTIONS_JOINED, context:faction():name());
+			if context:faction():is_human() then
+				if true_owner:state_religion() == "att_rel_chr_catholic" then
+					cm:override_mission_succeeded_status(context:faction():name(), CURRENT_CRUSADE_MISSION_KEY, true);
+					End_Crusade("won");
+				elseif true_owner:state_religion() == "att_rel_chr_orthodox" or true_owner:state_religion() == "att_rel_church_east" then
+					End_Crusade("aborted");
 				end
 			else
-				if context:faction():state_religion() == "att_rel_chr_catholic" then
-					if context:faction():name() == JERUSALEM_KEY or context:faction():region_list():num_items() >= CRUSADE_CANDIDATE_MIN_REGIONS then
+				if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, context:faction():name()) and context:faction():state_religion() ~= "att_rel_chr_catholic" then
+					Remove_Faction_From_Crusade(context:faction():name());
+				elseif context:faction():name() == CURRENT_CRUSADE_TARGET and context:faction():state_religion() == "att_rel_chr_catholic" then
+					End_Crusade("aborted");
+				end
+
+				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
+					if HasValue(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][6], context:faction():name()) and context:faction():state_religion() == "att_rel_chr_catholic" then
 						if context:faction():at_war_with(owner) == false then
 							cm:force_declare_war(context:faction():name(), owner:name());
 						end
-	
+
 						cm:force_diplomacy(context:faction():name(), CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
 						cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, context:faction():name(), "peace", false, false);
 
 						table.insert(CURRENT_CRUSADE_FACTIONS_JOINED, context:faction():name());
+					end
+				else
+					if context:faction():state_religion() == "att_rel_chr_catholic" then
+						if context:faction():name() == JERUSALEM_KEY or context:faction():region_list():num_items() >= CRUSADE_CANDIDATE_MIN_REGIONS then
+							if context:faction():at_war_with(owner) == false then
+								cm:force_declare_war(context:faction():name(), owner:name());
+							end
+		
+							cm:force_diplomacy(context:faction():name(), CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
+							cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, context:faction():name(), "peace", false, false);
+
+							table.insert(CURRENT_CRUSADE_FACTIONS_JOINED, context:faction():name());
+						end
 					end
 				end
 			end
@@ -581,12 +591,14 @@ function End_Crusade(reason)
 	local owner = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET):owning_faction();
 
 	-- All non-human Catholic factions will give their conquered regions to the Kingdom of Jerusalem if the target of the crusade was in the Levant.
-	for i = 1, #CURRENT_CRUSADE_TARGET_OWNED_REGIONS do
-		local region = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i]);
-		
-		if region:owning_faction():state_religion() == "att_rel_chr_catholic" and region:owning_faction():is_human() == false then
-			if region:owning_faction():name() ~= JERUSALEM_KEY then
-				cm:transfer_region_to_faction(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i], JERUSALEM_KEY);
+	if HasValue(CRUSADE_REGIONS_IN_MIDDLE_EAST, CURRENT_CRUSADE_TARGET) then
+		for i = 1, #CURRENT_CRUSADE_TARGET_OWNED_REGIONS do
+			local region = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i]);
+			
+			if region:owning_faction():state_religion() == "att_rel_chr_catholic" and region:owning_faction():is_human() == false then
+				if region:owning_faction():name() ~= JERUSALEM_KEY then
+					cm:transfer_region_to_faction(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i], JERUSALEM_KEY);
+				end
 			end
 		end
 	end
