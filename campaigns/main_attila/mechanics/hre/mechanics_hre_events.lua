@@ -11,7 +11,7 @@
 HRE_EVENTS_MIN_TURN = 4; -- First turn that an HRE event can occur.
 HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX = 12;
 HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MIN = 4;
-HRE_EVENTS_TIMER = 0;
+HRE_EVENTS_TIMER = -1;
 
 HRE_CURRENT_EVENT = "";
 HRE_CURRENT_EVENT_FACTION1 = "";
@@ -29,17 +29,17 @@ function Add_HRE_Event_Listeners()
 			true
 		);
 		cm:add_listener(
-			"DillemaOrIncidentStarted_HRE_Events",
-			"DillemaOrIncidentStarted",
-			true,
-			function(context) DillemaOrIncidentStarted_HRE_Events(context) end,
-			true
-		);
-		cm:add_listener(
 			"DilemmaChoiceMadeEvent_HRE_Events",
 			"DilemmaChoiceMadeEvent",
 			true,
 			function(context) DilemmaChoiceMadeEvent_HRE_Events(context) end,
+			true
+		);
+		cm:add_listener(
+			"DillemaOrIncidentStarted_HRE_Events",
+			"DillemaOrIncidentStarted",
+			true,
+			function(context) DillemaOrIncidentStarted_HRE_Events(context) end,
 			true
 		);
 		cm:add_listener(
@@ -74,9 +74,11 @@ function Remove_HRE_Event_Listeners()
 	cm:remove_listener("FactionTurnStart_HRE_Events");
 	cm:remove_listener("DilemmaChoiceMadeEvent_HRE_Events");
 	cm:remove_listener("DillemaOrIncidentStarted_HRE_Events");
+	cm:remove_listener("OnComponentLClickUp_HRE_Events");
+	cm:remove_listener("OnComponentMouseOn_HRE_Events");
 	cm:remove_listener("PanelOpenedCampaign_HRE_Events");
 
-	HRE_EVENTS_TIMER = 0;
+	HRE_EVENTS_TIMER = -1;
 end
 
 function FactionTurnStart_HRE_Events(context)
@@ -88,7 +90,7 @@ function FactionTurnStart_HRE_Events(context)
 
 			if HRE_EVENTS_TIMER > 0 then
 				HRE_EVENTS_TIMER = HRE_EVENTS_TIMER - 1;
-			elseif HRE_EVENTS_TIMER <= 0 then
+			elseif HRE_EVENTS_TIMER == 0 then
 				HRE_Event_Pick_Random_Event();
 			end
 		end
@@ -392,6 +394,10 @@ function HRE_Event_Pick_Random_Bordering_Factions()
 	HRE_CURRENT_EVENT_FACTION2 = bordering_factions[rand];
 end
 
+function HRE_Event_Reset_Timer()
+	HRE_EVENTS_TIMER = cm:random_number(HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX - 1, HRE_EVENTS_MIN_TURN - 1);
+end
+
 --------------------------------------------------------------
 ----------------------- SAVING / LOADING ---------------------
 --------------------------------------------------------------
@@ -409,6 +415,6 @@ cm:register_loading_game_callback(
 		HRE_CURRENT_EVENT = cm:load_value("HRE_CURRENT_EVENT", "", context);
 		HRE_CURRENT_EVENT_FACTION1 = cm:load_value("HRE_CURRENT_EVENT_FACTION1", "", context);
 		HRE_CURRENT_EVENT_FACTION2 = cm:load_value("HRE_CURRENT_EVENT_FACTION2", "", context);
-		HRE_EVENTS_TIMER = cm:load_value("HRE_EVENTS_TIMER", 0, context);
+		HRE_EVENTS_TIMER = cm:load_value("HRE_EVENTS_TIMER", -1, context);
 	end
 );

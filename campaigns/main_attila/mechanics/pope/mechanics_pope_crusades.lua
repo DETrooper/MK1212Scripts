@@ -296,8 +296,8 @@ function FactionTurnStart_Pope_Crusades(context)
 				end
 
 				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
-					if HasValue(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][6], context:faction():name()) and context:faction():state_religion() == "att_rel_chr_catholic" then
-						if context:faction():at_war_with(owner) == false then
+					if HasValue(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][6], context:faction():name()) then
+						if context:faction():state_religion() == "att_rel_chr_catholic" and context:faction():at_war_with(owner) == false and HasValue(FACTION_EXCOMMUNICATED, context:faction():name()) ~= true then
 							cm:force_declare_war(context:faction():name(), owner:name());
 						end
 
@@ -307,7 +307,7 @@ function FactionTurnStart_Pope_Crusades(context)
 						table.insert(CURRENT_CRUSADE_FACTIONS_JOINED, context:faction():name());
 					end
 				else
-					if context:faction():state_religion() == "att_rel_chr_catholic" then
+					if context:faction():state_religion() == "att_rel_chr_catholic" and HasValue(FACTION_EXCOMMUNICATED, context:faction():name()) ~= true then
 						if context:faction():name() == JERUSALEM_KEY or context:faction():region_list():num_items() >= CRUSADE_CANDIDATE_MIN_REGIONS then
 							if context:faction():at_war_with(owner) == false then
 								cm:force_declare_war(context:faction():name(), owner:name());
@@ -331,7 +331,7 @@ function FactionTurnStart_Pope_Crusades(context)
 end
 
 function DillemaOrIncidentStarted_Crusades(context)
-	if context:dilemma() == "mk_dilemma_crusades_owned_target" then
+	if context.string == "mk_dilemma_crusades_owned_target" then
 		CRUSADE_END_EVENT_OPEN = true;
 	end
 end
@@ -605,32 +605,39 @@ function End_Crusade(reason)
 
 	for i = 0, faction_list:num_items() - 1 do
 		local possible_christian_faction = faction_list:item_at(i);
+		local possible_christian_faction_name = possible_christian_faction:name();
 			
-		if possible_christian_faction:state_religion() == "att_rel_chr_catholic" and possible_christian_faction:at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) then
+		if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, possible_christian_faction_name) then
 			if reason == "lost" then
-				cm:apply_effect_bundle("mk_bundle_crusade_failure", possible_christian_faction:name(), 10);
-				Make_Peace_Crusades(possible_christian_faction:name());
+				cm:apply_effect_bundle("mk_bundle_crusade_failure", possible_christian_faction_name, 10);
+				Make_Peace_Crusades(possible_christian_faction_name);
 			elseif reason == "aborted" then
-				cm:cancel_custom_mission(cm:get_local_faction(), CURRENT_CRUSADE_MISSION_KEY);
-				Make_Peace_Crusades(possible_christian_faction:name());
-			elseif reason == "won" then
-				cm:apply_effect_bundle("mk_bundle_crusade_victory", possible_christian_faction:name(), 10);
-				Add_Pope_Favour(possible_christian_faction:name(), 10, "crusade_victory");
+				if possible_christian_faction:is_human() then
+					cm:cancel_custom_mission(possible_christian_faction_name, CURRENT_CRUSADE_MISSION_KEY);
+				end
 
-				if possible_christian_faction:is_human() == false or (possible_christian_faction:is_human() == true and possible_christian_faction:name() == JERUSALEM_KEY) or (possible_christian_faction:is_human() == true and possible_christian_faction ~= owner) then
-					Make_Peace_Crusades(possible_christian_faction:name());
-				elseif HasValue(CRUSADE_REGIONS_IN_MIDDLE_EAST, CURRENT_CRUSADE_TARGET) and possible_christian_faction:is_human() == true and possible_christian_faction:name() == owner:name() and possible_christian_faction:name() ~= JERUSALEM_KEY then
-					cm:trigger_dilemma(possible_christian_faction:name(), "mk_dilemma_crusades_owned_target");
+				Make_Peace_Crusades(possible_christian_faction_name);
+			elseif reason == "won" then
+				cm:apply_effect_bundle("mk_bundle_crusade_victory", possible_christian_faction_name, 10);
+				Add_Pope_Favour(possible_christian_faction_name, 10, "crusade_victory");
+
+				if possible_christian_faction:is_human() == false or (possible_christian_faction:is_human() and possible_christian_faction_name == JERUSALEM_KEY) or (possible_christian_faction:is_human() == true and possible_christian_faction ~= owner) then
+					Make_Peace_Crusades(possible_christian_faction_name);
+				elseif HasValue(CRUSADE_REGIONS_IN_MIDDLE_EAST, CURRENT_CRUSADE_TARGET) and possible_christian_faction:is_human() == true and possible_christian_faction_name == owner:name() and possible_christian_faction_name ~= JERUSALEM_KEY then
+					cm:trigger_dilemma(possible_christian_faction_name, "mk_dilemma_crusades_owned_target");
 				else		
-					Make_Peace_Crusades(possible_christian_faction:name());
+					Make_Peace_Crusades(possible_christian_faction_name);
 				end
 			end
 
 			for j = 0, faction_list:num_items() - 1 do
 				local possible_ally = faction_list:item_at(j);
+				local possible_ally_name = possible_ally:name();
 					
-				if possible_christian_faction:allied_with(possible_ally) == true and possible_ally:at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) then
-					Make_Peace_Crusades(possible_ally:name());
+				if possible_christian_faction:allied_with(possible_ally) == true then
+					if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, possible_ally_name) ~= true and possible_ally ~= owner and possible_ally:at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) then
+						Make_Peace_Crusades(possible_ally_name);
+					end
 				end
 			end
 		end
@@ -723,11 +730,13 @@ function GetCrusadeTarget_Crusades()
 end
 
 function Make_Peace_Crusades(faction_name)
-	cm:force_diplomacy(faction_name, CURRENT_CRUSADE_TARGET_OWNER, "peace", true, true);
-	cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, faction_name, "peace", true, true);
+	if cm:model():world():faction_by_key(faction_name):at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) then
+		cm:force_diplomacy(faction_name, CURRENT_CRUSADE_TARGET_OWNER, "peace", true, true);
+		cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, faction_name, "peace", true, true);
 
-	if not HasValue(CURRENT_CRUSADE_TARGET_PREEXISTING_ENEMIES, faction_name) then
-		cm:force_make_peace(CURRENT_CRUSADE_TARGET_OWNER, faction_name);
+		if not HasValue(CURRENT_CRUSADE_TARGET_PREEXISTING_ENEMIES, faction_name) then
+			cm:force_make_peace(CURRENT_CRUSADE_TARGET_OWNER, faction_name);
+		end
 	end
 end
 

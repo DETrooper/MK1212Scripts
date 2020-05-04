@@ -91,7 +91,7 @@ function Global_DFN_Check()
 		end
 
 		if FACTIONS_DFN_LEVEL[faction_name] == 1 then
-			if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL2 and faction:region_list():num_items() < NUM_REQUIRED_REGIONS_LVL3 then
+			if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL2 and faction:region_list():num_items() < NUM_REQUIRED_REGIONS_LVL3 and faction_name ~= HRE_EMPEROR_KEY then
 				if faction:is_human() == false or cm:is_multiplayer() == true then
 					DFN_Set_Faction_Rank(faction_name, 2);
 				else
@@ -99,20 +99,28 @@ function Global_DFN_Check()
 				end
 			end
 		elseif FACTIONS_DFN_LEVEL[faction_name] == 2 then
-			if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 then
+			if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and HasValue(HRE_FACTIONS, faction_name) ~= true then
 				if faction:is_human() == false or cm:is_multiplayer() == true then
 					DFN_Set_Faction_Rank(faction_name, 3);
 				else
 					Enable_Decision("found_an_empire");
 				end
+			else
+				if faction:is_human() == true or cm:is_multiplayer() == false then
+					Disable_Decision("found_an_empire");
+				end
 			end
 		-- For Kingdom events.
 		elseif FACTIONS_DFN_LEVEL[faction_name] == 4 then
-			if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 then
+			if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and HasValue(HRE_FACTIONS, faction_name) ~= true then
 				if faction:is_human() == false or cm:is_multiplayer() == true then
 					DFN_Set_Faction_Rank(faction_name, 5);
 				else
 					Enable_Decision("found_an_empire");
+				end
+			else
+				if faction:is_human() == true or cm:is_multiplayer() == false then
+					Disable_Decision("found_an_empire");
 				end
 			end
 		end
@@ -173,8 +181,12 @@ end
 
 function DFN_Disable_Forming_Kingdoms(faction_name)
 	if cm:is_multiplayer() == false then
-		Remove_Decision("found_a_kingdom");
-		Remove_Decision("found_an_empire");
+		local faction = cm:model():world():faction_by_key(faction_name);
+
+		if faction:is_human() then
+			Remove_Decision("found_a_kingdom");
+			Remove_Decision("found_an_empire");
+		end
 	end
 end
 
@@ -241,10 +253,10 @@ function GetConditionsString_DFN_Empire()
 	local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
 	local conditionstring = "Conditions:\n\n";
 
-	if faction_name == HRE_EMPEROR_KEY then
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+	if HasValue(HRE_FACTIONS, faction_name) then
+		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
 	else
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
 	end
 	
 	if num_regions >= NUM_REQUIRED_REGIONS_LVL3 then

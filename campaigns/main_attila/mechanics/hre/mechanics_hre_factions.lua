@@ -103,7 +103,11 @@ function FactionTurnStart_HRE_Factions(context)
 		HRE_IMPERIAL_AUTHORITY = HRE_Calculate_Imperial_Authority();
 
 		if HRE_EMPEROR_PRETENDER_KEY == "nil" and FACTION_EXCOMMUNICATED[faction_name] == true and HRE_EMPEROR_PRETENDER_COOLDOWN <= 0 then
-			HRE_Assign_New_Pretender(false);
+			if context:faction():is_human() then
+				HRE_Assign_New_Pretender(true);
+			else
+				HRE_Assign_New_Pretender(false);
+			end
 		elseif HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
 			if cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY):has_home_region() == false then
 				HRE_Vanquish_Pretender();
@@ -126,20 +130,33 @@ function FactionTurnStart_HRE_Factions(context)
 				HRE_EMPEROR_MISSION_ACTIVE = true;
 			end
 		else
+			local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+			local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
+
 			if cm:model():turn_number() == HRE_EMPEROR_MISSION_WIN_TURN then
-				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
-				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+				if emperor_faction:is_human() then
+					cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
+				elseif pretender_faction:is_human() then
+					cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+				end
 
 				HRE_Pretender_End_Mission(false, "time");
 			elseif cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_PRETENDER_CQI then
-				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
-				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+				if emperor_faction:is_human() then
+					cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
+				elseif pretender_faction:is_human() then
+					cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+				end
 
 				HRE_Pretender_End_Mission(false, "death");
 			elseif cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_CQI then
-				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
-				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+				if emperor_faction:is_human() then
+					cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
+				elseif pretender_faction:is_human() then
+					cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+				end
 
+				HRE_Pretender_End_Mission(true, "victory");
 				HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
 			end
 		end
@@ -181,15 +198,25 @@ function CharacterBecomesFactionLeader_HRE_Factions(context)
 	end
 
 	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
+		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+		local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
+
 		if cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_PRETENDER_CQI then
-			cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
-			cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+			if emperor_faction:is_human() then
+				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
+			elseif pretender_faction:is_human() then
+				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+			end
 
 			HRE_Pretender_End_Mission(false, "death");
 		elseif cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_CQI then
-			cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
-			cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+			if emperor_faction:is_human() then
+				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
+			elseif pretender_faction:is_human() then
+				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+			end
 
+			HRE_Pretender_End_Mission(true, "victory");
 			HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
 		end
 	elseif CURRENT_HRE_REFORM < 8 then
@@ -251,9 +278,16 @@ function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 			end
 		else
 			if frankfurt_owner_name == HRE_EMPEROR_PRETENDER_KEY then
-				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
-				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+				local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+				local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
 
+				if emperor_faction:is_human() then
+					cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
+				elseif pretender_faction:is_human() then
+					cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+				end
+
+				HRE_Pretender_End_Mission(true, "victory");
 				HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
 			else
 				HRE_FRANKFURT_STATUS = "outside_hre";
@@ -412,6 +446,7 @@ function HRE_Replace_Emperor(faction_name)
 
 	if new_emperor_faction:is_human() then	
 		Add_HRE_Event_Listeners();
+		HRE_Event_Reset_Timer();
 	end
 
 	if old_emperor_faction:is_human() then
@@ -450,7 +485,7 @@ function HRE_Replace_Emperor(faction_name)
 	end
 end
 
-function HRE_Assign_New_Pretender(player_rejected)
+function HRE_Assign_New_Pretender(exclude_player)
 	local faction_list = cm:model():world():faction_list();
 	local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 	local pretender = nil;
@@ -479,7 +514,7 @@ function HRE_Assign_New_Pretender(player_rejected)
 
 				if weight > pretender_weight then
 					if current_faction:is_human() then
-						if player_rejected == false then
+						if exclude_player == false then
 							pretender = current_faction_name;
 							pretender_weight = weight;
 						end

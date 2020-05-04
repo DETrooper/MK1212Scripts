@@ -32,31 +32,10 @@ function Add_Pope_UI_Listeners()
 		true
 	);
 	cm:add_listener(
-		"FactionTurnEnd_Pope_UI",
-		"FactionTurnEnd",
-		true,
-		function(context) FactionTurnEnd_Pope_UI(context) end,
-		true
-	);
-	cm:add_listener(
 		"OnPanelOpenedCampaign_Pope_UI",
 		"PanelOpenedCampaign",
 		true,
 		function(context) OnPanelOpenedCampaign_Pope_UI(context) end,
-		true
-	);
-	cm:add_listener(
-		"OnPanelClosedCampaign_Pope_UI",
-		"PanelClosedCampaign",
-		true,
-		function(context) OnPanelClosedCampaign_Pope_UI(context) end,
-		true
-	);
-	cm:add_listener(
-		"TimeTrigger_Pope_UI",
-		"TimeTrigger",
-		true,
-		function(context) TimeTrigger_Pope_UI(context) end,
 		true
 	);
 end
@@ -71,13 +50,15 @@ function CharacterSelected_Pope_UI(context)
 	if CRUSADE_ACTIVE == true then
 		local faction_name = cm:get_local_faction();
 		
-		if context:character():faction():state_religion() == "att_rel_chr_catholic" and context:character():faction():name() == faction_name then
-			if context:character():military_force():unit_list():num_items() > 1 then
-				-- Not an agent or lone general.
-				btnCrusade:SetVisible(true);
+		if context:character():faction():name() == faction_name then
+			if HasValue(FACTION_EXCOMMUNICATED, faction_name) ~= true and context:character():faction():state_religion() == "att_rel_chr_catholic" then
+				if context:character():military_force():unit_list():num_items() > 1 then
+					-- Not an agent or lone general.
+					btnCrusade:SetVisible(true);
 
-				if not HasValue(CHARACTERS_ON_CRUSADE, LAST_CHARACTER_SELECTED:cqi()) then
-					btnCrusade:SetState("active");
+					if not HasValue(CHARACTERS_ON_CRUSADE, LAST_CHARACTER_SELECTED:cqi()) then
+						btnCrusade:SetState("active");
+					end
 				end
 			end
 		end
@@ -102,6 +83,9 @@ function OnComponentLClickUp_Pope_UI(context)
 	if context.string == "button_join_crusade" then
 		local faction_name = LAST_CHARACTER_SELECTED:faction():name();
 		local faction = LAST_CHARACTER_SELECTED:faction();
+		local force = LAST_CHARACTER_SELECTED:cqi();
+
+		cm:apply_effect_bundle_to_characters_force("mk_bundle_army_crusade", force, 0, true);
 
 		if not HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, faction_name) then
 			table.insert(CURRENT_CRUSADE_FACTIONS_JOINED, faction_name);
@@ -132,33 +116,13 @@ function OnComponentLClickUp_Pope_UI(context)
 			Update_Pope_Favour(faction);
 		end
 
-		local root = cm:ui_root();
-		local btnCrusade = UIComponent(root:Find("button_join_crusade"));
-		btnCrusade:SetState("inactive");
+		UIComponent(context.component):SetState("inactive");
 		table.insert(CHARACTERS_ON_CRUSADE, LAST_CHARACTER_SELECTED:cqi());
-		local force = LAST_CHARACTER_SELECTED:cqi();
-		cm:apply_effect_bundle_to_characters_force("mk_bundle_army_crusade", force, 0, true);
-	elseif context.string == "root" then
-		local root = cm:ui_root();
-		local btnCrusade = UIComponent(root:Find("button_join_crusade"));
-		btnCrusade:SetVisible(false);
-	end
-end
-
-function FactionTurnEnd_Pope_UI(context)
-	if context:faction():is_human() then
-		local root = cm:ui_root();
-		local btnCrusade = UIComponent(root:Find("button_join_crusade"));
-		btnCrusade:SetVisible(false);
 	end
 end
 
 function OnPanelOpenedCampaign_Pope_UI(context)
-	if context.string == "campaign_tactical_map" or context.string == "clan" or context.string == "diplomacy_dropdown" or context.string == "popup_pre_battle" or context.string == "settlement_captured" or context.string == "technology_panel" then
-		local root = cm:ui_root();
-		local btnCrusade = UIComponent(root:Find("button_join_crusade"));
-		btnCrusade:SetVisible(false);
-	elseif context.string == "events" then
+	if context.string == "events" then
 		if CRUSADE_END_EVENT_OPEN == true then
 			local num_owned_regions = 0;
 			local option3_button = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma3_window", "dilemma3_template", "choice_button"});
@@ -166,7 +130,7 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 
 			option4_button:SetState("inactive"); -- Default to inactive in case player owns only the crusade target.
 
-			if cm:model():world():region_manager():region_by_key(JERUSALEM_KEY):owning_faction():state_religion() == "att_rel_chr_catholic" or HasValue(CURRENT_CRUSADE_TARGET_OWNED_REGIONS, JERUSALEM_KEY) ~= true then
+			if cm:model():world():region_manager():region_by_key(JERUSALEM_REGION_KEY):owning_faction():state_religion() == "att_rel_chr_catholic" or HasValue(CURRENT_CRUSADE_TARGET_OWNED_REGIONS, JERUSALEM_REGION_KEY) ~= true then
 				option3_button:SetState("inactive");
 			end
 
@@ -174,7 +138,7 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 				if cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i]):owning_faction():name() == cm:get_local_faction() then
 					num_owned_regions = num_owned_regions + 1;
 
-					if num_owned_regions < 1 then
+					if num_owned_regions > 1 then
 						-- Player owns more than just the crusade target so enable the option to only give away the crusade target and keep the other conquered land.
 						option4_button:SetState("active");
 						break;
@@ -183,22 +147,6 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 			end
 
 			CRUSADE_END_EVENT_OPEN = false;
-		end
-	end
-end
-
-function OnPanelClosedCampaign_Pope_UI(context)
-	if context.string == "campaign_tactical_map" or context.string == "clan" or context.string == "diplomacy_dropdown" or context.string == "popup_pre_battle" or context.string == "settlement_captured" or context.string == "technology_panel" then
-		cm:add_time_trigger("Check_Army_Details_Visible", 0.5);
-	end
-end
-
-function TimeTrigger_Pope_UI(context)
-	if context.string == "Check_Army_Details_Visible" then
-		local root = cm:ui_root();
-		if ARMY_SELECTED == true and CRUSADE_ACTIVE == true then
-			local btnCrusade = UIComponent(root:Find("button_join_crusade"));
-			btnCrusade:SetVisible(true);
 		end
 	end
 end
