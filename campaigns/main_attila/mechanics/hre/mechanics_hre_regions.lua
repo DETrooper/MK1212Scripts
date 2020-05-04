@@ -15,7 +15,6 @@ HRE_REGIONS_IN_EMPIRE = {};
 HRE_REGIONS_OWNERS = {};
 HRE_REGIONS_UNLAWFUL_TERRITORY = {};
 
-HRE_UNLAWFUL_TERRITORY_ULTIMATUM_ISSUED = false;
 HRE_UNLAWFUL_TERRITORY_DURATION = 10;
 
 function Add_HRE_Region_Listeners()
@@ -44,7 +43,9 @@ function Add_HRE_Region_Listeners()
 end
 
 function FactionTurnStart_HRE_Regions(context)
-	HRE_Check_Regions_In_Empire();
+	if context:faction():is_human() then
+		HRE_Check_Regions_In_Empire();
+	end
 end
 
 function HRE_Check_Regions_In_Empire()
@@ -67,7 +68,7 @@ function HRE_Check_Regions_In_Empire()
 					factions_to_regions_in_empire[region_owning_faction_name] = {};
 				end
 
-				factions_to_regions_in_empire[region_owning_faction_name] = region_name;
+				table.insert(factions_to_regions_in_empire[region_owning_faction_name], region_name);
 			end
 
 			if not HasValue(HRE_REGIONS_IN_EMPIRE, region_name) then
@@ -172,8 +173,6 @@ function HRE_Issue_Unlawful_Territory_Ultimatum(region_name)
 	end
 
 	cm:apply_effect_bundle_to_region("mk_effect_bundle_unlawful_territory", region_name, HRE_UNLAWFUL_TERRITORY_DURATION);
-
-	HRE_UNLAWFUL_TERRITORY_ULTIMATUM_ISSUED = true;
 end
 
 function HRE_Remove_Unlawful_Territory_Effect_Bundles(faction_name)
@@ -196,7 +195,6 @@ cm:register_saving_game_callback(
 		SaveTable(context, HRE_REGIONS_IN_EMPIRE, "HRE_REGIONS_IN_EMPIRE");
 		SaveTable(context, HRE_REGIONS_UNLAWFUL_TERRITORY, "HRE_REGIONS_UNLAWFUL_TERRITORY");
 		SaveKeyPairTable(context, HRE_REGIONS_OWNERS, "HRE_REGIONS_OWNERS");
-		cm:save_value("HRE_UNLAWFUL_TERRITORY_ULTIMATUM_ISSUED", HRE_UNLAWFUL_TERRITORY_ULTIMATUM_ISSUED, context);
 	end
 );
 
@@ -205,6 +203,5 @@ cm:register_loading_game_callback(
 		HRE_REGIONS_IN_EMPIRE = LoadTable(context, "HRE_REGIONS_IN_EMPIRE");
 		HRE_REGIONS_UNLAWFUL_TERRITORY = LoadTable(context, "HRE_REGIONS_UNLAWFUL_TERRITORY");
 		HRE_REGIONS_OWNERS = LoadKeyPairTable(context, "HRE_REGIONS_OWNERS");
-		HRE_UNLAWFUL_TERRITORY_ULTIMATUM_ISSUED = cm:load_value("HRE_UNLAWFUL_TERRITORY_ULTIMATUM_ISSUED", false, context);
 	end
 );

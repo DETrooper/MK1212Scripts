@@ -103,48 +103,49 @@ end
 function Pope_Term_Check(context)
 	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
 
-	if papacy:is_null_interface() == true and PAPAL_STATES_DEAD == false then
+	if FactionIsAlive(PAPAL_STATES_KEY) ~= true and PAPAL_STATES_DEAD == false then
 		Deactivate_Papal_Favour_System();
 		PAPAL_STATES_DEAD = true;
-	elseif papacy:is_null_interface() == false and PAPAL_STATES_DEAD == true then
+	elseif FactionIsAlive(PAPAL_STATES_KEY) and PAPAL_STATES_DEAD == true then
 		Activate_Papal_Favour_System();
 		PAPAL_STATES_DEAD = false;
 	end
 
-	if context:faction():state_religion() == "att_rel_chr_catholic" and papacy:is_null_interface() == false and context:faction():is_human() == true then
+	if context:faction():state_religion() == "att_rel_chr_catholic" and PAPAL_STATES_DEAD == false and context:faction():is_human() == true then
 		cm:make_region_visible_in_shroud(context:faction():name(), papacy:home_region():name());
 	end
 
-	if context:faction():name() == PAPAL_STATES_KEY then
-		local TURN_NUMBER = cm:model():turn_number();
-		local YEARS_IN_OFFICE = (TURN_NUMBER - LAST_POPE) / 4;
+	if context:faction():is_human() then
+		local turn_number = cm:model():turn_number();
+		local years_in_office = (turn_number - LAST_POPE) / 2;
 
-		if NextPope().turn == TURN_NUMBER then
+		if GetTurnFromYear(NextPope().year) == turn_number then
 			CURRENT_POPE = CURRENT_POPE + 1;
-			LAST_POPE = TURN_NUMBER;
-			Pope_Changeover(context);
-		elseif NextPope().turn == -1 then
+			LAST_POPE = turn_number;
+			Pope_Changeover();
+		elseif NextPope().year == -1 then
 			output("Next Pope is to be spawned randomly...");
 			-- There is no set date to install this Pope
 			-- Make sure the current Pope has served his minimum term
 			-- Give the current Pope an increasing chance of being replaced every turn
-			if YEARS_IN_OFFICE >= MIN_YEARS_YEARS_IN_OFFICE then
+			if years_in_office >= MIN_YEARS_YEARS_IN_OFFICE then
 				-- He's served his minimum term, he can now have a chance of being replaced
-				local CHANCE = 100 / (MAX_YEARS_YEARS_IN_OFFICE - YEARS_IN_OFFICE);
+				local CHANCE = 100 / (MAX_YEARS_YEARS_IN_OFFICE - years_in_office);
 				
 				if cm:model():random_percent(CHANCE) then
 					CURRENT_POPE = CURRENT_POPE + 1;
-					LAST_POPE = TURN_NUMBER;
-					Pope_Changeover(context);
+					LAST_POPE = turn_number;
+					Pope_Changeover();
 				end
 			end
 		end
 	end
 end
 
-function Pope_Changeover(context)
+function Pope_Changeover()
 	local age = cm:random_number(POPE_MAX_AGE, POPE_MIN_AGE);
 	local forename = GENERIC_POPE_NAMES[cm:random_number(#GENERIC_POPE_NAMES)];
+	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
 
 	if POPE_LIST[CURRENT_POPE] ~= nil then
 		age = POPE_LIST[CURRENT_POPE].age;
@@ -169,23 +170,23 @@ function Pope_Changeover(context)
 	);
 	
 	-- Remove current Pope
-	if context:faction():has_faction_leader() then
-		local current_pope = context:faction():faction_leader();
+	if papacy:has_faction_leader() then
+		local current_pope = papacy:faction_leader();
 
 		cm:set_character_immortality("character_cqi:"..current_pope:command_queue_index(), false);
 		cm:kill_character("character_cqi:"..current_pope:command_queue_index(), false, false);
 	end
 	
 	-- Give the new Pope his trait
-	if context:faction():has_faction_leader() then
-		local current_pope = context:faction():faction_leader();
+	if papacy:has_faction_leader() then
+		local current_pope = papacy:faction_leader();
 
 		cm:force_add_trait("character_cqi:"..current_pope:command_queue_index(), "cha_trait_pope", false);
 	end
 	
 	-- Hide the new Pope
-	if context:faction():has_faction_leader() then
-		local current_pope = context:faction():faction_leader();
+	if papacy:has_faction_leader() then
+		local current_pope = papacy:faction_leader();
 
 		cm:hide_character("character_cqi:"..current_pope:command_queue_index(), true);
 	end
@@ -229,7 +230,7 @@ end
 function NextPope()
 	if POPE_LIST[CURRENT_POPE + 1] == nil then
 		for i = 1, #POPE_LIST do
-			if POPE_LIST[i].turn == -1 then
+			if POPE_LIST[i].year == -1 then
 				CURRENT_POPE = i-1;
 				return POPE_LIST[CURRENT_POPE + 1];
 			end

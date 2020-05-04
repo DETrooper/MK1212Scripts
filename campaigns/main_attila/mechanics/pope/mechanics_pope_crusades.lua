@@ -9,6 +9,7 @@
 -- System for crusades. Deus Vult!
 
 -- Constants
+CRUSADE_ANCILLARY_CHANCE_PER_TURN = 2;
 CRUSADE_CANDIDATE_MIN_REGIONS = 4;
 CRUSADE_DURATION = 20;
 MAX_NUM_OF_CRUSADES = 9;
@@ -84,6 +85,13 @@ function Add_Crusade_Event_Listeners()
 			"CharacterEntersGarrison",
 			true,
 			function(context) CharacterEntersGarrison_Crusades(context) end,
+			true
+		);
+		cm:add_listener(
+			"CharacterTurnStart_Crusades",
+			"CharacterTurnStart",
+			true,
+			function(context) CharacterTurnStart_Crusades(context) end,
 			true
 		);
 		cm:add_listener(
@@ -190,6 +198,13 @@ function FactionTurnStart_Pope_Crusades(context)
 					"CharacterEntersGarrison",
 					true,
 					function(context) CharacterEntersGarrison_Crusades(context) end,
+					true
+				);
+				cm:add_listener(
+					"CharacterTurnStart_Crusades",
+					"CharacterTurnStart",
+					true,
+					function(context) CharacterTurnStart_Crusades(context) end,
 					true
 				);
 				cm:add_listener(
@@ -488,6 +503,22 @@ function Check_Trait_Crusade_Battle_Victory(character)
 	end
 end
 
+function CharacterTurnStart_Crusades(context)
+	if context:character():has_region() then
+		if HasValue(CURRENT_CRUSADE_TARGET_OWNED_REGIONS, context:character():region():name()) then
+			if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, context:character():faction():name()) then
+				if cm:random_number(100) <= CRUSADE_ANCILLARY_CHANCE_PER_TURN then
+					local ancillary = CRUSADE_ANCILLARIES[cm:random_number(#CRUSADE_ANCILLARIES)];
+
+					if context:character():has_ancillary(ancillary) == false then
+						cm:force_add_ancillary("character_cqi:"..context:character():cqi(), ancillary);
+					end
+				end
+			end
+		end
+	end
+end
+
 function CharacterEntersGarrison_Crusades(context)
 	if context:character():has_region() and context:character():region():name() == CURRENT_CRUSADE_TARGET then
 		if context:character():faction():state_religion() == "att_rel_chr_catholic" then
@@ -584,6 +615,7 @@ function End_Crusade(reason)
 	cm:remove_listener("CharacterCompletedBattle_Crusades");
 	cm:remove_listener("CharacterParticipatedAsSecondaryGeneralInBattle_Crusades");
 	cm:remove_listener("CharacterEntersGarrison_Crusades");
+	cm:remove_listener("CharacterTurnStart_Crusades");
 	cm:remove_listener("MissionFailed_Crusades");
 	Remove_Crusade_Effects();
 

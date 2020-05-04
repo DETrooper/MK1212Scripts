@@ -185,7 +185,10 @@ function FindClosestPort(x, y, faction)
 end
 
 function GetTurnFromYear(year)
-	return year - 1211;
+	-- 2TPY, so turn 2 of the year should have .5 added to it.
+	local turn_number = (year - 1212) * 2 + 1;
+
+	return turn_number;
 end
 
 -- From AoC Kingdoms.
