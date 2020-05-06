@@ -31,6 +31,8 @@ POPULATION_REGIONS_MANPOWER = {};
 POPULATION_REGIONS_CHARACTERS_RAIDING = {};
 POPULATION_REGIONS_GROWTH_RATES = {};
 POPULATION_REGIONS_GROWTH_FACTORS = {};
+POPULATION_FACTION_TECH_BONUSES = {};
+POPULATION_FACTION_TECH_RESEARCHED = {};
 POPULATION_FACTION_TOTAL_POPULATIONS = {};
 POPULATION_UNITS_IN_RECRUITMENT = {};
 
@@ -127,6 +129,13 @@ function Add_Population_Listeners()
 		true
 	);
 	cm:add_listener(
+		"ResearchCompleted_Population",
+		"ResearchCompleted",
+		true,
+		function(context) ResearchCompleted_Population(context) end,
+		true
+	);
+	cm:add_listener(
 		"UnitTrained_Population",
 		"UnitTrained",
 		true,
@@ -150,6 +159,12 @@ function Add_Population_Listeners()
 
 		for i = 0, faction_list:num_items() - 1 do
 			local current_faction = faction_list:item_at(i);
+			local current_faction_name = current_faction:name();
+
+			POPULATION_FACTION_TECH_BONUSES[current_faction_name] = {0, 0, 0, 0, 0};
+			POPULATION_FACTION_TECH_RESEARCHED[current_faction_name] = {};
+
+			Check_Technologies_Population(current_faction_name);
 
 			if current_faction:is_horde() == false and current_faction:region_list():num_items() > 0 then
 				local regions = current_faction:region_list();
@@ -439,6 +454,10 @@ function RegionRebels_Population(context)
 	end
 end
 
+function ResearchCompleted_Population(context)
+	Check_Technologies_Population(context:faction():name());
+end
+
 function UnitTrained_Population(context)
 	local unit = context:unit();
 
@@ -466,10 +485,11 @@ function Compute_Region_Growth(region)
 
 	local region_name = region:name();
 	local region_owning_faction = region:owning_faction();
+	local region_owning_faction_name = region_owning_faction:name();
 	local owning_faction_capital = region_owning_faction:home_region():name();
 	local buildings_list = region:garrison_residence():buildings();
 	local under_siege = region:garrison_residence():is_under_siege();
-	local food_shortage = region:owning_faction():has_food_shortage();
+	local food_shortage = region_owning_faction:has_food_shortage();
 
 	POPULATION_REGIONS_GROWTH_FACTORS[region_name]= "";
 
@@ -492,10 +512,19 @@ function Compute_Region_Growth(region)
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."buildings_"..tostring(i).."#"..tostring(growth[i] * 100).."#@";
 	end
 
-	if POPULATION_FACTION_TRAITS_GROWTH[region_owning_faction:name()] ~= nil then
+	if POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name] ~= nil then
 		for i = 1, 5 do
-			growth[i] = growth[i] + POPULATION_FACTION_TRAITS_GROWTH[region_owning_faction:name()][i];
-			POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."faction_trait_"..tostring(i).."#"..tostring(POPULATION_FACTION_TRAITS_GROWTH[region_owning_faction:name()][i] * 100).."#@";
+			growth[i] = growth[i] + POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i];
+			POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."faction_trait_"..tostring(i).."#"..tostring(POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i] * 100).."#@";
+		end
+	end
+
+	if POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name] ~= nil then
+		for i = 1, 5 do
+			if POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i] ~= 0 then
+				growth[i] = growth[i] + POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i];
+				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."technologies_"..tostring(i).."#"..tostring(POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i] * 100).."#@";
+			end
 		end
 	end
 
@@ -518,7 +547,7 @@ function Compute_Region_Growth(region)
 		end
 
 		if HRE_ACTIVE_DECREE == "hre_decree_lessen_tax_burdens" then
-			if HasValue(HRE_FACTIONS, region_owning_faction:name()) then
+			if HasValue(HRE_FACTIONS, region_owning_faction_name) then
 				if i == 2 or i == 3 then
 					growth[i] = growth[i] + POPULATION_IMPERIAL_DECREE_BONUS;
 					POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."imperial_decree_"..tostring(i).."#"..tostring(POPULATION_IMPERIAL_DECREE_BONUS * 100).."#@";
@@ -669,6 +698,21 @@ function Change_Manpower_Region(region_name, class, amount)
 	Change_Population_Region(region_name, class, amount);
 end
 
+function Check_Technologies_Population(faction_name)
+	local faction = cm:model():world():faction_by_key(faction_name);
+
+	for k, v in pairs(POPULATION_TECHNOLOGIES_TO_GROWTH) do
+		if not HasValue(POPULATION_FACTION_TECH_RESEARCHED[faction_name], k) then
+			if faction:has_technology(k) then
+				for i = 1, 5 do
+					POPULATION_FACTION_TECH_BONUSES[faction_name][i] = POPULATION_FACTION_TECH_BONUSES[faction_name][i] + v[i];
+					table.insert(POPULATION_FACTION_TECH_RESEARCHED[faction_name], k);
+				end
+			end
+		end
+	end
+end
+
 function Refresh_Region_Growths_Population()
 	local faction_list = cm:model():world():faction_list();
 
@@ -695,9 +739,11 @@ cm:register_saving_game_callback(
 		SavePopulationNumbersTable(context, POPULATION_REGIONS_POPULATIONS, "POPULATION_REGIONS_POPULATIONS");
 		SavePopulationNumbersTable(context, POPULATION_REGIONS_MANPOWER, "POPULATION_REGIONS_MANPOWER");
 		SavePopulationNumbersTable(context, POPULATION_REGIONS_GROWTH_RATES, "POPULATION_REGIONS_GROWTH_RATES");
+		SavePopulationNumbersTable(context, POPULATION_FACTION_TECH_BONUSES, "POPULATION_FACTION_TECH_BONUSES");
 		SaveFactionPopulationNumbersTable(context, POPULATION_FACTION_TOTAL_POPULATIONS, "POPULATION_FACTION_TOTAL_POPULATIONS");
 		SaveKeyPairTable(context, POPULATION_REGIONS_GROWTH_FACTORS, "POPULATION_REGIONS_GROWTH_FACTORS");
 		SaveKeyPairTable(context, POPULATION_REGIONS_CHARACTERS_RAIDING, "POPULATION_REGIONS_CHARACTERS_RAIDING");
+		SaveKeyPairTable(context, POPULATION_FACTION_TECH_RESEARCHED, "POPULATION_FACTION_TECH_RESEARCHED");		
 		SaveKeyPairTables(context, POPULATION_UNITS_IN_RECRUITMENT, "POPULATION_UNITS_IN_RECRUITMENT");
 	end
 );
@@ -707,9 +753,11 @@ cm:register_loading_game_callback(
 		POPULATION_REGIONS_POPULATIONS = LoadPopulationNumbersTable(context, "POPULATION_REGIONS_POPULATIONS");
 		POPULATION_REGIONS_MANPOWER = LoadPopulationNumbersTable(context, "POPULATION_REGIONS_MANPOWER");
 		POPULATION_REGIONS_GROWTH_RATES = LoadPopulationNumbersTable(context, "POPULATION_REGIONS_GROWTH_RATES");
+		POPULATION_FACTION_TECH_BONUSES = LoadPopulationNumbersTable(context, "POPULATION_FACTION_TECH_BONUSES");
 		POPULATION_FACTION_TOTAL_POPULATIONS = LoadFactionPopulationNumbersTable(context, "POPULATION_FACTION_TOTAL_POPULATIONS");
 		POPULATION_REGIONS_GROWTH_FACTORS = LoadKeyPairTable(context, "POPULATION_REGIONS_GROWTH_FACTORS");
 		POPULATION_REGIONS_CHARACTERS_RAIDING = LoadKeyPairTable(context, "POPULATION_REGIONS_CHARACTERS_RAIDING");
+		POPULATION_FACTION_TECH_RESEARCHED = LoadKeyPairTable(context, "POPULATION_FACTION_TECH_RESEARCHED");
 		POPULATION_UNITS_IN_RECRUITMENT = LoadKeyPairTables(context, "POPULATION_UNITS_IN_RECRUITMENT");
 	end
 );

@@ -487,6 +487,7 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 		-- May or may not exist.
 		local faction_trait_growth = "";
 		local building_growth = "";
+		local technology_growth = "";
 		local capital_bonus = "";
 		local imperial_decree = "";
 		local cap_exceeded = "";
@@ -510,6 +511,17 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 						faction_trait_growth = "Growth From Faction Trait: ".."[[rgba:255:255:0:150]](0%)[[/rgba]]\n";
 					else
 						faction_trait_growth = "Growth From Faction Trait: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
+					end
+				elseif second_split[1] == "technologies_"..tostring(class) then
+					second_split[2] = Round_Number_Text(second_split[2]);
+	
+					if tonumber(second_split[2]) < 0 then
+						technology_growth = "Growth From Technologies: ".."[[rgba:255:0:0:150]]("..second_split[2].."%)[[/rgba]]\n";
+					elseif tonumber(second_split[2]) == 0 then
+						-- Should never be the case.
+						technology_growth = "Growth From Technologies: ".."[[rgba:255:255:0:150]](0%)[[/rgba]]\n";
+					else
+						technology_growth = "Growth From Technologies: ".."[[rgba:8:201:27:150]](+"..second_split[2].."%)[[/rgba]]\n";
 					end
 				elseif second_split[1] == "buildings_"..tostring(class) then
 					second_split[2] = Round_Number_Text(second_split[2]);
@@ -539,7 +551,7 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 			end
 		end
 
-		description_window_uic:SetStateText(class_population..faction_trait_growth..building_growth..capital_bonus..imperial_decree..cap_exceeded..under_siege..food_shortage..region_raided..projected_growth..projected_growth_num);
+		description_window_uic:SetStateText(class_population..capital_bonus..faction_trait_growth..building_growth..technology_growth..imperial_decree..cap_exceeded..under_siege..food_shortage..region_raided..projected_growth..projected_growth_num);
 		nobility_uic:SetVisible(false);
 		artisans_uic:SetVisible(false);
 		peasantry_uic:SetVisible(false);
