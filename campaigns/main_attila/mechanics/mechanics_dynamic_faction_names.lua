@@ -152,7 +152,7 @@ function Get_DFN_Localisation(faction_name)
 	if faction_name == HRE_EMPEROR_KEY then
 		faction_string = FACTIONS_NAMES_LOCALISATION["mk_fact_hre"];
 	elseif faction_name == "mk_fact_hre" then
-		faction_string = "Kingdom of Germany";
+		faction_string = DFN_NAMES_LOCALISATION["mk_fact_hre_non_emperor"];
 	end
 
 	return faction_string;

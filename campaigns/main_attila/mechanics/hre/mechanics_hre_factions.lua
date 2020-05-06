@@ -180,6 +180,7 @@ function FactionTurnStart_HRE_Factions(context)
 
 	if context:faction():is_human() then
 		HRE_Button_Check(); -- Check every turn if the HRE panel should be hidden or not.
+		HRE_Emperor_Check(); -- Check to see if the emperor's faction is dead or destroyed.
 	end
 end
 
@@ -197,34 +198,7 @@ function CharacterBecomesFactionLeader_HRE_Factions(context)
 		end
 	end
 
-	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
-		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
-		local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
-
-		if cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_PRETENDER_CQI then
-			if emperor_faction:is_human() then
-				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
-			elseif pretender_faction:is_human() then
-				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
-			end
-
-			HRE_Pretender_End_Mission(false, "death");
-		elseif cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():command_queue_index() ~= HRE_EMPEROR_CQI then
-			if emperor_faction:is_human() then
-				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
-			elseif pretender_faction:is_human() then
-				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
-			end
-
-			HRE_Pretender_End_Mission(true, "victory");
-			HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
-		end
-	elseif CURRENT_HRE_REFORM < 8 then
-		if faction_name == HRE_EMPEROR_KEY then
-			-- Emperor died and there was no pretender, so elect a new emperor!
-			Process_Election_Result_HRE_Elections();
-		end
-	end
+	HRE_Emperor_Check();
 end
 
 function DilemmaChoiceMadeEvent_HRE_Pretender(context)
@@ -402,6 +376,37 @@ function HRE_Check_Regions_In_Empire()
 	end
 
 	HRE_REGIONS_IN_EMPIRE = regions_in_empire;
+end
+
+function HRE_Emperor_Check()
+	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
+		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+		local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
+
+		if pretender_faction:faction_leader():command_queue_index() ~= HRE_EMPEROR_PRETENDER_CQI or FactionIsAlive(HRE_EMPEROR_PRETENDER_KEY) == false then
+			if emperor_faction:is_human() then
+				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
+			elseif pretender_faction:is_human() then
+				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+			end
+
+			HRE_Pretender_End_Mission(false, "death");
+		elseif emperor_faction:faction_leader():command_queue_index() ~= HRE_EMPEROR_CQI or FactionIsAlive(HRE_EMPEROR_PRETENDER_KEY) == false then
+			if emperor_faction:is_human() then
+				cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
+			elseif pretender_faction:is_human() then
+				cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+			end
+
+			HRE_Pretender_End_Mission(true, "victory");
+			HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
+		end
+	elseif CURRENT_HRE_REFORM < 8 then
+		if emperor_faction:faction_leader():command_queue_index() ~= HRE_EMPEROR_CQI or FactionIsAlive(HRE_EMPEROR_KEY) == false then
+			-- Emperor died and there was no pretender, so elect a new emperor!
+			Process_Election_Result_HRE_Elections();
+		end
+	end
 end
 
 function HRE_Replace_Emperor(faction_name)
@@ -629,6 +634,10 @@ function HRE_Pretender_End_Mission(success, reason)
 end
 
 function HRE_Set_Faction_State(faction_name, state, ignore_cooldown)
+	if state == "not_in_empire" then
+		HRE_FACTIONS_STATES[faction_name] = nil;
+	end
+
 	if ignore_cooldown == true or HRE_FACTIONS_STATE_CHANGE_COOLDOWNS[faction_name] == 0 then
 		HRE_FACTIONS_STATES[faction_name] = state;
 		HRE_FACTIONS_STATE_CHANGE_COOLDOWNS[faction_name] = HRE_FACTION_STATE_CHANGE_COOLDOWN;
@@ -637,8 +646,12 @@ function HRE_Set_Faction_State(faction_name, state, ignore_cooldown)
 end
 
 function HRE_Get_Faction_State(faction_name)
-	if HRE_FACTIONS_STATES[faction_name] == nil then
-		HRE_FACTIONS_STATES[faction_name] = "neutral";
+	if HasValue(HRE_FACTIONS, faction_name) then
+		if HRE_FACTIONS_STATES[faction_name] == nil then
+			HRE_FACTIONS_STATES[faction_name] = "neutral";
+		end
+	else
+		return "not_in_empire";
 	end
 
 	return HRE_FACTIONS_STATES[faction_name];

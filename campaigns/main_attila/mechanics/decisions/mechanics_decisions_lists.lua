@@ -42,11 +42,11 @@ MAP_DECISIONS = {
 };
 
 MAP_DECISIONS_MAP_NAMES = {
-	["restore_roman_empire"] = {"kingdom_roman_empire_map_img", "1200", "900"},
-	["form_kingdom_armenia"] = {"kingdom_armenia_map_img", "500", "500"},
-	["form_kingdom_italy"] = {"kingdom_italy_map_img", "500", "500"},
-	["form_kingdom_poland"] = {"kingdom_poland_map_img", "500", "500"},
-	["form_kingdom_spain"] = {"kingdom_spain_map_img", "500", "500"},
-	["form_empire_golden_horde"] = {"kingdom_golden_horde_map_img", "1200", "900"},
-	["form_empire_ilkhanate"] = {"kingdom_ilkhanate_map_img", "650", "650"}
+	["restore_roman_empire"] = {"kingdom_roman_empire_map", "1200", "900"},
+	["form_kingdom_armenia"] = {"kingdom_armenia_map", "500", "500"},
+	["form_kingdom_italy"] = {"kingdom_italy_map", "500", "500"},
+	["form_kingdom_poland"] = {"kingdom_poland_map", "500", "500"},
+	["form_kingdom_spain"] = {"kingdom_spain_map", "500", "500"},
+	["form_empire_golden_horde"] = {"kingdom_golden_horde_map", "1200", "900"},
+	["form_empire_ilkhanate"] = {"kingdom_ilkhanate_map", "650", "650"}
 }; 

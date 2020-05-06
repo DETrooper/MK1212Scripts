@@ -71,8 +71,9 @@ function CreateHREPanel()
 	btnClose:MoveTo(btnVoteX - 175, btnVoteY);
 	btnClose:SetMoveable(false);
 
-	Create_Image(panHRE, "hre_map_img");
-	local map_uic = UIComponent(panHRE:Find("hre_map_img"));
+	panHRE:CreateComponent("hre_map", "UI/new/maps/hre_map");
+
+	local map_uic = UIComponent(panHRE:Find("hre_map"));
 	map_uic:SetMoveable(true);
 	map_uic:MoveTo(btnVoteX - 717, btnVoteY - 707);
 	map_uic:SetMoveable(false);
@@ -134,7 +135,7 @@ function CreateHREPanel()
 	btnBackCandidate:SetMoveable(false);
 	btnBackCandidate:SetVisible(true);
 
-	Create_Map_Regions_HRE_UI(root);
+	Update_Map_Regions_HRE_UI(root);
 	Setup_Reforms_HRE_UI(root);
 	Setup_Decrees_HRE_UI(root);
 
@@ -482,28 +483,9 @@ function CloseHREPanel(hover)
 	HRE_PANEL_OPEN = false;
 end
 
-function Create_Map_Regions_HRE_UI(root)
-	local panHRE = UIComponent(root:Find("HRE_Panel"));
-	local map_uic = UIComponent(panHRE:Find("hre_map_img"));
-	local map_uicX, map_uicY = map_uic:Position();
-
-	for i = 1, #HRE_REGIONS do
-		local region_name = HRE_REGIONS[i];
-		local image_name = HRE_REGIONS_TO_IMAGES[region_name];
-
-		Create_Image(map_uic, image_name);
-		local image_uic = UIComponent(map_uic:Find(image_name));
-		image_uic:SetMoveable(true);
-		image_uic:MoveTo(map_uicX, map_uicY);
-		image_uic:SetMoveable(false);
-	end
-
-	Update_Map_Regions_HRE_UI(root);
-end
-
 function Update_Map_Regions_HRE_UI(root)
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
-	local map_uic = UIComponent(panHRE:Find("hre_map_img"));
+	local map_uic = UIComponent(panHRE:Find("hre_map"));
 	local map_uicX, map_uicY = map_uic:Position();
 
 	for i = 1, #HRE_REGIONS do

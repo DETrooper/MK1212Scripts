@@ -246,6 +246,7 @@ DFN_NAMES_LOCALISATION = {
 	["mk_fact_hazaraspids_lvl2"] = "Hazaraspid Shahdom",
 	["mk_fact_hazaraspids_lvl3"] = "Hazaraspid Empire",
 	["mk_fact_hre_lvl3"] = "Holy Roman Empire",
+	["mk_fact_hre_non_emperor"] = "County of Brunswick",
 	["mk_fact_hungary_lvl1"] = "Kingdom of Hungary",
 	["mk_fact_hungary_lvl2"] = "Kingdom of Hungary",
 	["mk_fact_hungary_lvl3"] = "Hungarian Empire",

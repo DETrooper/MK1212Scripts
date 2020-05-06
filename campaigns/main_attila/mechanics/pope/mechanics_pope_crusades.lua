@@ -303,6 +303,16 @@ function FactionTurnStart_Pope_Crusades(context)
 				elseif true_owner:state_religion() == "att_rel_chr_orthodox" or true_owner:state_religion() == "att_rel_church_east" then
 					End_Crusade("aborted");
 				end
+
+				if cm:model():turn_number() == NEXT_CRUSADE_START_TURN + CRUSADE_DURATION then
+					local target_faction = cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER);
+		
+					End_Crusade("lost");
+		
+					if target_faction:is_human() == false then
+						cm:override_mission_succeeded_status(context:faction():name(), CURRENT_CRUSADE_MISSION_KEY, false);
+					end
+				end
 			else
 				if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, context:faction():name()) and context:faction():state_religion() ~= "att_rel_chr_catholic" then
 					Remove_Faction_From_Crusade(context:faction():name());
@@ -336,11 +346,6 @@ function FactionTurnStart_Pope_Crusades(context)
 					end
 				end
 			end
-		end
-
-		if cm:model():turn_number() == NEXT_CRUSADE_START_TURN + CRUSADE_DURATION and CRUSADE_ACTIVE == true then
-			End_Crusade("lost");
-			cm:override_mission_succeeded_status(context:faction():name(), CURRENT_CRUSADE_MISSION_KEY, false);
 		end
 	end
 end
@@ -546,7 +551,7 @@ function MissionFailed_Crusades(context)
 	local faction_name = context:faction():name();
 	local mission_name = context:mission():mission_record_key();
 
-	if mission_name == CURRENT_CRUSADE_MISSION_KEY then
+	if mission_name == CURRENT_CRUSADE_MISSION_KEY and CRUSADE_ACTIVE == true then
 		End_Crusade("lost");
 	elseif mission_name == "mk_mission_crusades_take_jerusalem_dilemma" then
 		MISSION_TAKE_JERUSALEM_ACTIVE = false;
@@ -557,6 +562,8 @@ function MissionFailed_Crusades(context)
 end
 
 function End_Crusade(reason)
+	local target_short = string.gsub(CURRENT_CRUSADE_TARGET, "att_reg_", "");
+
 	if reason == "won" and cm:model():world():region_manager():region_by_key(JERUSALEM_REGION_KEY):owning_faction():state_religion() == "att_rel_chr_catholic" then
 		if CURRENT_CRUSADE_TARGET == JERUSALEM_REGION_KEY then
 			-- Jerusalem was the target of the crusade and was taken.
@@ -603,8 +610,6 @@ function End_Crusade(reason)
 	if cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER):is_human() == false then
 		Purge_Crusade_Defensive_Armies();
 	else
-		local target_short = string.gsub(CURRENT_CRUSADE_TARGET, "att_reg_", "");
-
 		if reason == "lost" then
 			cm:override_mission_succeeded_status(CURRENT_CRUSADE_TARGET_OWNER, "mk_mission_crusades_defense_"..target_short, true);
 		else

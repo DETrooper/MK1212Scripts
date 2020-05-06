@@ -167,16 +167,6 @@ function Religion_Possibly_Changed(faction_name)
 	end
 end
 
-function Create_Image(component, name)
-	local root = cm:ui_root();
-	local garbage = UIComponent(root:Find("garbage"));
-
-	garbage:CreateComponent(name.."_throwaway", "UI/new/images/"..name);
-	local uic = UIComponent(garbage:Find(name));
-	component:Adopt(uic:Address());
-	garbage:DestroyChildren();
-end
-
 function Round_Number_Text(number)
 	-- Attila really doesn't like floats, so this does some rounding for the purposes of displaying floating point numbers as text.
 	local number = tostring(number);

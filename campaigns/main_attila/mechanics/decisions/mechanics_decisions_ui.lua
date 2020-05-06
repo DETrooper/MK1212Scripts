@@ -102,40 +102,9 @@ function Create_Decisions_Map(decision)
 	mapParchmentPanelClip:SetMoveable(false);
 	sortable_list_factions_uic:DestroyChildren();
 
-	Create_Image(mapParchment, MAP_DECISIONS_MAP_NAMES[decision][1]);
-	--mapParchment:CreateComponent(MAP_DECISIONS_MAP_NAMES[decision][1], "UI/new/maps/"..MAP_DECISIONS_MAP_NAMES[decision][1]);
+	mapParchment:CreateComponent(MAP_DECISIONS_MAP_NAMES[decision][1], "UI/new/maps/"..MAP_DECISIONS_MAP_NAMES[decision][1]);
 	local map_uic = UIComponent(mapParchment:Find(MAP_DECISIONS_MAP_NAMES[decision][1]));
 	local map_uicX, map_uicY = map_uic:Position();
-
-	local table_regions = {};
-
-	if decision == "form_kingdom_armenia" then
-		table_regions = DeepCopy(REGIONS_ARMENIA);
-	elseif decision == "form_kingdom_italy" then
-		table_regions = DeepCopy(REGIONS_ITALY);
-	elseif decision == "form_empire_golden_horde" then
-		table_regions = DeepCopy(REGIONS_GOLDEN_HORDE);
-	elseif decision == "form_empire_ilkhanate" then
-		table_regions = DeepCopy(REGIONS_ILKHANATE);
-	elseif decision == "form_kingdom_poland" then
-		table_regions = DeepCopy(REGIONS_POLAND);
-	elseif decision == "form_kingdom_spain" then
-		table_regions = DeepCopy(REGIONS_SPAIN_NO_PORTUGAL);
-	elseif decision == "restore_roman_empire" then
-		table_regions = DeepCopy(REGIONS_ROME);
-	end
-
-	for i = 1, #table_regions do
-		local region_name = table_regions[i];
-		local image_name = string.gsub(region_name, "att_", "dec_");
-
-		Create_Image(map_uic, image_name);
-		local image_uic = UIComponent(map_uic:Find(image_name));
-		image_uic:SetMoveable(true);
-		image_uic:MoveTo(map_uicX, map_uicY);
-		image_uic:SetMoveable(false);
-	end
-
 	local mapParchmentX, mapParchmentY = mapParchment:Position();
 	local mapParchmentbX, mapParchmentbY = mapParchment:Bounds();
 
@@ -150,7 +119,7 @@ function Create_Decisions_Map(decision)
 	local map_accept_uic = UIComponent(mapParchment:Find("map_accept"));
 
 	map_accept_uic:SetMoveable(true);
-	map_accept_uic:MoveTo(mapParchmentX - (mapParchmentbX / 3) - 40, mapParchmentY + (mapParchmentbY / 1.5));
+	map_accept_uic:MoveTo(mapParchmentX - (sizeX / 2) + 8, mapParchmentY + sizeY + 56);
 	map_accept_uic:SetMoveable(false);
 
 	map_uic:SetMoveable(true);
@@ -171,33 +140,8 @@ function Refresh_Decisions_Map(decision)
 	local tx_title_uic = UIComponent(mapParchmentPanel:Find("tx_title"));
 
 	local regions_owned_counter = 0;
-	local table_regions = {};
-	local table_faction_pips = {};
-
-	if decision == "form_kingdom_armenia" then
-		table_regions = DeepCopy(REGIONS_ARMENIA);
-		table_faction_pips = DeepCopy(REGIONS_ARMENIA_FACTION_PIPS_LOCATIONS);
-	elseif decision == "form_kingdom_italy" then
-		table_regions = DeepCopy(REGIONS_ITALY);
-		table_faction_pips = DeepCopy(REGIONS_ITALY_FACTION_PIPS_LOCATIONS);
-	elseif decision == "form_kingdom_poland" then
-		table_regions = DeepCopy(REGIONS_POLAND);
-		table_faction_pips = DeepCopy(REGIONS_POLAND_FACTION_PIPS_LOCATIONS);
-	elseif decision == "form_kingdom_spain" then
-		table_regions = DeepCopy(REGIONS_SPAIN_NO_PORTUGAL);
-		table_faction_pips = DeepCopy(REGIONS_SPAIN_FACTION_PIPS_LOCATIONS);
-	elseif decision == "form_empire_golden_horde" then
-		table_regions = DeepCopy(REGIONS_GOLDEN_HORDE);
-		table_faction_pips = DeepCopy(REGIONS_GOLDEN_HORDE_FACTION_PIPS_LOCATIONS);
-	elseif decision == "form_empire_ilkhanate" then
-		table_regions = DeepCopy(REGIONS_ILKHANATE);
-		table_faction_pips = DeepCopy(REGIONS_ILKHANATE_FACTION_PIPS_LOCATIONS);
-	elseif decision == "restore_roman_empire" then
-		table_regions = DeepCopy(REGIONS_ROME);
-		table_faction_pips = DeepCopy(REGIONS_ROME_FACTION_PIPS_LOCATIONS);
-	end
-
-	map_accept_uic:SetState("active");
+	local table_regions = Get_Decision_Regions(decision);
+	local table_faction_pips = Get_Decision_Map_Faction_Pips(decision);
 
 	for i = 1, #table_regions do
 		local region_name = table_regions[i];
@@ -226,6 +170,7 @@ function Refresh_Decisions_Map(decision)
 	end
 
 	tx_title_uic:SetStateText(DECISIONS_STRINGS_MAP[decision].." - ("..tostring(regions_owned_counter).."/"..tostring(#table_regions)..")");
+	map_accept_uic:SetState("active");
 	mapParchment:SetVisible(true);
 	--mapParchment:TriggerAnimation("show");
 end
@@ -509,6 +454,42 @@ function Get_Decision_Tooltip(decision)
 		return GetConditionsString_DFN_Empire();
 	elseif decision == "ask_pope_for_money" then
 		return GetConditionsString_Pope_Money(cm:get_local_faction());
+	end
+end
+
+function Get_Decision_Regions(decision)
+	if decision == "form_kingdom_armenia" then
+		return DeepCopy(REGIONS_ARMENIA);
+	elseif decision == "form_kingdom_italy" then
+		return DeepCopy(REGIONS_ITALY);
+	elseif decision == "form_kingdom_poland" then
+		return DeepCopy(REGIONS_POLAND);
+	elseif decision == "form_kingdom_spain" then
+		return DeepCopy(REGIONS_SPAIN_NO_PORTUGAL);
+	elseif decision == "form_empire_golden_horde" then
+		return DeepCopy(REGIONS_GOLDEN_HORDE);
+	elseif decision == "form_empire_ilkhanate" then
+		return DeepCopy(REGIONS_ILKHANATE);
+	elseif decision == "restore_roman_empire" then
+		return DeepCopy(REGIONS_ROME);
+	end
+end
+
+function Get_Decision_Map_Faction_Pips(decision)
+	if decision == "form_kingdom_armenia" then
+		return DeepCopy(REGIONS_ARMENIA_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_kingdom_italy" then
+		return DeepCopy(REGIONS_ITALY_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_kingdom_poland" then
+		return DeepCopy(REGIONS_POLAND_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_kingdom_spain" then
+		return DeepCopy(REGIONS_SPAIN_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_empire_golden_horde" then
+		return DeepCopy(REGIONS_GOLDEN_HORDE_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_empire_ilkhanate" then
+		return DeepCopy(REGIONS_ILKHANATE_FACTION_PIPS_LOCATIONS);
+	elseif decision == "restore_roman_empire" then
+		return DeepCopy(REGIONS_ROME_FACTION_PIPS_LOCATIONS);
 	end
 end
 

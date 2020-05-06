@@ -79,7 +79,7 @@ BYZ_REGIONS_PENTARCHY = {
 	"att_reg_thracia_constantinopolis",
 };
 
---[[REGIONS_ROME = {
+REGIONS_ROME = {
 	"att_reg_aegyptus_alexandria",
 	"att_reg_aegyptus_berenice",
 	"att_reg_aegyptus_oxyrhynchus",
@@ -127,19 +127,6 @@ BYZ_REGIONS_PENTARCHY = {
 	"att_reg_venetia_verona",
 	"att_reg_venetia_aquileia",
 	"att_reg_venetia_ravenna"
-};]]--
-
-REGIONS_ROME = {
-	"att_reg_aegyptus_alexandria",
-	"att_reg_africa_carthago",
-	"att_reg_bithynia_nicomedia",
-	"att_reg_cappadocia_trapezus",
-	"att_reg_italia_roma",
-	"att_reg_liguria_mediolanum",
-	"att_reg_macedonia_thessalonica",
-	"att_reg_thracia_constantinopolis",
-	"att_reg_palaestinea_aelia_capitolina",
-	"att_reg_syria_antiochia"
 };
 
 REGIONS_ROME_FACTION_PIPS_LOCATIONS = {
