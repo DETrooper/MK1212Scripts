@@ -191,6 +191,19 @@ function GetTurnFromYear(year)
 	return turn_number;
 end
 
+function Transfer_Region_To_Faction(region_name, faction_name)
+	-- If a region has a governor then they will die when a region is transferred, so we need to temporarily give them immortality.
+
+	if cm:model():world():region_manager():region_by_key(region_name):has_governor() then
+		local governor = cm:model():world():region_manager():region_by_key(region_name):governor():command_queue_index();
+		cm:set_character_immortality("character_cqi:"..governor, true);
+		cm:transfer_region_to_faction(region_name, faction_name);
+		cm:set_character_immortality("character_cqi:"..governor, false);
+	else
+		cm:transfer_region_to_faction(region_name, faction_name);
+	end
+end
+
 -- From AoC Kingdoms.
 
 function Rename_Faction(faction_name, rename_key)
@@ -506,16 +519,6 @@ function HasValue(tab, val)
 	end
 
 	return false;
-end
-
-function GetTableSize(tab)
-	local size = 0;
-
-    for index, value in ipairs(tab) do
-        size = size + 1;
-	end
-	
-    return size;
 end
 
 function DeepCopy(tab)

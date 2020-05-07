@@ -115,7 +115,7 @@ function OnComponentLClickUp_Buffer_UI(context)
 				table.insert(FACTIONS_VASSALIZED, vassal_faction_name);
 			end
 		else
-			cm:transfer_region_to_faction(REGION_SELECTED, vassal_faction_name);
+			Transfer_Region_To_Faction(REGION_SELECTED, vassal_faction_name);
 		end
 
 		BufferPanelClosed(false);
@@ -173,14 +173,7 @@ end
 
 function OnTimeTrigger_Buffer(context)
 	if context.string == "region_transfer" then
-		if cm:model():world():region_manager():region_by_key(REGION_SELECTED):has_governor() then
-			local governor = cm:model():world():region_manager():region_by_key(REGION_SELECTED):governor():command_queue_index();
-			cm:set_character_immortality("character_cqi:"..governor, true);
-			cm:transfer_region_to_faction(REGION_SELECTED, REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]);
-			cm:set_character_immortality("character_cqi:"..governor, false);
-		else
-			cm:transfer_region_to_faction(REGION_SELECTED, REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]);
-		end
+		Transfer_Region_To_Faction(REGION_SELECTED, REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]);
 	end
 end
 

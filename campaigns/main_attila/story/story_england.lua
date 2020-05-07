@@ -122,14 +122,7 @@ function FactionTurnStart_England(context)
 				CreateCivilWarArmy("att_reg_britannia_superior_londinium", "english", ENGLAND_REBEL_KEY, "eng_barons_war_1", 156, 565);
 				CreateCivilWarArmy("att_reg_britannia_superior_londinium", "english", ENGLAND_REBEL_KEY, "eng_barons_war_2", 161, 569);
 
-				if cm:model():world():region_manager():region_by_key("att_reg_britannia_superior_londinium"):has_governor() then
-					local governor = cm:model():world():region_manager():region_by_key("att_reg_britannia_superior_londinium"):governor():command_queue_index();
-					cm:set_character_immortality("character_cqi:"..governor, true);
-					cm:transfer_region_to_faction("att_reg_britannia_superior_londinium", ENGLAND_REBEL_KEY);
-					cm:set_character_immortality("character_cqi:"..governor, false);
-				else
-					cm:transfer_region_to_faction("att_reg_britannia_superior_londinium", ENGLAND_REBEL_KEY);
-				end
+				Transfer_Region_To_Faction("att_reg_britannia_superior_londinium", ENGLAND_REBEL_KEY);
 
 				cm:show_message_event(
 					ENGLAND_KEY,

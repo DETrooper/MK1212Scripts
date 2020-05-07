@@ -125,7 +125,7 @@ function Activate_Decree(decree_key)
 	end
 
 	-- Some decrees increase population growth, so re-compute region growth.
-	Refresh_Region_Growths_Population();
+	Refresh_Region_Growths_Population(true);
 end
 
 function Deactivate_Decree(decree_key)
@@ -151,7 +151,7 @@ function Deactivate_Decree(decree_key)
 	end
 
 	-- Some decrees increase population growth, so re-compute region growth.
-	Refresh_Region_Growths_Population();
+	Refresh_Region_Growths_Population(true);
 end
 
 function Get_Decree_Property(decree_key, decree_property)

@@ -181,28 +181,28 @@ function Round_Number_Text(number)
 			
 				tenth = tonumber(tenth);
 				hundredth = tonumber(hundredth);
-			
-				if hundredth < 5 then
+
+				if hundredth < 4 then
 					if tenth == 0 then
-						number = string.sub(number, 0, i - 1);
-						return number;
-					end
-				elseif hundredth >= 5 then
-					if tenth ~= 9 then
-						tenth = tenth + 1;
+						return string.sub(number, 0, i - 1);
 					else
-						number = string.sub(number, 0, i - 1);
+						return string.sub(number, 0, i + 1);
+					end
+				elseif hundredth > 6 then
+					number = string.sub(number, 0, i - 1);
 					
+					if tenth == 9 then
 						local new_num = tonumber(number) + 1;
+
 						return tostring(new_num);
+					else
+						tenth = tenth + 1;
+
+						return string.sub(number, 0, i)..tostring(tenth);
 					end
 				else
-					number = string.sub(number, 0, i - 1);
-					return number;
+					return string.sub(number, 0, i + 1).."5";
 				end
-			
-				number = string.sub(number, 0, i)..tostring(tenth);
-				break;
 			end
 		end
 	end

@@ -377,7 +377,7 @@ function DilemmaChoiceMadeEvent_Crusades(context)
 				local region = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i]);
 		
 				if region:owning_faction():name() == faction_name then
-					cm:transfer_region_to_faction(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i], JERUSALEM_KEY);
+					Transfer_Region_To_Faction(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i], JERUSALEM_KEY);
 				end
 			end
 		elseif context:choice() == 1 then
@@ -410,7 +410,7 @@ function DilemmaChoiceMadeEvent_Crusades(context)
 		elseif context:choice() == 3 then
 			-- Choice made to give only the crusade target.
 			Make_Peace_Crusades(faction_name);
-			cm:transfer_region_to_faction(CURRENT_CRUSADE_TARGET, JERUSALEM_KEY);
+			Transfer_Region_To_Faction(CURRENT_CRUSADE_TARGET, JERUSALEM_KEY);
 
 			for i = 0, faction_list:num_items() - 1 do
 				local possible_ally = faction_list:item_at(i);
@@ -634,7 +634,7 @@ function End_Crusade(reason)
 			
 			if region:owning_faction():state_religion() == "att_rel_chr_catholic" and region:owning_faction():is_human() == false then
 				if region:owning_faction():name() ~= JERUSALEM_KEY then
-					cm:transfer_region_to_faction(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i], JERUSALEM_KEY);
+					Transfer_Region_To_Faction(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i], JERUSALEM_KEY);
 				end
 			end
 		end
@@ -857,7 +857,7 @@ end
 
 function TimeTrigger_Crusades(context)
 	if context.string == "Transfer_Jerusalem_Crusades" then
-		cm:transfer_region_to_faction(JERUSALEM_REGION_KEY, JERUSALEM_KEY);
+		Transfer_Region_To_Faction(JERUSALEM_REGION_KEY, JERUSALEM_KEY);
 	end
 end
 

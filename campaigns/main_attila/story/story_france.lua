@@ -240,7 +240,7 @@ function MissionSucceeded_France(context)
 				cm:trigger_dilemma(FRANCE_KEY, "mk_dilemma_story_france_pursue_england");
 				CreateCivilWarArmy("att_reg_britannia_superior_londinium", "english", ENGLAND_REBEL_KEY, "eng_barons_war_1", 156, 565);
 				CreateCivilWarArmy("att_reg_britannia_superior_londinium", "english", ENGLAND_REBEL_KEY, "eng_barons_war_2", 161, 569);
-				cm:transfer_region_to_faction("att_reg_britannia_superior_londinium", ENGLAND_REBEL_KEY);
+				Transfer_Region_To_Faction("att_reg_britannia_superior_londinium", ENGLAND_REBEL_KEY);
 				cm:force_declare_war(ENGLAND_REBEL_KEY, ENGLAND_KEY);		
 			end
 		end

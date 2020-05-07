@@ -105,7 +105,9 @@ function FactionTurnStart_Sicily(context)
 	elseif context:faction():name() == HRE_EMPEROR_KEY and hre:is_human() then
 		if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false and sicily:is_human() == false then
 			cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
+			cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "peace", false, false);
 			cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
+			cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "peace", false, false);
 			cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
 
 			cm:show_message_event(
@@ -169,7 +171,7 @@ function DilemmaChoiceMadeEvent_Sicily(context)
 				local region = cm:model():world():region_manager():region_by_key(REGIONS_SICILY[i]);
 
 				if region:owning_faction():name() == SICILY_KEY then
-					cm:transfer_region_to_faction(REGIONS_SICILY[i], SICILY_SEPARATIST_KEY);
+					Transfer_Region_To_Faction(REGIONS_SICILY[i], SICILY_SEPARATIST_KEY);
 				end
 			end
 

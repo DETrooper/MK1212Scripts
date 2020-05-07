@@ -149,7 +149,7 @@ function HRE_Region_Lost(region_name)
 		);
 	end
 
-	HRE_Change_Imperial_Authority(HRE_REGION_LOST_AUTHORITY_LOSS);
+	HRE_Change_Imperial_Authority(-HRE_REGION_LOST_AUTHORITY_LOSS);
 end
 
 function HRE_Remove_Imperial_Expansion_Effect_Bundles(faction_name)

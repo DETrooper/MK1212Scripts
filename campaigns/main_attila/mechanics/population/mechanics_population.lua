@@ -701,26 +701,51 @@ end
 function Check_Technologies_Population(faction_name)
 	local faction = cm:model():world():faction_by_key(faction_name);
 
+	if POPULATION_FACTION_TECH_BONUSES[faction_name] == nil then
+		POPULATION_FACTION_TECH_BONUSES[faction_name] = {};
+	end
+
+	if POPULATION_FACTION_TECH_RESEARCHED[faction_name] == nil then
+		POPULATION_FACTION_TECH_RESEARCHED[faction_name] = {};
+	end
+
 	for k, v in pairs(POPULATION_TECHNOLOGIES_TO_GROWTH) do
 		if not HasValue(POPULATION_FACTION_TECH_RESEARCHED[faction_name], k) then
 			if faction:has_technology(k) then
 				for i = 1, 5 do
 					POPULATION_FACTION_TECH_BONUSES[faction_name][i] = POPULATION_FACTION_TECH_BONUSES[faction_name][i] + v[i];
-					table.insert(POPULATION_FACTION_TECH_RESEARCHED[faction_name], k);
 				end
+
+				table.insert(POPULATION_FACTION_TECH_RESEARCHED[faction_name], k);
+
+				Refresh_Region_Growths_Population(false);
 			end
 		end
 	end
 end
 
-function Refresh_Region_Growths_Population()
-	local faction_list = cm:model():world():faction_list();
+function Refresh_Region_Growths_Population(global)
+	if global == true then
+		local faction_list = cm:model():world():faction_list();
 
-	for i = 0, faction_list:num_items() - 1 do
-		local current_faction = faction_list:item_at(i);
+		for i = 0, faction_list:num_items() - 1 do
+			local current_faction = faction_list:item_at(i);
 
-		if current_faction:region_list():num_items() > 0 then
-			local regions = current_faction:region_list();
+			if current_faction:region_list():num_items() > 0 then
+				local regions = current_faction:region_list();
+
+				for j = 0, regions:num_items() - 1 do
+					local region = regions:item_at(j);
+
+					POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+				end
+			end
+		end
+	else
+		local faction = cm:model():world():faction_by_key(FACTION_TURN);
+
+		if faction:region_list():num_items() > 0 then
+			local regions = faction:region_list();
 
 			for j = 0, regions:num_items() - 1 do
 				local region = regions:item_at(j);
@@ -743,7 +768,7 @@ cm:register_saving_game_callback(
 		SaveFactionPopulationNumbersTable(context, POPULATION_FACTION_TOTAL_POPULATIONS, "POPULATION_FACTION_TOTAL_POPULATIONS");
 		SaveKeyPairTable(context, POPULATION_REGIONS_GROWTH_FACTORS, "POPULATION_REGIONS_GROWTH_FACTORS");
 		SaveKeyPairTable(context, POPULATION_REGIONS_CHARACTERS_RAIDING, "POPULATION_REGIONS_CHARACTERS_RAIDING");
-		SaveKeyPairTable(context, POPULATION_FACTION_TECH_RESEARCHED, "POPULATION_FACTION_TECH_RESEARCHED");		
+		SaveKeyPairTables(context, POPULATION_FACTION_TECH_RESEARCHED, "POPULATION_FACTION_TECH_RESEARCHED");		
 		SaveKeyPairTables(context, POPULATION_UNITS_IN_RECRUITMENT, "POPULATION_UNITS_IN_RECRUITMENT");
 	end
 );
@@ -757,7 +782,7 @@ cm:register_loading_game_callback(
 		POPULATION_FACTION_TOTAL_POPULATIONS = LoadFactionPopulationNumbersTable(context, "POPULATION_FACTION_TOTAL_POPULATIONS");
 		POPULATION_REGIONS_GROWTH_FACTORS = LoadKeyPairTable(context, "POPULATION_REGIONS_GROWTH_FACTORS");
 		POPULATION_REGIONS_CHARACTERS_RAIDING = LoadKeyPairTable(context, "POPULATION_REGIONS_CHARACTERS_RAIDING");
-		POPULATION_FACTION_TECH_RESEARCHED = LoadKeyPairTable(context, "POPULATION_FACTION_TECH_RESEARCHED");
+		POPULATION_FACTION_TECH_RESEARCHED = LoadKeyPairTables(context, "POPULATION_FACTION_TECH_RESEARCHED");
 		POPULATION_UNITS_IN_RECRUITMENT = LoadKeyPairTables(context, "POPULATION_UNITS_IN_RECRUITMENT");
 	end
 );

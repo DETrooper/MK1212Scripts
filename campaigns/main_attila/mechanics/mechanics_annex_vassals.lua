@@ -346,8 +346,10 @@ function OnComponentLClickUp_Annex_UI(context)
 
 				turns = VASSAL_SELECTED_ANNEXATION_TIME;
 
+				--UIComponent(context.component):SetStateText("");
 				UIComponent(context.component):SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
 			else
+				--UIComponent(context.component):SetStateText(tostring(VASSAL_SELECTED_ANNEXATION_TIME));
 				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..VASSAL_SELECTED_ANNEXATION_TIME.." turns left.[[/rgba]]");
 			end
 		else
@@ -411,6 +413,8 @@ function TimeTrigger_Annex_UI(context)
 	elseif context.string == "annex_diplo_hud_check" then
 		local root = cm:ui_root();
 		local btnAnnex = UIComponent(root:Find("button_annex_vassal"));
+
+		--btnAnnex:SetStateText("");
 	
 		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
 			if HasValue(FACTIONS_VASSALIZED, DIPLOMACY_SELECTED_FACTION) then
@@ -420,12 +424,14 @@ function TimeTrigger_Annex_UI(context)
 				if tonumber(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]) == 0 then
 					btnAnnex:SetState("active"); 
 				else
+					--btnAnnex:SetStateText(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]);
 					btnAnnex:SetState("inactive");
 				end
 			else
 				btnAnnex:SetState("inactive");
 			end
 		elseif VASSAL_SELECTED_CURRENTLY_ANNEXING == true and DIPLOMACY_SELECTED_FACTION == VASSAL_SELECTED then
+			--btnAnnex:SetStateText(tostring(VASSAL_SELECTED_ANNEXATION_TIME));
 			btnAnnex:SetState("active");
 		else
 			btnAnnex:SetState("inactive");
