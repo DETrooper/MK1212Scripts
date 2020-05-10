@@ -399,6 +399,18 @@ DFN_NAMES_LOCALISATION = {
 	["mk_fact_zengids_lvl3"] = "Zengid Empire"
 };
 
+FACTIONS_VASSALIZED_START = {
+	["mk_fact_almohads"] = {"mk_fact_hafsids"},
+	["mk_fact_ayyubids"] = {"mk_fact_mecca"},
+	["mk_fact_bulgaria"] = {"mk_fact_wallachia"},
+	["mk_fact_france"] = {"mk_fact_burgundy"},
+	["mk_fact_hungary"] = {"mk_fact_croatia"},
+	["mk_fact_kiev"] = {"mk_fact_chernigov"},
+	["mk_fact_khwarazm"] = {"mk_fact_hazaraspids", "mk_fact_salghurids"},
+	["mk_fact_georgia"] = {"mk_fact_alania", "mk_fact_shirvan"},
+	["mk_fact_latinempire"] = {"mk_fact_achaea", "mk_fact_thessalonica"}
+};
+
 ANNEX_VASSALS_SIZES = {
 	"25",
 	"20",

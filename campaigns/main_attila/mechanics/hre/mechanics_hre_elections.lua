@@ -238,27 +238,31 @@ function Add_New_Electors_HRE_Elections()
 end
 
 function Check_Faction_Votes_HRE_Elections(faction_name)
-	local faction_state = HRE_Get_Faction_State(faction_name);
+	if FactionIsAlive(faction_name) then
+		local faction_state = HRE_Get_Faction_State(faction_name);
 
-	if faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor" then
-		Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
-	elseif faction_state == "neutral" then
-		-- 50/50 chance of voting for themselves or for the emperor.
-		local chance = cm:random_number(2);
-
-		if chance == 1 then
+		if faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor" then
 			Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
+		elseif faction_state == "neutral" then
+			-- 50/50 chance of voting for themselves or for the emperor.
+			local chance = cm:random_number(2);
+
+			if chance == 1 then
+				Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
+			else
+				Cast_Vote_For_Faction_HRE(faction_name, faction_name);
+			end
+		elseif faction_state == "ambitious" then
+			Cast_Vote_For_Faction_HRE(faction_name, faction_name);
+		elseif faction_state == "malcontent" or faction_state == "discontent" then
+			Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Disloyal_Faction_HRE_Elections());
 		else
+			-- Faction doesn't have a state?
+			HRE_State_Check(faction_name);
 			Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 		end
-	elseif faction_state == "ambitious" then
-		Cast_Vote_For_Faction_HRE(faction_name, faction_name);
-	elseif faction_state == "malcontent" or faction_state == "discontent" then
-		Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Disloyal_Faction_HRE_Elections());
-	else
-		-- Faction doesn't have a state?
-		HRE_State_Check(faction_name);
-		Cast_Vote_For_Faction_HRE(faction_name, faction_name);
+	elseif HRE_FACTIONS_VOTES[faction_name] ~= nil then
+		HRE_FACTIONS_VOTES[faction_name] = nil;
 	end
 end
 

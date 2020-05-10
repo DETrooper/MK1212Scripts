@@ -27,6 +27,7 @@ HRE_FACTION_STATE_CHANGE_COOLDOWN = 10; -- How many turns before a faction's sta
 HRE_FRANKFURT_KEY = "att_reg_germania_uburzis";
 HRE_FRANKFURT_STATUS = "capital";
 
+HRE_LIBERATED_FACTION = nil;
 HRE_FACTIONS = {};
 HRE_FACTIONS_STATES = {};
 HRE_FACTIONS_STATE_CHANGE_COOLDOWNS = {};
@@ -37,6 +38,13 @@ function Add_HRE_Faction_Listeners()
 		"FactionTurnStart",
 		true,
 		function(context) FactionTurnStart_HRE_Factions(context) end,
+		true
+	);
+	cm:add_listener(
+		"BattleCompleted_HRE_Factions",
+		"BattleCompleted",
+		true,
+		function(context) BattleCompleted_HRE_Factions(context) end,
 		true
 	);
 	cm:add_listener(
@@ -54,6 +62,13 @@ function Add_HRE_Faction_Listeners()
 		true
 	);
 	cm:add_listener(
+		"FactionBecomesLiberationVassal_HRE_Factions",
+		"FactionBecomesLiberationVassal",
+		true,
+		function(context) FactionBecomesLiberationVassal_HRE_Factions(context) end,
+		true
+	);
+	cm:add_listener(
 		"GarrisonOccupiedEvent_HRE_Frankfurt",
 		"GarrisonOccupiedEvent",
 		true,
@@ -65,6 +80,13 @@ function Add_HRE_Faction_Listeners()
 		"MissionIssued",
 		true,
 		function(context) MissionIssued_HRE_Factions(context) end,
+		true
+	);
+	cm:add_listener(
+		"TimeTrigger_HRE_Factions",
+		"TimeTrigger",
+		true,
+		function(context) TimeTrigger_HRE_Factions(context) end,
 		true
 	);
 
@@ -161,29 +183,17 @@ function FactionTurnStart_HRE_Factions(context)
 			end
 		end
 
-		local hre_factions_copy = DeepCopy(HRE_FACTIONS);
-
-		for i = 1, #hre_factions_copy do
-			local faction_name = hre_factions_copy[i];
-		
-			if not FactionIsAlive(faction_name) then
-				HRE_Remove_From_Empire(faction_name);
-			end
-		end
-
-		for i = 1, #HRE_FACTIONS_START do
-			local faction_name = HRE_FACTIONS_START[i];
-		
-			if FactionIsAlive(faction_name) and HasValue(HRE_FACTIONS, faction_name) == false then
-				HRE_Add_To_Empire(faction_name);
-			end	
-		end
+		HRE_Check_Factions_In_Empire();
 	end
 
 	if context:faction():is_human() then
 		HRE_Button_Check(); -- Check every turn if the HRE panel should be hidden or not.
 		HRE_Emperor_Check(); -- Check to see if the emperor's faction is dead or destroyed.
 	end
+end
+
+function BattleCompleted_HRE_Factions(context)
+	HRE_Check_Factions_In_Empire();
 end
 
 function CharacterBecomesFactionLeader_HRE_Factions(context)
@@ -240,6 +250,16 @@ function DilemmaChoiceMadeEvent_HRE_Pretender(context)
 	end
 end
 
+function FactionBecomesLiberationVassal_HRE_Factions(context)
+	if context:liberating_character():faction():name() == HRE_EMPEROR_KEY then
+		if HasValue(HRE_FACTIONS_START, context:faction():name()) then
+			HRE_LIBERATED_FACTION = context:faction():name();
+
+			cm:add_time_trigger("hre_liberation_check", 0.5);
+		end
+	end
+end
+
 function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 	local frankfurt_owner_name = cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name();
 	local region_name = context:garrison_residence():region():name();
@@ -280,6 +300,7 @@ function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 		end
 	end
 
+	HRE_Check_Factions_In_Empire();
 	HRE_Check_Regions_In_Empire();
 end
 
@@ -298,6 +319,23 @@ function MissionIssued_HRE_Factions(context)
 		if mission_name == "mk_mission_story_hre_survive_pretender" then
 			HRE_EMPEROR_MISSION_WIN_TURN = cm:model():turn_number() + 9;
 		end
+	end
+end
+
+function TimeTrigger_HRE_Factions(context)
+	if context.string == "hre_liberation_check" then
+		local faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+		local vassalized_faction = cm:model():world():faction_by_key(HRE_LIBERATED_FACTION);
+		local is_ally = faction:allied_with(vassalized_faction);
+		
+		if is_ally == true then
+			-- They were liberated instead of vassalized, so set their state to loyal.
+			HRE_Set_Faction_State(HRE_LIBERATED_FACTION, "loyal", true);
+		else
+			HRE_Set_Faction_State(HRE_LIBERATED_FACTION, "puppet", true)
+		end
+
+		HRE_LIBERATED_FACTION = nil;
 	end
 end
 
@@ -366,6 +404,26 @@ function HRE_Calculate_Imperial_Authority()
 	end
 
 	return authority;
+end
+
+function HRE_Check_Factions_In_Empire()
+	local hre_factions_copy = DeepCopy(HRE_FACTIONS);
+
+	for i = 1, #hre_factions_copy do
+		local faction_name = hre_factions_copy[i];
+	
+		if not FactionIsAlive(faction_name) then
+			HRE_Remove_From_Empire(faction_name);
+		end
+	end
+
+	for i = 1, #HRE_FACTIONS_START do
+		local faction_name = HRE_FACTIONS_START[i];
+	
+		if FactionIsAlive(faction_name) and HasValue(HRE_FACTIONS, faction_name) == false then
+			HRE_Add_To_Empire(faction_name);
+		end	
+	end
 end
 
 function HRE_Check_Regions_In_Empire()

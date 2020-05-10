@@ -74,7 +74,7 @@ function OnPanelOpenedCampaign_Global_UI(context)
 	elseif context.string == "diplomacy_dropdown" then
 		DIPLOMACY_PANEL_OPEN = true;
 
-		Diplomacy_Hud_Check(UIComponent(context.component));
+		cm:add_time_trigger("diplo_hud_check", 0.0);
 	end
 end
 
@@ -124,7 +124,14 @@ function Diplomacy_Hud_Check(diplomacy_dropdown_uic)
 
 	if faction_name == nil then
 		-- Something went wrong or there's only one faction left (the player's).
-		DIPLOMACY_SELECTED_FACTION = cm:get_local_faction();
+		if list_box_uic:ChildCount() > 0 then
+			local child = UIComponent(list_box_uic:Find(0));
+			faction_name = string.gsub(child:Id(), "faction_row_entry_", "");
+
+			DIPLOMACY_SELECTED_FACTION = faction_name;
+		else
+			DIPLOMACY_SELECTED_FACTION = cm:get_local_faction();
+		end
 	end
 end
 

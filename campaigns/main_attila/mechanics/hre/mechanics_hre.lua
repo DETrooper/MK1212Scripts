@@ -17,13 +17,15 @@ require("mechanics/hre/mechanics_hre_regions");
 require("mechanics/hre/mechanics_hre_ui");
 
 function Add_HRE_Listeners()
-	Add_HRE_Faction_Listeners();
-	Add_HRE_Decrees_Listeners();
-	Add_HRE_Election_Listeners();
-	Add_HRE_Event_Listeners();
-	Add_HRE_Reforms_Listeners();
-	Add_HRE_Region_Listeners();
-	Add_HRE_UI_Listeners();
+	if CURRENT_HRE_REFORM < 9 then
+		Add_HRE_Faction_Listeners();
+		Add_HRE_Decrees_Listeners();
+		Add_HRE_Election_Listeners();
+		Add_HRE_Event_Listeners();
+		Add_HRE_Reforms_Listeners();
+		Add_HRE_Region_Listeners();
+		Add_HRE_UI_Listeners();
+	end
 
 	HRE_Button_Check();
 end

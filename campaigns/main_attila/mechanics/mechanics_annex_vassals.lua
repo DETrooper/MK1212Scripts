@@ -94,30 +94,14 @@ function AnnexVassalsSetup()
 	local faction_list = cm:model():world():faction_list();
 
 	for i = 0, faction_list:num_items() - 1 do
-		local faction_name = faction_list:item_at(i):name();
+		local faction = faction_list:item_at(i);
+		local faction_name = faction:name();
 
-		if faction_name == cm:get_local_faction() then
-			if faction_name == "mk_fact_almohads" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_hafsids");
-			elseif faction_name == "mk_fact_ayyubids" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_mecca");
-			elseif faction_name == "mk_fact_bulgaria" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_wallachia");
-			elseif faction_name == "mk_fact_france" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_burgundy");
-			elseif faction_name == "mk_fact_hungary" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_croatia");
-			elseif faction_name == "mk_fact_kiev" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_chernigov");
-			elseif faction_name == "mk_fact_khwarazm" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_hazaraspids");
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_salghurids");
-			elseif faction_name == "mk_fact_georgia" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_alania");
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_shirvan");
-			elseif faction_name == "mk_fact_latinempire" then
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_achaea");
-				table.insert(FACTIONS_VASSALIZED, "mk_fact_thessalonica");
+		if faction:is_human() then
+			if FACTIONS_VASSALIZED_START[faction_name] ~= nil then
+				for j = 1, #FACTIONS_VASSALIZED_START[faction_name] do
+					table.insert(FACTIONS_VASSALIZED, FACTIONS_VASSALIZED_START[faction_name][j]);
+				end
 			end
 		end
 	end
@@ -346,13 +330,14 @@ function OnComponentLClickUp_Annex_UI(context)
 
 				turns = VASSAL_SELECTED_ANNEXATION_TIME;
 
-				--UIComponent(context.component):SetStateText("");
+				UIComponent(context.component):SetStateText("");
 				UIComponent(context.component):SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
 			else
-				--UIComponent(context.component):SetStateText(tostring(VASSAL_SELECTED_ANNEXATION_TIME));
+				UIComponent(context.component):SetStateText("");
 				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..VASSAL_SELECTED_ANNEXATION_TIME.." turns left.[[/rgba]]");
 			end
 		else
+			UIComponent(context.component):SetStateText("");
 			UIComponent(context.component):SetTooltipText("The "..vassal_string.." is not your vassal!");
 		end
 	elseif DIPLOMACY_PANEL_OPEN == true then
@@ -372,17 +357,19 @@ function TimeTrigger_Annex_UI(context)
 	if context.string == "vassal_check" then
 		local faction_name = cm:get_local_faction();
 		local faction = cm:model():world():faction_by_key(faction_name);
-		local vassalized_faction = cm:model():world():faction_by_key(FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED]);
+		local vassalized_faction_name = FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED];
+		local vassalized_faction = cm:model():world():faction_by_key(vassalized_faction_name);
 		local is_ally = faction:allied_with(vassalized_faction);
 		
 		--dev.log("VASSAL CHECK: "..FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED].." - Is Ally: "..tostring(is_ally));
 		
 		if is_ally == true then
 			-- They were liberated instead of vassalized, so remove them.
+			FACTIONS_VASSALIZED_DELAYS[vassalized_faction_name] = nil;
 			table.remove(FACTIONS_VASSALIZED, #FACTIONS_VASSALIZED);
-			FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED]] = nil;
 		else
-			FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED]] = tostring(ANNEX_TURN_REQUIREMENT);
+			FACTIONS_VASSALIZED_DELAYS[vassalized_faction_name] = tostring(ANNEX_TURN_REQUIREMENT);
+			Vassal_Make_Peace_With_Other_Vassals(vassalized_faction);
 		end
 		
 		--dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
@@ -397,6 +384,7 @@ function TimeTrigger_Annex_UI(context)
 
 				if not HasValue(FACTIONS_VASSALIZED, recipient) then
 					table.insert(FACTIONS_VASSALIZED, recipient);
+					Vassal_Make_Peace_With_Other_Vassals(cm:model():world():faction_by_key(recipient));
 				else
 					-- Something has gone horribly wrong!!!!!!
 				end
@@ -412,9 +400,10 @@ function TimeTrigger_Annex_UI(context)
 		end
 	elseif context.string == "annex_diplo_hud_check" then
 		local root = cm:ui_root();
-		local btnAnnex = UIComponent(root:Find("button_annex_vassal"));
+		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
+		local btnAnnex = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
 
-		--btnAnnex:SetStateText("");
+		btnAnnex:SetStateText("");
 	
 		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
 			if HasValue(FACTIONS_VASSALIZED, DIPLOMACY_SELECTED_FACTION) then
@@ -424,17 +413,31 @@ function TimeTrigger_Annex_UI(context)
 				if tonumber(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]) == 0 then
 					btnAnnex:SetState("active"); 
 				else
-					--btnAnnex:SetStateText(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]);
+					btnAnnex:SetStateText(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]);
 					btnAnnex:SetState("inactive");
 				end
 			else
 				btnAnnex:SetState("inactive");
 			end
 		elseif VASSAL_SELECTED_CURRENTLY_ANNEXING == true and DIPLOMACY_SELECTED_FACTION == VASSAL_SELECTED then
-			--btnAnnex:SetStateText(tostring(VASSAL_SELECTED_ANNEXATION_TIME));
 			btnAnnex:SetState("active");
 		else
 			btnAnnex:SetState("inactive");
+		end
+	end
+end
+
+function Vassal_Make_Peace_With_Other_Vassals(faction)
+	local faction_list = cm:model():world():faction_list();
+
+	for i = 0, faction_list:num_items() - 1 do
+		local current_faction = faction_list:item_at(i);
+		local current_faction_name = current_faction:name();
+
+		if current_faction:at_war_with(faction) then
+			if HasValue(FACTIONS_VASSALIZED, current_faction) then
+				cm:force_make_peace(current_faction_name, faction:name());
+			end
 		end
 	end
 end

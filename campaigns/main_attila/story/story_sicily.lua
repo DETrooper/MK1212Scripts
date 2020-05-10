@@ -83,11 +83,19 @@ function FactionTurnStart_Sicily(context)
 				cm:trigger_dilemma(SICILY_KEY, "mk_dilemma_story_sicily_divest_lands");
 				SICILY_DILEMMA_ISSUED = true;				
 			end
-		elseif sicily:is_human() == false and hre:is_human() == false then
-			if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false then
-				cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
-				cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
-				cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
+		else
+			if hre:is_human() == false then
+				if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false then
+					cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
+					cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
+					cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
+				end
+			end
+
+			if SICILY_BECAME_EMPEROR == true and SICILY_DILEMMA_ISSUED == false then
+				Force_Excommunication(SICILY_KEY);
+				SICILY_DILEMMA_CHOICE = 2;
+				SICILY_DILEMMA_ISSUED = true;
 			end
 		end
 
@@ -97,12 +105,8 @@ function FactionTurnStart_Sicily(context)
 			end
 
 			SICILY_BECAME_EMPEROR = true;
-		elseif SICILY_BECAME_EMPEROR == true and SICILY_DILEMMA_ISSUED == false and sicily:is_human() == false then
-			Force_Excommunication(SICILY_KEY);
-			SICILY_DILEMMA_CHOICE = 2;
-			SICILY_DILEMMA_ISSUED = true;
 		end
-	elseif context:faction():name() == HRE_EMPEROR_KEY and hre:is_human() then
+	elseif context:faction():name() == HRE_EMPEROR_KEY and context:faction():is_human() then
 		if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false and sicily:is_human() == false then
 			cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
 			cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "peace", false, false);
