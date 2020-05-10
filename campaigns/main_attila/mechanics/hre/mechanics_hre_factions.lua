@@ -498,6 +498,8 @@ function HRE_Replace_Emperor(faction_name)
 		local turn_number = cm:model():turn_number();
 
 		cm:grant_faction_handover(old_emperor, SICILY_SEPARATIST_KEY, turn_number-1, turn_number-1, context);
+
+		SICILY_DILEMMA_CHOICE = -1;
 	end
 
 	if CURRENT_HRE_REFORM > 0 then

@@ -205,7 +205,7 @@ function Round_Number_Text(number)
 					else
 						tenth = tenth + 1;
 
-						return string.sub(number, 0, i)..tostring(tenth);
+						return number.."."..tostring(tenth);
 					end
 				else
 					return string.sub(number, 0, i + 1).."5";

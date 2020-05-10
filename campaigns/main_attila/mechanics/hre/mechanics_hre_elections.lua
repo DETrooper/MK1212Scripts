@@ -89,6 +89,7 @@ function Process_Election_Result_HRE_Elections()
 			);
 		else
 			-- Display unique message event for retaining emperorship.
+			HRE_EMPEROR_CQI = cm:model():world():faction_by_key(winner):faction_leader():cqi();
 
 			cm:show_message_event(
 				cm:get_local_faction(),
@@ -102,6 +103,7 @@ function Process_Election_Result_HRE_Elections()
 	else
 		-- There was a tie or something, so make the emperor keep his post.
 		local faction_string = "factions_screen_name_"..HRE_EMPEROR_KEY;
+		HRE_EMPEROR_CQI = cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():cqi();
 
 		cm:show_message_event(
 			cm:get_local_faction(),
