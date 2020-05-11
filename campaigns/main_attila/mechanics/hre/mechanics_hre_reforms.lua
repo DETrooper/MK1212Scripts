@@ -87,7 +87,7 @@ end
 function FactionTurnStart_HRE_Reforms(context)
 	if context:faction():is_human() == false then
 		if context:faction():name() == HRE_EMPEROR_KEY then
-			if HRE_IMPERIAL_AUTHORITY == HRE_REFORM_COST and #HRE_REFORMS_VOTES >= (#HRE_FACTIONS - 1)  then
+			if HRE_IMPERIAL_AUTHORITY == HRE_REFORM_COST and #HRE_REFORMS_VOTES >= math.ceil((#HRE_FACTIONS - 1) / 2)  then
 				Pass_HRE_Reform(CURRENT_HRE_REFORM + 1);
 			end
 		end

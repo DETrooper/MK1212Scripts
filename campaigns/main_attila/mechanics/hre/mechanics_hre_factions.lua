@@ -148,7 +148,12 @@ function FactionTurnStart_HRE_Factions(context)
 
 		if HRE_EMPEROR_MISSION_ACTIVE == false then
 			if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
-				cm:trigger_mission(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender");
+				if context:faction():is_human() then
+					cm:trigger_mission(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender");
+				else
+					HRE_EMPEROR_MISSION_WIN_TURN = cm:model():turn_number() + 9;
+				end
+
 				HRE_EMPEROR_MISSION_ACTIVE = true;
 			end
 		else
