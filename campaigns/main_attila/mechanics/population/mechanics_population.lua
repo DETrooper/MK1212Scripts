@@ -514,8 +514,10 @@ function Compute_Region_Growth(region)
 
 	if POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name] ~= nil then
 		for i = 1, 5 do
-			growth[i] = growth[i] + POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i];
-			POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."faction_trait_"..tostring(i).."#"..tostring(POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i] * 100).."#@";
+			if POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i] ~= 0 then
+				growth[i] = growth[i] + POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i];
+				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."faction_trait_"..tostring(i).."#"..tostring(POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i] * 100).."#@";
+			end
 		end
 	end
 

@@ -8,7 +8,6 @@
 --------------------------------------------------------------------------------------------
 
 SICILY_KEY = "mk_fact_sicily";
-SICILY_SEPARATIST_KEY = "mk_fact_separatists_sicily";
 
 SICILY_BECAME_EMPEROR = false;
 SICILY_DILEMMA_CHOICE = 0;
@@ -79,9 +78,6 @@ function FactionTurnStart_Sicily(context)
 				cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
 				cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
 				cm:trigger_dilemma(SICILY_KEY, "mk_dilemma_story_sicily_war_with_hre");
-			elseif SICILY_BECAME_EMPEROR == true and SICILY_DILEMMA_ISSUED == false then
-				cm:trigger_dilemma(SICILY_KEY, "mk_dilemma_story_sicily_divest_lands");
-				SICILY_DILEMMA_ISSUED = true;				
 			end
 		else
 			if hre:is_human() == false then
@@ -93,9 +89,11 @@ function FactionTurnStart_Sicily(context)
 			end
 
 			if SICILY_BECAME_EMPEROR == true and SICILY_DILEMMA_ISSUED == false then
-				Force_Excommunication(SICILY_KEY);
-				SICILY_DILEMMA_CHOICE = 2;
-				SICILY_DILEMMA_ISSUED = true;
+				if CRUSADE_ACTIVE == true then
+					Force_Excommunication(SICILY_KEY);
+					SICILY_DILEMMA_CHOICE = 2;
+					SICILY_DILEMMA_ISSUED = true;
+				end
 			end
 		end
 
@@ -105,6 +103,16 @@ function FactionTurnStart_Sicily(context)
 			end
 
 			SICILY_BECAME_EMPEROR = true;
+		end
+
+		if SICILY_DILEMMA_ISSUED == false and SICILY_BECAME_EMPEROR == true then
+			if CRUSADE_ACTIVE == true then
+				if not HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, SICILY_KEY) then
+					cm:trigger_dilemma(SICILY_KEY, "mk_dilemma_story_sicily_join_crusade");
+				end
+
+				SICILY_DILEMMA_ISSUED = true;
+			end
 		end
 	elseif context:faction():name() == HRE_EMPEROR_KEY and context:faction():is_human() then
 		if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false and sicily:is_human() == false then
@@ -127,9 +135,9 @@ function FactionTurnStart_Sicily(context)
 end
 
 function DilemmaChoiceMadeEvent_Sicily(context)
-	local hre = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
-
 	if context:dilemma() == "mk_dilemma_story_sicily_war_with_hre" then
+		local hre = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+
 		if context:choice() == 0 then
 			-- Choice made to declare war on HRE!
 			cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
@@ -166,25 +174,43 @@ function DilemmaChoiceMadeEvent_Sicily(context)
 
 			HRE_Vanquish_Pretender();
 		end
-
-		SICILY_DILEMMA_CHOICE = context:choice() + 1;
-	elseif context:dilemma() == "mk_dilemma_story_sicily_divest_lands" then
+	elseif context:dilemma() == "mk_dilemma_story_sicily_join_crusade" then
 		if context:choice() == 0 then
-			-- Choice made to divest your lands!
-			for i = 1, #REGIONS_SICILY do
-				local region = cm:model():world():region_manager():region_by_key(REGIONS_SICILY[i]);
-
-				if region:owning_faction():name() == SICILY_KEY then
-					Transfer_Region_To_Faction(REGIONS_SICILY[i], SICILY_SEPARATIST_KEY);
+			-- Choice made to join the crusade!
+			if not HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, SICILY_KEY) then
+				table.insert(CURRENT_CRUSADE_FACTIONS_JOINED, SICILY_KEY);
+	
+				if context:faction():at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) == false then
+					cm:force_declare_war(SICILY_KEY, CURRENT_CRUSADE_TARGET_OWNER);
 				end
+	
+				cm:force_diplomacy(SICILY_KEY, CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
+				cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, SICILY_KEY, "peace", false, false);
+	
+				cm:trigger_mission(SICILY_KEY, CURRENT_CRUSADE_MISSION_KEY);
+	
+				cm:show_message_event(
+					SICILY_KEY, 
+					"message_event_text_text_mk_event_crusade_"..tostring(CURRENT_CRUSADE).."_title", 
+					"message_event_text_text_mk_event_crusade_joined_primary", 
+					"message_event_text_text_mk_event_crusade_joined_secondary", 
+					true,
+					706
+				);
+	
+				if FACTION_EXCOMMUNICATED[SICILY_KEY] == true then
+					Remove_Excommunication_Manual(SICILY_KEY);
+				end
+	
+				Add_Pope_Favour(SICILY_KEY, 2, "joined_crusade");
 			end
-
-			Rename_Faction(SICILY_SEPARATIST_KEY, "factions_screen_name_mk_fact_sicily");
 		elseif context:choice() == 1 then
-			-- Choice made not to divest your lands!
+			-- Choice made not to join the crusade!
 			Subtract_Pope_Favour(SICILY_KEY, 8, "refused_demands");
-			Update_Pope_Favour(cm:model():world():faction_by_key(SICILY_KEY));
 		end
+
+		Update_Pope_Favour(cm:model():world():faction_by_key(SICILY_KEY));
+		SICILY_DILEMMA_CHOICE = context:choice() + 1;
 	end
 end
 
