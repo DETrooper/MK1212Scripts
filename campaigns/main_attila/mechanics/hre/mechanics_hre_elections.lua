@@ -91,15 +91,12 @@ function Process_Election_Result_HRE_Elections()
 			-- Display unique message event for retaining emperorship.
 			local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 
-			HRE_EMPEROR_CQI = cm:model():world():faction_by_key(winner):faction_leader():cqi();
-
 			if HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] ~= nil then
 				HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] + 1;
 			else
 				HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = 1;
 			end
 	
-
 			cm:show_message_event(
 				cm:get_local_faction(),
 				"message_event_text_text_mk_event_hre_imperial_title_retained_title",
@@ -113,8 +110,6 @@ function Process_Election_Result_HRE_Elections()
 		-- There was a tie or something, so make the emperor keep his post.
 		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 		local faction_string = "factions_screen_name_"..HRE_EMPEROR_KEY;
-
-		HRE_EMPEROR_CQI = cm:model():world():faction_by_key(HRE_EMPEROR_KEY):faction_leader():cqi();
 
 		if HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] ~= nil then
 			HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] + 1;

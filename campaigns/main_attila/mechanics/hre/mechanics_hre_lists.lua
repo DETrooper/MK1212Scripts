@@ -237,10 +237,10 @@ HRE_EMPERORS_NAMES_NUMBERS = {
 	["names_name_2147364750"] = 6,
 	["names_name_2147333418"] = 2,
 	["names_name_2147362735"] = 2,
-	["names_name_2147384398"] = 1,
-	["names_name_2147380847"] = 1,
-	["names_name_2147372482"] = 1,
-	["names_name_2147370877"] = 1
+	["names_name_2147384398"] = 2,
+	["names_name_2147380847"] = 2,
+	["names_name_2147372482"] = 2,
+	["names_name_2147370877"] = 2
 };
 
 HRE_EMPERORS_ROMAN_NUMERALS = {

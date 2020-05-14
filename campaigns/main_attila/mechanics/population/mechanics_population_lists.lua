@@ -844,6 +844,7 @@ POPULATION_TECHNOLOGIES_TO_GROWTH = {
 	["mk_east_civil_market_price_control"] = {0, 0.003, 0.003, 0, 0},
 	["mk_east_civil_turko_islamic_imperial_admin"] = {0.0025, 0, 0.0025, 0, 0},
 	["mk_east_military_nomad_land_grants"] = {0, 0, 0, 0.0025, 0},
+	["mk_east_military_standardized_money_wages"] = {0, 0, 0, 0.0025, 0},
 	["mk_noma_civil_central_bureaucracy"] = {0, 0.002, 0, 0, 0},
 	["mk_noma_civil_chingissid_legacy"] = {0, 0, 0, 0.005, 0},
 	["mk_noma_civil_clan_based_structure"] = {0, 0, 0, 0.005, 0},

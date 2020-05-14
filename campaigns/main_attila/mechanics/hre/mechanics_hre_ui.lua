@@ -420,6 +420,9 @@ function OpenHREPanel()
 
 		if HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()] ~= nil then
 			pretender_number = HRE_EMPERORS_ROMAN_NUMERALS[HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()]];
+		else
+			HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()] = 1;
+			pretender_number = HRE_EMPERORS_ROMAN_NUMERALS[1];
 		end
 
 		tx_objectives_uic1:SetStateText("Pretender: "..NAMES_TO_LOCALISATION[hre_pretender_faction:faction_leader():get_forename()].." "..pretender_number);
@@ -436,6 +439,9 @@ function OpenHREPanel()
 
 	if HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()] ~= nil then
 		emperor_number = HRE_EMPERORS_ROMAN_NUMERALS[HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()]];
+	else
+		HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()] = 1;
+		emperor_number = HRE_EMPERORS_ROMAN_NUMERALS[1];
 	end
 
 	tx_objectives_uic2:SetStateText("Emperor: "..NAMES_TO_LOCALISATION[hre_emperor_faction:faction_leader():get_forename()].." "..emperor_number);
