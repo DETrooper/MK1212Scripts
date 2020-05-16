@@ -184,6 +184,22 @@ function FindClosestPort(x, y, faction)
 	return region;
 end
 
+function SpawnValidSettlement(region_name)
+	local region = cm:model():world():region_manager():region_by_key(region_name);
+	local owner = region:owning_faction();
+	local military_force_list = owner:military_force_list();
+
+	for i = 0, military_force_list:num_items() - 1 do
+		local current_military_force = military_force_list:item_at(i);
+		
+		if current_military_force:upkeep() > 0 and current_military_force:has_garrison_residence() and current_military_force:garrison_residence():region():name() == region_name then
+			return false;
+		end
+	end
+
+	return true;
+end
+
 function GetTurnFromYear(year)
 	-- 2TPY, so turn 2 of the year should have .5 added to it.
 	local turn_number = (year - 1212) * 2 + 1;

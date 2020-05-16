@@ -213,7 +213,6 @@ function CharacterBecomesFactionLeader_HRE_Factions(context)
 			end
 
 			HRE_Pretender_End_Mission(true, "victory");
-			HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
 		end
 	end
 end
@@ -289,7 +288,6 @@ function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 				end
 
 				HRE_Pretender_End_Mission(true, "victory");
-				HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
 			else
 				HRE_FRANKFURT_STATUS = "outside_hre";
 			end
@@ -466,7 +464,6 @@ function HRE_Emperor_Check()
 				end
 
 				HRE_Pretender_End_Mission(true, "victory");
-				HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
 			end
 		elseif CURRENT_HRE_REFORM < 8 then
 			if FactionIsAlive(HRE_EMPEROR_KEY) == false then
@@ -496,15 +493,6 @@ function HRE_Replace_Emperor(faction_name)
 
 	if not HasValue(HRE_FACTIONS, faction_name) then
 		table.insert(HRE_FACTIONS, faction_name);
-	end
-
-	-- Sicily has the option to divest its lands, so it should re-inherit them after losing the emperorship.
-	if old_emperor == "mk_fact_sicily" and SICILY_DILEMMA_CHOICE == 1 then
-		local turn_number = cm:model():turn_number();
-
-		cm:grant_faction_handover(old_emperor, SICILY_SEPARATIST_KEY, turn_number-1, turn_number-1, context);
-
-		SICILY_DILEMMA_CHOICE = -1;
 	end
 
 	if CURRENT_HRE_REFORM > 0 then
@@ -686,14 +674,9 @@ function HRE_Pretender_End_Mission(success, reason)
 	HRE_EMPEROR_MISSION_ACTIVE = false;
 	HRE_EMPEROR_MISSION_WIN_TURN = 0;
 
-	for i = 1, #HRE_FACTIONS do
-		if HRE_FACTIONS[i] ~= HRE_EMPEROR_KEY then
-			-- Re-enable war in case it's still disabled.
-			cm:force_diplomacy(HRE_FACTIONS[i], HRE_EMPEROR_KEY, "war", true, true);
-		end
-	end
-
-	if success == false then
+	if success == true then
+		HRE_Replace_Emperor(HRE_EMPEROR_PRETENDER_KEY);
+	else
 		HRE_Change_Imperial_Authority(HRE_EMPEROR_MISSION_AUTHORITY_REWARD);
 
 		if reason == "death" then
@@ -717,6 +700,14 @@ function HRE_Pretender_End_Mission(success, reason)
 		end
 
 		HRE_Vanquish_Pretender();
+	end
+
+	for i = 1, #HRE_FACTIONS do
+		if HRE_FACTIONS[i] ~= HRE_EMPEROR_KEY then
+			-- Re-enable war in case it's still disabled.
+			cm:force_diplomacy(HRE_FACTIONS[i], HRE_EMPEROR_KEY, "war", true, true);
+			cm:force_diplomacy(HRE_FACTIONS[i], HRE_EMPEROR_PRETENDER_KEY, "war", true, true);
+		end
 	end
 end
 

@@ -1,6 +1,5 @@
 JERUSALEM_KEY = "mk_fact_jerusalem";
 JERUSALEM_REGION_KEY = "att_reg_palaestinea_aelia_capitolina";
-ALEXANDRIA_REGION_KEY = "att_reg_aegyptus_alexandria";
 
 POPE_LIST = {
 	{id = "Innocentius III",	name = "names_name_2147380345", year = 1198, 	age = 37},

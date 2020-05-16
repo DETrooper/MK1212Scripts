@@ -218,16 +218,20 @@ function FactionTurnStart_Pope_Crusades(context)
 				if owner:is_human() == false then
 					local force = CRUSADE_DEFENSE_UNIT_LIST;
 
-					if cm:model():world():region_manager():region_by_key(JERUSALEM_REGION_KEY):owning_faction() == owner then
-						CreateDefensiveArmy_Crusades(JERUSALEM_REGION_KEY, force);
+					if SpawnValidSettlement(target) == true then
+						CreateDefensiveArmy_Crusades(target, force);
 					end
 
-					if cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET):owning_faction() == owner then
-						CreateDefensiveArmy_Crusades(CURRENT_CRUSADE_TARGET, force);
-					end
+					for i = 1, #CRUSADE_REGIONS_IN_MIDDLE_EAST do
+						local region_name = CRUSADE_REGIONS_IN_MIDDLE_EAST[i];
 
-					if cm:model():world():region_manager():region_by_key(ALEXANDRIA_REGION_KEY):owning_faction() == owner then
-						CreateDefensiveArmy_Crusades(ALEXANDRIA_REGION_KEY, force);
+						if region_name ~= CURRENT_CRUSADE_TARGET then
+							if cm:model():world():region_manager():region_by_key(region_name):owning_faction() == owner then
+								if SpawnValidSettlement(region_name) == true then
+									CreateDefensiveArmy_Crusades(region_name, force);
+								end
+							end
+						end
 					end
 				end
 
@@ -804,10 +808,10 @@ function Remove_Faction_From_Crusade(faction_name)
 end
 
 function CreateDefensiveArmy_Crusades(region_name, force)
-	local owner = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET):owning_faction();
 	local region = cm:model():world():region_manager():region_by_key(region_name);
 	local region_x = region:settlement():logical_position_x();
 	local region_y = region:settlement():logical_position_y();
+	local owner = region:owning_faction();
 		
 	cm:create_force(
 		owner:name(),
