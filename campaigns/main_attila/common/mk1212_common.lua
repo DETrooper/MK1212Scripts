@@ -444,8 +444,10 @@ function LoadKeyPairTable(context, savename)
 	
 	if savestring ~= "" then
 		local first_split = SplitString(savestring, ";");
+		
 		for i = 1, #first_split do
 			local second_split = SplitString(first_split[i], ",");
+
 			tab[second_split[1]] = second_split[2];
 		end
 	end
@@ -459,8 +461,10 @@ function LoadKeyPairTableNumbers(context, savename)
 	
 	if savestring ~= "" then
 		local first_split = SplitString(savestring, ";");
+
 		for i = 1, #first_split do
 			local second_split = SplitString(first_split[i], ",");
+
 			tab[second_split[1]] = tonumber(second_split[2]);
 		end
 	end
@@ -474,6 +478,7 @@ function LoadBooleanPairTable(context, savename)
 	
 	if savestring ~= "" then
 		local first_split = SplitString(savestring, ";");
+		
 		for i = 1, #first_split do
 			local second_split = SplitString(first_split[i], ",");
 

@@ -601,20 +601,18 @@ function Update_Reforms_HRE_UI()
 	for i = 1, #HRE_REFORMS do
 		local btnReform = UIComponent(panReformsView:Find(HRE_REFORMS[i]["key"].."_Reform_Button"));
 
+		btnReform:SetState("inactive");
+
 		if CURRENT_HRE_REFORM == i - 1 then
 			if cm:get_local_faction() == HRE_EMPEROR_KEY then
 				if HRE_IMPERIAL_AUTHORITY == HRE_REFORM_COST and #HRE_REFORMS_VOTES >= math.ceil((#HRE_FACTIONS - 1) / 2) then
 					btnReform:SetState("active");
-				else
-					btnReform:SetState("inactive");
 				end
 			else
-				if HasValue(HRE_REFORMS_VOTES, cm:get_local_faction()) then
+				if HasValue(HRE_FACTIONS, cm:get_local_faction()) then
 					btnReform:SetState("active");
 				end
 			end
-		else
-			btnReform:SetState("inactive");
 		end
 	end
 
@@ -863,16 +861,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		tx_prosperity_uic:SetStateText("Population:");
 		dy_prosperity_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[faction_name]));
 
-		if HasValue(HRE_FACTIONS, faction_name) and faction_name ~= HRE_EMPEROR_KEY then
-			tx_imperium_uic:SetStateText("Attitude:");
-			dy_imperium_uic:SetStateText(HRE_STATES[HRE_FACTIONS_STATES[faction_name]][1]);
-		elseif faction_name == HRE_EMPEROR_KEY then
-			tx_imperium_uic:SetStateText("Authority:");
-			dy_imperium_uic:SetStateText(Round_Number_Text(HRE_IMPERIAL_AUTHORITY).."/100");
-		elseif faction_name == HRE_EMPEROR_PRETENDER_KEY then
-			tx_imperium_uic:SetStateText("Authority:");
-			dy_imperium_uic:SetStateText("N/A");
-		end
+		Update_State_HRE_UI(faction_name);
 	else
 		faction_logo_uic:SetState("faded");
 		election_ui_layer_uic:SetVisible(false);
@@ -900,17 +889,22 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 end
 
 function Update_State_HRE_UI(faction_name)
-	if faction_name ~= HRE_EMPEROR_PRETENDER_KEY then
-		local root = cm:ui_root();
-		local panHRE = UIComponent(root:Find("HRE_Panel"));
-		local parchment_uic = UIComponent(panHRE:Find("parchment"));
-		local faction_context_subpanel_uic = UIComponent(parchment_uic:Find("faction_context_subpanel"));
-		local tx_imperium_uic = UIComponent(faction_context_subpanel_uic:Find("tx_imperium"));
-		local dy_imperium_uic = UIComponent(tx_imperium_uic:Find("dy_imperium"));
+	local root = cm:ui_root();
+	local panHRE = UIComponent(root:Find("HRE_Panel"));
+	local parchment_uic = UIComponent(panHRE:Find("parchment"));
+	local faction_context_subpanel_uic = UIComponent(parchment_uic:Find("faction_context_subpanel"));
+	local tx_imperium_uic = UIComponent(faction_context_subpanel_uic:Find("tx_imperium"));
+	local dy_imperium_uic = UIComponent(tx_imperium_uic:Find("dy_imperium"));
 
+	if HasValue(HRE_FACTIONS, faction_name) and faction_name ~= HRE_EMPEROR_KEY and cm:model():world():faction_by_key(faction_name):is_human() == false then
 		tx_imperium_uic:SetStateText("Attitude:");
 		dy_imperium_uic:SetStateText(HRE_STATES[HRE_FACTIONS_STATES[faction_name]][1]);
-		panHRE:SetVisible(true);
+	elseif faction_name == HRE_EMPEROR_KEY then
+		tx_imperium_uic:SetStateText("Authority:");
+		dy_imperium_uic:SetStateText(Round_Number_Text(HRE_IMPERIAL_AUTHORITY).."/100");
+	else
+		tx_imperium_uic:SetStateText("");
+		dy_imperium_uic:SetStateText("");
 	end
 end
 

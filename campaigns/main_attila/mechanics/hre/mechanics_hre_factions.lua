@@ -359,9 +359,11 @@ function HRE_State_Check(faction_name)
 
 	if faction_state ~= "puppet" then
 		if emperor_faction:is_human() then
-			if HasValue(FACTIONS_VASSALIZED, faction_name) then
-				HRE_Set_Faction_State(faction_name, "puppet", true);
-				return;
+			if FACTIONS_TO_FACTIONS_VASSALIZED[HRE_EMPEROR_KEY] ~= nil then
+				if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[HRE_EMPEROR_KEY], faction_name) then
+					HRE_Set_Faction_State(faction_name, "puppet", true);
+					return;
+				end
 			end
 		end
 

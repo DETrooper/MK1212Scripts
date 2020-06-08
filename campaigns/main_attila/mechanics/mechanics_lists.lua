@@ -399,7 +399,7 @@ DFN_NAMES_LOCALISATION = {
 	["mk_fact_zengids_lvl3"] = "Zengid Empire"
 };
 
-FACTIONS_VASSALIZED_START = {
+FACTIONS_TO_FACTIONS_VASSALIZED_START = {
 	["mk_fact_almohads"] = {"mk_fact_hafsids"},
 	["mk_fact_ayyubids"] = {"mk_fact_mecca"},
 	["mk_fact_bulgaria"] = {"mk_fact_wallachia"},

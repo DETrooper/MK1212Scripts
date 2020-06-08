@@ -23,13 +23,6 @@ function Add_Buffer_States_Listeners()
 		true
 	);
 	cm:add_listener(
-		"SettlementDeselected_Buffer",
-		"SettlementDeselected",
-		true,
-		function(context) OnSettlementDeselected_Buffer(context) end,
-		true
-	);
-	cm:add_listener(
 		"TimeTrigger_Buffer",
 		"TimeTrigger",
 		true,
@@ -108,11 +101,8 @@ function OnComponentLClickUp_Buffer_UI(context)
 			cm:force_make_vassal(faction_name, vassal_faction_name);
 			cm:add_time_trigger("region_transfer", 0.1);
 
-			if FACTIONS_VASSALIZED ~= nil then
-				table.insert(FACTIONS_VASSALIZED, vassal_faction_name);
-			else
-				FACTIONS_VASSALIZED = {};
-				table.insert(FACTIONS_VASSALIZED, vassal_faction_name);
+			if FACTIONS_TO_FACTIONS_VASSALIZED ~= nil then
+				Faction_Vassalized(faction_name, vassal_faction_name, true, false, false);
 			end
 		else
 			Transfer_Region_To_Faction(REGION_SELECTED, vassal_faction_name);
@@ -124,10 +114,6 @@ function OnComponentLClickUp_Buffer_UI(context)
 		btnBuffer:SetVisible(false);
 	elseif context.string == "button_buffer_cancel" then
 		BufferPanelClosed(false);
-	elseif context.string == "root" then
-		local root = cm:ui_root();
-		local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
-		btnBuffer:SetVisible(false);
 	end
 end
 
@@ -158,16 +144,6 @@ function OnSettlementSelected_Buffer(context)
 			btnBuffer:SetState("inactive"); 
 			btnBuffer:SetVisible(false);
 		end
-	end
-end
-
-function OnSettlementDeselected_Buffer(context)
-	local root = cm:ui_root();
-	local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
-
-	if btnBuffer:Visible() == true then
-		btnBuffer:SetState("inactive"); 
-		btnBuffer:SetVisible(false);
 	end
 end
 

@@ -7,6 +7,7 @@
 -----------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------
 
+local liberator = nil;
 local proposer = nil;
 local recipient = nil;
 local vassal = nil;
@@ -14,11 +15,10 @@ local vassal = nil;
 ANNEX_TURN_REQUIREMENT = 20; -- How long until annexation can begin when you've made a new vassal?
 ANNEX_TURNS_PER_REGION = 3; -- Once annexation process has started, how many turns per region should it take to complete?
 
-FACTIONS_VASSALIZED = {};
+FACTIONS_TO_FACTIONS_VASSALIZED = {};
+FACTIONS_VASSALIZED_ANNEXING = {};
+FACTIONS_VASSALIZED_ANNEXATION_TIME = {};
 FACTIONS_VASSALIZED_DELAYS = {};
-VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
-VASSAL_SELECTED = "";
-VASSAL_SELECTED_ANNEXATION_TIME = 0;
 
 function Add_Annex_Vassals_Listeners()
 	cm:add_listener(
@@ -97,147 +97,189 @@ function AnnexVassalsSetup()
 		local faction = faction_list:item_at(i);
 		local faction_name = faction:name();
 
-		if faction:is_human() then
-			if FACTIONS_VASSALIZED_START[faction_name] ~= nil then
-				for j = 1, #FACTIONS_VASSALIZED_START[faction_name] do
-					table.insert(FACTIONS_VASSALIZED, FACTIONS_VASSALIZED_START[faction_name][j]);
-				end
+		FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] = {};
+		FACTIONS_VASSALIZED_ANNEXING[faction_name] = false;
+
+		if FACTIONS_VASSALIZED_ANNEXATION_TIME[faction_name] == nil then
+			FACTIONS_VASSALIZED_ANNEXATION_TIME[faction_name] = -1;
+		end
+
+		if FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name] ~= nil then
+			for j = 1, #FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name] do
+				local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name][j];
+
+				table.insert(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], vassal_faction_name);
+				FACTIONS_VASSALIZED_ANNEXATION_TIME[vassal_faction_name] = cm:model():world():faction_by_key(vassal_faction_name):region_list():num_items() * ANNEX_TURNS_PER_REGION;
+				FACTIONS_VASSALIZED_DELAYS[vassal_faction_name] = ANNEX_TURN_REQUIREMENT;
 			end
 		end
-	end
-
-	for i = 1, #FACTIONS_VASSALIZED do
-		FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]] = tostring(ANNEX_TURN_REQUIREMENT);
 	end
 end
 
 function FactionTurnStart_Annex(context)
 	local faction_name = context:faction():name();
+	local faction_is_human = context:faction():is_human();
 
-	if context:faction():is_human() == true then
-		for k, v in pairs(FACTIONS_VASSALIZED_DELAYS) do
-			if tonumber(v) > 0 then
-				FACTIONS_VASSALIZED_DELAYS[k] = tostring(tonumber(v) - 1);
+	if FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] == nil then
+		FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] = {};
+	end
+
+	for k, v in pairs(FACTIONS_VASSALIZED_DELAYS) do
+		if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], k) then
+			if v > 0 then
+				FACTIONS_VASSALIZED_DELAYS[k] = v - 1;
 			end
 		end
+	end
 
-		if HasValue(FACTIONS_VASSALIZED, VASSAL_SELECTED) then
-			if VASSAL_SELECTED_CURRENTLY_ANNEXING == true then
-				if cm:model():world():faction_by_key(VASSAL_SELECTED):has_home_region() == true then
-					if VASSAL_SELECTED_ANNEXATION_TIME > 0 then
-						VASSAL_SELECTED_ANNEXATION_TIME = VASSAL_SELECTED_ANNEXATION_TIME - 1;
-					end
+	for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] do
+		local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED[faction_name][i];
+		local vassal_faction = cm:model():world():faction_by_key(vassal_faction_name);
 
-					if VASSAL_SELECTED_ANNEXATION_TIME <= 0 then
-						cm:grant_faction_handover(faction_name, VASSAL_SELECTED, cm:model():turn_number() - 1, cm:model():turn_number() - 1, context);
-						
-						local faction_string = "factions_screen_name_"..VASSAL_SELECTED;
+		if FACTIONS_VASSALIZED_ANNEXATION_TIME[vassal_faction_name] == nil or FACTIONS_VASSALIZED_ANNEXING[vassal_faction_name] == false then
+			FACTIONS_VASSALIZED_ANNEXATION_TIME[vassal_faction_name] = vassal_faction:region_list():num_items() * ANNEX_TURNS_PER_REGION;
+		end
 
-						if FACTIONS_DFN_LEVEL[VASSAL_SELECTED] ~= nil then
-							if FACTIONS_DFN_LEVEL[VASSAL_SELECTED] > 1 then
-								faction_string = "campaign_localised_strings_string_"..VASSAL_SELECTED.."_lvl"..tostring(FACTIONS_DFN_LEVEL[VASSAL_SELECTED]);
-							end
-						end
+		if FACTIONS_VASSALIZED_ANNEXING[vassal_faction_name] == true then
+			local annexation_turns_left = FACTIONS_VASSALIZED_ANNEXATION_TIME[vassal_faction_name];
 
-						cm:show_message_event(
-							faction_name,
-							"message_event_text_text_mk_event_annexed_vassal_title",
-							faction_string,
-							"message_event_text_text_mk_event_annexed_vassal_secondary",
-							true,
-							704
-						);
+			if vassal_faction:has_home_region() == true then
+				if annexation_turns_left > 0 then
+					FACTIONS_VASSALIZED_ANNEXATION_TIME[vassal_faction_name] = annexation_turns_left - 1;
+				end
 
-						for i = 1, #FACTIONS_VASSALIZED do
-							if FACTIONS_VASSALIZED[i] == VASSAL_SELECTED then
-								table.remove(FACTIONS_VASSALIZED, i);
-							end
-						end
+				if FACTIONS_VASSALIZED_ANNEXATION_TIME[vassal_faction_name] == 0 then
+					cm:grant_faction_handover(faction_name, vassal_faction_name, cm:model():turn_number() - 1, cm:model():turn_number() - 1, context);
+					
+					local faction_string = "factions_screen_name_"..vassal_faction_name;
 
-						VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
-						VASSAL_SELECTED = nil;
-
-						for i = 1, #ANNEX_VASSALS_SIZES do
-							cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name);
-						end
-					end
-				else
-					local faction_string = "factions_screen_name_"..VASSAL_SELECTED;
-
-					if FACTIONS_DFN_LEVEL[VASSAL_SELECTED] ~= nil then
-						if FACTIONS_DFN_LEVEL[VASSAL_SELECTED] > 1 then
-							faction_string = "campaign_localised_strings_string_"..VASSAL_SELECTED.."_lvl"..tostring(FACTIONS_DFN_LEVEL[VASSAL_SELECTED]);
+					if FACTIONS_DFN_LEVEL[vassal_faction_name] ~= nil then
+						if FACTIONS_DFN_LEVEL[vassal_faction_name] > 1 then
+							faction_string = "campaign_localised_strings_string_"..vassal_faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[vassal_faction_name]);
 						end
 					end
 
 					cm:show_message_event(
 						faction_name,
-						"message_event_text_text_mk_event_annexation_aborted_title",
+						"message_event_text_text_mk_event_annexed_vassal_title",
 						faction_string,
-						"message_event_text_text_mk_event_annexation_aborted_secondary",
+						"message_event_text_text_mk_event_annexed_vassal_secondary",
 						true,
 						704
 					);
 
-					for i = 1, #FACTIONS_VASSALIZED do
-						if FACTIONS_VASSALIZED[i] == VASSAL_SELECTED then
-							table.remove(FACTIONS_VASSALIZED, i);
+					for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] do
+						if FACTIONS_TO_FACTIONS_VASSALIZED[faction_name][i] == vassal_faction_name then
+							table.remove(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], i);
+							break;
 						end
 					end
 
-					VASSAL_SELECTED_ANNEXATION_TIME = 0;
-					VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
-					VASSAL_SELECTED = nil;
+					vassal_faction_name = nil;
 
-					for i = 1, #ANNEX_VASSALS_SIZES do
-						cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name);
+					Stop_Annexing_Vassal(faction_name, vassal_faction_name);
+				end
+			else
+				local faction_string = "factions_screen_name_"..vassal_faction_name;
+
+				if FACTIONS_DFN_LEVEL[vassal_faction_name] ~= nil then
+					if FACTIONS_DFN_LEVEL[vassal_faction_name] > 1 then
+						faction_string = "campaign_localised_strings_string_"..vassal_faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[vassal_faction_name]);
 					end
 				end
+
+				cm:show_message_event(
+					faction_name,
+					"message_event_text_text_mk_event_annexation_aborted_title",
+					faction_string,
+					"message_event_text_text_mk_event_annexation_aborted_secondary",
+					true,
+					704
+				);
+
+				for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] do
+					if FACTIONS_TO_FACTIONS_VASSALIZED[faction_name][i] == vassal_faction_name then
+						table.remove(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], i);
+						break;
+					end
+				end
+
+				vassal_faction_name = nil;
+
+				Stop_Annexing_Vassal(faction_name, vassal_faction_name);
+			end
+		elseif faction_is_human == false and vassal_faction:is_human() == false then
+			if FACTIONS_VASSALIZED_DELAYS[vassal_faction_name] == 0 and Get_Vassal_Currently_Annexing(faction_name) == nil then
+				-- Todo: Add personality check?
+
+				Start_Annexing_Vassal(faction_name, vassal_faction_name);
 			end
 		end
 	end
 end
 
 function FactionBecomesLiberationVassal_Annex(context)
-	if context:liberating_character():faction():name() == cm:get_local_faction() then
-		if not HasValue(FACTIONS_VASSALIZED, context:faction():name()) then
-			table.insert(FACTIONS_VASSALIZED, context:faction():name());
-			cm:add_time_trigger("vassal_check", 0.1);
-		else
-			-- Something has gone horribly wrong!!!!!!
-		end
+	local liberating_faction_name = context:liberating_character():faction():name();
+	local vassal_faction_name = context:faction():name();
+
+	if not HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[liberating_faction_name], vassal_faction_name) then
+		table.insert(FACTIONS_TO_FACTIONS_VASSALIZED[liberating_faction_name], vassal_faction_name);
+		liberator = liberating_faction_name;
+		cm:add_time_trigger("vassal_check", 0.1);
+	else
+		-- Something has gone horribly wrong!!!!!!
 	end
 end
 
 function FactionSubjugatesOtherFaction_Annex(context)
 	vassal = context:other_faction():name();
-end
+end 
 
 function PositiveDiplomaticEvent_Annex(context)
-	if context:proposer():is_human() == true then
-		proposer = context:proposer():name();
-		recipient = context:recipient():name();
-		cm:add_time_trigger("diplo_vassal_check", 0.5);
-	end
+	proposer = context:proposer():name();
+	recipient = context:recipient():name();
+	cm:add_time_trigger("diplo_vassal_check", 0.5);
 end
 
 function FactionLeaderDeclaresWar_Annex(context)
-	if HasValue(FACTIONS_VASSALIZED, context:character():faction():name()) == true then
-		if context:character():faction():at_war_with(cm:model():world():faction_by_key(cm:get_local_faction())) then
-			for i = 1, #FACTIONS_VASSALIZED do
-				if FACTIONS_VASSALIZED[i] == context:character():faction():name() then
-					table.remove(FACTIONS_VASSALIZED, i);
-					FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]] = nil;
+	local faction_name = context:character():faction():name();
+
+	if #FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] > 0 then
+		for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] do
+			local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED[faction_name][i];
+			local vassal_faction = cm:model():world():faction_by_key(vassal_faction_name);
+
+			if vassal_faction:at_war_with(context:character():faction()) then
+				FACTIONS_VASSALIZED_DELAYS[vassal_faction_name] = nil;
+
+				if Get_Vassal_Currently_Annexing(faction_name) == vassal_faction_name then
+					Stop_Annexing_Vassal(faction_name, vassal_faction_name);
+				end
+
+				table.remove(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], i);
+				return;
+			end
+		end
+	else
+		-- Faction has no vassals or is a vassal.
+		local master_faction_name = Get_Vassal_Overlord(faction_name);
+
+		if master_faction_name ~= nil then
+			if cm:model():world():faction_by_key(master_faction_name):at_war_with(context:character():faction()) then
+				for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name] do
+					if FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name][i] == faction_name then
+						FACTIONS_VASSALIZED_DELAYS[faction_name] = nil;
+
+						if Get_Vassal_Currently_Annexing(master_faction_name) == faction_name then
+							Stop_Annexing_Vassal(master_faction_name, faction_name);
+						end
+
+						table.remove(FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name], i);
+						return;
+					end
 				end
 			end
 		end
-	elseif context:character():faction():name() == cm:get_local_faction() then
-		for i = 1, #FACTIONS_VASSALIZED do
-			if context:character():faction():at_war_with(cm:model():world():faction_by_key(FACTIONS_VASSALIZED[i])) then
-				table.remove(FACTIONS_VASSALIZED, i);
-				FACTIONS_VASSALIZED_DELAYS[FACTIONS_VASSALIZED[i]] = nil;
-			end
-		end		
 	end
 end
 
@@ -248,31 +290,32 @@ function OnComponentMouseOn_Annex_UI(context)
 		local cost = "n";
 		local turns = "n";
 
-		if HasValue(FACTIONS_VASSALIZED, DIPLOMACY_SELECTED_FACTION) then
-			if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
+		if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], DIPLOMACY_SELECTED_FACTION) then
+			if FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == false then
 				for i = 1, #ANNEX_VASSALS_SIZES do
-					if cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
+					if cm:model():world():faction_by_key(DIPLOMACY_SELECTED_FACTION):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
 						cost = ANNEX_VASSALS_PERCENTAGES[i];
 						break;
 					end
 				end
 
-				turns = VASSAL_SELECTED_ANNEXATION_TIME;
+				turns = FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION];
 
 				UIComponent(context.component):SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
 			else
-				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..VASSAL_SELECTED_ANNEXATION_TIME.." turns left.[[/rgba]]");
+				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION].." turns left.[[/rgba]]");
 			end
 		else
 			UIComponent(context.component):SetTooltipText("The "..vassal_string.." is not your vassal!");
 		end
 	elseif string.find(context.string, "mk_bundle_annex_vassal_regions_") then
+		local vassal_faction_name = Get_Vassal_Currently_Annexing(cm:get_local_faction());
 		local root = cm:ui_root();
 		local TechTooltipPopup = UIComponent(root:Find("TechTooltipPopup"));
 		local description_window_uic = UIComponent(TechTooltipPopup:Find("description_window"));
-		local vassal_string = Get_DFN_Localisation(VASSAL_SELECTED);
+		local vassal_string = Get_DFN_Localisation(vassal_faction_name);
 
-		description_window_uic:SetStateText("You are in the process annexing a vassal state, costing you a significant amount of money every turn.\n\nAnnexing Faction: "..vassal_string.."\n\nTurns Remaining: "..tostring(VASSAL_SELECTED_ANNEXATION_TIME));
+		description_window_uic:SetStateText("You are in the process annexing a vassal state, costing you a significant amount of money every turn.\n\nAnnexing Faction: "..vassal_string.."\n\nTurns Remaining: "..tostring(FACTIONS_VASSALIZED_ANNEXATION_TIME[vassal_faction_name]));
 	end
 end
 
@@ -280,21 +323,14 @@ function OnComponentLClickUp_Annex_UI(context)
 	if context.string == "button_annex_vassal" then
 		local faction_name = cm:get_local_faction();
 
-		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
-			VASSAL_SELECTED_CURRENTLY_ANNEXING = true;
-
-			for i = 1, #ANNEX_VASSALS_SIZES do
-				if cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
-					cm:apply_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name, 0);
-					break;
-				end
-			end
+		if FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == false then
+			Start_Annexing_Vassal(faction_name, DIPLOMACY_SELECTED_FACTION);
 		else
-			local faction_string = "factions_screen_name_"..VASSAL_SELECTED;
+			local faction_string = "factions_screen_name_"..DIPLOMACY_SELECTED_FACTION;
 
-			if FACTIONS_DFN_LEVEL[VASSAL_SELECTED] ~= nil then
-				if FACTIONS_DFN_LEVEL[VASSAL_SELECTED] > 1 then
-					faction_string = "campaign_localised_strings_string_"..VASSAL_SELECTED.."_lvl"..tostring(FACTIONS_DFN_LEVEL[VASSAL_SELECTED]);
+			if FACTIONS_DFN_LEVEL[DIPLOMACY_SELECTED_FACTION] ~= nil then
+				if FACTIONS_DFN_LEVEL[DIPLOMACY_SELECTED_FACTION] > 1 then
+					faction_string = "campaign_localised_strings_string_"..DIPLOMACY_SELECTED_FACTION.."_lvl"..tostring(FACTIONS_DFN_LEVEL[DIPLOMACY_SELECTED_FACTION]);
 				end
 			end
 
@@ -307,34 +343,29 @@ function OnComponentLClickUp_Annex_UI(context)
 				704
 			);
 
-			VASSAL_SELECTED_CURRENTLY_ANNEXING = false;
-			VASSAL_SELECTED_ANNEXATION_TIME = cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() * ANNEX_TURNS_PER_REGION;
-
-			for i = 1, #ANNEX_VASSALS_SIZES do
-				cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], faction_name);
-			end
+			Stop_Annexing_Vassal(faction_name, DIPLOMACY_SELECTED_FACTION);
 		end
 
 		local vassal_string = Get_DFN_Localisation(DIPLOMACY_SELECTED_FACTION);
 		local cost = "n";
 		local turns = "n";
 
-		if HasValue(FACTIONS_VASSALIZED, DIPLOMACY_SELECTED_FACTION) then
-			if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
+		if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], DIPLOMACY_SELECTED_FACTION) then
+			if FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == false then
 				for i = 1, #ANNEX_VASSALS_SIZES do
-					if cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
+					if cm:model():world():faction_by_key(DIPLOMACY_SELECTED_FACTION):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
 						cost = ANNEX_VASSALS_PERCENTAGES[i];
 						break;
 					end
 				end
 
-				turns = VASSAL_SELECTED_ANNEXATION_TIME;
+				turns = FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION];
 
 				UIComponent(context.component):SetStateText("");
 				UIComponent(context.component):SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
 			else
 				UIComponent(context.component):SetStateText("");
-				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..VASSAL_SELECTED_ANNEXATION_TIME.." turns left.[[/rgba]]");
+				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION].." turns left.[[/rgba]]");
 			end
 		else
 			UIComponent(context.component):SetStateText("");
@@ -355,25 +386,24 @@ end
 
 function TimeTrigger_Annex_UI(context)
 	if context.string == "vassal_check" then
-		local faction_name = cm:get_local_faction();
-		local faction = cm:model():world():faction_by_key(faction_name);
-		local vassalized_faction_name = FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED];
+		local liberator_faction = cm:model():world():faction_by_key(liberator);
+		local vassalized_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED[liberator][#FACTIONS_TO_FACTIONS_VASSALIZED[liberator]];
 		local vassalized_faction = cm:model():world():faction_by_key(vassalized_faction_name);
-		local is_ally = faction:allied_with(vassalized_faction);
+		local is_ally = liberator_faction:allied_with(vassalized_faction);
 		
-		--dev.log("VASSAL CHECK: "..FACTIONS_VASSALIZED[#FACTIONS_VASSALIZED].." - Is Ally: "..tostring(is_ally));
+		--dev.log("VASSAL CHECK: "..vassalized_faction_name.." - Is Ally: "..tostring(is_ally));
 		
 		if is_ally == true then
 			-- They were liberated instead of vassalized, so remove them.
 			FACTIONS_VASSALIZED_DELAYS[vassalized_faction_name] = nil;
-			table.remove(FACTIONS_VASSALIZED, #FACTIONS_VASSALIZED);
+			table.remove(FACTIONS_TO_FACTIONS_VASSALIZED[liberator], #FACTIONS_TO_FACTIONS_VASSALIZED[liberator]);
 		else
-			FACTIONS_VASSALIZED_DELAYS[vassalized_faction_name] = tostring(ANNEX_TURN_REQUIREMENT);
-			Vassal_Make_Peace_With_Other_Vassals(vassalized_faction);
+			Faction_Vassalized(liberator, vassalized_faction_name, false, true, true);
 		end
 		
-		--dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
+		--dev.log("\tFACTIONS_TO_FACTIONS_VASSALIZED["..liberator.."]: "..table.concat(FACTIONS_TO_FACTIONS_VASSALIZED[liberator], ","));
 
+		liberator = nil;
 		proposer = nil;
 		recipient = nil;
 		vassal = nil;
@@ -382,18 +412,16 @@ function TimeTrigger_Annex_UI(context)
 			if recipient == vassal then
 				--dev.log("RECIPIENT == VASSAL");
 
-				if not HasValue(FACTIONS_VASSALIZED, recipient) then
-					table.insert(FACTIONS_VASSALIZED, recipient);
-					Vassal_Make_Peace_With_Other_Vassals(cm:model():world():faction_by_key(recipient));
+				if not HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[proposer], recipient) then
+					Faction_Vassalized(proposer, recipient, true, true, true);
 				else
 					-- Something has gone horribly wrong!!!!!!
 				end
-
-				FACTIONS_VASSALIZED_DELAYS[recipient] = tostring(ANNEX_TURN_REQUIREMENT);
 			end
 
-			--dev.log("\tFACTIONS_VASSALIZED: "..table.concat(FACTIONS_VASSALIZED, ","));
+			--dev.log("\tFACTIONS_TO_FACTIONS_VASSALIZED["..proposer.."]: "..table.concat(FACTIONS_TO_FACTIONS_VASSALIZED[proposer], ","));
 
+			liberator = nil;
 			proposer = nil;
 			recipient = nil;
 			vassal = nil;
@@ -402,29 +430,110 @@ function TimeTrigger_Annex_UI(context)
 		local root = cm:ui_root();
 		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
 		local btnAnnex = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
+		local faction_left_status_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("faction_left_status_panel"));
+		local diplomatic_relations_uic = UIComponent(faction_left_status_panel_uic:Find("diplomatic_relations"));
+		local icon_vassals_uic = UIComponent( diplomatic_relations_uic:Find("icon_vassals"));
 
 		btnAnnex:SetStateText("");
+		btnAnnex:SetState("inactive");
 	
-		if VASSAL_SELECTED_CURRENTLY_ANNEXING == false then
-			if HasValue(FACTIONS_VASSALIZED, DIPLOMACY_SELECTED_FACTION) then
-				VASSAL_SELECTED = DIPLOMACY_SELECTED_FACTION;
-				VASSAL_SELECTED_ANNEXATION_TIME = cm:model():world():faction_by_key(VASSAL_SELECTED):region_list():num_items() * ANNEX_TURNS_PER_REGION;
+		if FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == false then
+			if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[cm:get_local_faction()], DIPLOMACY_SELECTED_FACTION) then
+				DIPLOMACY_SELECTED_FACTION = DIPLOMACY_SELECTED_FACTION;
 	
-				if tonumber(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]) == 0 then
+				if FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION] == 0 then
 					btnAnnex:SetState("active"); 
 				else
-					btnAnnex:SetStateText(FACTIONS_VASSALIZED_DELAYS[VASSAL_SELECTED]);
-					btnAnnex:SetState("inactive");
+					btnAnnex:SetStateText(tostring(FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION]));
 				end
-			else
-				btnAnnex:SetState("inactive");
 			end
-		elseif VASSAL_SELECTED_CURRENTLY_ANNEXING == true and DIPLOMACY_SELECTED_FACTION == VASSAL_SELECTED then
+		elseif HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[cm:get_local_faction()], DIPLOMACY_SELECTED_FACTION) then
 			btnAnnex:SetState("active");
-		else
-			btnAnnex:SetState("inactive");
+		end
+
+		-- Having a true vassal (i.e. one released using the buffer state mechanic) will overwrite client states on the UI, so we need to fix that.
+		if icon_vassals_uic:CurrentState() == "vassal" then
+			icon_vassals_uic:SetState("client_state");
 		end
 	end
+end
+
+function Faction_Vassalized(master_faction_name, vassalized_faction_name, add_to_table, transfer_vassals, make_peace)
+	local vassalized_faction = cm:model():world():faction_by_key(vassalized_faction_name);
+
+	if add_to_table == true then
+		table.insert(FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name], vassalized_faction_name);
+	end
+
+	FACTIONS_VASSALIZED_ANNEXING[vassalized_faction_name] = false;
+	FACTIONS_VASSALIZED_ANNEXATION_TIME[vassalized_faction_name] = vassalized_faction:region_list():num_items() * ANNEX_TURNS_PER_REGION;
+	FACTIONS_VASSALIZED_DELAYS[vassalized_faction_name] = ANNEX_TURN_REQUIREMENT;
+
+	if transfer_vassals == true then
+		Vassal_Transfer_Vassals_To_New_Master(master_faction_name, vassalized_faction_name);
+	end
+
+	if make_peace == true then
+		Vassal_Make_Peace_With_Other_Vassals(vassalized_faction);
+	end
+end
+
+function Start_Annexing_Vassal(master_faction_name, vassalized_faction_name)
+	FACTIONS_VASSALIZED_ANNEXING[vassalized_faction_name] = true;
+
+	for i = 1, #ANNEX_VASSALS_SIZES do
+		if cm:model():world():faction_by_key(vassalized_faction_name):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
+			cm:apply_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], master_faction_name, 0);
+			break;
+		end
+	end
+end
+
+function Stop_Annexing_Vassal(master_faction_name, vassalized_faction_name)
+	FACTIONS_VASSALIZED_ANNEXING[vassalized_faction_name] = false;
+	FACTIONS_VASSALIZED_ANNEXATION_TIME[vassalized_faction_name] = cm:model():world():faction_by_key(vassalized_faction_name):region_list():num_items() * ANNEX_TURNS_PER_REGION;
+
+	for i = 1, #ANNEX_VASSALS_SIZES do
+		cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], master_faction_name);
+	end
+end
+
+function Get_Vassal_Currently_Annexing(faction_name)
+	if FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] == nil then
+		FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] = {};
+
+		return;
+	end
+
+	for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] do
+		local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED[faction_name][i];
+
+		if FACTIONS_VASSALIZED_ANNEXING[vassal_faction_name] == true then
+			return vassal_faction_name;
+		end
+	end
+end
+
+function Get_Vassal_Overlord(vassal_faction_name)
+	for k, v in pairs(FACTIONS_TO_FACTIONS_VASSALIZED) do
+		if #v > 0 then
+			for i = 1, #v do
+				if v[i] == vassal_faction_name then
+					return k;
+				end
+			end
+		end
+	end
+end
+
+function Vassal_Transfer_Vassals_To_New_Master(master_faction_name, vassalized_faction_name)
+	if #FACTIONS_TO_FACTIONS_VASSALIZED[vassalized_faction_name] > 0 then
+		for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[vassalized_faction_name] do
+			Faction_Vassalized(master_faction_name, FACTIONS_TO_FACTIONS_VASSALIZED[vassalized_faction_name][i], false, false, true);
+		end
+	end
+
+	FACTIONS_TO_FACTIONS_VASSALIZED[vassalized_faction_name] = {};
 end
 
 function Vassal_Make_Peace_With_Other_Vassals(faction)
@@ -435,7 +544,7 @@ function Vassal_Make_Peace_With_Other_Vassals(faction)
 		local current_faction_name = current_faction:name();
 
 		if current_faction:at_war_with(faction) then
-			if HasValue(FACTIONS_VASSALIZED, current_faction) then
+			if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[faction:name()], current_faction) then
 				cm:force_make_peace(current_faction_name, faction:name());
 			end
 		end
@@ -447,20 +556,18 @@ end
 ------------------------------------------------
 cm:register_loading_game_callback(
 	function(context)
-		FACTIONS_VASSALIZED = LoadTable(context, "FACTIONS_VASSALIZED");
-		FACTIONS_VASSALIZED_DELAYS = LoadKeyPairTable(context, "FACTIONS_VASSALIZED_DELAYS");
-		VASSAL_SELECTED_CURRENTLY_ANNEXING = cm:load_value("VASSAL_SELECTED_CURRENTLY_ANNEXING", false, context);
-		VASSAL_SELECTED = cm:load_value("VASSAL_SELECTED", "", context);
-		VASSAL_SELECTED_ANNEXATION_TIME = cm:load_value("VASSAL_SELECTED_ANNEXATION_TIME", 0, context);
+		FACTIONS_TO_FACTIONS_VASSALIZED = LoadKeyPairTables(context, "FACTIONS_TO_FACTIONS_VASSALIZED");
+		FACTIONS_VASSALIZED_ANNEXING = LoadBooleanPairTable(context, "FACTIONS_VASSALIZED_ANNEXING");
+		FACTIONS_VASSALIZED_ANNEXATION_TIME = LoadKeyPairTableNumbers(context, "FACTIONS_VASSALIZED_ANNEXATION_TIME");
+		FACTIONS_VASSALIZED_DELAYS = LoadKeyPairTableNumbers(context, "FACTIONS_VASSALIZED_DELAYS");
 	end
 );
 
 cm:register_saving_game_callback(
 	function(context)
-		SaveTable(context, FACTIONS_VASSALIZED, "FACTIONS_VASSALIZED");
+		SaveKeyPairTables(context, FACTIONS_TO_FACTIONS_VASSALIZED, "FACTIONS_TO_FACTIONS_VASSALIZED");
+		SaveBooleanPairTable(context, FACTIONS_VASSALIZED_ANNEXING, "FACTIONS_VASSALIZED_ANNEXING");
+		SaveKeyPairTable(context, FACTIONS_VASSALIZED_ANNEXATION_TIME, "FACTIONS_VASSALIZED_ANNEXATION_TIME");
 		SaveKeyPairTable(context, FACTIONS_VASSALIZED_DELAYS, "FACTIONS_VASSALIZED_DELAYS");
-		cm:save_value("VASSAL_SELECTED_CURRENTLY_ANNEXING", VASSAL_SELECTED_CURRENTLY_ANNEXING, context);
-		cm:save_value("VASSAL_SELECTED", VASSAL_SELECTED, context);
-		cm:save_value("VASSAL_SELECTED_ANNEXATION_TIME", VASSAL_SELECTED_ANNEXATION_TIME, context);
 	end
 );
