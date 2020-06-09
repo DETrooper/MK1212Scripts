@@ -430,9 +430,9 @@ function TimeTrigger_Annex_UI(context)
 		local root = cm:ui_root();
 		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
 		local btnAnnex = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
-		local faction_left_status_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("faction_left_status_panel"));
-		local diplomatic_relations_uic = UIComponent(faction_left_status_panel_uic:Find("diplomatic_relations"));
-		local icon_vassals_uic = UIComponent( diplomatic_relations_uic:Find("icon_vassals"));
+		--local faction_left_status_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("faction_left_status_panel"));
+		--local diplomatic_relations_uic = UIComponent(faction_left_status_panel_uic:Find("diplomatic_relations"));
+		--local icon_vassals_uic = UIComponent( diplomatic_relations_uic:Find("icon_vassals"));
 
 		btnAnnex:SetStateText("");
 		btnAnnex:SetState("inactive");
@@ -451,10 +451,10 @@ function TimeTrigger_Annex_UI(context)
 			btnAnnex:SetState("active");
 		end
 
-		-- Having a true vassal (i.e. one released using the buffer state mechanic) will overwrite client states on the UI, so we need to fix that.
-		if icon_vassals_uic:CurrentState() == "vassal" then
+		-- (Doesn't work) Having a true vassal (i.e. one released using the buffer state mechanic) will overwrite client states on the UI, so we need to fix that.
+		--[[if icon_vassals_uic:CurrentState() == "vassal" then
 			icon_vassals_uic:SetState("client_state");
-		end
+		end]]--
 	end
 end
 
