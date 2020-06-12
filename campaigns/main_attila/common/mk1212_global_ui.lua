@@ -191,7 +191,11 @@ function Round_Number_Text(number)
 
 				if hundredth < 4 then
 					if tenth == 0 then
-						return string.sub(number, 0, i - 1);
+						if hundredth == 0 then
+							return string.sub(number, 0, i - 1);
+						else
+							return string.sub(number, 0, i + 2);
+						end
 					else
 						return string.sub(number, 0, i + 1);
 					end

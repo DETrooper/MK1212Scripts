@@ -400,15 +400,15 @@ function TimeTrigger_Population_UI(context)
 		local root = cm:ui_root();
 		local tab_records_uic = UIComponent(root:Find("Records"));
 		local tab_summary_uic = UIComponent(root:Find("Summary"));
-		local tx_prosperity_uic = UIComponent(tab_records_uic:Find("tx_prosperity"));
-		local dy_prosperity_uic = UIComponent(tx_prosperity_uic:Find("dy_prosperity"));
-		local tx_prosperity_uic2 = UIComponent(tab_summary_uic:Find("tx_prosperity"));
-		local dy_prosperity_uic2 = UIComponent(tx_prosperity_uic2:Find("dy_prosperity"));
+		local details_list_uic = UIComponent(tab_summary_uic:Find("details_list"))
+		local tx_population_uic = UIComponent(details_list_uic:Find("tx_population2"));
+		local dy_population_uic = UIComponent(tx_population_uic:Find("dy_population2"));
+		local tx_provinces_owned_uic = UIComponent(tab_records_uic:Find("tx_provinces_owned"));
+		local dy_provinces_owned_uic = UIComponent(tx_provinces_owned_uic:Find("dy_provinces_owned"));
 
-		tx_prosperity_uic:SetStateText("Population:");
-		dy_prosperity_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[cm:get_local_faction()]));
-		tx_prosperity_uic2:SetStateText("Population:");
-		dy_prosperity_uic2:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[cm:get_local_faction()]));
+		tx_provinces_owned_uic:SetStateText("Population:");
+		dy_provinces_owned_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[cm:get_local_faction()]));
+		dy_population_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[cm:get_local_faction()]));
 	end
 end
 

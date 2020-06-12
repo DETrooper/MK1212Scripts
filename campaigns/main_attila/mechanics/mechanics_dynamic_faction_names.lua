@@ -280,20 +280,25 @@ function TimeTrigger_DFN_UI(context)
 		local root = cm:ui_root();
 		local faction_name = cm:get_local_faction();
 		local tab_records_uic = UIComponent(root:Find("Records"));
-		local tx_provinces_owned_uic = UIComponent(tab_records_uic:Find("tx_provinces_owned"));
-		local tx_regions_owned_uic = UIComponent(tab_records_uic:Find("tx_regions_owned"));
-		local dy_regions_owned_uic = UIComponent(tx_regions_owned_uic:Find("dy_regions_owned"));
+		local tab_summary_uic = UIComponent(root:Find("Summary"));
+		local tx_prosperity_uic = UIComponent(tab_records_uic:Find("tx_prosperity"));
+		local dy_prosperity_uic = UIComponent(tx_prosperity_uic:Find("dy_prosperity"));
+		local tx_provinces_owned_uic = UIComponent(tab_summary_uic:Find("tx_provinces_owned"));
+		local dy_provinces_owned_uic = UIComponent(tx_provinces_owned_uic:Find("dy_provinces_owned"));
 
-		tx_provinces_owned_uic:SetStateText("Regions owned:");
-		tx_regions_owned_uic:SetStateText("Faction rank:");
+		tx_provinces_owned_uic:SetStateText("Faction rank:");
+		tx_prosperity_uic:SetStateText("Faction rank:");
 
 		if FACTIONS_DFN_LEVEL[faction_name] ~= nil then
 			if FACTIONS_DFN_LEVEL[faction_name] == 1 then
-				dy_regions_owned_uic:SetStateText("County/Duchy");
+				dy_prosperity_uic:SetStateText("County/Duchy");
+				dy_provinces_owned_uic:SetStateText("County/Duchy");
 			elseif FACTIONS_DFN_LEVEL[faction_name] == 2 then
-				dy_regions_owned_uic:SetStateText("Kingdom");
+				dy_prosperity_uic:SetStateText("Kingdom");
+				dy_provinces_owned_uic:SetStateText("Kingdom");
 			elseif FACTIONS_DFN_LEVEL[faction_name] >= 3 then
-				dy_regions_owned_uic:SetStateText("Empire");
+				dy_prosperity_uic:SetStateText("Empire");
+				dy_provinces_owned_uic:SetStateText("Empire");
 			end
 		end
 	end

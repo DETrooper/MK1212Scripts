@@ -78,7 +78,13 @@ end
 function Check_Last_Character_Force()
 	ARMY_SELECTED_TABLE = {};
 	ARMY_SELECTED_STRENGTHS_TABLE = {};
-	ARMY_SELECTED_REGION = LAST_CHARACTER_SELECTED:region():name();
+
+	if LAST_CHARACTER_SELECTED:has_region() then
+		ARMY_SELECTED_REGION = LAST_CHARACTER_SELECTED:region():name();
+	else
+		local region = FindClosestRegion(LAST_CHARACTER_SELECTED:logical_position_x(), LAST_CHARACTER_SELECTED:logical_position_y(), "none");
+		ARMY_SELECTED_REGION = region:name();
+	end
 
 	if LAST_CHARACTER_SELECTED:has_military_force() then
 		for i = 0, LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() - 1 do

@@ -308,43 +308,50 @@ function CheckArmyReplenishment(character)
 
 	if character:has_military_force() then
 		local force = character:military_force():unit_list();
+		local force_unit_strengths = {};
 		local replenishment_costs = {0, 0, 0, 0, 0};
 
 		cm:remove_effect_bundle_from_characters_force("mk_bundle_population_no_replenishment", character:cqi());
 		cm:remove_effect_bundle_from_characters_force("mk_bundle_population_no_replenishment_sea", character:cqi());
 
-		if character:has_region() then
-			region = character:region();
-		else
-			if character:military_force():is_navy() then
-				local x = character:logical_position_x();
-				local y = character:logical_position_y();
-
-				region = FindClosestPort(x, y, character:faction());
-				--dev.log("Character port region for replenishment: "..region:name());
+		if force:num_items() > 1 then -- General units do not use population.
+			if character:has_region() then
+				region = character:region();
 			else
-				--dev.log("No replenishment for armies in the water");
-				cm:apply_effect_bundle_to_characters_force("mk_bundle_population_no_replenishment_sea", character:cqi(), 0, true);
-				return;
-			end
-		end
+				if character:military_force():is_navy() then
+					local x = character:logical_position_x();
+					local y = character:logical_position_y();
 
-		if region:owning_faction() == character:faction() then
-			for i = 0, force:num_items() - 1 do
-				local unit = force:item_at(i);
- 				local unit_name = unit:unit_key();
-				local unit_cost = POPULATION_UNITS_TO_POPULATION[unit_name][1];
-				local unit_strength = math.floor((unit_cost * (ARMY_SELECTED_STRENGTHS_TABLE[i] / 100)) + 0.5);
-				local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
-
-				replenishment_costs[unit_class] = unit_cost - unit_strength;
-			end
-
-			for i = 1, 5 do
-				if replenishment_costs[i] > POPULATION_REGIONS_MANPOWER[region:name()][i] then
-					--dev.log("Not enough class "..i.." population in "..REGIONS_NAMES_LOCALISATION[region_name]);
-					cm:apply_effect_bundle_to_characters_force("mk_bundle_population_no_replenishment", character:cqi(), 0, true);
+					region = FindClosestPort(x, y, character:faction());
+					--dev.log("Character port region for replenishment: "..region:name());
+				else
+					--dev.log("No replenishment for armies in the water");
+					cm:apply_effect_bundle_to_characters_force("mk_bundle_population_no_replenishment_sea", character:cqi(), 0, true);
 					return;
+				end
+			end
+
+			for i = 1, force:num_items() - 1 do
+				table.insert(force_unit_strengths, force:item_at(i):percentage_proportion_of_full_strength());
+			end
+
+			if region:owning_faction() == character:faction() then
+				for i = 1, force:num_items() - 1 do
+					local unit = force:item_at(i);
+					local unit_name = unit:unit_key();
+					local unit_cost = POPULATION_UNITS_TO_POPULATION[unit_name][1];
+					local unit_strength = math.floor((unit_cost * (force_unit_strengths[i] / 100)) + 0.5);
+					local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
+
+					replenishment_costs[unit_class] = unit_cost - unit_strength;
+				end
+
+				for i = 1, 5 do
+					if replenishment_costs[i] > POPULATION_REGIONS_MANPOWER[region:name()][i] then
+						--dev.log("Not enough class "..i.." population in "..REGIONS_NAMES_LOCALISATION[region_name]);
+						cm:apply_effect_bundle_to_characters_force("mk_bundle_population_no_replenishment", character:cqi(), 0, true);
+						return;
+					end
 				end
 			end
 		end
@@ -362,6 +369,7 @@ function CharacterEntersGarrison_Population(context)
 		local region = context:character():region();
 		--dev.log("Entered Garrison "..region:name().."!");
 		POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+		Update_Faction_Total_Population(context:character():faction());
 	end
 end
 
@@ -666,10 +674,12 @@ function Update_Faction_Total_Population(faction)
 	if not faction:is_horde() then
 		local regions = faction:region_list();
 
-		for i = 0, regions:num_items() - 1 do
-			local region = regions:item_at(i);
+		if regions:num_items() > 0 then
+			for i = 0, regions:num_items() - 1 do
+				local region = regions:item_at(i);
 
-			total = total + POPULATION_REGIONS_POPULATIONS[region:name()][1] + POPULATION_REGIONS_POPULATIONS[region:name()][2] + POPULATION_REGIONS_POPULATIONS[region:name()][3] + POPULATION_REGIONS_POPULATIONS[region:name()][4] + POPULATION_REGIONS_POPULATIONS[region:name()][5];
+				total = total + POPULATION_REGIONS_POPULATIONS[region:name()][1] + POPULATION_REGIONS_POPULATIONS[region:name()][2] + POPULATION_REGIONS_POPULATIONS[region:name()][3] + POPULATION_REGIONS_POPULATIONS[region:name()][4] + POPULATION_REGIONS_POPULATIONS[region:name()][5];
+			end
 		end
 	end
 
