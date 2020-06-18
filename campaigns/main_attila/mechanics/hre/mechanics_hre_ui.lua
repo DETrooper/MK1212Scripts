@@ -266,7 +266,6 @@ function OnComponentLClickUp_HRE_UI(context)
 	if context.string == "button_hre" then
 		if HRE_PANEL_OPEN == false then
 			OpenHREPanel();
-			HRE_PANEL_OPEN = true;
 		else
 			CloseHREPanel(true);
 		end
@@ -472,6 +471,8 @@ function OpenHREPanel()
 	Update_Reforms_HRE_UI();
 	Update_Active_Decrees_HRE_UI();
 	panHRE:SetVisible(true);
+
+	HRE_PANEL_OPEN = true;
 end
 
 function CloseHREPanel(hover)

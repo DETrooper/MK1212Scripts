@@ -69,6 +69,24 @@ CRUSADE_ANCILLARIES = {
 	"mk_companion_all_general_crusades_knight_templar"
 }
 
+CRUSADE_RECRUITABLE_UNITS = {
+	["early"] = {
+		"mk_mio_t1_hospitaller_sergeant_spearmen",
+		"mk_mio_t1_templar_sergeant_spearmen",
+		"mk_jer_t1_hospitaller_knights_dismounted",
+		"mk_jer_t1_templar_knights_dismounted",
+		"mk_mio_t1_hospitaller_crossbowmen_sergeants",
+		"mk_mio_t1_templar_crossbowmen_sergeants",
+		"mk_mio_t1_hospitaller_mounted_sergeants",
+		"mk_jer_t1_hospitaller_knights",
+		"mk_mio_t1_templar_mounted_sergeants",
+		"mk_jer_t1_templar_knights",
+		"mk_mio_t1_teu_mounted_sergeants",
+		"mk_mio_t1_teu_sariantbruder",
+		"mk_mio_t1_teu_ritterbruder",
+	}
+}
+
 CRUSADE_REGIONS = {
 	-- Core European territories recieve priority over faraway lands.
 	["att_reg_italia_roma"] = 10000, -- Rome

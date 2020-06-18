@@ -11317,3 +11317,19 @@ NAMES_TO_LOCALISATION = {
 	["names_name_2147376990"] = "Rurik",
 	["names_name_2147378890"] = "Ikalay"
 };
+
+UNIT_NAMES_LOCALISATION = {
+	["mk_mio_t1_hospitaller_sergeant_spearmen"] = "Hospitaller Sergeant Spearmen (Early)",
+	["mk_mio_t1_templar_sergeant_spearmen"] = "Templar Sergeant Spearmen (Early)",
+	["mk_jer_t1_hospitaller_knights_dismounted"] = "Dismounted Hospitaller Knights (Early)",
+	["mk_jer_t1_templar_knights_dismounted"] = "Dismounted Templar Knights (Early)",
+	["mk_mio_t1_hospitaller_crossbowmen_sergeants"] = "Hospitaller Crossbow Sergeants (Early)",
+	["mk_mio_t1_templar_crossbowmen_sergeants"] = "Templar Crossbow Sergeants (Early)",
+	["mk_mio_t1_hospitaller_mounted_sergeants"] = "Hospitaller Mounted Sergeants (Early)",
+	["mk_jer_t1_hospitaller_knights"] = "Dismounted Hospitaller Knights",
+	["mk_mio_t1_templar_mounted_sergeants"] = "Templar Mounted Sergeants (Early)",
+	["mk_jer_t1_templar_knights"] = "Templar Knights (Early)",
+	["mk_mio_t1_teu_mounted_sergeants"] = "Teutonic Mounted Sergeants (Early)",
+	["mk_mio_t1_teu_sariantbruder"] = "Sarientbrüder",
+	["mk_mio_t1_teu_ritterbruder"] = "Ritterbrüder (Early)"
+};
