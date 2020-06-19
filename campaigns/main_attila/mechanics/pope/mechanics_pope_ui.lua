@@ -43,6 +43,13 @@ function Add_Pope_UI_Listeners()
 		true
 	);
 	cm:add_listener(
+		"OnPanelClosedCampaign_Pope_UI",
+		"PanelClosedCampaign",
+		true,
+		function(context) OnPanelClosedCampaign_Pope_UI(context) end,
+		true
+	);
+	cm:add_listener(
 		"TimeTrigger_Pope_UI",
 		"TimeTrigger",
 		true,
@@ -50,9 +57,11 @@ function Add_Pope_UI_Listeners()
 		true
 	);
 
-	--if CRUSADE_ACTIVE == true then
-		CreateCrusaderRecruitmentPanel();
-	--end
+	CreateCrusaderRecruitmentPanel();
+
+	if CRUSADE_ACTIVE == true then
+		PopulateCrusaderRecruitmentPanel();
+	end
 end
 
 function CreateCrusaderRecruitmentPanel()
@@ -86,17 +95,17 @@ function CreateCrusaderRecruitmentPanel()
 	tx_recruitment_options_uic:SetStateText("Crusader Recruitment");
 	tx_mercenariers_cost_uic:SetVisible(false);
 
-	PopulateCrusaderRecruitmentPanel();
-
 	CRUSADER_RECRUITMENT_PANEL_CREATED = true;
 end
 
 function CharacterSelected_Pope_UI(context)
 	local root = cm:ui_root();
-	local btnCrusade = UIComponent(root:Find("button_join_crusade"));
+	local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
+	local button_join_crusade_uic = UIComponent(root:Find("button_join_crusade"));
 
-	btnCrusade:SetState("inactive"); -- Default to inactive.
-	btnCrusade:SetVisible(false); -- Default to not visible.
+	button_crusaders_uic:SetVisible(false); -- Default to not visible.
+	button_join_crusade_uic:SetState("inactive"); -- Default to inactive.
+	button_join_crusade_uic:SetVisible(false); -- Default to not visible.
 
 	if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 		CloseCrusaderRecruitmentPanel(false);
@@ -109,10 +118,12 @@ function CharacterSelected_Pope_UI(context)
 			if HasValue(FACTION_EXCOMMUNICATED, faction_name) ~= true and context:character():faction():state_religion() == "att_rel_chr_catholic" then
 				if context:character():military_force():unit_list():num_items() > 1 then
 					-- Not an agent or lone general.
-					btnCrusade:SetVisible(true);
+					button_join_crusade_uic:SetVisible(true);
 
 					if not HasValue(CHARACTERS_ON_CRUSADE, LAST_CHARACTER_SELECTED:cqi()) then
-						btnCrusade:SetState("active");
+						button_join_crusade_uic:SetState("active");
+					elseif LAST_CHARACTER_SELECTED:region():majority_religion() == "att_rel_chr_catholic" then
+						button_crusaders_uic:SetVisible(true);
 					end
 				end
 			end
@@ -188,6 +199,13 @@ function OnComponentLClickUp_Pope_UI(context)
 			Update_Pope_Favour(faction);
 		end
 
+		if LAST_CHARACTER_SELECTED:region():majority_religion() == "att_rel_chr_catholic" then
+			local root = cm:ui_root();
+			local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
+
+			button_crusaders_uic:SetVisible(true);
+		end
+
 		UIComponent(context.component):SetState("inactive");
 		table.insert(CHARACTERS_ON_CRUSADE, LAST_CHARACTER_SELECTED:cqi());
 	elseif context.string == "button_crusaders" then
@@ -200,12 +218,25 @@ function OnComponentLClickUp_Pope_UI(context)
 	 	if context.string == "button_minimise" or context.string == "button_recruitment" or context.string == "button_mercenaries" or context.string == "root" then
 			CloseCrusaderRecruitmentPanel(false);
 		 elseif string.find(context.string, "_crusader") then
-			local unit_card_uic = UIComponent(context.component);
+			if LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() < 20 then
+				local unit_card_uic = UIComponent(context.component);
+				local unit_card_max_units_uic = UIComponent(unit_card_uic:Find("max_units"));
+				local unit_icon_uic = UIComponent(unit_card_uic:Find("unit_icon"));
 
-			if unit_card_uic:CurrentState() == "active" then
-				local unit_name = string.gsub(context.string, "_crusader", "");
+				if unit_card_uic:CurrentState() == "active" then
+					local unit_name = string.gsub(context.string, "_crusader", "");
+					local unit_num_left = CURRENT_CRUSADE_RECRUITABLE_UNITS_CAPS[unit_name];
 
-				cm:add_unit_to_force(unit_name, LAST_CHARACTER_SELECTED:military_force():command_queue_index());
+					cm:add_unit_to_force(unit_name, LAST_CHARACTER_SELECTED:military_force():command_queue_index());
+					unit_card_max_units_uic:SetStateText(tostring(unit_num_left - 1));
+
+					if unit_num_left - 1 == 0 then
+						unit_card_uic:SetDisabled(true);
+						unit_icon_uic:SetState("inactive");
+					end
+
+					CURRENT_CRUSADE_RECRUITABLE_UNITS_CAPS[unit_name] = unit_num_left - 1;
+				end
 			end
 		end
 	end
@@ -244,14 +275,27 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 	CloseCrusaderRecruitmentPanel(false);
 end
 
+function OnPanelClosedCampaign_Pope_UI(context)
+	if context.string == "units_panel" then
+		CloseCrusaderRecruitmentPanel(false);
+		SetUnitInformationPanelVisible(false, false);
+	end
+end
+
 function OpenCrusaderRecruitmentPanel()
 	local root = cm:ui_root();
 	local crusader_recruitment_docker_uic = UIComponent(root:Find("recruitment_docker_crusaders"));
 	local crusader_recruitment_clip_uic = UIComponent(crusader_recruitment_docker_uic:Find("recruitment_clip"));
 	local crusader_recruitment_options_uic = UIComponent(crusader_recruitment_clip_uic:Find("recruitment_options"));
+	local real_recruitment_docker_uic = UIComponent(root:Find("recuitment_docker"));
+	local real_recruitment_options_uic = UIComponent(real_recruitment_docker_uic:Find("recruitment_options"));
 
 	crusader_recruitment_docker_uic:SetVisible(true);
 	--crusader_recruitment_options_uic:TriggerAnimation("SlideIn");
+
+	if real_recruitment_options_uic:Visible() then
+		real_recruitment_options_uic:SetVisible(false);
+	end
 
 	CRUSADER_RECRUITMENT_PANEL_OPEN = true;
 end
@@ -267,14 +311,11 @@ function CloseCrusaderRecruitmentPanel(hover)
 	crusader_recruitment_docker_uic:SetVisible(false);
 
 	if hover == true then
-		button_crusaders_uic:SetState("hover");
+		button_crusaders_uic:SetInteractive(false);
+		cm:add_time_trigger("Reactivate_Crusader_Recruitment_Button", 0.0);
 	else
 		button_crusaders_uic:SetState("active");
 	end
-
-	button_crusaders_uic:SetInteractive(false);
-
-	cm:add_time_trigger("Reactivate_Crusader_Recruitment_Button", 0.1);
 
 	CRUSADER_RECRUITMENT_PANEL_OPEN = false;
 end
@@ -290,20 +331,26 @@ function PopulateCrusaderRecruitmentPanel()
 	local crusader_list_box_uicX, crusader_list_box_uicY = crusader_list_box_uic:Position();
 	local crusader_hslider_uic = UIComponent(crusader_listview_uic:Find("hslider"));
 
-	for i = 1, #CRUSADE_RECRUITABLE_UNITS["early"] do
-		local unit_name = CRUSADE_RECRUITABLE_UNITS["early"][i];
+	crusader_list_box_uic:DestroyChildren();
+
+	for i = 1, #CURRENT_CRUSADE_RECRUITABLE_UNITS do
+		local unit_name = CURRENT_CRUSADE_RECRUITABLE_UNITS[i];
 
 		crusader_list_box_uic:CreateComponent(unit_name.."_crusader", "ui/new/unit_cards/"..unit_name);
 
 		local unit_card_uic = UIComponent(crusader_list_box_uic:Find(i - 1));
 		local unit_card_recruitment_cost_uic = UIComponent(unit_card_uic:Find("RecruitmentCost"));
-		local unit_card_disabled_script_uic = UIComponent(unit_card_uic:Find("disabled_script"));
+		local unit_card_max_units_uic = UIComponent(unit_card_uic:Find("max_units"));
+		local unit_card_merch_type_uic = UIComponent(unit_card_uic:Find("merch_type"));
 
 		unit_card_uic:SetMoveable(true);
 		unit_card_uic:MoveTo(crusader_list_box_uicX + (64 * (i - 1)), crusader_list_box_uicY);
 		unit_card_uic:SetMoveable(false);
 		unit_card_recruitment_cost_uic:SetVisible(false);
-		unit_card_disabled_script_uic:SetVisible(false);
+		unit_card_max_units_uic:SetVisible(true);
+		unit_card_max_units_uic:SetStateText(tostring(CURRENT_CRUSADE_RECRUITABLE_UNITS_CAPS[unit_name]));
+		unit_card_merch_type_uic:SetVisible(true);
+		unit_card_merch_type_uic:SetState("crusader");
 	end
 
 	--crusader_hslider_uic:SetProperty("maxValue", "215");
@@ -316,6 +363,7 @@ function TimeTrigger_Pope_UI(context)
 		local crusader_recruitment_docker_uic = UIComponent(root:Find(6));
 		local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
 
+		button_crusaders_uic:SetState("hover");
 		button_crusaders_uic:SetInteractive(true);
 	end
 end

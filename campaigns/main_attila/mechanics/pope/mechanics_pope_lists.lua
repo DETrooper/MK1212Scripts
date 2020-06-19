@@ -87,6 +87,25 @@ CRUSADE_RECRUITABLE_UNITS = {
 	}
 }
 
+CRUSADE_RECRUITABLE_UNITS_CAPS = {
+	["early"] = {
+		["mk_mio_t1_hospitaller_sergeant_spearmen"] = 2,
+		["mk_mio_t1_templar_sergeant_spearmen"] = 2,
+		["mk_jer_t1_hospitaller_knights_dismounted"] = 1,
+		["mk_jer_t1_templar_knights_dismounted"] = 1,
+		["mk_mio_t1_hospitaller_crossbowmen_sergeants"] = 2,
+		["mk_mio_t1_templar_crossbowmen_sergeants"] = 2,
+		["mk_mio_t1_hospitaller_mounted_sergeants"] = 1,
+		["mk_jer_t1_hospitaller_knights"] = 1,
+		["mk_mio_t1_templar_mounted_sergeants"] = 1,
+		["mk_jer_t1_templar_knights"] = 1,
+		["mk_mio_t1_teu_mounted_sergeants"] = 1,
+		["mk_mio_t1_teu_sariantbruder"] = 1,
+		["mk_mio_t1_teu_ritterbruder"] = 1
+	}
+}
+
+
 CRUSADE_REGIONS = {
 	-- Core European territories recieve priority over faraway lands.
 	["att_reg_italia_roma"] = 10000, -- Rome
