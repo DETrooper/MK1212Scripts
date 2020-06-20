@@ -23,6 +23,13 @@ function Add_Buffer_States_Listeners()
 		true
 	);
 	cm:add_listener(
+		"SettlementDeselected_Buffer",
+		"SettlementDeselected",
+		true,
+		function(context) OnSettlementDeselected_Buffer(context) end,
+		true
+	);
+	cm:add_listener(
 		"TimeTrigger_Buffer",
 		"TimeTrigger",
 		true,
@@ -57,26 +64,28 @@ function OnComponentLClickUp_Buffer_UI(context)
 			local scroll_frame_uic = UIComponent(panBufferWarning:Find("scroll_frame"));
 
 			dy_buffer_info_uic:SetStateText("Faction: "..faction_string.."\nRegion: "..region_string);
-
 			scroll_frame_uic:DestroyChildren();
 			scroll_frame_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..REGIONS_LIBERATION_FACTIONS[REGION_SELECTED].."_flag_big");
 
 			local faction_logo_uic = UIComponent(scroll_frame_uic:Find(0));
 			local scroll_frame_uicX, scroll_frame_uicY = scroll_frame_uic:Position();
+
 			faction_logo_uic:SetMoveable(true);
 			faction_logo_uic:MoveTo(scroll_frame_uicX + 152, scroll_frame_uicY + 70);
 			faction_logo_uic:SetMoveable(false);
+			faction_logo_uic:SetInteractive(false);
 
 			panBufferWarning:SetVisible(true);
 		else
 			BufferPanelClosed(true);
 		end
 	elseif context.string == "button_buffer_confirm" then
+		local root = cm:ui_root();
+		local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
 		local faction_name = FACTION_TURN;
 		local faction = cm:model():world():faction_by_key(faction_name);
 		local vassal_faction_name = REGIONS_LIBERATION_FACTIONS[REGION_SELECTED];
 		local vassal_faction = cm:model():world():faction_by_key(vassal_faction_name);
-
 		local spear_unit = BUFFER_STATE_SPEAR_UNITS[vassal_faction_name];
 		local unit_list = spear_unit..","..spear_unit..","..spear_unit..","..spear_unit;
 
@@ -109,41 +118,61 @@ function OnComponentLClickUp_Buffer_UI(context)
 		end
 
 		BufferPanelClosed(false);
-		local root = cm:ui_root();
-		local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
 		btnBuffer:SetVisible(false);
 	elseif context.string == "button_buffer_cancel" then
 		BufferPanelClosed(false);
+	elseif context.string == "root" then
+		local root = cm:ui_root();
+		local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
+		local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
+	
+		if panBufferWarning:Visible() == true then
+			panBufferWarning:SetVisible(false);
+		end
+
+		if btnBuffer:Visible() == true then
+			btnBuffer:SetState("inactive"); 
+			btnBuffer:SetVisible(false);
+		end
 	end
 end
 
 function OnSettlementSelected_Buffer(context)
+	local root = cm:ui_root();
+	local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
 	local faction_name = FACTION_TURN;
 	local region_name = context:garrison_residence():region():name();
 	local region_owner_name = context:garrison_residence():region():owning_faction():name();
+
+	if btnBuffer:Visible() == true then
+		btnBuffer:SetState("inactive"); 
+		btnBuffer:SetVisible(false);
+	end
 
 	if region_owner_name == faction_name then
 		local vassal_faction = cm:model():world():faction_by_key(REGIONS_LIBERATION_FACTIONS[region_name]);
 
 		if not FactionIsAlive(REGIONS_LIBERATION_FACTIONS[region_name]) then
-			local root = cm:ui_root();
-			local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
-
 			if cm:get_local_faction() == FACTION_TURN then
 				btnBuffer:SetState("active"); 
 				btnBuffer:SetVisible(true);
 			end
-		else
-			if btnBuffer:Visible() == true then
-				btnBuffer:SetState("inactive"); 
-				btnBuffer:SetVisible(false);
-			end
 		end
-	else
-		if btnBuffer:Visible() == true then
-			btnBuffer:SetState("inactive"); 
-			btnBuffer:SetVisible(false);
-		end
+	end
+end
+
+function OnSettlementDeselected_Buffer(context)
+	local root = cm:ui_root();
+	local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
+	local btnBuffer = UIComponent(root:Find("button_release_buffer_state"));
+
+	if panBufferWarning:Visible() == true then
+		panBufferWarning:SetVisible(false);
+	end
+
+	if btnBuffer:Visible() == true then
+		btnBuffer:SetState("inactive"); 
+		btnBuffer:SetVisible(false);
 	end
 end
 

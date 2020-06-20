@@ -462,6 +462,10 @@ function Faction_Vassalized(master_faction_name, vassalized_faction_name, add_to
 	local vassalized_faction = cm:model():world():faction_by_key(vassalized_faction_name);
 
 	if add_to_table == true then
+		if FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name] == nil then
+			FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name] = {};
+		end
+		
 		table.insert(FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name], vassalized_faction_name);
 	end
 

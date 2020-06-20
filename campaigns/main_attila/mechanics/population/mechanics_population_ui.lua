@@ -153,23 +153,26 @@ function OnComponentMouseOn_Population_UI(context)
 		if not LAST_CHARACTER_SELECTED:faction():is_horde() then
 			local region_name = LAST_CHARACTER_SELECTED:region():name();
 			newToolTip = "Available "..POPULATIONS_CLASSES_STRINGS[unit_class].." manpower in "..REGIONS_NAMES_LOCALISATION[region_name]..": "..tostring(POPULATION_REGIONS_MANPOWER[region_name][unit_class]).."\nManpower Cost: "..POPULATION_UNITS_TO_POPULATION[unit_name][1];
-		end		
 
-		UIComponent(context.component):SetTooltipText(string.gsub(oldToolTip, "\n\n"..newToolTip, "").."\n\n"..newToolTip.."\n\n"..subRecruitableUnit);
-	elseif string.find(context.string, "QueuedLandUnit") then	
+			UIComponent(context.component):SetTooltipText(string.gsub(oldToolTip, "\n\n"..newToolTip, "").."\n\n"..newToolTip.."\n\n"..subRecruitableUnit);
+		else
+			UIComponent(context.component):SetTooltipText(oldToolTip.."\n\n"..subRecruitableUnit);
+		end		
+	elseif string.find(context.string, "QueuedLandUnit") then
 		local queue_number = string.gsub(context.string, "QueuedLandUnit ", "");
 
 		queue_number = tonumber(queue_number) + 1;
 
 		local unit_name = POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())][queue_number];
 		local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
+		local newToolTip = "Left-click to remove this unit from the recruitment queue.";
 		
 		if not LAST_CHARACTER_SELECTED:faction():is_horde() then
 			local region_name = LAST_CHARACTER_SELECTED:region():name();
-			local newToolTip = "Left-click to remove this unit from the recruitment queue.\n\nThis will refund "..POPULATION_UNITS_TO_POPULATION[unit_name][1].." "..POPULATIONS_CLASSES_STRINGS[unit_class].." manpower in "..REGIONS_NAMES_LOCALISATION[region_name]..".";
-
-			UIComponent(context.component):SetTooltipText(newToolTip);
+			newToolTip = "Left-click to remove this unit from the recruitment queue.\n\nThis will refund "..POPULATION_UNITS_TO_POPULATION[unit_name][1].." "..POPULATIONS_CLASSES_STRINGS[unit_class].." manpower in "..REGIONS_NAMES_LOCALISATION[region_name]..".";
 		end
+
+		UIComponent(context.component):SetTooltipText(newToolTip);
 	elseif string.find(context.string, "LandUnit") then
 		local unit_card_uic = UIComponent(context.component);
 		local merc_icon_uic = UIComponent(unit_card_uic:Find("merc_icon"));
@@ -178,7 +181,7 @@ function OnComponentMouseOn_Population_UI(context)
 		local oldToolTip = splitstr[1];
 		local queue_number = string.gsub(context.string, "LandUnit ", "");
 
-		if tonumber(queue_number) > 0 and merc_icon_uic:Visible() == false then
+		if tonumber(queue_number) > 0 and merc_icon_uic:Visible() == false and LAST_CHARACTER_SELECTED:faction():is_horde() == false then
 			local newToolTip = oldToolTip.."\n\nUsed Manpower: "..strength_number.."\n\nLeft-click to select.";
 			UIComponent(context.component):SetTooltipText(newToolTip);
 		else
@@ -261,7 +264,7 @@ function OnComponentLClickUp_Population_UI(context)
 		local oldToolTip = splitstr[1];
 		local queue_number = string.gsub(context.string, "LandUnit ", "");
 
-		if tonumber(queue_number) > 0 and merc_icon_uic:Visible() == false then
+		if tonumber(queue_number) > 0 and merc_icon_uic:Visible() == false and LAST_CHARACTER_SELECTED:faction():is_horde() == false then
 			local newToolTip = oldToolTip.."\n\nUsed Manpower: "..strength_number.."\n\nLeft-click to select.";
 			UIComponent(context.component):SetTooltipText(newToolTip);
 		else
