@@ -17,6 +17,7 @@ ARMY_SELECTED_REGION = nil;
 ARMY_SELECTED_TABLE = {};
 ARMY_SELECTED_STRENGTHS_TABLE = {};
 REGION_SELECTED = "";
+REGIONS_RAZED = {};
 LAST_CHARACTER_SELECTED = nil;
 LAST_CHARACTER_SELECTED_FACTION = nil;
 LAST_SACKED_SETTLEMENT = "";
@@ -30,10 +31,24 @@ function Add_MK1212_Common_Listeners()
 		true
 	);
 	cm:add_listener(
+		"CharacterEntersGarrison_Global",
+		"CharacterEntersGarrison",
+		true,
+		function(context) CharacterEntersGarrison_Global(context) end,
+		true
+	);
+	cm:add_listener(
 		"CharacterSelected_Global",
 		"CharacterSelected",
 		true,
 		function(context) CharacterSelected_Global(context) end,
+		true
+	);
+	cm:add_listener(
+		"CharacterPerformsOccupationDecisionRaze_Global",
+		"CharacterPerformsOccupationDecisionRaze",
+		true,
+		function(context) CharacterPerformsOccupationDecisionRaze_Global(context) end,
 		true
 	);
 	cm:add_listener(
@@ -44,11 +59,13 @@ function Add_MK1212_Common_Listeners()
 		true
 	);
 
+	local faction_list = cm:model():world():faction_list();
+
 	if cm:is_new_game() then
 		FACTION_TURN = cm:model():world():faction_list():item_at(0):name();
-	end
 
-	local faction_list = cm:model():world():faction_list();
+		Check_Razed_Regions();
+	end
 
 	for i = 0, faction_list:num_items() - 1 do
 		if faction_list:item_at(i):is_human() then
@@ -62,11 +79,24 @@ function FactionTurnStart_Global(context)
 	SACKED_SETTLEMENTS = {} -- Array is reset every faction turn.
 end
 
+function CharacterEntersGarrison_Global(context)
+	-- This is really inefficient but since CharacterPerformsOccupationDecisionResettle only works for hordes it's the only good way I can think of to check if a region is resettled.
+	Check_Razed_Regions();
+end
+
 function CharacterSelected_Global(context)
 	LAST_CHARACTER_SELECTED = context:character();
 	LAST_CHARACTER_SELECTED_FACTION = context:character():faction();
 
 	Check_Last_Character_Force();
+end
+
+function CharacterPerformsOccupationDecisionRaze_Global(context)
+	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
+
+	--dev.log("Razed "..region:name().."!");
+
+	table.insert(REGIONS_RAZED, region:name());
 end
 
 function OnSettlementSelected_Global(context)
@@ -89,6 +119,29 @@ function Check_Last_Character_Force()
 		for i = 0, LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() - 1 do
 			table.insert(ARMY_SELECTED_TABLE, LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):unit_key());
 			table.insert(ARMY_SELECTED_STRENGTHS_TABLE, LAST_CHARACTER_SELECTED:military_force():unit_list():item_at(i):percentage_proportion_of_full_strength());
+		end
+	end
+end
+
+function Check_Razed_Regions()
+	local region_list = cm:model():world():region_manager():region_list();
+
+	for i = 0, region_list:num_items() - 1 do
+		local region = region_list:item_at(i);
+		local region_name = region:name();
+
+		if region:owning_faction():name() == "rebels" then
+			if not HasValue(REGIONS_RAZED, region_name) then
+				table.insert(REGIONS_RAZED, region_name);
+			end
+		elseif HasValue(REGIONS_RAZED, region_name) then
+			for j = 1, #REGIONS_RAZED do
+				if REGIONS_RAZED[j] == region_name then
+					table.remove(REGIONS_RAZED, j);
+					cm:trigger_event("RegionResettled", region);
+					break;
+				end
+			end
 		end
 	end
 end
@@ -351,6 +404,7 @@ end
 cm:register_loading_game_callback(
 	function(context)
 		FACTION_TURN = cm:load_value("FACTION_TURN", "nil", context);
+		REGIONS_RAZED = LoadTable(context, "REGIONS_RAZED");
 		SACKED_SETTLEMENTS = LoadTable(context, "SACKED_SETTLEMENTS");
 		SACKED_SETTLEMENTS2 = LoadTable(context, "SACKED_SETTLEMENTS2");
 	end
@@ -359,9 +413,9 @@ cm:register_loading_game_callback(
 cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("FACTION_TURN", FACTION_TURN, context);
+		SaveTable(context, REGIONS_RAZED, "REGIONS_RAZED");
 		SaveTable(context, SACKED_SETTLEMENTS, "SACKED_SETTLEMENTS");
 		SaveTable(context, SACKED_SETTLEMENTS2, "SACKED_SETTLEMENTS2");
-
 	end
 );
 

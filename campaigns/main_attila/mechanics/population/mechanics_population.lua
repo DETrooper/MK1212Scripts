@@ -107,13 +107,13 @@ function Add_Population_Listeners()
 		function(context) CharacterPerformsOccupationDecisionRaze_Population(context) end,
 		true
 	);
-	cm:add_listener(
+	--[[cm:add_listener(
 		"CharacterPerformsOccupationDecisionResettle_Population",
 		"CharacterPerformsOccupationDecisionResettle",
 		true,
 		function(context) CharacterPerformsOccupationDecisionResettle_Population(context) end,
 		true
-	);
+	);]]--
 	cm:add_listener(
 		"ForceAdoptsStance_Population",
 		"ForceAdoptsStance",
@@ -126,6 +126,13 @@ function Add_Population_Listeners()
 		"RegionRebels",
 		true,
 		function(context) RegionRebels_Population(context) end,
+		true
+	);
+	cm:add_listener(
+		"RegionResettled_Population",
+		"RegionResettled",
+		true,
+		function(context) RegionResettled_Population(context) end,
 		true
 	);
 	cm:add_listener(
@@ -416,10 +423,10 @@ function CharacterPerformsOccupationDecisionRaze_Population(context)
 	POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
 end
 
-function CharacterPerformsOccupationDecisionResettle_Population(context)
+--[[function CharacterPerformsOccupationDecisionResettle_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	--dev.log("Resettled "..region:name().."!");
+	dev.log("Resettled "..region:name().."!");
 
 	POPULATION_REGIONS_POPULATIONS[region:name()][1] = 100;
 	POPULATION_REGIONS_POPULATIONS[region:name()][2] = 400;
@@ -430,7 +437,7 @@ function CharacterPerformsOccupationDecisionResettle_Population(context)
 
 	POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
 	Update_Faction_Total_Population(context:character():faction());
-end
+end]]--
 
 function ForceAdoptsStance_Population(context)
 	local force = context:military_force();
@@ -460,6 +467,22 @@ function RegionRebels_Population(context)
 		POPULATION_REGIONS_POPULATIONS[region_name][i] = toupper(population - (population * POPULATION_REBELLION_POPULATION_LOSS));
 		POPULATION_REGIONS_MANPOWER[region_name][i] = toupper(manpower - (manpower * POPULATION_REBELLION_POPULATION_LOSS));
 	end
+end
+
+function RegionResettled_Population(context)
+	local region = context:region();
+
+	--dev.log("Resettled "..region:name().."!");
+
+	POPULATION_REGIONS_POPULATIONS[region:name()][1] = 100;
+	POPULATION_REGIONS_POPULATIONS[region:name()][2] = 400;
+	POPULATION_REGIONS_POPULATIONS[region:name()][3] = 1000;
+	POPULATION_REGIONS_MANPOWER[region:name()][1] = 25;
+	POPULATION_REGIONS_MANPOWER[region:name()][2] = 100;
+	POPULATION_REGIONS_MANPOWER[region:name()][3] = 200;
+
+	POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+	Update_Faction_Total_Population(region:owning_faction());
 end
 
 function ResearchCompleted_Population(context)

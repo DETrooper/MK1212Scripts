@@ -179,7 +179,6 @@ function OnComponentLClickUp_Pope_UI(context)
 
 			cm:force_diplomacy(faction_name, CURRENT_CRUSADE_TARGET_OWNER, "peace", false, false);
 			cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, faction_name, "peace", false, false);
-
 			cm:trigger_mission(faction_name, CURRENT_CRUSADE_MISSION_KEY);
 
 			cm:show_message_event(
