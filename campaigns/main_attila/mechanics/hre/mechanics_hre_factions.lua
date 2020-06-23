@@ -6,7 +6,7 @@
 --
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------------
--- Keeps track of which factions are in the HRE, and which faction is the emperor.
+-- Keeps track of which factions are in the HRE, and which faction is the emperor. Also handles imperial authority and liberation.
 
 HRE_EMPEROR_KEY = "mk_fact_hre"; -- Starting emperor.
 HRE_EMPEROR_MISSION_AUTHORITY_REWARD = 25; -- The amount of Imperial Authority rewarded for beating a pretender.
@@ -26,6 +26,7 @@ HRE_FRANKFURT_KEY = "att_reg_germania_uburzis";
 HRE_FRANKFURT_STATUS = "capital";
 
 HRE_LIBERATED_FACTION = nil;
+HRE_LIBERATION_DISABLED = false;
 HRE_FACTIONS = {};
 HRE_FACTIONS_STATES = {};
 HRE_FACTIONS_STATE_CHANGE_COOLDOWNS = {};
@@ -67,6 +68,13 @@ function Add_HRE_Faction_Listeners()
 		true
 	);
 	cm:add_listener(
+		"GarrisonAttackedEvent_HRE_Factions",
+		"GarrisonAttackedEvent",
+		true,
+		function(context) GarrisonAttackedEvent_HRE_Factions(context) end,
+		true
+	);
+	cm:add_listener(
 		"GarrisonOccupiedEvent_HRE_Frankfurt",
 		"GarrisonOccupiedEvent",
 		true,
@@ -95,6 +103,9 @@ function Add_HRE_Faction_Listeners()
 		for i = 1, #HRE_FACTIONS do
 			HRE_FACTIONS_STATE_CHANGE_COOLDOWNS[HRE_FACTIONS[i]] = HRE_FACTION_STATE_CHANGE_COOLDOWN;
 		end
+
+		cm:set_liberation_options_disabled(true);
+		HRE_LIBERATION_DISABLED = true;
 	end
 end
 
@@ -167,7 +178,17 @@ function FactionTurnStart_HRE_Factions(context)
 			end
 		end
 
+		if HRE_LIBERATION_DISABLED == true then
+			cm:set_liberation_options_disabled(false);
+			HRE_LIBERATION_DISABLED = false;
+		end
+
 		HRE_Check_Factions_In_Empire();
+	else
+		if HRE_LIBERATION_DISABLED == true then
+			cm:set_liberation_options_disabled(true);
+			HRE_LIBERATION_DISABLED = true;
+		end
 	end
 
 	if context:faction():is_human() then
@@ -264,6 +285,18 @@ function FactionBecomesLiberationVassal_HRE_Factions(context)
 	end
 end
 
+function GarrisonAttackedEvent_HRE_Factions(context)
+	if HasValue(HRE_REGIONS, context:garrison_residence():region():name()) and context:character():faction():name() == HRE_EMPEROR_KEY then
+		if HRE_LIBERATION_DISABLED == true then
+			cm:set_liberation_options_disabled(false);
+			HRE_LIBERATION_DISABLED = false;
+		end
+	elseif HRE_LIBERATION_DISABLED == false then
+		cm:set_liberation_options_disabled(true);
+		HRE_LIBERATION_DISABLED = true;
+	end
+end
+
 function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 	local frankfurt_owner_name = cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name();
 	local region_name = context:garrison_residence():region():name();
@@ -330,6 +363,10 @@ function TimeTrigger_HRE_Factions(context)
 		local faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 		local vassalized_faction = cm:model():world():faction_by_key(HRE_LIBERATED_FACTION);
 		local is_ally = faction:allied_with(vassalized_faction);
+
+		if not HasValue(HRE_FACTIONS, HRE_LIBERATED_FACTION) and HasValue(HRE_FACTIONS_START, HRE_LIBERATED_FACTION) then
+			table.insert(HRE_FACTIONS, HRE_LIBERATED_FACTION);
+		end
 		
 		if is_ally == true then
 			-- They were liberated instead of vassalized, so set their state to loyal.
@@ -550,6 +587,14 @@ function HRE_Replace_Emperor(faction_name)
 
 	if HRE_FRANKFURT_STATUS == "capital" and cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name() ~= faction_name then
 		Transfer_Region_To_Faction(HRE_FRANKFURT_KEY, faction_name);
+	end
+
+	if FACTION_TURN == faction_name then
+		cm:set_liberation_options_disabled(false);
+		HRE_LIBERATION_DISABLED = false;
+	else
+		cm:set_liberation_options_disabled(true);
+		HRE_LIBERATION_DISABLED = true;
 	end
 end
 
@@ -815,6 +860,7 @@ cm:register_saving_game_callback(
 		cm:save_value("HRE_EMPEROR_PRETENDER_COOLDOWN", HRE_EMPEROR_PRETENDER_COOLDOWN, context);
 		cm:save_value("HRE_IMPERIAL_AUTHORITY", HRE_IMPERIAL_AUTHORITY, context);
 		cm:save_value("HRE_FRANKFURT_STATUS", HRE_FRANKFURT_STATUS, context);
+		cm:save_value("HRE_LIBERATION_DISABLED", HRE_LIBERATION_DISABLED, context);
 	end
 );
 
@@ -830,5 +876,6 @@ cm:register_loading_game_callback(
 		HRE_EMPEROR_PRETENDER_COOLDOWN = cm:load_value("HRE_EMPEROR_PRETENDER_COOLDOWN", 0, context);
 		HRE_IMPERIAL_AUTHORITY = cm:load_value("HRE_IMPERIAL_AUTHORITY", 40, context);
 		HRE_FRANKFURT_STATUS = cm:load_value("HRE_FRANKFURT_STATUS", "capital", context);
+		HRE_LIBERATION_DISABLED = cm:load_value("HRE_LIBERATION_DISABLED", false, context);
 	end
 );

@@ -19,7 +19,6 @@ ARMY_SELECTED_STRENGTHS_TABLE = {};
 REGION_SELECTED = "";
 REGIONS_RAZED = {};
 LAST_CHARACTER_SELECTED = nil;
-LAST_CHARACTER_SELECTED_FACTION = nil;
 LAST_SACKED_SETTLEMENT = "";
 
 function Add_MK1212_Common_Listeners()
@@ -86,7 +85,6 @@ end
 
 function CharacterSelected_Global(context)
 	LAST_CHARACTER_SELECTED = context:character();
-	LAST_CHARACTER_SELECTED_FACTION = context:character():faction();
 
 	Check_Last_Character_Force();
 end

@@ -338,6 +338,20 @@ function FactionTurnEnd_HRE_UI(context)
 end
 
 function OnPanelOpenedCampaign_HRE_UI(context)
+	if context.string == "settlement_captured" then
+		if cm:get_local_faction() == HRE_EMPEROR_KEY then
+			local button_parent_uic = UIComponent(UIComponent(context.component):Find("button_parent"));
+			local occupation_decision_liberate_uic = UIComponent(button_parent_uic:Find("occupation_decision_liberate"));
+
+			if occupation_decision_liberate_uic ~= nil then
+				local option_button_uic = UIComponent(occupation_decision_liberate_uic:Find("option_button"));
+				local dy_option_uic = UIComponent(option_button_uic:Find("dy_option"));
+
+				dy_option_uic:SetStateText("Liberate Member State");
+			end
+		end
+	end
+
 	CloseHREPanel(false);
 end
 

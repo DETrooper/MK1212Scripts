@@ -42,17 +42,17 @@ function Add_Population_UI_Listeners()
 		true
 	);
 	cm:add_listener(
-		"TimeTrigger_Population_UI",
-		"TimeTrigger",
-		true,
-		function(context) TimeTrigger_Population_UI(context) end,
-		true
-	);
-	cm:add_listener(
 		"ShortcutTriggered_Population_UI",
 		"ShortcutTriggered",
 		true,
 		function(context) ShortcutTriggered_Population_UI(context) end,
+		true
+	);
+	cm:add_listener(
+		"TimeTrigger_Population_UI",
+		"TimeTrigger",
+		true,
+		function(context) TimeTrigger_Population_UI(context) end,
 		true
 	);
 
@@ -274,6 +274,7 @@ function OnComponentLClickUp_Population_UI(context)
 	elseif context.string == "button_tick" then
 		if UIComponent(context.component):GetTooltipText() == "Accept" and button_disband_pressed == true then
 			cm:add_time_trigger("Check_Disbanded_Units", 0.1);
+			cm:trigger_event("UnitDisbanded"); -- I should probably put this in mk1212_common or something but I'm lazy.
 			button_disband_pressed = false;
 		elseif UIComponent(context.component):GetTooltipText() == "Cancel" and button_disband_pressed == true then
 			button_disband_pressed = false;
@@ -296,6 +297,14 @@ function OnPanelOpenedCampaign_Population_UI(context)
 		cm:add_time_trigger("Unit_Cards", 0.0);
 	elseif context.string == "clan" then
 		cm:add_time_trigger("Faction_Panel_Population", 0.0);
+	end
+end
+
+function ShortcutTriggered_Population_UI(context)
+	if context.string == "auto_merge_units" then
+		Check_Last_Character_Force();
+	elseif context.string == "current_selection_disband" then
+		button_disband_pressed = true;
 	end
 end
 
@@ -323,7 +332,7 @@ function TimeTrigger_Population_UI(context)
 		end
 	elseif context.string == "Check_Disbanded_Units" then
 		local new_army = {};
-		local forces = LAST_CHARACTER_SELECTED_FACTION:military_force_list();
+		local forces = LAST_CHARACTER_SELECTED:faction():military_force_list();
 
 		for x = 0, forces:num_items() - 1 do
 			local force = forces:item_at(x);
@@ -412,14 +421,6 @@ function TimeTrigger_Population_UI(context)
 		tx_provinces_owned_uic:SetStateText("Population:");
 		dy_provinces_owned_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[cm:get_local_faction()]));
 		dy_population_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[cm:get_local_faction()]));
-	end
-end
-
-function ShortcutTriggered_Population_UI(context)
-	if context.string == "auto_merge_units" then
-		Check_Last_Character_Force();
-	elseif context.string == "current_selection_disband" then
-		button_disband_pressed = true;
 	end
 end
 

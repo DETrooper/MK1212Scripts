@@ -6,11 +6,9 @@
 -------------------------------------------------------
 -------------------------------------------------------
 
--- Minor edit by me to change the add_data function for custom contexts so that it properly reads the arguments.
+-- Minor edits by DETrooper to add better support for custom contexts and triggering custom events.
 
 __event_handler = nil;
-
-
 
 event_handler = {
 	add_func = nil,
@@ -52,14 +50,11 @@ function event_handler:new(new_add_func)
 	return eh;
 end;
 
-
 function get_eh()
 	if is_eventhandler(__event_handler) then
 		return __event_handler;
 	end;
 end;
-
-
 
 function event_handler:add_listener(new_name, new_event, new_condition, new_callback, new_persistent)
 	if not is_string(new_name) then
@@ -99,7 +94,6 @@ function event_handler:add_listener(new_name, new_event, new_condition, new_call
 	table.insert(self.listeners, new_listener);	
 end;
 
-
 function event_handler:attach_to_event(eventname)
 
 	for i = 1, #self.attached_events do
@@ -121,8 +115,6 @@ function event_handler:attach_to_event(eventname)
 	
 	table.insert(self.attached_events, event_to_attach);
 end;
-
-
 
 function event_handler:event_callback(eventname, context)	
 	-- self:list_events();
@@ -154,7 +146,6 @@ function event_handler:event_callback(eventname, context)
 	end;
 end;
 
-
 -- go through all the listeners and remove those with the to_remove flag set
 function event_handler:clean_listeners()
 	for i = 1, #self.listeners do
@@ -166,7 +157,6 @@ function event_handler:clean_listeners()
 		end;
 	end;
 end;
-
 
 function event_handler:remove_listener(name_to_remove, start_point)
 	local start_point = start_point or 1;
@@ -184,8 +174,6 @@ function event_handler:remove_listener(name_to_remove, start_point)
 		end;
 	end;
 end;
-
-
 
 function event_handler:list_events()
 	print("**************************************");
@@ -210,16 +198,11 @@ function event_handler:list_events()
 	print("**************************************");
 end;
 
-
-
 function event_handler:register_event(event)
 	if not events[event] then
 		events[event] = {};
 	end;
 end;
-
-
-
 
 function event_handler:trigger_event(event, ...)
 	
@@ -239,18 +222,6 @@ function event_handler:trigger_event(event, ...)
 	end;
 end;
 
-
-
-
-
-
-
-
-
-
-
-
-
 ----------------------------------------------------------------------------
 -- custom context script
 ----------------------------------------------------------------------------
@@ -264,7 +235,6 @@ function custom_context:new()
 	
 	return cc;
 end;
-
 
 function custom_context:add_data(obj)
 	
@@ -280,32 +250,33 @@ function custom_context:add_data(obj)
 		self.component_data = obj;
 	elseif is_militaryforce(obj) then
 		self.military_force_data = obj;
+	elseif is_unit(obj) then
+		self.unit_data = obj;
 	else
 		script_error("ERROR: adding data to custom context but couldn't recognise data [" .. tostring(obj) .. "] of type [" .. type(obj) .. "]");
 	end;	
 end;
 
-
 function custom_context:region()
 	return self.region_data;
 end;
-
 
 function custom_context:character()
 	return self.character_data;
 end;
 
-
 function custom_context:faction()
 	return self.character_data;
 end;
-
 
 function custom_context:component()
 	return self.component_data;
 end;
 
-
 function custom_context:military_force()
 	return self.military_force_data;
+end;
+
+function custom_context:unit()
+	return self.unit_data;
 end;

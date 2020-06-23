@@ -9,6 +9,7 @@ module(..., package.seeall)
 
 FactionVassalized = {}
 RegionResettled = {}
+UnitDisbanded = {}
 
 -- Event tables
 
