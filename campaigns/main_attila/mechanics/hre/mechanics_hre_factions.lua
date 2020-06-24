@@ -376,6 +376,7 @@ function TimeTrigger_HRE_Factions(context)
 		end
 
 		HRE_LIBERATED_FACTION = nil;
+		HRE_Check_Regions_In_Empire();
 	end
 end
 

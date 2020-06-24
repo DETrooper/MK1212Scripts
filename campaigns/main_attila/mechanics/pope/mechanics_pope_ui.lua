@@ -244,22 +244,30 @@ function OnComponentLClickUp_Pope_UI(context)
 					CURRENT_CRUSADE_RECRUITABLE_UNITS_CAPS[unit_name] = unit_num_left - 1;
 
 					-- Refresh the units panel so the recruited units show.
-					--local root = cm:ui_root();
-					--local units_panel_uic = UIComponent(root:Find("units_panel"));
-					--local main_units_panel_uic = UIComponent(units_panel_uic:Find("main_units_panel"));
-					--local units_uic = UIComponent(main_units_panel_uic:Find("units"));
-				end
-			end
+					local root = cm:ui_root();
+					local layout_uic = UIComponent(root:Find("layout"));
+					local bar_small_top_uic = UIComponent(layout_uic:Find("bar_small_top"));
+					local tab_units_uic = UIComponent(bar_small_top_uic:Find("tab_units"));
+					local units_dropdown_uic = UIComponent(root:Find("units_dropdown"));
 
-			if LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() >= 20 then
-				local list_box_uic = UIComponent(UIComponent(context.component):Parent());
+					if tab_units_uic:CurrentState() == "selected" then
+						local character_cqi_str = tostring(LAST_CHARACTER_SELECTED:cqi());
+						local sortable_list_units_uic = UIComponent(units_dropdown_uic:Find("sortable_list_units"));
+						local list_box_uic = UIComponent(sortable_list_units_uic:Find("list_box"));
 
-				for i = 0, list_box_uic:ChildCount() - 1 do
-					local unit_card_uic = UIComponent(list_box_uic:Find(i));
-					local unit_icon_uic = UIComponent(unit_card_uic:Find("unit_icon"));
+						for i = 0, list_box_uic:ChildCount() - 1 do
+							local child = UIComponent(list_box_uic:Find(i));
 
-					unit_card_uic:SetDisabled(true);
-					unit_icon_uic:SetState("inactive");
+							if child:Id() == "character_row_"..character_cqi_str then
+								child:SimulateClick();
+							end
+						end
+
+						cm:add_time_trigger("Check_Army_Size", 0.0);
+					else
+						tab_units_uic:SimulateClick();
+						cm:add_time_trigger("Hide_Units_Dropdown", 0.0);
+					end
 				end
 			end
 		end
@@ -308,7 +316,9 @@ end
 
 function UnitDisbanded_Pope_UI(context)
 	if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
-		RefreshCrusaderRecruitmentPanel(false);
+		if LAST_CHARACTER_SELECTED ~= nil then
+			RefreshCrusaderRecruitmentPanel(false);
+		end
 	end
 end
 
@@ -401,16 +411,22 @@ function RefreshCrusaderRecruitmentPanel(check_units)
 
 	-- Sometimes the crusader recruitment button is set to active, like when disbanding a unit.
 	if button_crusaders_uic:CurrentState() == "active" then
-		button_crusaders_uic:SetState("selected");
+		cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.0);
 	end
 
-	if LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() >= 20 and check_units == true then
-		for i = 0, crusader_list_box_uic:ChildCount() - 1 do
-			local unit_card_uic = UIComponent(crusader_list_box_uic:Find(i));
-			local unit_icon_uic = UIComponent(unit_card_uic:Find("unit_icon"));
+	if check_units == true then
+		local units_panel_uic = UIComponent(root:Find("units_panel"));
+		local main_units_panel_uic = UIComponent(units_panel_uic:Find("main_units_panel"));
+		local units_uic = UIComponent(main_units_panel_uic:Find("units"));
 
-			unit_card_uic:SetDisabled(true);
-			unit_icon_uic:SetState("inactive");
+		if units_uic:ChildCount() >= 21 then
+			for i = 0, crusader_list_box_uic:ChildCount() - 1 do
+				local unit_card_uic = UIComponent(crusader_list_box_uic:Find(i));
+				local unit_icon_uic = UIComponent(unit_card_uic:Find("unit_icon"));
+
+				unit_card_uic:SetDisabled(true);
+				unit_icon_uic:SetState("inactive");
+			end
 		end
 	else
 		for i = 0, crusader_list_box_uic:ChildCount() - 1 do
@@ -432,13 +448,44 @@ function RefreshCrusaderRecruitmentPanel(check_units)
 end
 
 function TimeTrigger_Pope_UI(context)
-	if context.string == "Reactivate_Crusader_Recruitment_Button" then
+	if context.string == "Check_Army_Size" then
+		RefreshCrusaderRecruitmentPanel(true);
+	elseif context.string == "Reactivate_Crusader_Recruitment_Button" then
 		local root = cm:ui_root();
 		local crusader_recruitment_docker_uic = UIComponent(root:Find(6));
 		local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
 
 		button_crusaders_uic:SetState("hover");
 		button_crusaders_uic:SetInteractive(true);
+	elseif context.string == "Reselect_Crusader_Recruitment_Button" then
+		local root = cm:ui_root();
+		local crusader_recruitment_docker_uic = UIComponent(root:Find(6));
+		local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
+
+		button_crusaders_uic:SetState("selected");
+		button_crusaders_uic:SetInteractive(true);
+	elseif context.string == "Hide_Units_Dropdown" then
+		local root = cm:ui_root();
+		local layout_uic = UIComponent(root:Find("layout"));
+		local bar_small_top_uic = UIComponent(layout_uic:Find("bar_small_top"));
+		local tab_units_uic = UIComponent(bar_small_top_uic:Find("tab_units"));
+		local units_dropdown_uic = UIComponent(root:Find("units_dropdown"));
+		local sortable_list_units_uic = UIComponent(units_dropdown_uic:Find("sortable_list_units"));
+		local list_box_uic = UIComponent(sortable_list_units_uic:Find("list_box"));
+		local character_cqi_str = tostring(LAST_CHARACTER_SELECTED:cqi());
+
+		for i = 0, list_box_uic:ChildCount() - 1 do
+			local child = UIComponent(list_box_uic:Find(i));
+
+			if child:Id() == "character_row_"..character_cqi_str then
+				child:SimulateClick();
+			end
+		end
+
+		tab_units_uic:SimulateClick();
+
+		cm:add_time_trigger("Check_Army_Size", 0.0);
+		cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.0);
 	end
 end
 

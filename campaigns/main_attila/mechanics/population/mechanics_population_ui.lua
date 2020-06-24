@@ -332,7 +332,7 @@ function TimeTrigger_Population_UI(context)
 		end
 	elseif context.string == "Check_Disbanded_Units" then
 		local new_army = {};
-		local forces = LAST_CHARACTER_SELECTED:faction():military_force_list();
+		local forces = cm:model():world():faction_by_key(cm:get_local_faction()):military_force_list();
 
 		for x = 0, forces:num_items() - 1 do
 			local force = forces:item_at(x);
