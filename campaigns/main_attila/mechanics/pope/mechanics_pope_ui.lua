@@ -243,30 +243,62 @@ function OnComponentLClickUp_Pope_UI(context)
 
 					CURRENT_CRUSADE_RECRUITABLE_UNITS_CAPS[unit_name] = unit_num_left - 1;
 
-					-- Refresh the units panel so the recruited units show.
+					-- Refresh the units panel so the recruited crusader units show. The army unit list UI does not update on its own.
+					-- This is about to get really janky :(
+
+					-- First we want to try the auto-merge shortcut as that refreshes the unit list, but if any units are damaged we can't do that.
 					local root = cm:ui_root();
-					local layout_uic = UIComponent(root:Find("layout"));
-					local bar_small_top_uic = UIComponent(layout_uic:Find("bar_small_top"));
-					local tab_units_uic = UIComponent(bar_small_top_uic:Find("tab_units"));
-					local units_dropdown_uic = UIComponent(root:Find("units_dropdown"));
+					local army_full_strength = true;
+					local unit_list = LAST_CHARACTER_SELECTED:military_force():unit_list();
 
-					if tab_units_uic:CurrentState() == "selected" then
-						local character_cqi_str = tostring(LAST_CHARACTER_SELECTED:cqi());
-						local sortable_list_units_uic = UIComponent(units_dropdown_uic:Find("sortable_list_units"));
-						local list_box_uic = UIComponent(sortable_list_units_uic:Find("list_box"));
+					for i = 0, unit_list:num_items() - 1 do
+						local unit = unit_list:item_at(i);
 
-						for i = 0, list_box_uic:ChildCount() - 1 do
-							local child = UIComponent(list_box_uic:Find(i));
-
-							if child:Id() == "character_row_"..character_cqi_str then
-								child:SimulateClick();
-							end
+						if unit:percentage_proportion_of_full_strength() ~= 100 then
+							army_full_strength = false;
+							break;
 						end
+					end
 
-						cm:add_time_trigger("Check_Army_Size", 0.0);
+					if army_full_strength == true then
+						-- Army has no units that can be merged, so it's safe to use auto_merge_units.
+						local units_panel_uic = UIComponent(root:Find("units_panel"));
+						local main_units_panel_uic = UIComponent(units_panel_uic:Find("main_units_panel"));
+						local button_group_unit_uic = UIComponent(main_units_panel_uic:Find("button_group_unit"));
+						local button_merge_uic = UIComponent(button_group_unit_uic:Find("button_merge"));
+
+						button_merge_uic:TriggerShortcut("auto_merge_units");
+						RefreshCrusaderRecruitmentPanel(true, true);
+						cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.2);
 					else
-						tab_units_uic:SimulateClick();
-						cm:add_time_trigger("Hide_Units_Dropdown", 0.0);
+						-- Can't use auto_merge_units or else units will be inadvertently merged.
+						-- Instead we'll have to click on the army again to refresh its unit list.
+						-- This is done using the army dropdown panel in the top right, which has the unfortunate side effect of appearing for a split second and making noise. Oh well.
+						local layout_uic = UIComponent(root:Find("layout"));
+						local bar_small_top_uic = UIComponent(layout_uic:Find("bar_small_top"));
+						local tab_units_uic = UIComponent(bar_small_top_uic:Find("tab_units"));
+						local units_dropdown_uic = UIComponent(root:Find("units_dropdown"));
+
+						if tab_units_uic:CurrentState() == "selected" then
+							-- Good news, the unit dropdown panel is already open!
+							local character_cqi_str = tostring(LAST_CHARACTER_SELECTED:cqi());
+							local sortable_list_units_uic = UIComponent(units_dropdown_uic:Find("sortable_list_units"));
+							local list_box_uic = UIComponent(sortable_list_units_uic:Find("list_box"));
+
+							for i = 0, list_box_uic:ChildCount() - 1 do
+								local child = UIComponent(list_box_uic:Find(i));
+
+								if child:Id() == "character_row_"..character_cqi_str then
+									child:SimulateClick();
+								end
+							end
+
+							cm:add_time_trigger("Check_Army_Size", 0.0);
+						else
+							-- We'll need to open the unit dropdown panel and there's a delay from it opening and being able to click on the army button.
+							tab_units_uic:SimulateClick();
+							cm:add_time_trigger("Hide_Units_Dropdown", 0.0);
+						end
 					end
 				end
 			end
@@ -314,10 +346,53 @@ function OnPanelClosedCampaign_Pope_UI(context)
 	end
 end
 
+function TimeTrigger_Pope_UI(context)
+	if context.string == "Check_Army_Size" then
+		RefreshCrusaderRecruitmentPanel(true, false);
+	elseif context.string == "Reactivate_Crusader_Recruitment_Button" then
+		local root = cm:ui_root();
+		local crusader_recruitment_docker_uic = UIComponent(root:Find(6));
+		local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
+
+		button_crusaders_uic:SetState("hover");
+		button_crusaders_uic:SetInteractive(true);
+	elseif context.string == "Reselect_Crusader_Recruitment_Button" then
+		local root = cm:ui_root();
+		local crusader_recruitment_docker_uic = UIComponent(root:Find(6));
+		local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
+
+		button_crusaders_uic:SetState("selected");
+		button_crusaders_uic:SetInteractive(true);
+	elseif context.string == "Hide_Units_Dropdown" then
+		local root = cm:ui_root();
+		local layout_uic = UIComponent(root:Find("layout"));
+		local bar_small_top_uic = UIComponent(layout_uic:Find("bar_small_top"));
+		local tab_units_uic = UIComponent(bar_small_top_uic:Find("tab_units"));
+		local units_dropdown_uic = UIComponent(root:Find("units_dropdown"));
+		local sortable_list_units_uic = UIComponent(units_dropdown_uic:Find("sortable_list_units"));
+		local list_box_uic = UIComponent(sortable_list_units_uic:Find("list_box"));
+		local character_cqi_str = tostring(LAST_CHARACTER_SELECTED:cqi());
+
+		for i = 0, list_box_uic:ChildCount() - 1 do
+			local child = UIComponent(list_box_uic:Find(i));
+
+			if child:Id() == "character_row_"..character_cqi_str then
+				child:SimulateClick();
+			end
+		end
+
+		tab_units_uic:SimulateClick();
+
+		cm:add_time_trigger("Check_Army_Size", 0.0);
+		cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.0);
+	end
+end
+
 function UnitDisbanded_Pope_UI(context)
 	if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 		if LAST_CHARACTER_SELECTED ~= nil then
-			RefreshCrusaderRecruitmentPanel(false);
+			RefreshCrusaderRecruitmentPanel(false, false);
+			cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.1);
 		end
 	end
 end
@@ -337,7 +412,7 @@ function OpenCrusaderRecruitmentPanel()
 		real_recruitment_options_uic:SetVisible(false);
 	end
 
-	RefreshCrusaderRecruitmentPanel(true);
+	RefreshCrusaderRecruitmentPanel(true, false);
 
 	CRUSADER_RECRUITMENT_PANEL_OPEN = true;
 end
@@ -399,7 +474,7 @@ function PopulateCrusaderRecruitmentPanel()
 	--dev.log(crusader_hslider_uic:GetProperty("maxValue"));
 end
 
-function RefreshCrusaderRecruitmentPanel(check_units)
+function RefreshCrusaderRecruitmentPanel(check_units, minus_one)
 	local root = cm:ui_root();
 	local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
 	local crusader_recruitment_docker_uic = UIComponent(root:Find("recruitment_docker_crusaders"));
@@ -409,23 +484,39 @@ function RefreshCrusaderRecruitmentPanel(check_units)
 	local crusader_list_clip_uic = UIComponent(crusader_listview_uic:Find("list_clip"));
 	local crusader_list_box_uic = UIComponent(crusader_list_clip_uic:Find("list_box"));
 
-	-- Sometimes the crusader recruitment button is set to active, like when disbanding a unit.
-	if button_crusaders_uic:CurrentState() == "active" then
-		cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.0);
-	end
-
 	if check_units == true then
 		local units_panel_uic = UIComponent(root:Find("units_panel"));
 		local main_units_panel_uic = UIComponent(units_panel_uic:Find("main_units_panel"));
 		local units_uic = UIComponent(main_units_panel_uic:Find("units"));
+		local target_number = 21; -- 20 unit cards + the frame UIC.
 
-		if units_uic:ChildCount() >= 21 then
+		if minus_one == true then
+			-- Sometimes I can't expect the unit list to have been updated in time, such as when auto_merge_units is fired.
+			target_number = 20;
+		end
+
+		if units_uic:ChildCount() >= target_number then
 			for i = 0, crusader_list_box_uic:ChildCount() - 1 do
 				local unit_card_uic = UIComponent(crusader_list_box_uic:Find(i));
 				local unit_icon_uic = UIComponent(unit_card_uic:Find("unit_icon"));
 
 				unit_card_uic:SetDisabled(true);
 				unit_icon_uic:SetState("inactive");
+			end
+		else
+			for i = 0, crusader_list_box_uic:ChildCount() - 1 do
+				local unit_card_uic = UIComponent(crusader_list_box_uic:Find(i));
+				local unit_icon_uic = UIComponent(unit_card_uic:Find("unit_icon"));
+				local unit_name = string.gsub(unit_card_uic:Id(), "_crusader", "");
+				local unit_num_left = CURRENT_CRUSADE_RECRUITABLE_UNITS_CAPS[unit_name];
+	
+				if unit_num_left == 0 then
+					unit_card_uic:SetDisabled(true);
+					unit_icon_uic:SetState("inactive");
+				else
+					unit_card_uic:SetDisabled(false);
+					unit_icon_uic:SetState("active");
+				end
 			end
 		end
 	else
@@ -443,49 +534,6 @@ function RefreshCrusaderRecruitmentPanel(check_units)
 				unit_icon_uic:SetState("active");
 			end
 		end
-	end
-
-end
-
-function TimeTrigger_Pope_UI(context)
-	if context.string == "Check_Army_Size" then
-		RefreshCrusaderRecruitmentPanel(true);
-	elseif context.string == "Reactivate_Crusader_Recruitment_Button" then
-		local root = cm:ui_root();
-		local crusader_recruitment_docker_uic = UIComponent(root:Find(6));
-		local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
-
-		button_crusaders_uic:SetState("hover");
-		button_crusaders_uic:SetInteractive(true);
-	elseif context.string == "Reselect_Crusader_Recruitment_Button" then
-		local root = cm:ui_root();
-		local crusader_recruitment_docker_uic = UIComponent(root:Find(6));
-		local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
-
-		button_crusaders_uic:SetState("selected");
-		button_crusaders_uic:SetInteractive(true);
-	elseif context.string == "Hide_Units_Dropdown" then
-		local root = cm:ui_root();
-		local layout_uic = UIComponent(root:Find("layout"));
-		local bar_small_top_uic = UIComponent(layout_uic:Find("bar_small_top"));
-		local tab_units_uic = UIComponent(bar_small_top_uic:Find("tab_units"));
-		local units_dropdown_uic = UIComponent(root:Find("units_dropdown"));
-		local sortable_list_units_uic = UIComponent(units_dropdown_uic:Find("sortable_list_units"));
-		local list_box_uic = UIComponent(sortable_list_units_uic:Find("list_box"));
-		local character_cqi_str = tostring(LAST_CHARACTER_SELECTED:cqi());
-
-		for i = 0, list_box_uic:ChildCount() - 1 do
-			local child = UIComponent(list_box_uic:Find(i));
-
-			if child:Id() == "character_row_"..character_cqi_str then
-				child:SimulateClick();
-			end
-		end
-
-		tab_units_uic:SimulateClick();
-
-		cm:add_time_trigger("Check_Army_Size", 0.0);
-		cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.0);
 	end
 end
 
