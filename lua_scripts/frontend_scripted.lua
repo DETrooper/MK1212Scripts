@@ -335,54 +335,65 @@ function OnComponentLClickUp(context)
 	);
 
 	-- For custom battles.
-	if context.string == "button_change_faction" then
-		tm:callback(
-			function() 
-				local faction_dropdown_uic = UIComponent(scripting.m_root:Find("faction_dropdown"));
-				local popup_menu_uic = UIComponent(faction_dropdown_uic:Find("popup_menu"));
-				local popup_list_uic = UIComponent(popup_menu_uic:Find("popup_list"));
-				local popup_menuX, popup_menuY = popup_menu_uic:Position();
-				local popup_listX, popup_listY = popup_list_uic:Position();
+	if UIComponent(scripting.m_root:Find("battle_setup")):Visible() then
+		if context.string == "button_change_faction" then
+			tm:callback(
+				function() 
+					local faction_dropdown_uic = UIComponent(scripting.m_root:Find("faction_dropdown"));
+					local popup_menu_uic = UIComponent(faction_dropdown_uic:Find("popup_menu"));
+					local popup_list_uic = UIComponent(popup_menu_uic:Find("popup_list"));
+					local popup_menuX, popup_menuY = popup_menu_uic:Position();
+					local popup_listX, popup_listY = popup_list_uic:Position();
 
-				local boundsX = 225;
-				local boundsY = 32;
-				local columns = math.ceil(popup_list_uic:ChildCount() / 20);
-				local column = 1;
-				local row = 0;
+					local boundsX = 225;
+					local boundsY = 32;
+					local columns = math.ceil(popup_list_uic:ChildCount() / 20);
+					local column = 1;
+					local row = 0;
 
-				popup_menu_uic:Resize((225 * columns), 650);
-				popup_menu_uic:SetMoveable(true);
-				popup_menu_uic:MoveTo(popup_menuX - ((boundsX * columns) / 2), popup_menuY);
-				popup_menu_uic:SetMoveable(false);
+					popup_menu_uic:Resize((225 * columns), 650);
+					popup_menu_uic:SetMoveable(true);
+					popup_menu_uic:MoveTo(popup_menuX - ((boundsX * columns) / 2), popup_menuY);
+					popup_menu_uic:SetMoveable(false);
 
-				popup_listX, popup_listY = popup_list_uic:Position(); -- Reset pos.
-				
-				for i = 1, popup_list_uic:ChildCount() do
-					local uic = UIComponent(popup_list_uic:Find("option"..tostring(i - 1)));
+					popup_listX, popup_listY = popup_list_uic:Position(); -- Reset pos.
+					
+					for i = 1, popup_list_uic:ChildCount() do
+						local uic = UIComponent(popup_list_uic:Find("option"..tostring(i - 1)));
 
-					if row < 20 then
-						row = row + 1;
-					else
-						row = 1;
+						if row < 20 then
+							row = row + 1;
+						else
+							row = 1;
+						end
+
+						if i > 20 and i < 40 then
+							column = 2;
+						elseif i > 40 and i < 60 then
+							column = 3;
+						elseif i > 60 and i < 80 then
+							column = 4;
+						elseif i > 80 then
+							column = 5;
+						end
+
+						uic:SetMoveable(true);
+						uic:MoveTo(popup_listX - boundsX + (boundsX * column), popup_listY + (boundsY * (row - 1)));
+						uic:SetMoveable(false);
+						uic:SetVisible(true);
 					end
-
-					if i > 20 and i < 40 then
-						column = 2;
-					elseif i > 40 and i < 60 then
-						column = 3;
-					elseif i > 60 and i < 80 then
-						column = 4;
-					elseif i > 80 then
-						column = 5;
-					end
-
-					uic:SetMoveable(true);
-					uic:MoveTo(popup_listX - boundsX + (boundsX * column), popup_listY + (boundsY * (row - 1)));
-					uic:SetMoveable(false);
-				end
-			end,
-			1
-		);
+				end,
+				1
+			);
+		elseif UIComponent(UIComponent(context.component):Parent()) ~= nil then
+			local parent_id = UIComponent(UIComponent(context.component):Parent()):Id();
+		
+			if parent_id == "army_box" or parent_id == "units_box" then
+				ChangeUnitStatsLayout();
+			end
+		elseif context.string == "tab_unit_info" then
+			ChangeUnitStatsLayout();
+		end
 	end
 end
 
@@ -394,6 +405,14 @@ function OnMouseOn(context)
 			end, 
 			1
 		);
+	elseif UIComponent(UIComponent(context.component):Parent()) ~= nil then
+		local parent_id = UIComponent(UIComponent(context.component):Parent()):Id();
+	
+		if parent_id == "army_box" or parent_id == "units_box" then
+			ChangeUnitStatsLayout();
+		end
+	elseif context.string == "tab_unit_info" then
+		ChangeUnitStatsLayout();
 	end
 end
 
@@ -546,8 +565,6 @@ function ChangeEffects()
 	effect_description_window_uic:MoveTo(curX - 338, curY + 81);
 	effect_description_window_uic:SetMoveable(false);
 	entries_window_uic:SetVisible(false);
-
-	--dev.log(faction_trait_icon_uic:InterfaceFunction("CampaignEffectsBundleIcon"));
 	
 	-- Right Side
 	local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
@@ -604,5 +621,29 @@ function ChangeEffects()
 	if adopted == false then
 		UIComponent(scripting.m_root:Find("sp_grand_campaign")):Adopt(effect_title_uic:Address());
 		adopted = true;
+	end
+end
+
+function ChangeUnitStatsLayout()
+	-- Odd stats go left, even go right.
+	local dynamic_stats_uic = find_uicomponent_by_table(scripting.m_root, {"battle_setup", "dock_area", "main", "panel_battle_setup", "settings_info_tab_group", "tab_unit_info", "tab_child", "unit_info_background", "unit_info", "details", "dynamic_stats"});
+	local dynamic_stats_uicX, dynamic_stats_uicY = dynamic_stats_uic:Position();
+	local row = 0;
+
+	if dynamic_stats_uic ~= nil then
+		for i = 0, dynamic_stats_uic:ChildCount() - 1 do
+			local stat_uic = UIComponent(dynamic_stats_uic:Find(i));
+
+			stat_uic:SetMoveable(true);
+
+			if ((i + 1) % 2 == 0) then
+				stat_uic:MoveTo(dynamic_stats_uicX + 214, dynamic_stats_uicY + (24 * row));
+				row = row + 1;
+			else
+				stat_uic:MoveTo(dynamic_stats_uicX, dynamic_stats_uicY + (24 * row));
+			end
+
+			stat_uic:SetMoveable(false);
+		end
 	end
 end
