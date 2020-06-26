@@ -183,9 +183,9 @@ function OnComponentLClickUp(context)
 			function() 
 				local faction_panel_uic = UIComponent(scripting.m_root:Find("faction_panel"));
 				local curX, curY = faction_panel_uic:Position();
-				faction_panel_uic:Resize(1300, 254);
+				faction_panel_uic:Resize(1367, 254);
 				faction_panel_uic:SetMoveable(true);
-				faction_panel_uic:MoveTo(curX, curY - 74);
+				faction_panel_uic:MoveTo(curX - 34, curY - 74);
 				faction_panel_uic:SetMoveable(false);
 
 				local start_year_uic = UIComponent(scripting.m_root:Find("dy_start_year"));
@@ -451,7 +451,7 @@ function ChangeEffects()
 	local effects_dlc_uic = UIComponent(sp_grand_campaign_uic:Find("effects_dlc"));
 	local leader_window_uic = UIComponent(sp_grand_campaign_uic:Find("3D_window"));
 	local curX, curY = leader_window_uic:Position();
-	local max_columns = 19;
+	local max_columns = 20;
 	local spacing = 67;
 	local factions = {};
 
@@ -462,6 +462,7 @@ function ChangeEffects()
 		local att_fact_group_roman_uic = UIComponent(scripting.m_root:Find("att_fact_group_roman"));
 		local col = 0;
 		local row = 1;
+		local row_offset = 0;
 
 		att_fact_group_roman_uic:SetVisible(false);
 
@@ -482,11 +483,15 @@ function ChangeEffects()
 			col = col + 1;
 
 			if col > max_columns then
+				if #factions - i < max_columns then
+					row_offset = (spacing / 2) * (max_columns - (#factions - (i - 1)));
+				end
+
 				col = 1;
 				row = row + 1;
 			end
 
-			faction_uic:MoveTo(curX - 528 + (spacing * col), curY - (249 - spacing * (row - 1)));
+			faction_uic:MoveTo(curX - 562 + (spacing * col) + row_offset, curY - (249 - spacing * (row - 1)));
 			faction_uic:SetMoveable(false);
  		end
 
@@ -525,7 +530,7 @@ function ChangeEffects()
 				row = row + 1;
 			end
 
-			faction_uic:MoveTo(curX - 528 + (spacing * col), curY - (249 - spacing * (row - 1)));
+			faction_uic:MoveTo(curX - 562 + (spacing * col), curY - (249 - spacing * (row - 1)));
 			faction_uic:SetMoveable(false);
 		 end
 		 
@@ -575,7 +580,7 @@ function ChangeEffects()
 	checkbox_ironman_uic:MoveTo(curX + 114, curY - 20);
 	checkbox_ironman_uic:SetMoveable(false);
 	button_random_faction_uic:SetMoveable(true);
-	button_random_faction_uic:MoveTo(curX + 795, curY - 55);
+	button_random_faction_uic:MoveTo(curX + 829, curY - 55);
 	button_random_faction_uic:SetMoveable(false);
 	text_ironman_uic:Resize(200, 48);
 	text_ironman_uic:SetMoveable(true);

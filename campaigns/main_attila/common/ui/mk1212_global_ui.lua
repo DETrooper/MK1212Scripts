@@ -43,14 +43,15 @@ function Add_MK1212_Global_UI_Listeners()
 		true
 	);
 
+	Disable_Abandoning_Settlements();
+	Disable_Naval_Recruitment();
+	
 	local root = cm:ui_root();
 	root:CreateComponent("garbage", "UI/campaign ui/script_dummy");
 end
 
 function OnComponentLClickUp_Global_UI(context)
-	if context.string == "button_create_army" then
-		cm:add_time_trigger("disable_navy_recruitment", 0.0);
-	elseif context.string == "button_convert" then
+	if context.string == "button_convert" then
 		convert_panel_open = true;
 	elseif convert_panel_open == true then
 		if context.string == "button_tick" or context.string == "button_cancel" or context.string == "clan" then
@@ -87,9 +88,7 @@ function OnPanelClosedCampaign_Global_UI(context)
 end
 
 function OnTimeTrigger_Global_UI(context)
-	if context.string == "disable_navy_recruitment" then
-		Disable_Naval_Recruitment();
-	elseif context.string == "religion_possibly_changed" then
+	if context.string == "religion_possibly_changed" then
 		Religion_Possibly_Changed(cm:get_local_faction());
 	elseif context.string == "diplo_hud_check" then
 		local root = cm:ui_root();
@@ -99,10 +98,13 @@ function OnTimeTrigger_Global_UI(context)
 	end
 end
 
+function Disable_Abandoning_Settlements()
+	--ui_state.migration:set_allowed(false);
+	ui_state.abandon_settlements:set_allowed(false);	
+end
+
 function Disable_Naval_Recruitment()
-	local root = cm:ui_root();
-	local button_raise_fleet_uic = UIComponent(root:Find("button_raise_fleet"));
-	button_raise_fleet_uic:SetState("inactive");
+	ui_state.enlist_navy:set_allowed(false);
 end
 
 function Diplomacy_Hud_Check(diplomacy_dropdown_uic)

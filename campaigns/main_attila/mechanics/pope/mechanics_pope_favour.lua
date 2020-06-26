@@ -392,28 +392,30 @@ function CharacterCompletedBattle_Pope_Favour(context)
 			return;
 		end
 
-		if pending_battle:attacker():has_military_force() and pending_battle:attacker():faction():state_religion() == "att_rel_chr_catholic" and pending_battle:defender():has_military_force() and pending_battle:defender():faction():state_religion() == "att_rel_chr_catholic" then		
-			cm:add_listener(
-				"CharacterPostBattleEnslave_Pope",
-				"CharacterPostBattleEnslave",
-				true,
-				function(context) CharacterPostBattle_Favour(context, "ENSLAVE") end,
-				true
-			);
-			cm:add_listener(
-				"CharacterPostBattleRelease_Pope",
-				"CharacterPostBattleRelease",
-				true,
-				function(context) CharacterPostBattle_Favour(context, "RELEASE") end,
-				true
-			);
-			cm:add_listener(
-				"CharacterPostBattleSlaughter_Pope",
-				"CharacterPostBattleSlaughter",
-				true,
-				function(context) CharacterPostBattle_Favour(context, "SLAUGHTER") end,
-				true
-			);
+		if pending_battle:attacker():has_military_force() and pending_battle:attacker():faction():state_religion() == "att_rel_chr_catholic" and pending_battle:defender():has_military_force() and pending_battle:defender():faction():state_religion() == "att_rel_chr_catholic" then
+			if POSTBATTLE_DECISION_MADE_RECENTLY == false then
+				cm:add_listener(
+					"CharacterPostBattleEnslave_Pope",
+					"CharacterPostBattleEnslave",
+					true,
+					function(context) CharacterPostBattle_Favour(context, "ENSLAVE") end,
+					true
+				);
+				cm:add_listener(
+					"CharacterPostBattleRelease_Pope",
+					"CharacterPostBattleRelease",
+					true,
+					function(context) CharacterPostBattle_Favour(context, "RELEASE") end,
+					true
+				);
+				cm:add_listener(
+					"CharacterPostBattleSlaughter_Pope",
+					"CharacterPostBattleSlaughter",
+					true,
+					function(context) CharacterPostBattle_Favour(context, "SLAUGHTER") end,
+					true
+				);
+			end
 		end
 	end
 end
@@ -429,10 +431,11 @@ function CharacterPostBattle_Favour(context, type)
 		end
 
 		Update_Pope_Favour(context:character():faction());
-		cm:remove_listener("CharacterPostBattleEnslave_Pope");
-		cm:remove_listener("CharacterPostBattleRelease_Pope");
-		cm:remove_listener("CharacterPostBattleSlaughter_Pope");
 	end
+
+	cm:remove_listener("CharacterPostBattleEnslave_Pope");
+	cm:remove_listener("CharacterPostBattleRelease_Pope");
+	cm:remove_listener("CharacterPostBattleSlaughter_Pope");
 end
 
 function OnComponentLClickUp_Pope_Favour(context)
