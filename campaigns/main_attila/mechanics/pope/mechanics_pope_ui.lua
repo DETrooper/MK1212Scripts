@@ -142,12 +142,48 @@ function OnComponentMouseOn_Pope_UI(context)
 	if context.string == "button_join_crusade" then
 		local button_join_crusade_uic = UIComponent(context.component);
 		local faction_name = cm:get_local_faction();
-		local faction =  cm:model():world():faction_by_key(faction_name);
+		local faction = cm:model():world():faction_by_key(faction_name);
 
 		if faction:at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) == false then
-			button_join_crusade_uic:SetTooltipText("Send this army on Crusade!\n\n[[rgba:200:10:10:150]]Note that clicking this button will declare war![[/rgba:200:10:10:150]]");
+			button_join_crusade_uic:SetTooltipText("Send this army on Crusade!\n\n[[rgba:230:0:0:150]]Note that clicking this button will declare war![[/rgba]]");
 		else
 			button_join_crusade_uic:SetTooltipText("Send this army on Crusade!");
+		end
+	elseif POSTBATTLE_DECISION_ENEMY_CATHOLIC == true then
+		if context.string == "button_kill" then
+			local root = cm:ui_root();
+			local tooltip_captive_options_uic = UIComponent(root:Find("tooltip_captive_options"));
+			local txt_description_uic = UIComponent(tooltip_captive_options_uic:Find("txt_description"));
+			local txt_description_text = txt_description_uic:GetStateText();
+			local faction_name = cm:get_local_faction();
+
+			if FACTION_POPE_FAVOUR[faction_name] > 1 then
+				txt_description_uic:SetStateText(txt_description_text.."\n\n[[rgba:230:0:0:150]]Executing the captives of a fellow Catholic faction will result in the loss of Papal Favour![[/rgba]]");
+			elseif FACTION_EXCOMMUNICATED[faction_name] == false then
+				txt_description_uic:SetStateText(txt_description_text.."\n\n[[rgba:230:0:0:150]]With your Papal Favour already so low, executing the captives of a fellow Catholic faction will result in your excommunication![[/rgba]]");
+			end
+
+			tooltip_captive_options_uic:Resize(278, 270);
+		elseif context.string == "option_button" then
+			local option_button_uic = UIComponent(context.component);
+			local option_button_parent_id = UIComponent(option_button_uic:Parent()):Id();
+			local faction_name = cm:get_local_faction();
+
+			if option_button_parent_id == "occupation_decision_loot" or option_button_parent_id == "occupation_decision_sack" then
+				local tooltip_text = "";
+
+				if option_button_parent_id == "occupation_decision_loot" then
+					tooltip_text = subLootOccupy;
+				else
+					tooltip_text = subSack;
+				end
+
+				if FACTION_POPE_FAVOUR[faction_name] > 1 then
+					option_button_uic:SetTooltipText(tooltip_text.."\n\n[[rgba:230:0:0:150]]Sacking the settlement of a fellow Catholic faction will result in the loss of Papal Favour![[/rgba]]");
+				elseif FACTION_EXCOMMUNICATED[faction_name] == false then
+					option_button_uic:SetTooltipText(tooltip_text.."\n\n[[rgba:230:0:0:150]]With your Papal Favour already so low, sacking the settlement of a fellow Catholic faction will result in your excommunication![[/rgba]]");
+				end
+			end
 		end
 	elseif CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 		if string.find(context.string, "_crusader") then

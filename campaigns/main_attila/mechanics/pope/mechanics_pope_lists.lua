@@ -1,5 +1,7 @@
 JERUSALEM_KEY = "mk_fact_jerusalem";
 JERUSALEM_REGION_KEY = "att_reg_palaestinea_aelia_capitolina";
+subSack = "Sack||You do not capture the settlement but steal treasures and damage buildings. All captives are killed.||Public order is reduced and the previous owners will like you a lot less.";
+subLootOccupy = "Loot & Occupy||You gain money from looting, but buildings in the settlement are damaged. All captives are enslaved.|| Public order is greatly reduced and your diplomatic relations with the previous owner also suffer greatly.";
 
 POPE_LIST = {
 	{id = "Innocentius III",	name = "names_name_2147380345", year = 1198, 	age = 37},

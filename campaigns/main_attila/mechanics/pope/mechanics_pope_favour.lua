@@ -21,6 +21,7 @@ MAX_POPE_FAVOUR = 10;
 MIN_POPE_FAVOUR = 0;
 AT_WAR_WITH_POPE = {};
 FAVOUR_LAST_ATTACKED_GARRISON = "";
+POSTBATTLE_DECISION_ENEMY_CATHOLIC = false;
 POSTBATTLE_DECISION_MADE_RECENTLY = false;
 POPE_DEPOSED = false;
 
@@ -113,6 +114,27 @@ function Activate_Papal_Favour_System()
 		true
 	);
 	cm:add_listener(
+		"CharacterPostBattleEnslave_Pope",
+		"CharacterPostBattleEnslave",
+		true,
+		function(context) CharacterPostBattle_Favour(context, "ENSLAVE") end,
+		true
+	);
+	cm:add_listener(
+		"CharacterPostBattleRelease_Pope",
+		"CharacterPostBattleRelease",
+		true,
+		function(context) CharacterPostBattle_Favour(context, "RELEASE") end,
+		true
+	);
+	cm:add_listener(
+		"CharacterPostBattleSlaughter_Pope",
+		"CharacterPostBattleSlaughter",
+		true,
+		function(context) CharacterPostBattle_Favour(context, "SLAUGHTER") end,
+		true
+	);
+	cm:add_listener(
 		"CharacterBecomesFactionLeader_Pope",
 		"CharacterBecomesFactionLeader",
 		true,
@@ -191,6 +213,9 @@ function Deactivate_Papal_Favour_System()
 	cm:remove_listener("CharacterPerformsOccupationDecisionOccupy_Pope");
 	cm:remove_listener("CharacterCompletedBattle_Pope_Favour");
 	cm:remove_listener("CharacterParticipatedAsSecondaryGeneralInBattle_Pope_Favour");
+	cm:remove_listener("CharacterPostBattleEnslave_Pope");
+	cm:remove_listener("CharacterPostBattleRelease_Pope");
+	cm:remove_listener("CharacterPostBattleSlaughter_Pope");
 	cm:remove_listener("CharacterBecomesFactionLeader_Pope");
 	cm:remove_listener("DilemmaChoiceMadeEvent_Pope");
 	cm:remove_listener("MissionFailed_Check_Mission");
@@ -277,15 +302,14 @@ function Check_If_Catholic_Attacked(context, type)
 	local region_name = region:name();
 	local faction_name = context:character():faction():name();
 
-	if not region_name == "att_reg_italia_roma" then
+	if region_name ~= "att_reg_italia_roma" then
 		if type == "LOOTED" or type == "SACKED" then
 			if SackExploitCheck_Pope(region_name) == true then
-				if context:character():faction():is_human() and context:character():faction():state_religion() == "att_rel_chr_catholic" then
+				if context:character():faction():is_human() and context:character():faction():state_religion() == "att_rel_chr_catholic" and FACTION_EXCOMMUNICATED[faction_name] ~= true then
 					local defender_cqi, defender_force_cqi, defender_name = cm:pending_battle_cache_get_defender(1);
 
 					if defender_name ~= "rebels" then
 						if FAVOUR_LAST_ATTACKED_GARRISON ~= "" and (FAVOUR_LAST_ATTACKED_GARRISON ~= defender_name) then
-							-- If we get here we can assume there was no garrison as the last battle faction differs from the last attacked garrison owner
 							defender_name = FAVOUR_LAST_ATTACKED_GARRISON;
 						end
 
@@ -294,7 +318,7 @@ function Check_If_Catholic_Attacked(context, type)
 						if sacked_faction:is_null_interface() == false then
 							local sacked_rel = sacked_faction:state_religion();
 
-						if sacked_rel == "att_rel_chr_catholic" then
+							if sacked_rel == "att_rel_chr_catholic" then
 								-- Sacked/Looted another Catholic faction!
 								Subtract_Pope_Favour(faction_name, 1, "sacked_settlement");
 							end
@@ -303,7 +327,7 @@ function Check_If_Catholic_Attacked(context, type)
 				end
 			end
 		end
-	elseif region_name == "att_reg_italia_roma" then
+	else
 		if region:owning_faction():name() == PAPAL_STATES_KEY then
 			if context:character():faction():is_human() then
 				if context:character():faction():state_religion() == "att_rel_chr_catholic" then
@@ -355,6 +379,7 @@ function Check_Excommunication_Pope_War(context)
 					true,
 					709
 				);
+
 				cm:apply_effect_bundle("mk_bundle_christendoms_outcry", context:character():faction():name(), 0);
 			end
 		end
@@ -389,56 +414,37 @@ function CharacterCompletedBattle_Pope_Favour(context)
 		
 		if attacker_result == "close_defeat" and defender_result == "close_defeat" then
 			-- They've both had a close defeat, probably a retreat!
+			POSTBATTLE_DECISION_ENEMY_CATHOLIC = false;
 			return;
 		end
 
 		if pending_battle:attacker():has_military_force() and pending_battle:attacker():faction():state_religion() == "att_rel_chr_catholic" and pending_battle:defender():has_military_force() and pending_battle:defender():faction():state_religion() == "att_rel_chr_catholic" then
-			if POSTBATTLE_DECISION_MADE_RECENTLY == false then
-				cm:add_listener(
-					"CharacterPostBattleEnslave_Pope",
-					"CharacterPostBattleEnslave",
-					true,
-					function(context) CharacterPostBattle_Favour(context, "ENSLAVE") end,
-					true
-				);
-				cm:add_listener(
-					"CharacterPostBattleRelease_Pope",
-					"CharacterPostBattleRelease",
-					true,
-					function(context) CharacterPostBattle_Favour(context, "RELEASE") end,
-					true
-				);
-				cm:add_listener(
-					"CharacterPostBattleSlaughter_Pope",
-					"CharacterPostBattleSlaughter",
-					true,
-					function(context) CharacterPostBattle_Favour(context, "SLAUGHTER") end,
-					true
-				);
-			end
+			POSTBATTLE_DECISION_ENEMY_CATHOLIC = true;
+		else
+			POSTBATTLE_DECISION_ENEMY_CATHOLIC = false;
 		end
 	end
 end
 
 function CharacterPostBattle_Favour(context, type)
 	if context:character():faction():state_religion() == "att_rel_chr_catholic" and context:character():faction():is_human() and POSTBATTLE_DECISION_MADE_RECENTLY == false then
-		if type == "RELEASE" then
-			Add_Pope_Favour(context:character():faction():name(), 1, "released_captives");
-			POSTBATTLE_DECISION_MADE_RECENTLY = true;
-		elseif type == "SLAUGHTER" then
-			Subtract_Pope_Favour(context:character():faction():name(), 1, "slaughtered_captives");
-			POSTBATTLE_DECISION_MADE_RECENTLY = true;
+		if FACTION_EXCOMMUNICATED[context:character():faction():name()] ~= true then
+			if type == "RELEASE" then
+				Add_Pope_Favour(context:character():faction():name(), 1, "released_captives");
+			elseif type == "SLAUGHTER" then
+				Subtract_Pope_Favour(context:character():faction():name(), 1, "slaughtered_captives");
+			end
 		end
 
 		Update_Pope_Favour(context:character():faction());
 	end
 
-	cm:remove_listener("CharacterPostBattleEnslave_Pope");
-	cm:remove_listener("CharacterPostBattleRelease_Pope");
-	cm:remove_listener("CharacterPostBattleSlaughter_Pope");
+	POSTBATTLE_DECISION_MADE_RECENTLY = true;
+	POSTBATTLE_DECISION_ENEMY_CATHOLIC = false;
 end
 
 function OnComponentLClickUp_Pope_Favour(context)
+	-- This is to prevent the player from being penalized as many times as there are enemy armies.
 	if POSTBATTLE_DECISION_MADE_RECENTLY == true then
 		POSTBATTLE_DECISION_MADE_RECENTLY = false;
 	end
