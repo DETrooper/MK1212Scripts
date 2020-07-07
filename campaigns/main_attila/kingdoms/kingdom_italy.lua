@@ -11,6 +11,7 @@ ITALIAN_FACTIONS = {
 	"mk_fact_bologna",
 	"mk_fact_genoa",
 	"mk_fact_milan",
+	"mk_fact_naples",
 	"mk_fact_pisa",
 	"mk_fact_savoy",
 	"mk_fact_sicily",

@@ -60,9 +60,12 @@ function Process_Election_Result_HRE_Elections()
 	local max = 0;
 	local winner = nil;
 
-	for k, v in ipairs(HRE_FACTIONS_VOTES) do
-		if HRE_FACTIONS_VOTES[k] > max then
-			winner, max = k, v;
+	for i = 1, #HRE_FACTIONS do
+		local faction_name = HRE_FACTIONS[i];
+		local num_votes = Calculate_Num_Votes_HRE_Elections(faction_name);
+
+		if num_votes > max then
+			winner, max = faction_name, num_votes;
 		end
 	end
 
@@ -108,23 +111,28 @@ function Process_Election_Result_HRE_Elections()
 		end
 	else
 		-- There was a tie or something, so make the emperor keep his post.
-		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
-		local faction_string = "factions_screen_name_"..HRE_EMPEROR_KEY;
+		if FactionIsAlive(HRE_EMPEROR_KEY) then
+			local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+			local faction_string = "factions_screen_name_"..HRE_EMPEROR_KEY;
 
-		if HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] ~= nil then
-			HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] + 1;
+			if HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] ~= nil then
+				HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] + 1;
+			else
+				HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = 1;
+			end
+
+			cm:show_message_event(
+				cm:get_local_faction(),
+				"message_event_text_text_mk_event_hre_imperial_title_retained_title",
+				faction_string,
+				"message_event_text_text_mk_event_hre_imperial_title_retained_secondary",
+				true, 
+				713
+			);
 		else
-			HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = 1;
+			-- Emperor is dead and nobody is voting or there was a tie. Is the HRE dead?
+			
 		end
-
-		cm:show_message_event(
-			cm:get_local_faction(),
-			"message_event_text_text_mk_event_hre_imperial_title_retained_title",
-			faction_string,
-			"message_event_text_text_mk_event_hre_imperial_title_retained_secondary",
-			true, 
-			713
-		);
 	end
 
 	Refresh_HRE_Elections();

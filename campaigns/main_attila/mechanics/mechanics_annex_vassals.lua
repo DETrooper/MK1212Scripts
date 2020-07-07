@@ -233,7 +233,7 @@ end
 
 function FactionSubjugatesOtherFaction_Annex(context)
 	vassal = context:other_faction():name();
-end 
+end
 
 function PositiveDiplomaticEvent_Annex(context)
 	proposer = context:proposer():name();

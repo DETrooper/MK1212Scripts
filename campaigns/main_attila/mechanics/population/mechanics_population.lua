@@ -514,6 +514,10 @@ function Compute_Region_Growth(region)
 	local soft_cap = 0;
 	local hard_cap = 0;
 
+	if region:owning_faction():name() == "rebels" then
+		return growth;
+	end
+
 	local region_name = region:name();
 	local region_owning_faction = region:owning_faction();
 	local region_owning_faction_name = region_owning_faction:name();
