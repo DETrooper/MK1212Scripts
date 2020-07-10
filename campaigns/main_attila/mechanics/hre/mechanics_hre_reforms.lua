@@ -173,6 +173,10 @@ function Pass_HRE_Reform(reform_number)
 		HRE_Vanquish_Pretender();
 		CloseHREPanel(false);
 
+		if IRONMAN_ENABLED == true then
+			Unlock_Achievement("achievement_renovatio_imperii");
+		end
+
 		HRE_FACTIONS = {};
 		HRE_FACTIONS_STATES = {};
 		HRE_FACTIONS_STATE_CHANGE_COOLDOWNS = {};

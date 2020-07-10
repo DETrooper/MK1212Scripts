@@ -73,7 +73,7 @@ function OnComponentLClickUp_Challenge_Menu(context)
 		local challenge = string.gsub(context.string, "row_", "");
 		local list_clip_uic = UIComponent(UIComponent(context.component):Parent());
 		
-		if CHALLENGE_BULLETINS[challenge] ~= nil then
+		if CHALLENGE_BULLETINS[challenge]  then
 			CHALLENGE_SELECTED = challenge;
 			ChallengeMenuSetup(challenge);
 			UIComponent(context.component):SetState("selected_hover");

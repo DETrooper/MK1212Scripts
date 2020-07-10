@@ -192,7 +192,7 @@ function OnComponentMouseOn_Pope_UI(context)
 			if unit_card_uic:CurrentState() == "active" then
 				local unit_name = string.gsub(context.string, "_crusader", "");
 
-				if UNIT_NAMES_LOCALISATION[unit_name] ~= nil then
+				if UNIT_NAMES_LOCALISATION[unit_name]  then
 					unit_card_uic:SetTooltipText(UNIT_NAMES_LOCALISATION[unit_name].."\n\nLeft-click to recruit this Crusader unit.");
 				else
 					unit_card_uic:SetTooltipText("Unknown Unit\n\nLeft-click to recruit this Crusader unit.");
@@ -426,7 +426,7 @@ end
 
 function UnitDisbanded_Pope_UI(context)
 	if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
-		if LAST_CHARACTER_SELECTED ~= nil then
+		if LAST_CHARACTER_SELECTED  then
 			RefreshCrusaderRecruitmentPanel(false, false);
 			cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.1);
 		end

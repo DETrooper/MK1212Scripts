@@ -11,8 +11,8 @@ local advice = require "data.lua_scripts.export_advice"
 local m_user_defined_event_callbacks = {}
 
 function AddEventCallBack(event, func, add_to_user_defined_list)
-	assert(events[event] ~= nil, "Attempting to add event callback to non existant event ("..event..")")
-	assert(func ~= nil, "Attempting to add a non existant function to event "..event)
+	assert(events[event] , "Attempting to add event callback to non existant event ("..event..")")
+	assert(func , "Attempting to add a non existant function to event "..event)
 
 	-- Push the function to the back of the list of function for the specified address	
 	events[event][#events[event]+1] = func
@@ -41,7 +41,6 @@ require "lua_scripts.frontend_prologue"
 require "lua_scripts.frontend_hbs"
 
 local dev = require("lua_scripts.dev");
-local util = require "lua_scripts.util"
 scripting = require "lua_scripts.EpisodicScripting";
 
 adopted = false;
@@ -88,19 +87,6 @@ eh:add_listener(
 );
 
 function OnUICreated(context)
-	--[[if util.fileExists("MK1212_config.txt") == true then
-		if tonumber(dev.settings["cutscenesEnabled"]) == 0 then
-			--cutscenes_enabled = false;
-
-			dev.changeSetting("MK1212_config.txt", "cutscenesEnabled", 1);
-			cutscenes_enabled = true;
-		else
-			cutscenes_enabled = true;
-		end
-	else
-		dev.writeSettings("MK1212_config.txt");
-	end]]--
-
 	scripting.m_root:CreateComponent("button_random_faction", "ui/new/button_small_randfact");
 	scripting.m_root:CreateComponent("checkbox_ironman", "ui/templates/checkbox");
 	scripting.m_root:CreateComponent("text_ironman", "ui/campaign ui/script_dummy");
@@ -161,17 +147,17 @@ function OnComponentLClickUp(context)
 			local strength_text = "NOT FOUND";
 			local weakness_text = "NOT FOUND"
 	
-			if FACTION_STRENGTHS[context.string] ~= nil then 
+			if FACTION_STRENGTHS[context.string]  then 
 				strength_text = FACTION_STRENGTHS[context.string];
 			end
 	
-			if FACTION_WEAKNESSES[context.string] ~= nil then
+			if FACTION_WEAKNESSES[context.string]  then
 				weakness_text = FACTION_WEAKNESSES[context.string];
 			end
 	
 			start_year_uic:SetStateText("[[rgba:63:35:13:150]]"..FRONTEND_STRINGS["faction_strength"]..strength_text.."\n"..FRONTEND_STRINGS["faction_weakness"]..weakness_text.."[[/rgba:63:35:13:150]]");
 	
-			if FACTION_POPULATIONS[context.string] ~= nil then
+			if FACTION_POPULATIONS[context.string]  then
 				local effect_description_window_uic = UIComponent(scripting.m_root:Find("effect_description_window"));
 				effect_description_window_uic:SetStateText("Population: "..FACTION_POPULATIONS[context.string]);
 			end
@@ -252,10 +238,6 @@ function OnComponentLClickUp(context)
 	elseif context.string == "button_introduction" then
 		adopted = false;
 	elseif context.string == "checkbox_ironman" then	
-		--[[if util.fileExists("MK1212_config.txt") == false then
-			writeSettings("MK1212_config.txt");
-		end]]--
-
 		if UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "selected_down" or UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "active" then
 			svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
 		elseif UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "down" or UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "selected" then
@@ -385,7 +367,7 @@ function OnComponentLClickUp(context)
 				end,
 				1
 			);
-		elseif UIComponent(UIComponent(context.component):Parent()) ~= nil then
+		elseif UIComponent(UIComponent(context.component):Parent())  then
 			local parent_id = UIComponent(UIComponent(context.component):Parent()):Id();
 		
 			if parent_id == "army_box" or parent_id == "units_box" then
@@ -405,7 +387,7 @@ function OnMouseOn(context)
 			end, 
 			1
 		);
-	elseif UIComponent(UIComponent(context.component):Parent()) ~= nil then
+	elseif UIComponent(UIComponent(context.component):Parent())  then
 		local parent_id = UIComponent(UIComponent(context.component):Parent()):Id();
 	
 		if parent_id == "army_box" or parent_id == "units_box" then
@@ -427,9 +409,6 @@ function ChangeCampaignsPanel()
 	local button_multiplayer_campaign_uic = UIComponent(scripting.m_root:Find("button_multiplayer_campaign"));
 	local curX, curY = button_load_campaign_uic:Position();
 
-	--button_prologue_uic:SetVisible(false);
-	--button_new_campaign_uic:SetVisible(false);
-	--button_dlc_campaign_1_uic:SetVisible(false);
 	button_dlc_campaign_2_uic:SetVisible(false);
 	button_new_campaign_uic:SetMoveable(true);
 	button_new_campaign_uic:MoveTo(-100, -100);
@@ -563,9 +542,6 @@ function ChangeEffects()
 	tx_religion_uic:SetMoveable(true);
 	tx_religion_uic:MoveTo(curX - 398, curY + 99);
 	tx_religion_uic:SetMoveable(false);
-	--dy_religion_uic:SetMoveable(true);
-	--dy_religion_uic:MoveTo(curX - 229, curY + 99);
-	--dy_religion_uic:SetMoveable(false);
 	effect_description_window_uic:SetMoveable(true);
 	effect_description_window_uic:MoveTo(curX - 338, curY + 81);
 	effect_description_window_uic:SetMoveable(false);
@@ -602,13 +578,6 @@ function ChangeEffects()
 	local icon_date_uic = UIComponent(scripting.m_root:Find("icon_date"));
 	local effect_title_uic = UIComponent(scripting.m_root:Find("effect_title"));
 	local text_version_number_uic = UIComponent(scripting.m_root:Find("version_number"));
-	--maps_uic:Resize(360, 258);
-	--maps_frame_uic:Resize(387, 242);
-	--map_rome_uic:SetVisible(false);
-	--maps_frame_uic:SetVisible(false);
-	--difficulty_hbar_uic:SetMoveable(true);
-	--difficulty_hbar_uic:MoveTo(curX + 435, curY + 540);
-	--difficulty_hbar_uic:SetMoveable(false);
 	difficulty_uic:SetMoveable(true);
 	difficulty_uic:MoveTo(curX + 557, curY + 515);
 	difficulty_uic:SetMoveable(false);
@@ -635,7 +604,7 @@ function ChangeUnitStatsLayout()
 	local dynamic_stats_uicX, dynamic_stats_uicY = dynamic_stats_uic:Position();
 	local row = 0;
 
-	if dynamic_stats_uic ~= nil then
+	if dynamic_stats_uic  then
 		for i = 0, dynamic_stats_uic:ChildCount() - 1 do
 			local stat_uic = UIComponent(dynamic_stats_uic:Find(i));
 

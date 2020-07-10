@@ -97,7 +97,7 @@ function OnFactionTurnStart_Plague(context)
 			714
 		);
 
-		if HUMAN_FACTIONS[2] ~= nil then 
+		if HUMAN_FACTIONS[2]  then 
 			local faction_name = (cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[2])):name();
 			cm:show_message_event(
 				faction_name,

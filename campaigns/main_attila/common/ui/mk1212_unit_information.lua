@@ -98,7 +98,7 @@ function UpdateUnitInformationPanel(unit_name)
 	local ability_list_uic = UIComponent(unit_information_uic:Find("ability_list"));
 	local ability_list_uicX, ability_list_uicY = ability_list_uic:Position();
 
-	if UNIT_NAMES_LOCALISATION[unit_name] ~= nil then
+	if UNIT_NAMES_LOCALISATION[unit_name]  then
 		tx_unit_type_uic:SetStateText(UNIT_NAMES_LOCALISATION[unit_name]);
 	else
 		tx_unit_type_uic:SetStateText("Unknown Unit");
@@ -110,7 +110,7 @@ function UpdateUnitInformationPanel(unit_name)
 		bullet_point_uic:SetVisible(false);
 	end
 
-	if unit_bullet_points[unit_name] ~= nil then
+	if unit_bullet_points[unit_name]  then
 		for i = 1, #unit_bullet_points[unit_name] do
 			local bullet_point = SplitString(unit_bullet_points[unit_name][i], "|");
 			local bullet_point_uic = UIComponent(bullet_point_parent_uic:Find(i - 1));
@@ -121,7 +121,7 @@ function UpdateUnitInformationPanel(unit_name)
 		end
 	end
 
-	if unit_info[unit_name] ~= nil then
+	if unit_info[unit_name]  then
 		local num_men = tostring(unit_info[unit_name]["num_men"]);
 		local upkeep_cost = tostring(unit_info[unit_name]["upkeep"]);
 		local unit_weight = unit_info[unit_name]["unit_weight"];
@@ -135,7 +135,7 @@ function UpdateUnitInformationPanel(unit_name)
 		unit_category_icon_uic:SetState(unit_type);
 	end
 
-	if unit_stats[unit_name] ~= nil then
+	if unit_stats[unit_name]  then
 		local max_stats = dynamic_stats_uic:ChildCount();
 		local stats_added = 0;
 
@@ -145,7 +145,7 @@ function UpdateUnitInformationPanel(unit_name)
 			else
 				local stat_name = unit_stats_ordered[i];
 
-				if unit_stats[unit_name][stat_name] ~= nil then
+				if unit_stats[unit_name][stat_name]  then
 					local stat_uic = UIComponent(dynamic_stats_uic:Find(stats_added));
 					local stat_name_uic = UIComponent(stat_uic:Find("stat_name"));
 					local stat_value_uic = UIComponent(stat_uic:Find("dy_value"));
@@ -174,7 +174,7 @@ function UpdateUnitInformationPanel(unit_name)
 
 	ability_list_uic:DestroyChildren();
 
-	if unit_abilities[unit_name] ~= nil then
+	if unit_abilities[unit_name]  then
 		for i = 1, #unit_abilities[unit_name] do
 			ability_list_uic:CreateComponent("ability_icon"..tostring(i), "ui/new/ability_icons/"..unit_abilities[unit_name][i]);
 

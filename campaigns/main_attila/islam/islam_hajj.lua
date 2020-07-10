@@ -49,7 +49,7 @@ function Hajj_Check(context)
 				cm:trigger_dilemma(faction_name_p1, "mk_dilemma_islam_hajj");
 			end
 		end
-		if ( HUMAN_FACTIONS[2] ~= nil ) then
+		if ( HUMAN_FACTIONS[2]  ) then
 			local faction_name_p2 = (cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[2])):name();
 
 			if context:faction():name() == faction_name_p2 then
@@ -81,7 +81,7 @@ function DilemmaChoiceMadeEvent_Hajj(context)
 			end
 		end
 	end
-	if ( HUMAN_FACTIONS[2] ~= nil ) then
+	if ( HUMAN_FACTIONS[2]  ) then
 		local faction_name_p2 = (cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[2])):name();
 		if context:faction():name() == faction_name_p1 then
 			if context:dilemma() == "mk_dilemma_islam_hajj" then
@@ -107,7 +107,7 @@ function CharacterBecomesFactionLeader_Islamic_Hajj(context)
 			NEEDS_TO_GO_ON_HAJJ = true;
 			HAJJ_WAITING_TIME_P1 = 0;
 		end
-		if ( HUMAN_FACTIONS[2] ~= nil ) then 
+		if ( HUMAN_FACTIONS[2]  ) then 
 			local faction_name_p2 = (cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[2])):name();
 
 			if context:character():faction():name() == faction_name_p2 then

@@ -257,7 +257,7 @@ function CloseDecisionsPanel(hover)
 			if HasValue(MAP_DECISIONS, PRIORITY_DECISIONS[i][1]) then
 				local mapParchment = UIComponent(panDecisions:Find(PRIORITY_DECISIONS[i][1].."_Map_Parchment"));
 
-				if mapParchment:Address() ~= nil then
+				if mapParchment:Address()  then
 					mapParchment:SetVisible(false);
 				end
 			end
@@ -269,7 +269,7 @@ function CloseDecisionsPanel(hover)
 			if HasValue(MAP_DECISIONS, AVAILABLE_DECISIONS[i][1]) then
 				local mapParchment = UIComponent(panDecisions:Find(AVAILABLE_DECISIONS[i][1].."_Map_Parchment"));
 
-				if mapParchment:Address() ~= nil then
+				if mapParchment:Address()  then
 					mapParchment:SetVisible(false);
 				end
 			end

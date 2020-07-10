@@ -590,7 +590,7 @@ function SplitString(str, delim)
 end
 
 function HasValue(tab, val)
-	if tab ~= nil then
+	if tab  then
 		for index, value in ipairs(tab) do
 			if value == val then
 				return true;

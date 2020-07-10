@@ -146,7 +146,7 @@ end
 function Get_DFN_Localisation(faction_name)
 	local faction_string = FACTIONS_NAMES_LOCALISATION[faction_name];
 
-	if FACTIONS_DFN_LEVEL[faction_name] ~= nil and FACTIONS_DFN_LEVEL[faction_name] > 1 then
+	if FACTIONS_DFN_LEVEL[faction_name]  and FACTIONS_DFN_LEVEL[faction_name] > 1 then
 		local dfn_string = faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]);
 		faction_string = DFN_NAMES_LOCALISATION[dfn_string];
 	else
@@ -293,7 +293,7 @@ function TimeTrigger_DFN_UI(context)
 		tx_provinces_owned_uic:SetStateText("Faction rank:");
 		tx_prosperity_uic:SetStateText("Faction rank:");
 
-		if FACTIONS_DFN_LEVEL[faction_name] ~= nil then
+		if FACTIONS_DFN_LEVEL[faction_name]  then
 			if FACTIONS_DFN_LEVEL[faction_name] == 1 then
 				dy_prosperity_uic:SetStateText("County/Duchy");
 				dy_provinces_owned_uic:SetStateText("County/Duchy");

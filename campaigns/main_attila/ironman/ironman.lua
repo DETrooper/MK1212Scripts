@@ -10,7 +10,7 @@
 IRONMAN_ENABLED = false;
 IRONMAN_DIPLOMACY_OCCURED = false;
 
-function Add_MK1212_Ironman_Listeners()
+function Add_Ironman_Listeners()
 	if cm:is_new_game() then
 		local svr = ScriptedValueRegistry:new();
 

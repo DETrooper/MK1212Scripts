@@ -147,7 +147,7 @@ function Religion_Possibly_Changed(faction_name)
 			end
 
 			Update_Pope_Favour(faction);
-		elseif FACTION_POPE_FAVOUR[faction_name] ~= nil then
+		elseif FACTION_POPE_FAVOUR[faction_name]  then
 			FACTION_POPE_FAVOUR[faction_name] = nil;
 
 			for i = 0, 10 do

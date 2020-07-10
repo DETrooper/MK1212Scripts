@@ -137,7 +137,7 @@ function Update_War_Weariness(faction)
 	local war_weariness = 0;
 	local bundle_applied = false;
 	
-	if PLAYER_WAR_WEARINESS[faction:name()] ~= nil then
+	if PLAYER_WAR_WEARINESS[faction:name()]  then
 		war_weariness = PLAYER_WAR_WEARINESS[faction:name()];
 	end
 	
@@ -163,7 +163,7 @@ function Update_War_Weariness(faction)
 	-----------------------------------------------------------
 	local last_shown_event = "DECREASED";
 	
-	if PLAYER_WAR_WEARINESS_EVENTS[faction:name()] ~= nil then
+	if PLAYER_WAR_WEARINESS_EVENTS[faction:name()]  then
 		last_shown_event = PLAYER_WAR_WEARINESS_EVENTS[faction:name()];
 	end
 	

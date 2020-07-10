@@ -104,7 +104,7 @@ function AnnexVassalsSetup()
 			FACTIONS_VASSALIZED_ANNEXATION_TIME[faction_name] = -1;
 		end
 
-		if FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name] ~= nil then
+		if FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name]  then
 			for j = 1, #FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name] do
 				local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name][j];
 
@@ -153,7 +153,7 @@ function FactionTurnStart_Annex(context)
 					
 					local faction_string = "factions_screen_name_"..vassal_faction_name;
 
-					if FACTIONS_DFN_LEVEL[vassal_faction_name] ~= nil then
+					if FACTIONS_DFN_LEVEL[vassal_faction_name]  then
 						if FACTIONS_DFN_LEVEL[vassal_faction_name] > 1 then
 							faction_string = "campaign_localised_strings_string_"..vassal_faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[vassal_faction_name]);
 						end
@@ -182,7 +182,7 @@ function FactionTurnStart_Annex(context)
 			else
 				local faction_string = "factions_screen_name_"..vassal_faction_name;
 
-				if FACTIONS_DFN_LEVEL[vassal_faction_name] ~= nil then
+				if FACTIONS_DFN_LEVEL[vassal_faction_name]  then
 					if FACTIONS_DFN_LEVEL[vassal_faction_name] > 1 then
 						faction_string = "campaign_localised_strings_string_"..vassal_faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[vassal_faction_name]);
 					end
@@ -264,7 +264,7 @@ function FactionLeaderDeclaresWar_Annex(context)
 		-- Faction has no vassals or is a vassal.
 		local master_faction_name = Get_Vassal_Overlord(faction_name);
 
-		if master_faction_name ~= nil then
+		if master_faction_name  then
 			if cm:model():world():faction_by_key(master_faction_name):at_war_with(context:character():faction()) then
 				for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name] do
 					if FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name][i] == faction_name then
@@ -328,7 +328,7 @@ function OnComponentLClickUp_Annex_UI(context)
 		else
 			local faction_string = "factions_screen_name_"..DIPLOMACY_SELECTED_FACTION;
 
-			if FACTIONS_DFN_LEVEL[DIPLOMACY_SELECTED_FACTION] ~= nil then
+			if FACTIONS_DFN_LEVEL[DIPLOMACY_SELECTED_FACTION]  then
 				if FACTIONS_DFN_LEVEL[DIPLOMACY_SELECTED_FACTION] > 1 then
 					faction_string = "campaign_localised_strings_string_"..DIPLOMACY_SELECTED_FACTION.."_lvl"..tostring(FACTIONS_DFN_LEVEL[DIPLOMACY_SELECTED_FACTION]);
 				end
@@ -408,7 +408,7 @@ function TimeTrigger_Annex_UI(context)
 		recipient = nil;
 		vassal = nil;
 	elseif context.string == "diplo_vassal_check" then
-		if proposer ~= nil and recipient ~= nil and vassal ~= nil then
+		if proposer  and recipient  and vassal  then
 			if recipient == vassal then
 				--dev.log("RECIPIENT == VASSAL");
 

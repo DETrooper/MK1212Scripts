@@ -156,7 +156,7 @@ end
 
 function Get_Decree_Property(decree_key, decree_property)
 	for i = 1, #HRE_DECREES do
-		if HRE_DECREES[i]["key"] == decree_key and HRE_DECREES[i][decree_property] ~= nil then
+		if HRE_DECREES[i]["key"] == decree_key and HRE_DECREES[i][decree_property]  then
 			return HRE_DECREES[i][decree_property];
 		end
 	end

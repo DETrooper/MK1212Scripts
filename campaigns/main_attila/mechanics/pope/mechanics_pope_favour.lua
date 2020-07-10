@@ -266,7 +266,7 @@ function Check_Catholic_Nations(context)
 		if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
 			Update_Pope_Favour(context:faction());
 		end
-	elseif faction_religion ~= "att_rel_chr_catholic" and FACTION_POPE_FAVOUR[faction_name] ~= nil then
+	elseif faction_religion ~= "att_rel_chr_catholic" and FACTION_POPE_FAVOUR[faction_name]  then
 		-- Faction is no longer Catholic!
 		FACTION_POPE_FAVOUR[faction_name] = nil;
 
@@ -528,7 +528,7 @@ function Update_Pope_Favour(faction)
 	local pope_favour = 5;
 	local bundle_applied = false;
 	
-	if FACTION_POPE_FAVOUR[faction:name()] ~= nil then
+	if FACTION_POPE_FAVOUR[faction:name()]  then
 		pope_favour = FACTION_POPE_FAVOUR[faction:name()];
 	else
 		FACTION_POPE_FAVOUR[faction:name()] = 5;

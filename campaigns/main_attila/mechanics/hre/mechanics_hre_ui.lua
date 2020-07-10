@@ -231,7 +231,7 @@ function OnComponentMouseOn_HRE_UI(context)
 			local owning_faction_name = region:owning_faction():name();
 			local population = "0";
 
-			if POPULATION_REGIONS_POPULATIONS[region_name] ~= nil then
+			if POPULATION_REGIONS_POPULATIONS[region_name]  then
 				population = tostring(Get_Total_Population_Region(region_name));
 			end
 
@@ -343,7 +343,7 @@ function OnPanelOpenedCampaign_HRE_UI(context)
 			local button_parent_uic = UIComponent(UIComponent(context.component):Find("button_parent"));
 			local occupation_decision_liberate_uic = UIComponent(button_parent_uic:Find("occupation_decision_liberate"));
 
-			if occupation_decision_liberate_uic ~= nil then
+			if occupation_decision_liberate_uic  then
 				local option_button_uic = UIComponent(occupation_decision_liberate_uic:Find("option_button"));
 				local dy_option_uic = UIComponent(option_button_uic:Find("dy_option"));
 
@@ -431,7 +431,7 @@ function OpenHREPanel()
 		local hre_pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
 		local pretender_number = "";
 
-		if HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()] ~= nil then
+		if HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()]  then
 			pretender_number = HRE_EMPERORS_ROMAN_NUMERALS[HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()]];
 		else
 			HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()] = 1;
@@ -450,7 +450,7 @@ function OpenHREPanel()
 		tx_objectives_uic1:SetStateText("Pretender: None");
 	end
 
-	if HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()] ~= nil then
+	if HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()]  then
 		emperor_number = HRE_EMPERORS_ROMAN_NUMERALS[HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()]];
 	else
 		HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()] = 1;

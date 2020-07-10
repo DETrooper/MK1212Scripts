@@ -240,17 +240,17 @@ function BattleCompleted_Population(context)
 	if attacker_result == "valiant_defeat" or attacker_result == "close_defeat" or attacker_result == "decisive_defeat" or attacker_result == "crushing_defeat" then
 		POPULATION_UNITS_IN_RECRUITMENT[tostring(attacker_cqi)] = nil;
 
-		if cm:pending_battle_cache_get_attacker(2) ~= nil then
+		if cm:pending_battle_cache_get_attacker(2)  then
 			attacker2_cqi, attacker_force2_cqi, attacker2_name = cm:pending_battle_cache_get_attacker(2);
 			POPULATION_UNITS_IN_RECRUITMENT[tostring(attacker2_cqi)] = nil;
 		end
 
-		if cm:pending_battle_cache_get_attacker(3) ~= nil then
+		if cm:pending_battle_cache_get_attacker(3)  then
 			attacker3_cqi, attacker_force3_cqi, attacker3_name = cm:pending_battle_cache_get_attacker(3);
 			POPULATION_UNITS_IN_RECRUITMENT[tostring(attacker3_cqi)] = nil;
 		end
 
-		if cm:pending_battle_cache_get_attacker(4) ~= nil then
+		if cm:pending_battle_cache_get_attacker(4)  then
 			attacker4_cqi, attacker_force4_cqi, attacker4_name = cm:pending_battle_cache_get_attacker(4);
 			POPULATION_UNITS_IN_RECRUITMENT[tostring(attacker4_cqi)] = nil;
 		end
@@ -259,17 +259,17 @@ function BattleCompleted_Population(context)
 	if defender_result == "valiant_defeat" or defender_result == "close_defeat" or defender_result == "decisive_defeat" or defender_result == "crushing_defeat" then
 		POPULATION_UNITS_IN_RECRUITMENT[tostring(defender_cqi)] = nil;
 
-		if cm:pending_battle_cache_get_defender(2) ~= nil then
+		if cm:pending_battle_cache_get_defender(2)  then
 			defender2_cqi, defender_force2_cqi, defender2_name = cm:pending_battle_cache_get_defender(2);
 			POPULATION_UNITS_IN_RECRUITMENT[tostring(defender2_cqi)] = nil;
 		end
 
-		if cm:pending_battle_cache_get_defender(3) ~= nil then
+		if cm:pending_battle_cache_get_defender(3)  then
 			defender3_cqi, defender_force3_cqi, defender3_name = cm:pending_battle_cache_get_defender(3);
 			POPULATION_UNITS_IN_RECRUITMENT[tostring(defender3_cqi)] = nil;
 		end
 
-		if cm:pending_battle_cache_get_defender(4) ~= nil then
+		if cm:pending_battle_cache_get_defender(4)  then
 			defender4_cqi, defender_force4_cqi, defender4_name = cm:pending_battle_cache_get_defender(4);
 			POPULATION_UNITS_IN_RECRUITMENT[tostring(defender4_cqi)] = nil;
 		end
@@ -289,7 +289,7 @@ function CharacterTurnStart_Population(context)
 		POPULATION_UNITS_IN_RECRUITMENT[tostring(context:character():cqi())] = nil;
 	end
 
-	if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] ~= nil then
+	if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())]  then
 		if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] ~= context:character():region():name() or context:character():has_military_force() == false then
 			POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] = nil;
 		end
@@ -303,7 +303,7 @@ function CharacterTurnEnd_Population(context)
 		POPULATION_UNITS_IN_RECRUITMENT[tostring(context:character():cqi())] = nil;
 	end
 
-	if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] ~= nil then
+	if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())]  then
 		if not context:character():region():name() == POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] then
 			POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(context:character():cqi())] = nil;
 		end
@@ -449,7 +449,7 @@ function ForceAdoptsStance_Population(context)
 	if stance == 3 then
 		POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(general:cqi())] = region_name;
 	else
-		if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(general:cqi())] ~= nil then
+		if POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(general:cqi())]  then
 			POPULATION_REGIONS_CHARACTERS_RAIDING[tostring(general:cqi())] = nil;
 		end
 	end
@@ -495,7 +495,7 @@ function UnitTrained_Population(context)
 	if unit:faction():is_human() then
 		local cqi = tostring(unit:force_commander():cqi());
 		
-		if POPULATION_UNITS_IN_RECRUITMENT[cqi] ~= nil then
+		if POPULATION_UNITS_IN_RECRUITMENT[cqi]  then
 			for i = 1, #POPULATION_UNITS_IN_RECRUITMENT[cqi] do
 				if POPULATION_UNITS_IN_RECRUITMENT[cqi][i] == unit:unit_key() then
 					--dev.log("Removing "..unit:unit_key().." from queue.");
@@ -533,7 +533,7 @@ function Compute_Region_Growth(region)
 	end
 
 	for i = 0, buildings_list:num_items() - 1 do
-		if POPULATION_BUILDINGS_TO_GROWTH[buildings_list:item_at(i):name()] ~= nil then
+		if POPULATION_BUILDINGS_TO_GROWTH[buildings_list:item_at(i):name()]  then
 			for j = 1, 5 do
 				growth[j] = growth[j] + POPULATION_BUILDINGS_TO_GROWTH[buildings_list:item_at(i):name()][j];
 			end
@@ -547,7 +547,7 @@ function Compute_Region_Growth(region)
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."buildings_"..tostring(i).."#"..tostring(growth[i] * 100).."#@";
 	end
 
-	if POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name] ~= nil then
+	if POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name]  then
 		for i = 1, 5 do
 			if POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i] ~= 0 then
 				growth[i] = growth[i] + POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i];
@@ -556,7 +556,7 @@ function Compute_Region_Growth(region)
 		end
 	end
 
-	if POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name] ~= nil then
+	if POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name]  then
 		for i = 1, 5 do
 			if POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i] ~= 0 then
 				growth[i] = growth[i] + POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i];

@@ -147,7 +147,7 @@ function Pope_Changeover()
 	local forename = GENERIC_POPE_NAMES[cm:random_number(#GENERIC_POPE_NAMES)];
 	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
 
-	if POPE_LIST[CURRENT_POPE] ~= nil then
+	if POPE_LIST[CURRENT_POPE]  then
 		age = POPE_LIST[CURRENT_POPE].age;
 		forename = POPE_LIST[CURRENT_POPE].name;
 	end

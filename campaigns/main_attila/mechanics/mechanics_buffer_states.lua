@@ -110,7 +110,7 @@ function OnComponentLClickUp_Buffer_UI(context)
 			cm:force_make_vassal(faction_name, vassal_faction_name);
 			cm:add_time_trigger("region_transfer", 0.1);
 
-			if FACTIONS_TO_FACTIONS_VASSALIZED ~= nil then
+			if FACTIONS_TO_FACTIONS_VASSALIZED  then
 				Faction_Vassalized(faction_name, vassal_faction_name, true, false, false);
 			end
 		else

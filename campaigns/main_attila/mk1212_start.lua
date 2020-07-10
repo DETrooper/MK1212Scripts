@@ -6,8 +6,6 @@
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
 
---cm:set_default_zoom_limit(1.00, 0.8);
-
 function start_game_all_factions()
 	local faction_list = cm:model():world():faction_list();
 
@@ -45,11 +43,11 @@ function start_game_all_factions()
 	Add_Stopgap_Listeners();
 
 	-- MK1212 scripts.
-	Add_MK1212_Ironman_Listeners();
 	Common_Initializer();
 	Challenge_Initializer();
 	Byzantium_Initializer();
 	--Islamic_Initializer();
+	Ironman_Initializer();
 	Kingdom_Initializer();
 	Mechanic_Initializer();
 	Mongol_Initializer();

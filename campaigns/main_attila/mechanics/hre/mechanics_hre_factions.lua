@@ -247,7 +247,7 @@ function DilemmaChoiceMadeEvent_HRE_Pretender(context)
 			HRE_EMPEROR_PRETENDER_KEY = pretender;
 			local faction_string = "factions_screen_name_"..pretender;
 
-			if FACTIONS_DFN_LEVEL[pretender] ~= nil then
+			if FACTIONS_DFN_LEVEL[pretender]  then
 				if FACTIONS_DFN_LEVEL[pretender] > 1 then
 					faction_string = "campaign_localised_strings_string_"..pretender.."_lvl"..tostring(FACTIONS_DFN_LEVEL[pretender]);
 				end
@@ -302,7 +302,7 @@ function GarrisonOccupiedEvent_HRE_Frankfurt(context)
 	local region_name = context:garrison_residence():region():name();
 	local region_owning_faction_name = context:garrison_residence():region():owning_faction():name();
 
-	if frankfurt_owner_name ~= nil then
+	if frankfurt_owner_name  then
 		if HasValue(HRE_FACTIONS, frankfurt_owner_name) then
 			if frankfurt_owner_name == HRE_EMPEROR_KEY then
 				HRE_FRANKFURT_STATUS = "capital";
@@ -397,7 +397,7 @@ function HRE_State_Check(faction_name)
 
 	if faction_state ~= "puppet" then
 		if emperor_faction:is_human() then
-			if FACTIONS_TO_FACTIONS_VASSALIZED[HRE_EMPEROR_KEY] ~= nil then
+			if FACTIONS_TO_FACTIONS_VASSALIZED[HRE_EMPEROR_KEY]  then
 				if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[HRE_EMPEROR_KEY], faction_name) then
 					HRE_Set_Faction_State(faction_name, "puppet", true);
 					return;
@@ -559,7 +559,7 @@ function HRE_Replace_Emperor(faction_name)
 	HRE_EMPEROR_KEY = faction_name;
 	HRE_IMPERIAL_AUTHORITY = HRE_IMPERIAL_AUTHORITY_START;
 
-	if HRE_EMPERORS_NAMES_NUMBERS[new_emperor_faction:faction_leader():get_forename()] ~= nil then
+	if HRE_EMPERORS_NAMES_NUMBERS[new_emperor_faction:faction_leader():get_forename()]  then
 		if faction_name ~= HRE_EMPEROR_PRETENDER_KEY then
 			HRE_EMPERORS_NAMES_NUMBERS[new_emperor_faction:faction_leader():get_forename()] = HRE_EMPERORS_NAMES_NUMBERS[new_emperor_faction:faction_leader():get_forename()] + 1;
 		end
@@ -641,7 +641,7 @@ function HRE_Assign_New_Pretender(exclude_player)
 		end
 	end
 
-	if pretender ~= nil then
+	if pretender  then
 		local pretender_faction = cm:model():world():faction_by_key(pretender);
 
 		if pretender_faction:is_human() then
@@ -652,13 +652,13 @@ function HRE_Assign_New_Pretender(exclude_player)
 
 			HRE_Set_Faction_State(pretender, "pretender", true);
 
-			if FACTIONS_DFN_LEVEL[pretender] ~= nil then
+			if FACTIONS_DFN_LEVEL[pretender]  then
 				if FACTIONS_DFN_LEVEL[pretender] > 1 then
 					faction_string = "campaign_localised_strings_string_"..pretender.."_lvl"..tostring(FACTIONS_DFN_LEVEL[pretender]);
 				end
 			end
 
-			if HRE_EMPERORS_NAMES_NUMBERS[pretender_faction:faction_leader():get_forename()] ~= nil then
+			if HRE_EMPERORS_NAMES_NUMBERS[pretender_faction:faction_leader():get_forename()]  then
 				HRE_EMPERORS_NAMES_NUMBERS[pretender_faction:faction_leader():get_forename()] = HRE_EMPERORS_NAMES_NUMBERS[pretender_faction:faction_leader():get_forename()] + 1;
 			else
 				HRE_EMPERORS_NAMES_NUMBERS[pretender_faction:faction_leader():get_forename()] = 1;

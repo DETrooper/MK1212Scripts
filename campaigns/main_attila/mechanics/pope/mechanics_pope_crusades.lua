@@ -133,8 +133,8 @@ function FactionTurnStart_Pope_Crusades(context)
 		elseif cm:model():turn_number() == NEXT_CRUSADE_START_TURN and CRUSADE_ACTIVE == false then
 			local target = JERUSALEM_REGION_KEY;
 
-			if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)] ~= nil then
-				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)] ~= nil then
+			if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then
+				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then
 					target = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][1];	
 				end
 			else
@@ -164,7 +164,7 @@ function FactionTurnStart_Pope_Crusades(context)
 					706
 				);
 
-				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)] ~= nil then
+				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then
 					NEXT_CRUSADE_START_TURN = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][3];
 				elseif CURRENT_CRUSADE < MAX_NUM_OF_CRUSADES then
 					NEXT_CRUSADE_START_TURN = cm:model():turn_number() + cm:random_number(TURNS_BETWEEN_CRUSADES_MAX, TURNS_BETWEEN_CRUSADES_MIN);
@@ -202,7 +202,7 @@ function FactionTurnStart_Pope_Crusades(context)
 					End_Crusade("aborted");
 				end
 
-				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
+				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)]  then
 					if HasValue(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][6], context:faction():name()) then
 						if context:faction():state_religion() == "att_rel_chr_catholic" and context:faction():at_war_with(owner) == false and HasValue(FACTION_EXCOMMUNICATED, context:faction():name()) ~= true then
 							cm:force_declare_war(context:faction():name(), owner:name());
@@ -546,7 +546,7 @@ function Begin_Crusade(target, owner)
 		CRUSADE_INTRO_CUTSCENE_PLAYED = true;
 	end
 
-	if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
+	if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)]  then
 		cm:show_message_event(
 			cm:get_local_faction(),
 			"message_event_text_text_mk_event_crusade_"..tostring(CURRENT_CRUSADE).."_title", 
@@ -567,7 +567,7 @@ function Begin_Crusade(target, owner)
 	end
 
 	if CURRENT_CRUSADE_TARGET_OWNER == cm:get_local_faction() then
-		if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
+		if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)]  then
 			CURRENT_CRUSADE_MISSION_KEY = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][5];
 		else
 			CURRENT_CRUSADE_MISSION_KEY = "mk_mission_crusades_defense_"..target_short;
@@ -575,7 +575,7 @@ function Begin_Crusade(target, owner)
 
 		cm:trigger_mission(CURRENT_CRUSADE_TARGET_OWNER, CURRENT_CRUSADE_MISSION_KEY);
 	else
-		if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] ~= nil then
+		if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)]  then
 			CURRENT_CRUSADE_MISSION_KEY = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][4];
 		else
 			CURRENT_CRUSADE_MISSION_KEY = "mk_mission_crusades_take_"..target_short;
@@ -702,7 +702,7 @@ function End_Crusade(reason)
 		end
 	end
 
-	if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)] ~= nil then
+	if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then
 		NEXT_CRUSADE_START_TURN = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][3];
 	elseif CURRENT_CRUSADE < MAX_NUM_OF_CRUSADES then
 		NEXT_CRUSADE_START_TURN = cm:model():turn_number() + cm:random_number(TURNS_BETWEEN_CRUSADES_MAX, TURNS_BETWEEN_CRUSADES_MIN);
@@ -710,7 +710,7 @@ function End_Crusade(reason)
 		NEXT_CRUSADE_START_TURN = -1; -- End crusades system.
 	end
 
-	if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)] ~= nil then
+	if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then
 		NEXT_CRUSADE_MESSAGE_TURN = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][2];
 	else
 		NEXT_CRUSADE_MESSAGE_TURN = -1;
@@ -751,7 +751,7 @@ function GetCrusadeTarget_Crusades()
 		end
 	end
 
-	if valid_targets ~= nil then
+	if valid_targets  then
 		local amount_stepped = 0;
 		local total_weight = 0;
 
@@ -869,7 +869,7 @@ end
 
 function Purge_Crusade_Defensive_Armies()
 	for i = 1, #CRUSADE_DEFENSIVE_FORCES do
-		if CRUSADE_DEFENSIVE_FORCES[i] ~= nil then
+		if CRUSADE_DEFENSIVE_FORCES[i]  then
 			cm:set_character_immortality("character_cqi:"..CRUSADE_DEFENSIVE_FORCES[i], false);
 			cm:kill_character("character_cqi:"..CRUSADE_DEFENSIVE_FORCES[i], true, false);
 			CRUSADE_DEFENSIVE_FORCES[i] = nil;

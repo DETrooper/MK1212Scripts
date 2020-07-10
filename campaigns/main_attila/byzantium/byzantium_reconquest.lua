@@ -179,6 +179,10 @@ function Roman_Empire_Restored(faction_name)
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("restore_roman_empire");
+
+		if IRONMAN_ENABLED == true then
+			Unlock_Achievement("achievement_basileia_rhomaion");
+		end
 	end
 
 	cm:show_message_event(

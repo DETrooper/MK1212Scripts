@@ -69,10 +69,10 @@ function Process_Election_Result_HRE_Elections()
 		end
 	end
 
-	if winner ~= nil then
+	if winner  then
 		local faction_string = "factions_screen_name_"..winner;
 
-		if FACTIONS_DFN_LEVEL[winner] ~= nil then
+		if FACTIONS_DFN_LEVEL[winner]  then
 			if FACTIONS_DFN_LEVEL[winner] > 1 then
 				faction_string = "campaign_localised_strings_string_"..winner.."_lvl"..tostring(FACTIONS_DFN_LEVEL[winner]);
 			end
@@ -94,7 +94,7 @@ function Process_Election_Result_HRE_Elections()
 			-- Display unique message event for retaining emperorship.
 			local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 
-			if HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] ~= nil then
+			if HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()]  then
 				HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] + 1;
 			else
 				HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = 1;
@@ -115,7 +115,7 @@ function Process_Election_Result_HRE_Elections()
 			local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 			local faction_string = "factions_screen_name_"..HRE_EMPEROR_KEY;
 
-			if HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] ~= nil then
+			if HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()]  then
 				HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] + 1;
 			else
 				HRE_EMPERORS_NAMES_NUMBERS[emperor_faction:faction_leader():get_forename()] = 1;
@@ -249,7 +249,7 @@ function Add_New_Electors_HRE_Elections()
 			end
 		end
 
-		if new_elector ~= nil then
+		if new_elector  then
 			table.insert(HRE_FACTIONS_ELECTORS, new_elector);
 		else
 			return;
@@ -283,7 +283,7 @@ function Check_Faction_Votes_HRE_Elections(faction_name)
 			HRE_State_Check(faction_name);
 			Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 		end
-	elseif HRE_FACTIONS_VOTES[faction_name] ~= nil then
+	elseif HRE_FACTIONS_VOTES[faction_name]  then
 		HRE_FACTIONS_VOTES[faction_name] = nil;
 	end
 end
