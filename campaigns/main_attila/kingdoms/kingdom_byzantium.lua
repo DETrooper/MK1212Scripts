@@ -138,7 +138,7 @@ function MissionIssued_Byzantium(context)
 end
 
 function GetConditionsString_Byzantium()
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Empire of Nicaea, the Empire of Trebizond, or the Desposate of Epirus.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Byzantine Empire does not exist.\n";
+	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Empire of Nicaea, Empire of Trebizond, or Desposate of Epirus.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Byzantine Empire does not exist.\n";
 	
 	if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == cm:get_local_faction() then
 		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of Constantinople.";

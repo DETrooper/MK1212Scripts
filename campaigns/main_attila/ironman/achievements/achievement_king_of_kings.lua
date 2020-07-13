@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 --
--- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - BASILEIA RHOMAION
+-- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - KING OF KINGS
 -- 	By: DETrooper
 --
 -----------------------------------------------------------------------------------------------
@@ -9,8 +9,8 @@
 
 local achievement = {};
 
-achievement.name = "Basileia Rhomaion";
-achievement.description = "As the Empire of Epirus, Empire of Nicaea, Empire of Trebizond, restore the Roman Empire.";
+achievement.name = "King of Kings";
+achievement.description = "As the Ghurid Sultanate, Hazaraspid Atabegate, Ildegizid Atabegate, or Salghurid Atabegate, restore the Persian Empire.";
 achievement.unlocked = false;
 achievement.unlocktime = "";
 

@@ -16,6 +16,7 @@ DECISIONS_STRINGS = {
 	form_kingdom_spain = "Form the Kingdom of Spain",
 	form_empire_golden_horde = "Form the Golden Horde",
 	form_empire_ilkhanate = "Form the Ilkhanate",
+	form_empire_persia = "Restore the Persian Empire",
 	found_a_kingdom = "Found a Kingdom",
 	found_an_empire = "Found an Empire",
 	ask_pope_for_money = "Ask the Pope For Money"
@@ -28,7 +29,8 @@ DECISIONS_STRINGS_MAP = {
 	form_kingdom_poland = "Kingdom of Poland",
 	form_kingdom_spain = "Kingdom of Spain",
 	form_empire_golden_horde = "Golden Horde",
-	form_empire_ilkhanate = "Ilkhanate"
+	form_empire_ilkhanate = "Ilkhanate",
+	form_empire_persia = "Persian Empire"
 };
 
 MAP_DECISIONS = {
@@ -38,7 +40,8 @@ MAP_DECISIONS = {
 	"form_kingdom_poland",
 	"form_kingdom_spain",
 	"form_empire_golden_horde",
-	"form_empire_ilkhanate"
+	"form_empire_ilkhanate",
+	"form_empire_persia",
 };
 
 MAP_DECISIONS_MAP_NAMES = {
@@ -48,5 +51,6 @@ MAP_DECISIONS_MAP_NAMES = {
 	["form_kingdom_poland"] = {"kingdom_poland_map", "500", "500"},
 	["form_kingdom_spain"] = {"kingdom_spain_map", "500", "500"},
 	["form_empire_golden_horde"] = {"kingdom_golden_horde_map", "1200", "900"},
-	["form_empire_ilkhanate"] = {"kingdom_ilkhanate_map", "650", "650"}
+	["form_empire_ilkhanate"] = {"kingdom_ilkhanate_map", "650", "650"},
+	["form_empire_persia"] = {"kingdom_persia_map", "650", "650"}
 }; 

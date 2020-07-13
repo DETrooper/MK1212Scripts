@@ -448,6 +448,8 @@ function Get_Decision_Tooltip(decision)
 		return GetConditionsString_Golden_Horde();
 	elseif decision == "form_empire_ilkhanate" then
 		return GetConditionsString_Ilkhanate();
+	elseif decision == "form_empire_persia" then
+		return GetConditionsString_Persian_Empire();
 	elseif decision == "found_a_kingdom" then
 		return GetConditionsString_DFN_Kingdom();
 	elseif decision == "found_an_empire" then
@@ -470,6 +472,8 @@ function Get_Decision_Regions(decision)
 		return DeepCopy(REGIONS_GOLDEN_HORDE);
 	elseif decision == "form_empire_ilkhanate" then
 		return DeepCopy(REGIONS_ILKHANATE);
+	elseif decision == "form_empire_persia" then
+		return DeepCopy(REGIONS_PERSIA);
 	elseif decision == "restore_roman_empire" then
 		return DeepCopy(REGIONS_ROME);
 	end
@@ -486,8 +490,8 @@ function Get_Decision_Map_Faction_Pips(decision)
 		return DeepCopy(REGIONS_SPAIN_FACTION_PIPS_LOCATIONS);
 	elseif decision == "form_empire_golden_horde" then
 		return DeepCopy(REGIONS_GOLDEN_HORDE_FACTION_PIPS_LOCATIONS);
-	elseif decision == "form_empire_ilkhanate" then
-		return DeepCopy(REGIONS_ILKHANATE_FACTION_PIPS_LOCATIONS);
+	elseif decision == "form_empire_ilkhanate" or decision == "form_empire_persia" then
+		return DeepCopy(REGIONS_ILKHANATE_PERSIA_FACTION_PIPS_LOCATIONS);
 	elseif decision == "restore_roman_empire" then
 		return DeepCopy(REGIONS_ROME_FACTION_PIPS_LOCATIONS);
 	end
@@ -510,6 +514,8 @@ function Decision_Button_Pressed(decision)
 		Golden_Horde_Formed(cm:get_local_faction());
 	elseif decision == "form_empire_ilkhanate" then
 		Ilkhanate_Formed(cm:get_local_faction());
+	elseif decision == "form_empire_persia" then
+		Persian_Empire_Formed(cm:get_local_faction());
 	elseif decision == "found_a_kingdom" then
 		DFN_Set_Faction_Rank(cm:get_local_faction(), 2);
 		Remove_Decision("found_a_kingdom");

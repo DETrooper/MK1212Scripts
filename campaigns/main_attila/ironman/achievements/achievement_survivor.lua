@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 --
--- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - BASILEIA RHOMAION
+-- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - SURVIVOR
 -- 	By: DETrooper
 --
 -----------------------------------------------------------------------------------------------
@@ -9,8 +9,8 @@
 
 local achievement = {};
 
-achievement.name = "Basileia Rhomaion";
-achievement.description = "As the Empire of Epirus, Empire of Nicaea, Empire of Trebizond, restore the Roman Empire.";
+achievement.name = "Survivor";
+achievement.description = "Survive 50 turns with the 'This is Total War' challenge enabled.";
 achievement.unlocked = false;
 achievement.unlocktime = "";
 

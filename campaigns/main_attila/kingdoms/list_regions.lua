@@ -52,7 +52,10 @@ REGIONS_ILKHANATE = {
 	"att_reg_spahan_susa"
 };
 
-REGIONS_ILKHANATE_FACTION_PIPS_LOCATIONS = {
+REGIONS_ILKHANATE_PERSIA_FACTION_PIPS_LOCATIONS = {
+	["att_reg_asorstan_arbela"] = {66, 242},
+	["att_reg_asorstan_ctesiphon"] = {72, 312},
+	["att_reg_asorstan_meshan"] = {172, 395},
 	["att_reg_khwarasan_abarshahr"] = {436, 223},
 	["att_reg_khwarasan_harey"] = {507, 258},
 	["att_reg_khwarasan_merv"] = {495, 158},
@@ -96,6 +99,27 @@ REGIONS_ITALY_FACTION_PIPS_LOCATIONS = {
 	["att_reg_venetia_verona"] = {240, 80},
 	["att_reg_venetia_aquileia"] = {293, 49},
 	["att_reg_venetia_ravenna"] = {263, 143}
+};
+
+REGIONS_PERSIA = {
+	"att_reg_asorstan_arbela",
+	"att_reg_asorstan_ctesiphon",
+	"att_reg_asorstan_meshan",
+	"att_reg_khwarasan_abarshahr",
+	"att_reg_khwarasan_harey",
+	"att_reg_khwarasan_merv",
+	"att_reg_makran_harmosia",
+	"att_reg_makran_phra",
+	"att_reg_makran_pura",
+	"att_reg_media_atropatene_ecbatana",
+	"att_reg_media_atropatene_ganzaga",
+	"att_reg_media_atropatene_rhaga",
+	"att_reg_persis_behdeshir",
+	"att_reg_persis_siraf",
+	"att_reg_persis_stakhr",
+	"att_reg_spahan_issatis",
+	"att_reg_spahan_spahan",
+	"att_reg_spahan_susa"
 };
 
 REGIONS_POLAND = {

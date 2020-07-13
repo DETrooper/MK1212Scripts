@@ -96,7 +96,7 @@ function Spanish_Kingdom_Formed(faction_name)
 end
 
 function GetConditionsString_Spain()
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is Crown of Aragon, Kingdom of Castile, or Kingdom of Navarre.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Spain does not yet exist.\n";
+	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Crown of Aragon, Kingdom of Castile, or Kingdom of Navarre.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Spain does not yet exist.\n";
 	
 	for i = 1, #REGIONS_SPAIN_NO_PORTUGAL do
 		local region = cm:model():world():region_manager():region_by_key(REGIONS_SPAIN_NO_PORTUGAL[i]);

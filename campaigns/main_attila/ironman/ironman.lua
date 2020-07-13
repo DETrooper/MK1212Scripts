@@ -17,7 +17,7 @@ function Add_Ironman_Listeners()
 		IRONMAN_ENABLED = svr:LoadBool("SBOOL_IRONMAN_ENABLED");
 	end
 
-	if IRONMAN_ENABLED == true then
+	if IRONMAN_ENABLED then
 		cm:add_listener(
 			"FactionTurnStart_Ironman",
 			"FactionTurnStart",
