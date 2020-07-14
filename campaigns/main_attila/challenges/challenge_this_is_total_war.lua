@@ -7,6 +7,8 @@
 -------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------
 
+ACHIEVEMENT_SURVIVOR_TURN = 51;
+
 function Add_Challenge_This_Is_Total_War_Listeners()
 	cm:add_listener(
 		"FactionTurnStart_This_Is_Total_War",
@@ -51,6 +53,12 @@ end
 
 function FactionTurnStart_This_Is_Total_War(context)
 	if context:faction():is_human() then
+		if cm:model():turn_number() == ACHIEVEMENT_SURVIVOR_TURN then
+			if IRONMAN_ENABLED then
+				Unlock_Achievement("achievement_survivor");
+			end
+		end
+
 		War_Check_This_Is_Total_War(context:faction());
 	end
 end

@@ -76,6 +76,10 @@ function Persian_Empire_Formed(faction_name)
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_empire_persia");
+
+		if IRONMAN_ENABLED then
+			Unlock_Achievement("achievement_king_of_kings");
+		end
 	else
 		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_persia", true);
 	end
