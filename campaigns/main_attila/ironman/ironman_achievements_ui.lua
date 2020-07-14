@@ -34,50 +34,13 @@ function Create_Achievements_UI()
 	local root = cm:ui_root();
 
 	root:CreateComponent("Achievements_Layer", "UI/new/script_dummy_top");
-	root:CreateComponent("Achievements_Panel", "UI/new/achievement_panel");
-
-	local achievement_panel_uic = UIComponent(root:Find("Achievements_Panel"));
-	local dy_ironman_uic = UIComponent(achievement_panel_uic:Find("dy_ironman"));
-	local progress_bar_parent_uic = UIComponent(achievement_panel_uic:Find("progress_bar_parent"));
-	local progress_bar_uic = UIComponent(progress_bar_parent_uic:Find("progress_bar"));
-	local progress_label_uic = UIComponent(progress_bar_parent_uic:Find("progress_label"));
-	local list_clip_uic = UIComponent(achievement_panel_uic:Find("list_clip"));
-	local vslider_uic = UIComponent(achievement_panel_uic:Find("vslider"));
-	local vslider_handle_uic = UIComponent(vslider_uic:Find("handle"));
-
-	for i = 1, #ACHIEVEMENT_KEY_LIST do
-		local achievement_key = ACHIEVEMENT_KEY_LIST[i];
-
-		if ACHIEVEMENTS[achievement_key] then
-			list_clip_uic:CreateComponent(achievement_key, "UI/new/achievement_template");
-
-			local achievement_template_uic = UIComponent(list_clip_uic:Find(achievement_key));
-			local achievement_template_uicX, achievement_template_uicY = achievement_template_uic:Position();
-			local icon_holder_uic = UIComponent(achievement_template_uic:Find("icon_holder"));
-			local dy_achievement_name_uic = UIComponent(achievement_template_uic:Find("dy_achievement_name"));
-			local dy_achievement_description_uic = UIComponent(achievement_template_uic:Find("dy_achievement_description"));
-
-			achievement_template_uic:SetMoveable(true);
-			achievement_template_uic:MoveTo(achievement_template_uicX, achievement_template_uicY + (105 * (i - 1)));
-			achievement_template_uic:SetMoveable(false);
-			icon_holder_uic:CreateComponent("achievement_icon", "UI/new/achievement_icons/"..achievement_key);
-			dy_achievement_name_uic:SetStateText(ACHIEVEMENTS[achievement_key].name);
-			dy_achievement_description_uic:SetStateText(ACHIEVEMENTS[achievement_key].description);
-		end
-	end
-
-	Update_Achievement_Menu_UI();
-
-	vslider_uic:SetVisible(true);
-	vslider_handle_uic:SetVisible(true);
-	achievement_panel_uic:SetVisible(false);
 end
 
 function OnComponentLClickUp_Achievement_UI(context)
 	if context.string == "button_achievements" then
 		OpenAchievementPanel();
 	elseif context.string == "button_ok" then
-		if UIComponent(UIComponent(context.component):Parent()):Id() == "Achievements_Panel" then
+		if UIComponent(UIComponent(context.component):Parent()):Id() == "achievement_panel" then
 			CloseAchievementPanel();
 		end
 	end
@@ -123,12 +86,14 @@ end
 
 function Update_Achievement_Menu_UI()
 	local root = cm:ui_root();
-	local achievement_panel_uic = UIComponent(root:Find("Achievements_Panel"));
+	local panel_manager_uic = UIComponent(root:Find("panel_manager"));
+	local esc_menu_campaign_uic = UIComponent(panel_manager_uic:Find("esc_menu_campaign"));
+	local achievement_panel_uic = UIComponent(esc_menu_campaign_uic:Find("achievement_panel"));
 	local dy_ironman_uic = UIComponent(achievement_panel_uic:Find("dy_ironman"));
 	local progress_bar_parent_uic = UIComponent(achievement_panel_uic:Find("progress_bar_parent"));
 	local progress_bar_uic = UIComponent(progress_bar_parent_uic:Find("progress_bar"));
 	local progress_label_uic = UIComponent(progress_bar_parent_uic:Find("progress_label"));
-	local list_clip_uic = UIComponent(achievement_panel_uic:Find("list_clip"));
+	local list_box_uic = UIComponent(achievement_panel_uic:Find("list_box"));
 	local num_achievements = #ACHIEVEMENT_KEY_LIST;
 
 	TOTAL_ACHIEVEMENTS_UNLOCKED = 0;
@@ -137,9 +102,17 @@ function Update_Achievement_Menu_UI()
 		local achievement_key = ACHIEVEMENT_KEY_LIST[i];
 
 		if ACHIEVEMENTS[achievement_key] then
-			local achievement_template_uic = UIComponent(list_clip_uic:Find(achievement_key));
+			local achievement_template_uic = UIComponent(list_box_uic:Find(achievement_key));
 			local icon_holder_uic = UIComponent(achievement_template_uic:Find("icon_holder"));
+			local dy_achievement_name_uic = UIComponent(achievement_template_uic:Find("dy_achievement_name"));
+			local dy_achievement_description_uic = UIComponent(achievement_template_uic:Find("dy_achievement_description"));
 			local dy_unlock_date_uic = UIComponent(achievement_template_uic:Find("dy_unlock_date"));
+
+			dy_achievement_name_uic:SetStateText(ACHIEVEMENTS[achievement_key].name);
+			dy_achievement_description_uic:SetStateText(ACHIEVEMENTS[achievement_key].description);
+			icon_holder_uic:CreateComponent("achievement_icon", "UI/new/achievement_icons/"..achievement_key);
+
+			local achievement_icon_uic = UIComponent(icon_holder_uic:Find("achievement_icon"));
 
 			if ACHIEVEMENTS[achievement_key].unlocked then
 				if ACHIEVEMENTS[achievement_key].unlocktime and ACHIEVEMENTS[achievement_key].unlocktime ~= "n.d." then
@@ -152,8 +125,6 @@ function Update_Achievement_Menu_UI()
 
 				TOTAL_ACHIEVEMENTS_UNLOCKED = TOTAL_ACHIEVEMENTS_UNLOCKED + 1;
 			else
-				local achievement_icon_uic = UIComponent(icon_holder_uic:Find("achievement_icon"));
-
 				achievement_icon_uic:ShaderTechniqueSet("set_greyscale_t0", true);
 				achievement_icon_uic:ShaderVarsSet(0.9, 0.9, 0, 0, true);
 				dy_unlock_date_uic:SetStateText("Achievement not yet unlocked!");
@@ -178,14 +149,19 @@ end
 
 function OpenAchievementPanel()
 	local root = cm:ui_root();
-	local achievement_panel_uic = UIComponent(root:Find("Achievements_Panel"));
+	local panel_manager_uic = UIComponent(root:Find("panel_manager"));
+	local esc_menu_campaign_uic = UIComponent(panel_manager_uic:Find("esc_menu_campaign"));
+	local achievement_panel_uic = UIComponent(esc_menu_campaign_uic:Find("achievement_panel"));
 
+	Update_Achievement_Menu_UI();
 	achievement_panel_uic:SetVisible(true);
 end
 
 function CloseAchievementPanel()
 	local root = cm:ui_root();
-	local achievement_panel_uic = UIComponent(root:Find("Achievements_Panel"));
+	local panel_manager_uic = UIComponent(root:Find("panel_manager"));
+	local esc_menu_campaign_uic = UIComponent(panel_manager_uic:Find("esc_menu_campaign"));
+	local achievement_panel_uic = UIComponent(esc_menu_campaign_uic:Find("achievement_panel"));
 
 	achievement_panel_uic:SetVisible(false);
 end

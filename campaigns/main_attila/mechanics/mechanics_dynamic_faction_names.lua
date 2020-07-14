@@ -270,10 +270,11 @@ function GetConditionsString_DFN_Empire()
 	end
 
 	conditionstring = conditionstring.."(Current total: "..tostring(num_regions)..")";
-	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl3"].."[[\rgba]].";
 
 	if FACTIONS_DFN_LEVEL[faction_name] == 4 then
 		conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl5"].."[[\rgba]].";
+	else
+		conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl3"].."[[\rgba]].";
 	end
 
 	return conditionstring;	
