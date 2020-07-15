@@ -12,6 +12,7 @@ local dev = require("lua_scripts.dev");
 FACTION_TURN = "nil";
 SACKED_SETTLEMENTS = {};
 SACKED_SETTLEMENTS2 = {};
+SACKED_SETTLEMENTS_TOTAL = {};
 HUMAN_FACTIONS = {};
 ARMY_SELECTED_REGION = nil;
 ARMY_SELECTED_TABLE = {};
@@ -41,6 +42,20 @@ function Add_MK1212_Common_Listeners()
 		"CharacterSelected",
 		true,
 		function(context) CharacterSelected_Global(context) end,
+		true
+	);
+	cm:add_listener(
+		"CharacterPerformsOccupationDecisionLoot_Global",
+		"CharacterPerformsOccupationDecisionLoot",
+		true,
+		function(context) CharacterPerformsOccupationDecisionLootSack_Global(context) end,
+		true
+	);
+	cm:add_listener(
+		"CharacterPerformsOccupationDecisionSack_Global",
+		"CharacterPerformsOccupationDecisionSack",
+		true,
+		function(context) CharacterPerformsOccupationDecisionLootSack_Global(context) end,
 		true
 	);
 	cm:add_listener(
@@ -87,6 +102,19 @@ function CharacterSelected_Global(context)
 	LAST_CHARACTER_SELECTED = context:character();
 
 	Check_Last_Character_Force();
+end
+
+function CharacterPerformsOccupationDecisionLootSack_Global(context)
+	local faction_name = context:character():faction():name();
+	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
+
+	if not SACKED_SETTLEMENTS_TOTAL[faction_name] then
+		SACKED_SETTLEMENTS_TOTAL[faction_name] = {};
+	end
+
+	if not HasValue(SACKED_SETTLEMENTS_TOTAL[faction_name], region:name()) then
+		table.insert(SACKED_SETTLEMENTS_TOTAL[faction_name], region:name());
+	end
 end
 
 function CharacterPerformsOccupationDecisionRaze_Global(context)
@@ -405,6 +433,7 @@ cm:register_loading_game_callback(
 		REGIONS_RAZED = LoadTable(context, "REGIONS_RAZED");
 		SACKED_SETTLEMENTS = LoadTable(context, "SACKED_SETTLEMENTS");
 		SACKED_SETTLEMENTS2 = LoadTable(context, "SACKED_SETTLEMENTS2");
+		SACKED_SETTLEMENTS_TOTAL = LoadKeyPairTables(context, "SACKED_SETTLEMENTS_TOTAL");
 	end
 );
 
@@ -414,6 +443,7 @@ cm:register_saving_game_callback(
 		SaveTable(context, REGIONS_RAZED, "REGIONS_RAZED");
 		SaveTable(context, SACKED_SETTLEMENTS, "SACKED_SETTLEMENTS");
 		SaveTable(context, SACKED_SETTLEMENTS2, "SACKED_SETTLEMENTS2");
+		SaveKeyPairTables(context, SACKED_SETTLEMENTS_TOTAL, "SACKED_SETTLEMENTS_TOTAL");
 	end
 );
 

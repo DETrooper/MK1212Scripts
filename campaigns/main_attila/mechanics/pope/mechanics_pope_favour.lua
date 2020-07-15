@@ -427,7 +427,7 @@ function CharacterCompletedBattle_Pope_Favour(context)
 end
 
 function CharacterPostBattle_Favour(context, type)
-	if context:character():faction():state_religion() == "att_rel_chr_catholic" and context:character():faction():is_human() and POSTBATTLE_DECISION_MADE_RECENTLY == false then
+	if context:character():faction():state_religion() == "att_rel_chr_catholic" and context:character():faction():is_human() and POSTBATTLE_DECISION_MADE_RECENTLY == false and POSTBATTLE_DECISION_ENEMY_CATHOLIC == true then
 		if FACTION_EXCOMMUNICATED[context:character():faction():name()] ~= true then
 			if type == "RELEASE" then
 				Add_Pope_Favour(context:character():faction():name(), 1, "released_captives");
@@ -597,6 +597,12 @@ function Force_Excommunication(faction_name)
 		end
 
 		if cm:is_new_game() == false then
+			if IRONMAN_ENABLED then
+				if cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == false then
+					Unlock_Achievement("its_only_human_to_sin");
+				end
+			end
+
 			cm:show_message_event(
 				faction_name,
 				"message_event_text_text_mk_event_pope_excommunication_title",

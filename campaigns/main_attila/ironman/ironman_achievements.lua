@@ -16,10 +16,15 @@ ACHIEVEMENTS = {};
 ACHIEVEMENT_KEY_LIST = {
 	"achievement_basileia_rhomaion",
 	"achievement_ibadi",
+	"achievement_its_only_human_to_sin",
 	"achievement_king_of_kings",
+	"achievement_north_sea_empire",
+	"achievement_pays_cathare",
 	"achievement_renovatio_imperii",
+	"achievement_sorry_we_forgot_something",
 	"achievement_survivor",
 	"achievement_the_caliphate_strikes_back",
+	"achievement_the_price_revolution",
 	"achievement_there_can_only_be_one"
 };
 
@@ -64,8 +69,10 @@ end
 
 function FactionTurnStart_Achievement_Check(context)
 	if context:faction():is_human() then
-		local faction_name = context:faction():name();
-		local faction_religion = context:faction():state_religion();
+		local faction = context:faction();
+		local faction_name = faction:name();
+		local faction_region_list = faction:region_list();
+		local faction_religion = faction:state_religion();
 		
 		for i = 1, #ACHIEVEMENT_KEY_LIST do
 			local achievement_key = ACHIEVEMENT_KEY_LIST[i];
@@ -75,11 +82,32 @@ function FactionTurnStart_Achievement_Check(context)
 
 				-- Some achievements are manually triggered, such as when a decision is made, so we should disqualify them from automatically triggering.
 				if achievement.unlocked == false and achievement.manual == false then
+					local has_required_buildings = true;
 					local has_required_regions = true;
 					local has_required_technologies = true;
 					local is_required_faction = true;
 					local is_required_religion = true;
+					local sacked_settlements = true;
 					local target_factions_dead = true;
+
+					if achievement.requiredbuildings and achievement.requirednumbuildings then
+						local num_buildings = 0;
+
+						for i = 0, faction_region_list:num_items() - 1 do
+							local region = faction_region_list:item_at(i);
+							local buildings_list = region:garrison_residence():buildings();
+							
+							for j = 0, buildings_list:num_items() - 1 do
+								if HasValue(achievement.requiredbuildings, buildings_list:item_at(j):name()) then
+									num_buildings = num_buildings + 1;
+								end
+							end
+						end
+
+						if num_buildings < achievement.requirednumbuildings then
+							has_required_buildings = false;
+						end
+					end
 
 					if achievement.requiredfactions then
 						if not HasValue(achievement.requiredfactions, faction_name) then
@@ -89,11 +117,25 @@ function FactionTurnStart_Achievement_Check(context)
 
 					if achievement.requiredtechnologies then
 						if achievement.requiredtechnologies == "all" then
-							has_required_technologies = false;
+							for i = 1, #MAX_TECHS do
+								local has_all_techs = false;
+
+								for j = 1, #MAX_TECHS[i] do
+									if faction:has_technology(MAX_TECHS[i][j]) == true then
+										has_all_techs = true;
+									elseif faction:has_technology(MAX_TECHS[i][j]) == false and has_all_techs == true then
+										has_all_techs = false;
+										break;
+									end
+								end
+							end
+
+							has_required_technologies = has_all_techs;
 						else
 							for i = 1, #achievement.requiredtechnologies do
-								if context:faction():has_technology(achievement.requiredtechnologies[i]) == false then
+								if faction:has_technology(achievement.requiredtechnologies[i]) == false then
 									has_required_technologies = false;
+									break;
 								end
 							end
 						end
@@ -111,6 +153,15 @@ function FactionTurnStart_Achievement_Check(context)
 						end
 					end
 
+					if achievement.sacksettlements then
+						for i = 1, #achievement.sacksettlements do
+							if not HasValue(SACKED_SETTLEMENTS_TOTAL[faction_name], achievement.sacksettlements[i]) then
+								sacked_settlements = false;
+								break;
+							end
+						end
+					end
+
 					if achievement.requireddeadfactions then
 						for i = 1, #achievement.requireddeadfactions do
 							if FactionIsAlive(achievement.requireddeadfactions[i]) then
@@ -120,7 +171,7 @@ function FactionTurnStart_Achievement_Check(context)
 						end
 					end
 
-					if has_required_regions == true and has_required_technologies == true and is_required_faction == true and is_required_religion == true and target_factions_dead == true then
+					if has_required_buildings == true and has_required_regions == true and has_required_technologies == true and is_required_faction == true and is_required_religion == true and sacked_settlements == true and target_factions_dead == true then
 						Unlock_Achievement(achievement_key);
 					end
 				end
@@ -147,6 +198,5 @@ function Unlock_Achievement(achievement_key)
 		ACHIEVEMENTS[achievement_key].unlocktime = unlock_time;
 
 		Display_Achievement_Unlocked_UI(achievement_key);
-		Update_Achievement_Menu_UI();
 	end
 end

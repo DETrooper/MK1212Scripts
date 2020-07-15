@@ -47,7 +47,16 @@ function OnComponentLClickUp_Achievement_UI(context)
 end
 
 function TimeTrigger_Achievement_UI(context)
-	if context.string == "Scroll_Collapsed" then
+	if context.string == "Scroll_Opened" then
+		local root = cm:ui_root();
+		local achievements_layer_uic = UIComponent(root:Find("Achievements_Layer"));
+		local achievements_popup_uic = UIComponent(achievements_layer_uic:Find("Achievements_Popup"));
+		local icon_holder_uic = UIComponent(achievements_popup_uic:Find("icon_holder"));
+		local achievement_icon_uic = UIComponent(icon_holder_uic:Find("achievement_icon"));
+
+		icon_holder_uic:Resize(72, 71);
+		achievement_icon_uic:Resize(64, 68);
+	elseif context.string == "Scroll_Collapsed" then
 		local root = cm:ui_root();
 		local achievements_layer_uic = UIComponent(root:Find("Achievements_Layer"));
 		local achievements_popup_uic = UIComponent(achievements_layer_uic:Find("Achievements_Popup"));
@@ -77,6 +86,7 @@ function Display_Achievement_Unlocked_UI(achievement_key)
 		dy_achievement_name_uic:SetStateText(ACHIEVEMENTS[achievement_key].name);
 		achievements_popup_uic:SetVisible(true);
 		achievements_popup_uic:TriggerAnimation("show");
+		cm:add_time_trigger("Scroll_Opened", 1.2);
 		cm:add_time_trigger("Scroll_Collapsed", 5.3);
 		cm:add_time_trigger("Achievement_Timer", 7);
 
@@ -110,6 +120,7 @@ function Update_Achievement_Menu_UI()
 
 			dy_achievement_name_uic:SetStateText(ACHIEVEMENTS[achievement_key].name);
 			dy_achievement_description_uic:SetStateText(ACHIEVEMENTS[achievement_key].description);
+			icon_holder_uic:DestroyChildren();
 			icon_holder_uic:CreateComponent("achievement_icon", "UI/new/achievement_icons/"..achievement_key);
 
 			local achievement_icon_uic = UIComponent(icon_holder_uic:Find("achievement_icon"));
@@ -121,12 +132,15 @@ function Update_Achievement_Menu_UI()
 					dy_unlock_date_uic:SetStateText("Unlocked: Date not found!");
 				end
 
-				achievement_icon_uic:ShaderVarsSet(0, 0, 0, 0, true);
-
 				TOTAL_ACHIEVEMENTS_UNLOCKED = TOTAL_ACHIEVEMENTS_UNLOCKED + 1;
 			else
-				achievement_icon_uic:ShaderTechniqueSet("set_greyscale_t0", true);
-				achievement_icon_uic:ShaderVarsSet(0.9, 0.9, 0, 0, true);
+				local shader_technique = achievement_icon_uic:ShaderTechniqueGet();
+
+				if shader_technique == 0 then
+					achievement_icon_uic:ShaderTechniqueSet("set_greyscale_t0", true);
+					achievement_icon_uic:ShaderVarsSet(0.9, 0.9, 0, 0, true);
+				end
+
 				dy_unlock_date_uic:SetStateText("Achievement not yet unlocked!");
 			end
 		end

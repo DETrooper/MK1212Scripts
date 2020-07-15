@@ -292,3 +292,11 @@ DIPLOMACY_OPTIONS = {
 	"break client state",
 	"state gift unilateral"
 };
+
+MAX_TECHS = {
+	{"mk_barb_civil_imperial_autocracy", "mk_barb_military_massed_infantry_formations"},
+	{"mk_east_civil_discovery_of_coffee", "mk_east_military_joint_operations"},
+	{"mk_noma_civil_chingissid_legacy", "mk_noma_military_nonlinear_combat_tactics"},
+	{"mk_orth_civil_imperial_restoration", "mk_orth_military_military_renaissance"},
+	{"mk_west_civil_new_world_expeditions", "mk_west_military_combined_arms_tactics"}
+}
