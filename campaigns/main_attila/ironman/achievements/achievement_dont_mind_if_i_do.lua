@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 --
--- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - IBADI
+-- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - DON'T MIND IF I DO
 -- 	By: DETrooper
 --
 -----------------------------------------------------------------------------------------------
@@ -9,11 +9,9 @@
 
 local achievement = {};
 
-achievement.name = "iBadi";
-achievement.description = "Research all technologies while being of the Ibadi Islam religion.";
-achievement.manual = false; -- Is unlocked during achievement turn start check.
-achievement.requiredreligions = {"mk_rel_ibadi_islam"}; -- The player must be one of these religions.
-achievement.requiredtechnologies = "all";
+achievement.name = "Don't Mind If I Do";
+achievement.description = "As a pretender to the Holy Roman Empire, successfully overthrow the emperor.";
+achievement.manual = true; -- Is unlocked elsewhere in scripts.
 achievement.unlocked = false;
 achievement.unlocktime = "";
 

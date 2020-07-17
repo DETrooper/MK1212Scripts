@@ -495,7 +495,12 @@ end
 
 function Stop_Annexing_Vassal(master_faction_name, vassalized_faction_name)
 	FACTIONS_VASSALIZED_ANNEXING[vassalized_faction_name] = false;
-	FACTIONS_VASSALIZED_ANNEXATION_TIME[vassalized_faction_name] = cm:model():world():faction_by_key(vassalized_faction_name):region_list():num_items() * ANNEX_TURNS_PER_REGION;
+
+	if FactionIsAlive(faction_name) then
+		FACTIONS_VASSALIZED_ANNEXATION_TIME[vassalized_faction_name] = cm:model():world():faction_by_key(vassalized_faction_name):region_list():num_items() * ANNEX_TURNS_PER_REGION;
+	else
+		FACTIONS_VASSALIZED_ANNEXATION_TIME[vassalized_faction_name] = -1;
+	end
 
 	for i = 1, #ANNEX_VASSALS_SIZES do
 		cm:remove_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], master_faction_name);

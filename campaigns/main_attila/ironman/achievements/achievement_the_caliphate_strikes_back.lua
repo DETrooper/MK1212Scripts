@@ -12,6 +12,7 @@ local achievement = {};
 achievement.name = "The Caliphate Strikes Back";
 achievement.description = "As the Abbasid Caliphate, restore the borders of the Abbasid Caliphate at its height.";
 achievement.manual = false; -- Is unlocked during achievement turn start check.
+achievement.requiredfactions = {"mk_fact_abbasids"}; -- The player must be one of these factions.
 achievement.requiredregions = {  -- Regions required for this achievement to unlock.
 	"att_reg_aegyptus_alexandria",
 	"att_reg_aegyptus_oxyrhynchus",
@@ -69,7 +70,6 @@ achievement.requiredregions = {  -- Regions required for this achievement to unl
 	"att_reg_tripolitana_macomades",
 	"att_reg_tripolitana_sabrata"
 };
-achievement.requiredfactions = {"mk_fact_abbasids"}; -- The player must be one of these factions.
 achievement.unlocked = false;
 achievement.unlocktime = "";
 

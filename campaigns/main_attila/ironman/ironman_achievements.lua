@@ -14,18 +14,26 @@ local util = require("lua_scripts.util");
 
 ACHIEVEMENTS = {};
 ACHIEVEMENT_KEY_LIST = {
+	"achievement_an_early_union",
 	"achievement_basileia_rhomaion",
+	"achievement_crusader_king",
+	"achievement_dont_mind_if_i_do",
 	"achievement_ibadi",
 	"achievement_its_only_human_to_sin",
 	"achievement_king_of_kings",
+	"achievement_kingdom_of_david",
 	"achievement_north_sea_empire",
 	"achievement_pays_cathare",
+	"achievement_prester_john",
 	"achievement_renovatio_imperii",
 	"achievement_sorry_we_forgot_something",
 	"achievement_survivor",
 	"achievement_the_caliphate_strikes_back",
 	"achievement_the_price_revolution",
-	"achievement_there_can_only_be_one"
+	"achievement_the_re-reconquista",
+	"achievement_there_can_only_be_one",
+	"achievement_tri_moreta",
+	"achievement_world_conquest"
 };
 
 function Add_Ironman_Achievement_Listeners()
@@ -85,6 +93,7 @@ function FactionTurnStart_Achievement_Check(context)
 					local has_required_buildings = true;
 					local has_required_regions = true;
 					local has_required_technologies = true;
+					local has_required_vassals = true;
 					local is_required_faction = true;
 					local is_required_religion = true;
 					local sacked_settlements = true;
@@ -117,9 +126,9 @@ function FactionTurnStart_Achievement_Check(context)
 
 					if achievement.requiredtechnologies then
 						if achievement.requiredtechnologies == "all" then
-							for i = 1, #MAX_TECHS do
-								local has_all_techs = false;
+							local has_all_techs = false;
 
+							for i = 1, #MAX_TECHS do
 								for j = 1, #MAX_TECHS[i] do
 									if faction:has_technology(MAX_TECHS[i][j]) == true then
 										has_all_techs = true;
@@ -147,10 +156,17 @@ function FactionTurnStart_Achievement_Check(context)
 						end
 					end
 
-					if achievement.requiredreligion then
-						if faction_religion ~= achievement.requiredreligion then
-							is_required_religion = false;
+					if achievement.requiredreligions then
+						local has_required_religion = false;
+
+						for i = 1, #achievement.requiredreligions do
+							if faction_religion == achievement.requiredreligions[i] then
+								has_required_religion = true;
+								break;
+							end
 						end
+
+						is_required_religion = has_required_religion;
 					end
 
 					if achievement.sacksettlements then
@@ -171,7 +187,16 @@ function FactionTurnStart_Achievement_Check(context)
 						end
 					end
 
-					if has_required_buildings == true and has_required_regions == true and has_required_technologies == true and is_required_faction == true and is_required_religion == true and sacked_settlements == true and target_factions_dead == true then
+					if achievement.requiredvassals then
+						for i = 1, #achievement.requiredvassals do
+							if not HasValue(FACTIONS_VASSALIZED[faction_name], achievement.requiredvassals[i]) then
+								has_required_vassals = false;
+								break;
+							end
+						end
+					end
+
+					if has_required_buildings == true and has_required_regions == true and has_required_technologies == true and is_required_faction == true and is_required_religion == true and sacked_settlements == true and target_factions_dead == true and has_required_vassals == true then
 						Unlock_Achievement(achievement_key);
 					end
 				end

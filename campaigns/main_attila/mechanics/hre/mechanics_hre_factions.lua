@@ -573,6 +573,12 @@ function HRE_Replace_Emperor(faction_name)
 	DFN_Refresh_Faction_Name(old_emperor);
 
 	if faction_name == HRE_EMPEROR_PRETENDER_KEY then
+		if IRONMAN_ENABLED then
+			if new_emperor_faction:is_human() then
+				Unlock_Achievement("achievement_dont_mind_if_i_do");
+			end
+		end
+
 		if old_emperor_faction:at_war_with(new_emperor_faction) then
 			cm:force_diplomacy(old_emperor, faction_name, "peace", true, true);
 			cm:force_diplomacy(faction_name, old_emperor, "peace", true, true);
@@ -799,11 +805,16 @@ function HRE_Remove_From_Empire(faction_name)
 
 			HRE_Remove_Imperial_Expansion_Effect_Bundles(faction_name);
 
+			if faction_name == HRE_EMPEROR_KEY then
+				HRE_Emperor_Check();
+			end
+
 			table.remove(HRE_FACTIONS, i);
 			break;
-		end	
+		end
 	end
 
+	HRE_Remove_Elector(faction_name);
 	Refresh_HRE_Elections();
 end
 

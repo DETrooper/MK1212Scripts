@@ -159,11 +159,11 @@ function OnComponentMouseOn_Pope_UI(context)
 
 			if FACTION_POPE_FAVOUR[faction_name] > 1 then
 				txt_description_uic:SetStateText(txt_description_text.."\n\n[[rgba:230:0:0:150]]Executing the captives of a fellow Catholic faction will result in the loss of Papal Favour![[/rgba]]");
-			elseif FACTION_EXCOMMUNICATED[faction_name] == false then
+				tooltip_captive_options_uic:Resize(278, 270);
+			elseif FACTION_EXCOMMUNICATED[faction_name] ~= true then
 				txt_description_uic:SetStateText(txt_description_text.."\n\n[[rgba:230:0:0:150]]With your Papal Favour already so low, executing the captives of a fellow Catholic faction will result in your excommunication![[/rgba]]");
+				tooltip_captive_options_uic:Resize(278, 290);
 			end
-
-			tooltip_captive_options_uic:Resize(278, 270);
 		elseif context.string == "option_button" then
 			local option_button_uic = UIComponent(context.component);
 			local option_button_parent_id = UIComponent(option_button_uic:Parent()):Id();

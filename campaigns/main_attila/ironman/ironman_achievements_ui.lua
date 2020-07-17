@@ -112,7 +112,7 @@ function Update_Achievement_Menu_UI()
 		local achievement_key = ACHIEVEMENT_KEY_LIST[i];
 
 		if ACHIEVEMENTS[achievement_key] then
-			local achievement_template_uic = UIComponent(list_box_uic:Find(achievement_key));
+			local achievement_template_uic = UIComponent(list_box_uic:Find(i - 1));
 			local icon_holder_uic = UIComponent(achievement_template_uic:Find("icon_holder"));
 			local dy_achievement_name_uic = UIComponent(achievement_template_uic:Find("dy_achievement_name"));
 			local dy_achievement_description_uic = UIComponent(achievement_template_uic:Find("dy_achievement_description"));

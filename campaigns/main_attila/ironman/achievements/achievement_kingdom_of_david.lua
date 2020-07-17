@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 --
--- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - IBADI
+-- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - KINGDOM OF DAVID
 -- 	By: DETrooper
 --
 -----------------------------------------------------------------------------------------------
@@ -9,11 +9,13 @@
 
 local achievement = {};
 
-achievement.name = "iBadi";
-achievement.description = "Research all technologies while being of the Ibadi Islam religion.";
+achievement.name = "Kingdom of David";
+achievement.description = "As a Jewish faction, own the region of Jerusalem.";
 achievement.manual = false; -- Is unlocked during achievement turn start check.
-achievement.requiredreligions = {"mk_rel_ibadi_islam"}; -- The player must be one of these religions.
-achievement.requiredtechnologies = "all";
+achievement.requiredregions = {  -- Regions required for this achievement to unlock.
+	"att_reg_palaestinea_aelia_capitolina"
+};
+achievement.requiredreligions = {"att_rel_judaism"}; -- The player must be one of these religions.
 achievement.unlocked = false;
 achievement.unlocktime = "";
 

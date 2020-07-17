@@ -380,6 +380,12 @@ function Check_Trait_Crusade_Battle_Victory(character)
 	if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, character_faction_name) then
 		if character:is_faction_leader() and character:trait_level("mk_trait_crusades_crusader_king") < 3 then
 			cm:force_add_trait("character_cqi:"..character_cqi, "mk_trait_crusades_crusader_king", true);
+
+			if IRONMAN_ENABLED then
+				if character:faction():is_human() then
+					Unlock_Achievement("crusader_king");
+				end
+			end
 		elseif character:is_faction_leader() == false and character:trait_level("mk_trait_crusades_crusader") < 3 then
 			cm:force_add_trait("character_cqi:"..character_cqi, "mk_trait_crusades_crusader", true);
 		end

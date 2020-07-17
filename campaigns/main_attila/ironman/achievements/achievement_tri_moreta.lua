@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 --
--- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - NORTH SEA EMPIRE
+-- 	MEDIEVAL KINGDOMS 1212 - IRONMAN: ACHIEVEMENT - TRI MORETA
 -- 	By: DETrooper
 --
 -----------------------------------------------------------------------------------------------
@@ -9,19 +9,20 @@
 
 local achievement = {};
 
-achievement.name = "North Sea Empire";
-achievement.description = "As the Kingdom of Denmark, restore the borders of King Cnut the Great's domain by conquering all of Scandinavia and England.";
+achievement.name = "Tri Moreta";
+achievement.description = "As the Tsardom of Bulgaria, reconquer the old borders of the First Bulgarian Empire.";
 achievement.manual = false; -- Is unlocked during achievement turn start check.
-achievement.requiredfactions = {"mk_fact_denmark"}; -- The player must be one of these factions.
+achievement.requiredfactions = {"mk_fact_bulgaria"}; -- The player must be one of these factions.
 achievement.requiredregions = {  -- Regions required for this achievement to unlock.
-	"att_reg_britannia_inferior_eboracum",
-	"att_reg_britannia_inferior_lindum",
-	"att_reg_britannia_superior_camulodunon",
-	"att_reg_britannia_superior_corinium",
-	"att_reg_britannia_superior_londinium",
-	"att_reg_scandza_alabu",
-	"att_reg_scandza_hafn",
-	"att_reg_scandza_hrefnesholt"
+	"att_reg_dalmatia_domavia",
+	"att_reg_dardania_scupi",
+	"att_reg_dardania_serdica",
+	"att_reg_dardania_viminacium",
+	"att_reg_macedonia_dyrrhachium",
+	"att_reg_macedonia_thessalonica",
+	"att_reg_pannonia_sirmium",
+	"att_reg_thracia_marcianopolis",
+	"att_reg_thracia_trimontium"
 };
 achievement.unlocked = false;
 achievement.unlocktime = "";

@@ -216,19 +216,17 @@ function Refresh_HRE_Elections()
 end
 
 function Add_New_Electors_HRE_Elections()
-	local factions = {};
-	local new_elector = nil;
-	local new_elector_strength = 0;
-
 	while #HRE_FACTIONS_ELECTORS < 7 do
+		local factions = {};
+		local new_elector = nil;
+		local new_elector_strength = 0;
+	
 		for i = 1, #HRE_FACTIONS do
 			local faction_name = HRE_FACTIONS[i];
-			local faction = cm:model():world():faction_by_key(faction_name);
-			local faction_state = HRE_Get_Faction_State(faction_name);
 
-			if faction_state == "malcontent" or faction_state == "discontent" or faction_state == "ambitious" then
+			if not HasValue(HRE_FACTIONS_ELECTORS, faction_name) and faction_name ~= HRE_EMPEROR_KEY then
+				local faction = cm:model():world():faction_by_key(faction_name);
 				local faction_strength = (faction:region_list():num_items() * 10) + (faction:num_allies() * 15);
-
 				local forces = faction:military_force_list();
 
 				for i = 0, forces:num_items() - 1 do
@@ -249,10 +247,11 @@ function Add_New_Electors_HRE_Elections()
 			end
 		end
 
-		if new_elector  then
+		if new_elector then
 			table.insert(HRE_FACTIONS_ELECTORS, new_elector);
 		else
-			return;
+			-- No electors found.
+			break;
 		end
 	end
 
@@ -308,19 +307,32 @@ function Cast_Vote_For_Factions_Candidate_HRE(faction_name, supporting_faction_n
 	HRE_FACTIONS_VOTES[faction_name] = HRE_FACTIONS_VOTES[supporting_faction_name];
 end
 
+function HRE_Remove_Elector(faction_name)
+	for i = 1, #HRE_FACTIONS_ELECTORS do
+		if HRE_FACTIONS_ELECTORS[i] == faction_name then
+			table.remove(HRE_FACTIONS_ELECTORS, i);
+			break;
+		end
+	end
+
+	if #HRE_FACTIONS_ELECTORS < 7 then
+		Add_New_Electors_HRE_Elections();
+	end
+end
+
 --------------------------------------------------------------
 ----------------------- SAVING / LOADING ---------------------
 --------------------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		SaveKeyPairTable(context, HRE_FACTIONS_ELECTORS, "HRE_FACTIONS_ELECTORS");
+		SaveTable(context, HRE_FACTIONS_ELECTORS, "HRE_FACTIONS_ELECTORS");
 		SaveKeyPairTable(context, HRE_FACTIONS_VOTES, "HRE_FACTIONS_VOTES");
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
-		HRE_FACTIONS_ELECTORS = LoadKeyPairTable(context, "HRE_FACTIONS_ELECTORS");
+		HRE_FACTIONS_ELECTORS = LoadTable(context, "HRE_FACTIONS_ELECTORS");
 		HRE_FACTIONS_VOTES = LoadKeyPairTable(context, "HRE_FACTIONS_VOTES");
 	end
 );

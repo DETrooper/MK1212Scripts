@@ -561,7 +561,7 @@ function Update_Pope_Favour(faction)
 end
 
 function Check_Excommunication_Low_Favour(faction)
-	if FACTION_POPE_FAVOUR[faction:name()] == 0 and FACTION_EXCOMMUNICATED[faction:name()] == false then
+	if FACTION_POPE_FAVOUR[faction:name()] == 0 and FACTION_EXCOMMUNICATED[faction:name()] ~= true then
 		cm:apply_effect_bundle("mk_bundle_pope_excommunication", faction:name(), 0);
 		FACTION_EXCOMMUNICATED[faction:name()] = true;
 
