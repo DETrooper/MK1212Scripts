@@ -59,7 +59,7 @@ function OnComponentLClickUp_Global_UI(context)
 			convert_panel_open = false;
 		end
 	elseif DIPLOMACY_PANEL_OPEN == true then
-		if context.string == "map" or context.string == "button_icon" then
+		if context.string == "map" or context.string == "button_icon" or context.string == "flag" then
 			cm:add_time_trigger("diplo_hud_check", 0.0);
 		elseif string.find(context.string, "faction_row_entry_") then
 			local faction_name = string.gsub(context.string, "faction_row_entry_", "");

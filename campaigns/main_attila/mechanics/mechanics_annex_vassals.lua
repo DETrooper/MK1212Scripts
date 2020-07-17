@@ -372,7 +372,7 @@ function OnComponentLClickUp_Annex_UI(context)
 			UIComponent(context.component):SetTooltipText("The "..vassal_string.." is not your vassal!");
 		end
 	elseif DIPLOMACY_PANEL_OPEN == true then
-		if context.string == "map" or context.string == "button_icon" or string.find(context.string, "faction_row_entry_") then
+		if context.string == "map" or context.string == "button_icon" or context.string == "flag" or string.find(context.string, "faction_row_entry_") then
 			cm:add_time_trigger("annex_diplo_hud_check", 0.1);
 		end
 	end

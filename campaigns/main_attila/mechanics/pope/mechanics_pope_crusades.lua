@@ -65,8 +65,12 @@ function Add_Crusade_Event_Listeners()
 	);
 
 	if cm:is_new_game() then
-		NEXT_CRUSADE_MESSAGE_TURN = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][2];
-		NEXT_CRUSADE_START_TURN = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][3];
+		if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)] then
+			NEXT_CRUSADE_MESSAGE_TURN = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][2];
+			NEXT_CRUSADE_START_TURN = SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][3];
+		else
+			NEXT_CRUSADE_START_TURN = cm:model():turn_number() + cm:random_number(TURNS_BETWEEN_CRUSADES_MAX, TURNS_BETWEEN_CRUSADES_MIN);
+		end
 	elseif CRUSADE_ACTIVE == true then
 		cm:add_listener(
 			"CharacterCompletedBattle_Crusades",
@@ -131,7 +135,7 @@ function FactionTurnStart_Pope_Crusades(context)
 				);
 			end
 		elseif cm:model():turn_number() == NEXT_CRUSADE_START_TURN and CRUSADE_ACTIVE == false then
-			local target = JERUSALEM_REGION_KEY;
+			local target = nil;
 
 			if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then
 				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then
@@ -148,7 +152,6 @@ function FactionTurnStart_Pope_Crusades(context)
 
 			CURRENT_CRUSADE = CURRENT_CRUSADE + 1;
 
-			local target_short = string.gsub(target, "att_reg_", "");
 			local owner = cm:model():world():region_manager():region_by_key(target):owning_faction();
 			local owner_religion = owner:state_religion();
 
@@ -462,6 +465,7 @@ function Begin_Crusade(target, owner)
 	local faction_list = cm:model():world():faction_list();
 	local region_list = owner:region_list();
 	local era = "early";
+	local target_short = string.gsub(target, "att_reg_", "");
 
 	-- Save a list of factions who are at war with the crusade target for when the crusade ends so that automatic peace isn't inadvertently made.
 	for i = 0, faction_list:num_items() - 1 do

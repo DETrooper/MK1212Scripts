@@ -56,5 +56,9 @@ function Check_Spice_Ports(faction)
 	
 	if spice_owned ~= 0 then
 		cm:apply_effect_bundle("mk_bundle_spice_trade_"..spice_owned, faction:name(), 0);
+
+		if spice_owned == #SPICE_REGIONS then
+			Unlock_Achievement("the_spice_must_flow");
+		end
 	end
 end

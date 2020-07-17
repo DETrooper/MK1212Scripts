@@ -397,7 +397,7 @@ function HRE_State_Check(faction_name)
 
 	if faction_state ~= "puppet" then
 		if emperor_faction:is_human() then
-			if FACTIONS_TO_FACTIONS_VASSALIZED[HRE_EMPEROR_KEY]  then
+			if FACTIONS_TO_FACTIONS_VASSALIZED[HRE_EMPEROR_KEY] then
 				if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[HRE_EMPEROR_KEY], faction_name) then
 					HRE_Set_Faction_State(faction_name, "puppet", true);
 					return;
@@ -576,6 +576,10 @@ function HRE_Replace_Emperor(faction_name)
 		if IRONMAN_ENABLED then
 			if new_emperor_faction:is_human() then
 				Unlock_Achievement("achievement_dont_mind_if_i_do");
+
+				if faction_name == "mk_fact_sweden" then
+					Unlock_Achievement("achievement_the_lion_of_the_north");
+				end
 			end
 		end
 
