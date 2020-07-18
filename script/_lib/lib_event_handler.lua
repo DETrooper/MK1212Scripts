@@ -237,7 +237,6 @@ function custom_context:new()
 end;
 
 function custom_context:add_data(obj)
-	
 	if is_string(obj) then
 		self.string = obj;
 	elseif is_region(obj) then
@@ -245,7 +244,11 @@ function custom_context:add_data(obj)
 	elseif is_character(obj) then
 		self.character_data = obj;
 	elseif is_faction(obj) then
-		self.faction_data = obj;
+		if not self.faction_data then
+			self.faction_data = obj;
+		else
+			self.other_faction_data = obj;
+		end
 	elseif is_component(obj) then
 		self.component_data = obj;
 	elseif is_militaryforce(obj) then
@@ -266,7 +269,11 @@ function custom_context:character()
 end;
 
 function custom_context:faction()
-	return self.character_data;
+	return self.faction_data;
+end;
+
+function custom_context:other_faction()
+	return self.other_faction_data;
 end;
 
 function custom_context:component()
