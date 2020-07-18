@@ -10,22 +10,24 @@
 
 PLAYER_WAR_WEARINESS = {}; -- This is the level of war weariness the players faction is suffering
 PLAYER_WAR_WEARINESS_EVENTS = {}; -- Keep track of the events shown to each player
+PLAYER_WAR_WEARINESS_TURNS_AT_WAR = {}; -- The amount of turns each faction has been at war.
 
 TURN_AT_PEACE = -3; -- This is the amount that a faction will always recover by every turn if at peace
-TURN_AT_WAR = 0.5; -- This is the amount war weariness will increase by per faction they are at war with that turn
+TURN_AT_WAR = 1; -- This is the amount war weariness will increase if at war (used to be per faction).
+TURN_AT_WAR_DELAY = 4; -- Amount of turns that should pass before the TURN_AT_WAR penalty begins to apply.
 
 MAX_WAR_WEARINESS = 100; -- This is the maximum amount that the war weariness value can increase to, it can be set higher than the max war weariness level to allow a slower recovery at the top end of the scale
 MIN_WAR_WEARINESS = -5; -- This is the minimum amount that the war weariness value can decrease to, it can be set lower than zero to allow the player to essentially 'bank' long periods of peace
 
-PEACE_MADE = -5; -- The amount war weariness decreases by if the faction makes peace with someone
+PEACE_MADE = -3; -- The amount war weariness decreases by if the faction makes peace with someone
 TROOPS_AT_HOME = -1; -- This is the maximum amount war weariness will decrease by if the player has kept their troops at home.
 
 -- Difficulty modifiers for passive increase
-WW_EASY_MOD = 0.8;
+WW_EASY_MOD = 0.5;
 WW_NORMAL_MOD = 1.0;
-WW_HARD_MOD = 1.2;
-WW_VERY_HARD_MOD = 1.4;
-WW_LEGENDARY_MOD = 1.6;
+WW_HARD_MOD = 1.5;
+WW_VERY_HARD_MOD = 2.0;
+WW_LEGENDARY_MOD = 2.0;
 
 -- These are the values that war weariness will change by given that the player achieves that result in a battle
 battle_result_values = {
@@ -97,36 +99,46 @@ function Add_War_Weariness_Listeners()
 				end
 
 				PLAYER_WAR_WEARINESS[current_faction:name()] = 0;
+				PLAYER_WAR_WEARINESS_TURNS_AT_WAR[current_faction:name()] = 0;
 			end
 		end
 	end
 end
 
 function FactionTurnStart_WW(context)
-	-- Turn based war weariness increase/decrease depending on war and army locations
-	if context:faction():is_human() then		
-		local borderWar, warCount, warCountScore = WarChecks(context:faction());		
-	
-		if context:faction():is_horde() == false and warCount > 0 then
-			-- AT WAR (DOES NOT AFFECT HORDES IN MK1212)
-			Add_War_Weariness(context:faction():name(), warCountScore);
-		else
-			-- AT PEACE
-			Add_War_Weariness(context:faction():name(), TURN_AT_PEACE);
-		end
-		
-		if warCount > 0 then
-			local troopsAtHome = ArmiesInOwnLands(context:faction());
-			
-			if troopsAtHome >= 100 then
-				Add_War_Weariness(context:faction():name(), TROOPS_AT_HOME);
-			elseif troopsAtHome >= 75 then
-				Add_War_Weariness(context:faction():name(), TROOPS_AT_HOME / 2);
+	local faction = context:faction();
+	local faction_name = faction:name();
+
+	-- Turn based war weariness increase/decrease depending on war and army locations		
+	if faction:at_war() then
+		-- AT WAR (DOES NOT AFFECT HORDES IN MK1212)
+
+		if faction:is_horde() == false then
+			if PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] >= TURN_AT_WAR_DELAY then
+				Add_War_Weariness(faction_name, TURN_AT_WAR);
+
+				local troopsAtHome = ArmiesInOwnLands(faction);
+				
+				if troopsAtHome >= 100 then
+					Add_War_Weariness(faction_name, TROOPS_AT_HOME);
+				elseif troopsAtHome >= 75 then
+					Add_War_Weariness(faction_name, TROOPS_AT_HOME / 2);
+				end
+			end
+
+			if PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] ~= nil then
+				PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] = PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] + 1;
+			else
+				PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] = 1;
 			end
 		end
-		
-		Update_War_Weariness(context:faction());
+	else
+		-- AT PEACE
+		PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] = 0;
+		Add_War_Weariness(faction_name, TURN_AT_PEACE);
 	end
+	
+	Update_War_Weariness(faction);
 end
 
 function Update_War_Weariness(faction)
@@ -182,7 +194,6 @@ function FactionLeaderSignsPeaceTreaty_WW(context)
 end
 
 function BattleCompleted_WW(context)
-	output("########### BattleCompleted ############");
 	local attacker_cqi, attacker_force_cqi, attacker_name = cm:pending_battle_cache_get_attacker(1);
 	local defender_cqi, defender_force_cqi, defender_name = cm:pending_battle_cache_get_defender(1);
 	local attacker_result = cm:model():pending_battle():attacker_battle_result();
@@ -232,34 +243,6 @@ end
 
 function WarWearinessNerf()
 	TURN_AT_WAR = 0;
-end
-
-function WarChecks(player)
-	local faction_list = cm:model():world():faction_list();
-	local borderWar = false;
-	local warCount = 0;
-	local warCountScore = 0;
-	
-	for i = 0, faction_list:num_items() - 1 do
-		local current_faction = faction_list:item_at(i);
-		
-		if player:name() ~= current_faction:name() then
-			if player:at_war_with(current_faction) then
-				warCount = warCount + 1;
-				if current_faction:is_horde() == false and current_faction:has_home_region() then
-					if Does_Faction_Border_Faction(player:name(), current_faction:name()) then
-						-- Player is at war with a non-horde faction
-						borderWar = true;
-						warCountScore = warCountScore + TURN_AT_WAR;
-					else
-						warCountScore = warCountScore + (TURN_AT_WAR / 2);
-					end
-				end
-			end
-		end
-	end
-
-	return borderWar, warCount, warCountScore;
 end
 
 function ArmiesInOwnLands(player)
@@ -322,12 +305,14 @@ cm:register_loading_game_callback(
 	function(context)
 		PLAYER_WAR_WEARINESS = LoadKeyPairTableNumbers(context, "PLAYER_WAR_WEARINESS");
 		PLAYER_WAR_WEARINESS_EVENTS = LoadKeyPairTable(context, "PLAYER_WAR_WEARINESS_EVENTS");
+		PLAYER_WAR_WEARINESS_TURNS_AT_WAR = LoadKeyPairTableNumbers(context, "PLAYER_WAR_WEARINESS_TURNS_AT_WAR");
 	end
 );
 cm:register_saving_game_callback(
 	function(context)
 		SaveKeyPairTable(context, PLAYER_WAR_WEARINESS, "PLAYER_WAR_WEARINESS");
 		SaveKeyPairTable(context, PLAYER_WAR_WEARINESS_EVENTS, "PLAYER_WAR_WEARINESS_EVENTS");
+		SaveKeyPairTable(context, PLAYER_WAR_WEARINESS_TURNS_AT_WAR, "PLAYER_WAR_WEARINESS_TURNS_AT_WAR");
 	end
 );
 

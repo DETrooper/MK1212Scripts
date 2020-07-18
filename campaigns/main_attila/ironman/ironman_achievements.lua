@@ -57,6 +57,12 @@ function Add_Ironman_Achievement_Listeners()
 
 	local achievement_list = dev.readAchievements("MK1212_achievements.txt");
 
+	if achievement_list == nil then
+		dev.writeAchievements("MK1212_achievements.txt", ACHIEVEMENT_KEY_LIST);
+
+		achievement_list = dev.readAchievements("MK1212_achievements.txt");
+	end
+
 	for i = 1, #ACHIEVEMENT_KEY_LIST do
 		local achievement_key = ACHIEVEMENT_KEY_LIST[i];
 

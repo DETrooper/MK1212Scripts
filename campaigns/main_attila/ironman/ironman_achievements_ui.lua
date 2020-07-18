@@ -8,6 +8,7 @@
 -----------------------------------------------------------------------------------------------
 
 ANIMATION_PLAYING = false;
+ANIMATION_QUEUE = {};
 PROGRESS_BAR_MAX_SIZE = 506;
 TOTAL_ACHIEVEMENTS_UNLOCKED = 0;
 
@@ -66,31 +67,48 @@ function TimeTrigger_Achievement_UI(context)
 		achievements_popup_uic:DestroyChildren();
 	elseif context.string == "Achievement_Timer" then
 		ANIMATION_PLAYING = false;
+
+		if #ANIMATION_QUEUE > 0 then
+			Display_Achievement_Unlocked_UI(ANIMATION_QUEUE[1]);
+		end
 	end
 end
 
 function Display_Achievement_Unlocked_UI(achievement_key)
-	if ACHIEVEMENTS[achievement_key] and ANIMATION_PLAYING == false then
-		local root = cm:ui_root();
-		local achievements_layer_uic = UIComponent(root:Find("Achievements_Layer"));
+	if ACHIEVEMENTS[achievement_key] then
+		if ANIMATION_PLAYING == false then
+			local root = cm:ui_root();
+			local achievements_layer_uic = UIComponent(root:Find("Achievements_Layer"));
 
-		achievements_layer_uic:DestroyChildren();
-		achievements_layer_uic:CreateComponent("Achievements_Popup", "UI/new/achievement_parchment");
+			achievements_layer_uic:DestroyChildren();
+			achievements_layer_uic:CreateComponent("Achievements_Popup", "UI/new/achievement_parchment");
 
-		local achievements_popup_uic = UIComponent(achievements_layer_uic:Find("Achievements_Popup"));
-		local achievements_popup_uicX, achievements_popup_uicY = achievements_popup_uic:Position();
-		local icon_holder_uic = UIComponent(achievements_popup_uic:Find("icon_holder"));
-		local dy_achievement_name_uic = UIComponent(achievements_popup_uic:Find("dy_achievement_name"));
+			local achievements_popup_uic = UIComponent(achievements_layer_uic:Find("Achievements_Popup"));
+			local achievements_popup_uicX, achievements_popup_uicY = achievements_popup_uic:Position();
+			local icon_holder_uic = UIComponent(achievements_popup_uic:Find("icon_holder"));
+			local dy_achievement_name_uic = UIComponent(achievements_popup_uic:Find("dy_achievement_name"));
 
-		icon_holder_uic:CreateComponent("achievement_icon", "UI/new/achievement_icons/"..achievement_key);
-		dy_achievement_name_uic:SetStateText(ACHIEVEMENTS[achievement_key].name);
-		achievements_popup_uic:SetVisible(true);
-		achievements_popup_uic:TriggerAnimation("show");
-		cm:add_time_trigger("Scroll_Opened", 1.2);
-		cm:add_time_trigger("Scroll_Collapsed", 5.3);
-		cm:add_time_trigger("Achievement_Timer", 7);
+			icon_holder_uic:CreateComponent("achievement_icon", "UI/new/achievement_icons/"..achievement_key);
+			dy_achievement_name_uic:SetStateText(ACHIEVEMENTS[achievement_key].name);
+			achievements_popup_uic:SetVisible(true);
+			achievements_popup_uic:TriggerAnimation("show");
+			cm:add_time_trigger("Scroll_Opened", 1.2);
+			cm:add_time_trigger("Scroll_Collapsed", 5.3);
+			cm:add_time_trigger("Achievement_Timer", 7);
 
-		ANIMATION_PLAYING = true;
+			ANIMATION_PLAYING = true;
+
+			if HasValue(ANIMATION_QUEUE, achievement_key) then
+				for i = 1, #ANIMATION_QUEUE do
+					if ANIMATION_QUEUE[i] == achievement_key then
+						table.remove(ANIMATION_QUEUE, i);
+						break;
+					end
+				end
+			end
+		elseif not HasValue(ANIMATION_QUEUE, achievement_key) then
+			table.insert(ANIMATION_QUEUE, achievement_key);
+		end
 	end
 end
 
