@@ -8,7 +8,8 @@
 -----------------------------------------------------------------------------------------------
 
 IRONMAN_ENABLED = false;
-IRONMAN_DIPLOMACY_OCCURED = false;
+IRONMAN_DIPLOMACY_OCCURED = false; -- Auto-save after peace treaties or war declared involving player.
+IRONMAN_TURN_ENDED = false; -- If turn ended, then force end turn if save is loaded from there.
 
 function Add_Ironman_Listeners()
 	if cm:is_new_game() then
@@ -22,14 +23,14 @@ function Add_Ironman_Listeners()
 			"FactionTurnStart_Ironman",
 			"FactionTurnStart",
 			true,
-			function(context) FactionTurnStartOrEnd_Ironman(context) end,
+			function(context) FactionTurnStart_Ironman(context) end,
 			true
 		);
 		cm:add_listener(
 			"FactionAboutToEndTurn_Ironman",
 			"FactionAboutToEndTurn",
 			true,
-			function(context) FactionTurnStartOrEnd_Ironman(context) end,
+			function(context) FactionTurnEnd_Ironman(context) end,
 			true
 		);
 		cm:add_listener(
@@ -83,11 +84,27 @@ function Add_Ironman_Listeners()
 		);
 
 		cm:disable_saving_game(true);
+
+		if IRONMAN_TURN_ENDED == true then
+			if FACTION_TURN == cm:get_local_faction() then
+				cm:end_turn(true);
+			end
+		end
 	end
 end
 
-function FactionTurnStartOrEnd_Ironman(context)
+function FactionTurnStart_Ironman(context)
 	if context:faction():is_human() then
+		IRONMAN_TURN_ENDED = false;
+
+		Save_Game_Ironman(0.5);
+	end
+end
+
+function FactionTurnEnd_Ironman(context)
+	if context:faction():is_human() then
+		IRONMAN_TURN_ENDED = true;
+
 		Save_Game_Ironman(0.5);
 	end
 end
@@ -130,7 +147,7 @@ function DilemmaChoiceMadeEvent_Ironman(context)
 	Save_Game_Ironman(0.5);
 end
 
-function Save_Game_Ironman(disable_delay)
+function Save_Game_Ironman(disable_delay )
 	cm:disable_saving_game(false);
 	cm:autosave_at_next_opportunity();
 	cm:add_time_trigger("disable_saving", disable_delay);
@@ -148,11 +165,13 @@ end
 cm:register_loading_game_callback(
 	function(context)
 		IRONMAN_ENABLED = cm:load_value("IRONMAN_ENABLED", false, context);
+		IRONMAN_TURN_ENDED = cm:load_value("IRONMAN_TURN_ENDED", false, context);
 	end
 );
 
 cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("IRONMAN_ENABLED", IRONMAN_ENABLED, context);
+		cm:save_value("IRONMAN_TURN_ENDED", IRONMAN_TURN_ENDED, context);
 	end
 );

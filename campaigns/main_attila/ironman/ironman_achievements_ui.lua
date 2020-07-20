@@ -172,7 +172,7 @@ function Update_Achievement_Menu_UI()
 
 	if TOTAL_ACHIEVEMENTS_UNLOCKED == 0 then
 		progress_bar_uic:Resize(1, 40);
-		progress_label_uic:SetStateText("Achievements Unlocked: 0/0 (0%)");
+		progress_label_uic:SetStateText("Achievements Unlocked: 0/"..tostring(num_achievements).." (0%)");
 	else
 		progress_bar_uic:Resize(PROGRESS_BAR_MAX_SIZE * (TOTAL_ACHIEVEMENTS_UNLOCKED / num_achievements), 40);
 		progress_label_uic:SetStateText("Achievements Unlocked: "..tostring(TOTAL_ACHIEVEMENTS_UNLOCKED).."/"..tostring(num_achievements).." ("..tostring(math.ceil((100 * TOTAL_ACHIEVEMENTS_UNLOCKED) / num_achievements)).."%)");

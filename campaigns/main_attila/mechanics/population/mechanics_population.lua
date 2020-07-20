@@ -196,6 +196,8 @@ function Add_Population_Listeners()
 end
 
 function FactionTurnStart_Population(context)
+	--dev.log("\nFactionTurnStart_Population for faction "..context:faction():name());
+	
 	if cm:model():turn_number() ~= 1 then
 		if not context:faction():is_horde() then
 			if context:faction():region_list():num_items() > 0 then
@@ -508,6 +510,7 @@ function UnitTrained_Population(context)
 end
 
 function Compute_Region_Growth(region)
+	--dev.log("Computing growth for: "..region:name());
 	local growth = {0, 0, 0, 0, 0};
 	local growth_modifier = 1;
 	local region_population = 0;
@@ -515,6 +518,7 @@ function Compute_Region_Growth(region)
 	local hard_cap = 0;
 
 	if region:owning_faction():name() == "rebels" then
+		--dev.log("Region is razed!");
 		return growth;
 	end
 
@@ -526,16 +530,23 @@ function Compute_Region_Growth(region)
 	local under_siege = region:garrison_residence():is_under_siege();
 	local food_shortage = region_owning_faction:has_food_shortage();
 
+	--dev.log("Owning faction name: "..region_owning_faction_name);
+	--dev.log("Is under siege: "..tostring(under_siege));
+	--dev.log("Has food shortage: "..tostring(food_shortage));
+
 	POPULATION_REGIONS_GROWTH_FACTORS[region_name]= "";
 
 	for i = 1, 5 do
 		region_population = region_population + POPULATION_REGIONS_POPULATIONS[region_name][i];
 	end
 
+	--dev.log("Total population: "..tostring(region_population));
+
 	for i = 0, buildings_list:num_items() - 1 do
 		if POPULATION_BUILDINGS_TO_GROWTH[buildings_list:item_at(i):name()]  then
 			for j = 1, 5 do
 				growth[j] = growth[j] + POPULATION_BUILDINGS_TO_GROWTH[buildings_list:item_at(i):name()][j];
+				--dev.log("Growth from buildings for class "..tostring(j)..": "..tostring(POPULATION_BUILDINGS_TO_GROWTH[buildings_list:item_at(i):name()][j]));
 			end
 
 			soft_cap = soft_cap + POPULATION_BUILDINGS_TO_GROWTH[buildings_list:item_at(i):name()][6];
@@ -552,6 +563,7 @@ function Compute_Region_Growth(region)
 			if POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i] ~= 0 then
 				growth[i] = growth[i] + POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i];
 				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."faction_trait_"..tostring(i).."#"..tostring(POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i] * 100).."#@";
+				--dev.log("Growth from faction trait for class "..tostring(i)..": "..tostring(POPULATION_FACTION_TRAITS_TO_GROWTH[region_owning_faction_name][i]));
 			end
 		end
 	end
@@ -561,15 +573,21 @@ function Compute_Region_Growth(region)
 			if POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i] ~= 0 then
 				growth[i] = growth[i] + POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i];
 				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."technologies_"..tostring(i).."#"..tostring(POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i] * 100).."#@";
+				--dev.log("Growth from technologies for class "..tostring(i)..": "..tostring(POPULATION_FACTION_TECH_BONUSES[region_owning_faction_name][i]));
 			end
 		end
 	end
 
-	if region_population > hard_cap then 
+	--dev.log("Soft Cap: "..tostring(soft_cap));
+	--dev.log("Hard Cap: "..tostring(hard_cap));
+
+	if region_population > hard_cap then
 		growth_modifier = POPULATION_HARD_CAP_PERCENTAGE;
+		--dev.log("Growth modifier from exceeding hard cap: "..tostring(growth_modifier));
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."hard_cap_exceeded#"..tostring(100 - (100 * growth_modifier)).."#@";
 	elseif region_population > soft_cap then 
 		growth_modifier = POPULATION_SOFT_CAP_PERCENTAGE;
+		--dev.log("Growth modifier from exceeding soft cap: "..tostring(growth_modifier));
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."soft_cap_exceeded#"..tostring(100 - (100 * growth_modifier)).."#@";
 	end
 
@@ -578,6 +596,7 @@ function Compute_Region_Growth(region)
 			-- Exclude peasants and tribesmen.
 
 			if i ~= 3 and i ~= 4 then
+				--dev.log("Growth from region being capital for class "..tostring(i)..": "..tostring(POPULATION_CAPITAL_BONUS));
 				growth[i] = growth[i] + POPULATION_CAPITAL_BONUS;
 				POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."capital_bonus_"..tostring(i).."#"..tostring(POPULATION_CAPITAL_BONUS * 100).."#@";
 			end		
@@ -586,6 +605,7 @@ function Compute_Region_Growth(region)
 		if HRE_ACTIVE_DECREE == "hre_decree_lessen_tax_burdens" then
 			if HasValue(HRE_FACTIONS, region_owning_faction_name) then
 				if i == 2 or i == 3 then
+					--dev.log("Growth from imperial decree for class "..tostring(i)..": "..tostring(POPULATION_IMPERIAL_DECREE_BONUS));
 					growth[i] = growth[i] + POPULATION_IMPERIAL_DECREE_BONUS;
 					POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."imperial_decree_"..tostring(i).."#"..tostring(POPULATION_IMPERIAL_DECREE_BONUS * 100).."#@";
 				end
@@ -606,6 +626,8 @@ function Compute_Region_Growth(region)
 		end
 	end
 
+	--dev.log("Checking for additional modifiers such as siege, food shortage, and raiding.");
+
 	if under_siege == true then
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."under_siege#"..tostring(POPULATION_SIEGE_POPULATION_LOSS * 100).."#@";
 	end
@@ -616,7 +638,10 @@ function Compute_Region_Growth(region)
 
 	for k, v in pairs(POPULATION_REGIONS_CHARACTERS_RAIDING) do
 		if v == region_name then
+			--dev.log("Region being raided!");
+
 			for j = 1, 5 do
+				--dev.log("Negative growth from raiding for class "..tostring(i)..": "..tostring(-POPULATION_RAIDING_POPULATION_LOSS));
 				growth[j] = growth[j] - POPULATION_RAIDING_POPULATION_LOSS;
 			end
 
@@ -625,6 +650,8 @@ function Compute_Region_Growth(region)
 	end
 
 	cm:apply_effect_bundle_to_region("mk_bundle_population_bundle_region", region:name(), 0); -- Re-apply this effect bundle in case it gets removed somehow (i.e. through occupation).
+
+	--dev.log("Growth calculation complete.");
 
 	return growth;
 end
@@ -704,8 +731,19 @@ function Update_Faction_Total_Population(faction)
 		if regions:num_items() > 0 then
 			for i = 0, regions:num_items() - 1 do
 				local region = regions:item_at(i);
+				local region_population = 0;
 
-				total = total + POPULATION_REGIONS_POPULATIONS[region:name()][1] + POPULATION_REGIONS_POPULATIONS[region:name()][2] + POPULATION_REGIONS_POPULATIONS[region:name()][3] + POPULATION_REGIONS_POPULATIONS[region:name()][4] + POPULATION_REGIONS_POPULATIONS[region:name()][5];
+				for i = 1, 5 do
+					region_population = region_population + POPULATION_REGIONS_POPULATIONS[region:name()][i];
+				end
+
+				if IRONMAN_ENABLED then
+					if region_population > 1000000 then
+						Unlock_Achievement("achievement_megalopolis");
+					end
+				end
+
+				total = total + region_population;
 			end
 		end
 	end

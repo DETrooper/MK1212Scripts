@@ -23,6 +23,7 @@ ACHIEVEMENT_KEY_LIST = {
 	"achievement_its_only_human_to_sin",
 	"achievement_king_of_kings",
 	"achievement_kingdom_of_david",
+	"achievement_megalopolis",
 	"achievement_north_sea_empire",
 	"achievement_pays_cathare",
 	"achievement_prester_john",
@@ -36,6 +37,7 @@ ACHIEVEMENT_KEY_LIST = {
 	"achievement_the_re-reconquista",
 	"achievement_the_spice_must_flow",
 	"achievement_there_can_only_be_one",
+	"achievement_torah_torah_torah",
 	"achievement_tri_moreta",
 	"achievement_world_conquest"
 };

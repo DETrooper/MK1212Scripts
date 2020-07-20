@@ -114,19 +114,19 @@ function FactionTurnStart_WW(context)
 		-- AT WAR (DOES NOT AFFECT HORDES IN MK1212)
 
 		if faction:is_horde() == false then
-			if PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] >= TURN_AT_WAR_DELAY then
-				Add_War_Weariness(faction_name, TURN_AT_WAR);
-
-				local troopsAtHome = ArmiesInOwnLands(faction);
-				
-				if troopsAtHome >= 100 then
-					Add_War_Weariness(faction_name, TROOPS_AT_HOME);
-				elseif troopsAtHome >= 75 then
-					Add_War_Weariness(faction_name, TROOPS_AT_HOME / 2);
-				end
-			end
-
 			if PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] ~= nil then
+				if PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] >= TURN_AT_WAR_DELAY then
+					Add_War_Weariness(faction_name, TURN_AT_WAR);
+
+					local troopsAtHome = ArmiesInOwnLands(faction);
+				
+					if troopsAtHome >= 100 then
+						Add_War_Weariness(faction_name, TROOPS_AT_HOME);
+					elseif troopsAtHome >= 75 then
+						Add_War_Weariness(faction_name, TROOPS_AT_HOME / 2);
+					end
+				end
+
 				PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] = PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] + 1;
 			else
 				PLAYER_WAR_WEARINESS_TURNS_AT_WAR[faction_name] = 1;
