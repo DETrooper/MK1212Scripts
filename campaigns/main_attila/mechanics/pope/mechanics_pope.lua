@@ -112,7 +112,9 @@ function Pope_Term_Check(context)
 	end
 
 	if context:faction():state_religion() == "att_rel_chr_catholic" and PAPAL_STATES_DEAD == false and context:faction():is_human() == true then
-		cm:make_region_visible_in_shroud(context:faction():name(), papacy:home_region():name());
+		if cm:is_multiplayer() == false then
+			cm:make_region_visible_in_shroud(context:faction():name(), papacy:home_region():name());
+		end
 	end
 
 	if context:faction():is_human() then

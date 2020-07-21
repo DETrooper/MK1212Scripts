@@ -310,6 +310,18 @@ function Rename_Faction(faction_name, rename_key)
 	cm:set_faction_name_override(faction_name, "campaign_localised_strings_string_"..rename_key);
 end
 
+function Are_Regions_Religion(religion_key, region_list)
+	for i = 1, #region_list do
+		local region = cm:model():world():region_manager():region_by_key(region_list[i]);
+
+		if region:owning_faction():state_religion() ~= religion_key then
+			return false;
+		end
+	end
+
+	return true;
+end
+
 function Has_Required_Regions(faction_name, region_list)
 	for i = 1, #region_list do
 		local region = cm:model():world():region_manager():region_by_key(region_list[i]);

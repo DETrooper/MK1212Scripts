@@ -163,10 +163,10 @@ function Activate_Papal_Favour_System()
 		true
 	);
 	cm:add_listener(
-		"OnComponentLClickUp_Pope_Favour",
-		"ComponentLClickUp",
+		"TimeTrigger_Pope",
+		"TimeTrigger",
 		true,
-		function(context) OnComponentLClickUp_Pope_Favour(context) end,
+		function(context) TimeTrigger_Pope(context) end,
 		true
 	);
 end
@@ -220,6 +220,7 @@ function Deactivate_Papal_Favour_System()
 	cm:remove_listener("DilemmaChoiceMadeEvent_Pope");
 	cm:remove_listener("MissionFailed_Check_Mission");
 	cm:remove_listener("MissionSucceeded_Check_Mission");
+	cm:remove_listener("TimeTrigger_Pope");
 
 	local faction_list = cm:model():world():faction_list();
 
@@ -436,17 +437,11 @@ function CharacterPostBattle_Favour(context, type)
 			end
 		end
 
+		POSTBATTLE_DECISION_MADE_RECENTLY = true;
+		
+		cm:add_time_trigger("Postbattle_Decision_Pope", 1);
+
 		Update_Pope_Favour(context:character():faction());
-	end
-
-	POSTBATTLE_DECISION_MADE_RECENTLY = true;
-	POSTBATTLE_DECISION_ENEMY_CATHOLIC = false;
-end
-
-function OnComponentLClickUp_Pope_Favour(context)
-	-- This is to prevent the player from being penalized as many times as there are enemy armies.
-	if POSTBATTLE_DECISION_MADE_RECENTLY == true then
-		POSTBATTLE_DECISION_MADE_RECENTLY = false;
 	end
 end
 
@@ -813,6 +808,12 @@ function Subtract_Pope_Favour(faction_name, amount, reason)
 	);
 
 	Update_Pope_Favour(faction);
+end
+
+function TimeTrigger_Pope(context)
+	if context.string == "Postbattle_Decision_Pope" then
+		POSTBATTLE_DECISION_MADE_RECENTLY = false;
+	end
 end
 
 ------------------------------------------------

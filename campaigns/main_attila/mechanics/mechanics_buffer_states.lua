@@ -58,7 +58,7 @@ function OnComponentLClickUp_Buffer_UI(context)
 		local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
 	
 		if panBufferWarning:Visible() == false then
-			local faction_string = FACTIONS_NAMES_LOCALISATION[REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]];
+			local faction_string = Get_DFN_Localisation(REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]);
 			local region_string = REGIONS_NAMES_LOCALISATION[REGION_SELECTED];
 			local dy_buffer_info_uic = UIComponent(panBufferWarning:Find("dy_buffer_info"));
 			local scroll_frame_uic = UIComponent(panBufferWarning:Find("scroll_frame"));

@@ -50,16 +50,10 @@ function Add_Kingdom_Italy_Listeners()
 end
 
 function Italy_Check(context)
-	local give_mission_turn = 2;
-	local turn_number = cm:model():turn_number();
 	local faction_name = context:faction():name();
 
 	if HasValue(ITALIAN_FACTIONS, faction_name) then
-		if turn_number == give_mission_turn and context:faction():is_human() and cm:is_multiplayer() == true then
-			cm:trigger_mission(faction_name, "mk_mission_kingdom_italy");
-		elseif turn_number > give_mission_turn then
-			Italian_Regions_Check(context);
-		end
+		Italian_Regions_Check(context);
 	end
 end
 
@@ -85,8 +79,6 @@ function Italian_Kingdom_Formed(faction_name)
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_kingdom_italy");
 		Add_Decision("found_an_empire", faction_name, false, false);
-	else
-		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_italy", true);
 	end
 
 	cm:show_message_event(

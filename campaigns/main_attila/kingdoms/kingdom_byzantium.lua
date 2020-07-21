@@ -47,16 +47,10 @@ function Add_Kingdom_Byzantium_Listeners()
 end
 
 function Byzantium_Check(context)
-	local give_mission_turn = 2;
-	local turn_number = cm:model():turn_number();
 	local faction_name = context:faction():name();
 	
 	if faction_name == EPIRUS_KEY or faction_name == NICAEA_KEY or faction_name == TREBIZOND_KEY then
-		if turn_number == give_mission_turn and cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == true then
-			cm:trigger_mission(context:faction():name(), "mk_mission_kingdom_byzantium");
-		elseif turn_number > give_mission_turn then
-			Constantinople_Check(faction_name);
-		end
+		Constantinople_Check(faction_name);
 	end
 end
 
@@ -107,8 +101,6 @@ function Byzantine_Empire_Restored(faction_name)
 		if cm:model():world():faction_by_key(faction_name):is_human() then
 			Add_Decision("restore_roman_empire", faction_name, false, true);
 		end
-	else
-		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_byzantium", true);
 	end
 
 	cm:show_message_event(

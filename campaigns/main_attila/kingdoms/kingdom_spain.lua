@@ -43,15 +43,10 @@ function Add_Kingdom_Spain_Listeners()
 end
 
 function Spain_Check(context)
-	local turn_number = cm:model():turn_number();
 	local faction_name = context:faction():name();
 	
 	if faction_name == ARAGON_KEY or faction_name == CASTILE_KEY or faction_name == NAVARRE_KEY then
-		if turn_number == SPANISH_KINGDOM_MISSION_TURN and context:faction():is_human() and cm:is_multiplayer() == true then
-			cm:trigger_mission(faction_name, "mk_mission_kingdom_spain");
-		elseif turn_number > 1 then
-			Spanish_Regions_Check(context);
-		end
+		Spanish_Regions_Check(context);
 	end
 end
 
@@ -77,8 +72,6 @@ function Spanish_Kingdom_Formed(faction_name)
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_kingdom_spain");
 		Add_Decision("found_an_empire", faction_name, false, false);
-	else
-		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_spain", true);
 	end
 
 	cm:show_message_event(

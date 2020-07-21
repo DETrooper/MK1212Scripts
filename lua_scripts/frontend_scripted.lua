@@ -24,29 +24,25 @@ function AddEventCallBack(event, func, add_to_user_defined_list)
 	end
 end
 
---
---	Script support for historic battle and prologue frontend
--- 
-
 require "lua_scripts.FE_Script_Header";
 eh = event_handler:new(AddEventCallBack);
 tm = timer_manager:new(Timers);
 svr = ScriptedValueRegistry:new();
 m_root = nil;
 
-require "lua_scripts.frontend_strings"
 require "lua_scripts.frontend_challenges"
 require "lua_scripts.frontend_changelog"
-require "lua_scripts.frontend_prologue"
 require "lua_scripts.frontend_hbs"
+require "lua_scripts.frontend_mp_campaign"
+require "lua_scripts.frontend_start_date"
+require "lua_scripts.frontend_strings"
 
 local dev = require("lua_scripts.dev");
 scripting = require "lua_scripts.EpisodicScripting";
 
-adopted = false;
 cutscenes_enabled = true; -- default to true
-version_number = 1100;
-version_number_string = "v1.1.0";
+version_number = 2000;
+version_number_string = "v2.0.0";
 
 --require("lua_scripts.logging_callbacks");
 
@@ -87,15 +83,12 @@ eh:add_listener(
 );
 
 function OnUICreated(context)
-	scripting.m_root:CreateComponent("button_random_faction", "ui/new/button_small_randfact");
 	scripting.m_root:CreateComponent("checkbox_ironman", "ui/templates/checkbox");
 	scripting.m_root:CreateComponent("text_ironman", "ui/campaign ui/script_dummy");
-	local button_random_faction_uic = UIComponent(scripting.m_root:Find("button_random_faction"));
 	local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
 	local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
 	checkbox_ironman_uic:SetTooltipText(FRONTEND_STRINGS["ironman_tooltip"]);
-	text_ironman_uic:SetStateText(FRONTEND_STRINGS["ironman_title"]);
-	button_random_faction_uic:SetVisible(false);	
+	text_ironman_uic:SetStateText(FRONTEND_STRINGS["ironman_title"]);	
 	checkbox_ironman_uic:SetVisible(false);
 	text_ironman_uic:SetVisible(false);
 
@@ -104,8 +97,6 @@ function OnUICreated(context)
 end
 
 function ChangeFrontend(context)
-	adopted = false;
-
 	local text_version_number_uic = UIComponent(scripting.m_root:Find("version_number"));
 	local curX, curY = text_version_number_uic:Position();
 
@@ -126,9 +117,6 @@ function ChangeFrontend(context)
 
 	local button_historical_battle_uic = UIComponent(scripting.m_root:Find("button_historical_battle"));
 	button_historical_battle_uic:SetState("inactive");
-
-	local effect_title_uic = UIComponent(scripting.m_root:Find("effect_title"));
-	effect_title_uic:SetDisabled(true);
 
 	ChangeCampaignsPanel();
 end
@@ -167,15 +155,7 @@ function OnComponentLClickUp(context)
 	if context.string == "button_new_campaign" then
 		tm:callback(
 			function() 
-				local faction_panel_uic = UIComponent(scripting.m_root:Find("faction_panel"));
-				local curX, curY = faction_panel_uic:Position();
-				faction_panel_uic:Resize(1367, 254);
-				faction_panel_uic:SetMoveable(true);
-				faction_panel_uic:MoveTo(curX - 34, curY - 74);
-				faction_panel_uic:SetMoveable(false);
-
 				local start_year_uic = UIComponent(scripting.m_root:Find("dy_start_year"));
-				local effect_title_uic = UIComponent(scripting.m_root:Find("effect_title"));
 				start_year_uic:Resize(400, 64, true);
 
 				local faction_button_group_uic = UIComponent(scripting.m_root:Find("faction_button_group"));
@@ -200,20 +180,12 @@ function OnComponentLClickUp(context)
 	elseif context.string == "button_dlc_campaign_1" then
 		tm:callback(
 			function() 
-				local faction_panel_uic = UIComponent(scripting.m_root:Find("faction_panel"));
-				local curX, curY = faction_panel_uic:Position();
-				faction_panel_uic:Resize(1300, 254);
-				faction_panel_uic:SetMoveable(true);
-				faction_panel_uic:MoveTo(curX, curY - 74);
-				faction_panel_uic:SetMoveable(false);
-
 				local button_purchase_uic = UIComponent(scripting.m_root:Find("button_purchase"));
 				button_purchase_uic:SetVisible(false);
 				local button_start_campaign_uic = UIComponent(scripting.m_root:Find("button_start_campaign"));
 				button_start_campaign_uic:SetVisible(true);
 
 				local start_year_uic = UIComponent(scripting.m_root:Find("dy_start_year"));
-				local effect_title_uic = UIComponent(scripting.m_root:Find("effect_title"));
 				start_year_uic:Resize(400, 64, true);
 
 				local faction_button_group_uic = UIComponent(scripting.m_root:Find("faction_group_button_group"));
@@ -235,12 +207,10 @@ function OnComponentLClickUp(context)
 			end, 
 			1
 		);
-	elseif context.string == "button_introduction" then
-		adopted = false;
 	elseif context.string == "checkbox_ironman" then	
-		if UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "selected_down" or UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "active" then
+		if UIComponent(context.component):CurrentState() == "selected_down" or UIComponent(context.component):CurrentState() == "active" then
 			svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
-		elseif UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "down" or UIComponent(scripting.m_root:Find("checkbox_ironman")):CurrentState() == "selected" then
+		elseif UIComponent(context.component):CurrentState() == "down" or UIComponent(context.component):CurrentState() == "selected" then
 			svr:SaveBool("SBOOL_IRONMAN_ENABLED", true);
 		end
 	elseif context.string == "button_random_faction" then
@@ -259,58 +229,14 @@ function OnComponentLClickUp(context)
 		end
 	end
 
-	--[[if context.string == "att_fact_group_barbarian" then
-		tm:callback(
-			function() 
-				local tx_factions_uic = UIComponent(scripting.m_root:Find("tx_factions"));
-				local curX, curY = tx_factions_uic:Position();
-
-				local croatia_uic = UIComponent(scripting.m_root:Find("mk_fact_croatia"));
-				local serbia_uic = UIComponent(scripting.m_root:Find("mk_fact_serbia"));
-				local hungary_uic = UIComponent(scripting.m_root:Find("mk_fact_hungary"));
-				local wallachia_uic = UIComponent(scripting.m_root:Find("mk_fact_wallachia"));
-				local latinempire_uic = UIComponent(scripting.m_root:Find("mk_fact_latinempire"));
-				local bulgaria_uic = UIComponent(scripting.m_root:Find("mk_fact_bulgaria"));
-				local epirus_uic = UIComponent(scripting.m_root:Find("mk_fact_epirus"));
-
-				croatia_uic:SetMoveable(true);
-				serbia_uic:SetMoveable(true);
-				hungary_uic:SetMoveable(true);
-				wallachia_uic:SetMoveable(true);
-				latinempire_uic:SetMoveable(true);
-				bulgaria_uic:SetMoveable(true);
-				epirus_uic:SetMoveable(true);
-
-				croatia_uic:MoveTo(curX + 3, curY + 38);
-				serbia_uic:MoveTo(curX + 71, curY + 38);
-				hungary_uic:MoveTo(curX + 139, curY + 38);
-				wallachia_uic:MoveTo(curX + 207, curY + 38);
-				latinempire_uic:MoveTo(curX + 275, curY + 38);
-				bulgaria_uic:MoveTo(curX + 343, curY + 38);
-				epirus_uic:MoveTo(curX + 173, curY + 106);
-
-				croatia_uic:SetMoveable(false);
-				serbia_uic:SetMoveable(false);
-				hungary_uic:SetMoveable(false);
-				wallachia_uic:SetMoveable(false);
-				latinempire_uic:SetMoveable(false);
-				bulgaria_uic:SetMoveable(false);
-				epirus_uic:SetMoveable(false);
-			end, 
-			1
-		);
-	end]]--
-
 	tm:callback(
 		function()
 			if UIComponent(scripting.m_root:Find("3D_window")):Visible() == false or UIComponent(scripting.m_root:Find("3D_window")):Visible() == nil then
 				local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
-				local button_random_faction_uic = UIComponent(scripting.m_root:Find("button_random_faction"));
 				local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
 				checkbox_ironman_uic:SetVisible(false);
 				text_ironman_uic:SetStateText("");
 				text_ironman_uic:SetVisible(false);
-				button_random_faction_uic:SetVisible(false);
 			end
 		end, 
 		0.2
@@ -402,7 +328,6 @@ function ChangeCampaignsPanel()
 	local campaign_menu_uic = UIComponent(scripting.m_root:Find("campaign_menu"));
 	campaign_menu_uic:Resize(300, 230);
 	local button_load_campaign_uic = UIComponent(scripting.m_root:Find("button_load_campaign"));
-	local button_prologue_uic = UIComponent(scripting.m_root:Find("button_introduction"));
 	local button_dlc_campaign_1_uic = UIComponent(scripting.m_root:Find("button_dlc_campaign_1"));
 	local button_dlc_campaign_2_uic = UIComponent(scripting.m_root:Find("button_dlc_campaign_2"));
 	local button_new_campaign_uic = UIComponent(scripting.m_root:Find("button_new_campaign"));
@@ -419,7 +344,6 @@ function ChangeCampaignsPanel()
 	button_multiplayer_campaign_uic:SetMoveable(true);
 	button_multiplayer_campaign_uic:MoveTo(curX, curY + 120);
 	button_multiplayer_campaign_uic:SetMoveable(false);
-	button_multiplayer_campaign_uic:SetState("inactive");
 end
 
 function ChangeEffects()
@@ -549,22 +473,16 @@ function ChangeEffects()
 	
 	-- Right Side
 	local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
-	local button_random_faction_uic = UIComponent(scripting.m_root:Find("button_random_faction"));
 	local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
 
 	checkbox_ironman_uic:SetMoveable(true);
 	checkbox_ironman_uic:MoveTo(curX + 114, curY - 20);
 	checkbox_ironman_uic:SetMoveable(false);
-	button_random_faction_uic:SetMoveable(true);
-	button_random_faction_uic:MoveTo(curX + 829, curY - 55);
-	button_random_faction_uic:SetMoveable(false);
 	text_ironman_uic:Resize(200, 48);
 	text_ironman_uic:SetMoveable(true);
 	text_ironman_uic:MoveTo(curX + 144, curY - 12);
 	text_ironman_uic:SetMoveable(false);
 	checkbox_ironman_uic:SetVisible(true);
-	button_random_faction_uic:SetTooltipText(FRONTEND_STRINGS["select_random_faction_tooltip"]);
-	button_random_faction_uic:SetVisible(true);
 	text_ironman_uic:SetStateText(FRONTEND_STRINGS["ironman_title"]);
 	text_ironman_uic:SetVisible(true);
 
@@ -589,13 +507,7 @@ function ChangeEffects()
 	start_year_uic:SetMoveable(true);
 	start_year_uic:MoveTo(curX + 430, curY + 545);
 	start_year_uic:SetMoveable(false);
-
 	effect_title_uic:SetVisible(false);
-
-	if adopted == false then
-		UIComponent(scripting.m_root:Find("sp_grand_campaign")):Adopt(effect_title_uic:Address());
-		adopted = true;
-	end
 end
 
 function ChangeUnitStatsLayout()

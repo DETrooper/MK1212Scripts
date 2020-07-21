@@ -42,16 +42,10 @@ function Add_Kingdom_Persia_Listeners()
 end
 
 function Persian_Empire_Check(context)
-	local give_mission_turn = 2;
-	local turn_number = cm:model():turn_number();
 	local faction_name = context:faction():name();
 	
 	if faction_name == GHURIDS_KEY or faction_name == HAZARASPIDS_KEY or faction_name == ILDEGIZIDS_KEY or faction_name == SALGHURIDS_KEY then
-		if turn_number == give_mission_turn and context:faction():is_human() and cm:is_multiplayer() == true then
-			cm:trigger_mission(faction_name, "mk_mission_kingdom_persia");
-		elseif turn_number > give_mission_turn then
-			Persian_Empire_Regions_Check(context);
-		end
+		Persian_Empire_Regions_Check(context);
 	end
 end
 
@@ -80,8 +74,6 @@ function Persian_Empire_Formed(faction_name)
 		if IRONMAN_ENABLED then
 			Unlock_Achievement("achievement_king_of_kings");
 		end
-	else
-		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_persia", true);
 	end
 
 	cm:show_message_event(

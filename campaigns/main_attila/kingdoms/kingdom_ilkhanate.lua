@@ -39,16 +39,10 @@ function Add_Kingdom_Ilkhanate_Listeners()
 end
 
 function Ilkhanate_Check(context)
-	local give_mission_turn = 2;
-	local turn_number = cm:model():turn_number();
 	local faction_name = context:faction():name();
 	
 	if faction_name == TOLUI_KEY then
-		if turn_number == give_mission_turn and context:faction():is_human() and cm:is_multiplayer() == true then
-			cm:trigger_mission(faction_name, "mk_mission_kingdom_ilkhanate");
-		elseif turn_number > give_mission_turn then
-			Ilkhanate_Regions_Check(context);
-		end
+		Ilkhanate_Regions_Check(context);
 	end
 end
 
@@ -73,8 +67,6 @@ function Ilkhanate_Formed(faction_name)
 
 	if cm:is_multiplayer() == false then
 		Remove_Decision("form_empire_ilkhanate");
-	else
-		cm:override_mission_succeeded_status(faction_name, "mk_mission_kingdom_ilkhanate", true);
 	end
 
 	cm:show_message_event(

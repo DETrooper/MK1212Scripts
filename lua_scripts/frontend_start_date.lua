@@ -17,7 +17,7 @@ eh:add_listener(
 );
 
 function OnFrontendScreenTransition_Campaign_Selection(context)
-	if context.string == "sp_prologue" then
+	if context.string == "sp_start_date" then
 		tm:callback(
 			function()
 				CHAPTER_SELECTED = 1;

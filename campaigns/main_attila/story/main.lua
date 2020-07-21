@@ -27,25 +27,16 @@ function Story_Initializer()
 		Add_England_Story_Events_Listeners();
 		Add_France_Story_Events_Listeners();
 		Add_Hungary_Story_Events_Listeners();
-		Add_HRE_Story_Events_Listeners();
 		Add_Reconquista_Story_Events_Listeners();
-		Add_Sicily_Story_Events_Listeners();
+
+		if cm:is_multiplayer() == false then
+			Add_HRE_Story_Events_Listeners();
+			Add_Sicily_Story_Events_Listeners();
+		end
 	end
 
 	-- Add these anyway.
 	Add_World_Story_Events_Listeners();
-end
-
-function Are_Regions_Religion(religion_key, region_list)
-	for i = 1, #region_list do
-		local region = cm:model():world():region_manager():region_by_key(region_list[i]);
-
-		if region:owning_faction():state_religion() ~= religion_key then
-			return false;
-		end
-	end
-
-	return true;
 end
 
 --------------------------------------------------------------
