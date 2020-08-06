@@ -80,7 +80,7 @@ function CreateCrusaderRecruitmentPanel()
 	local crusader_recruitment_docker_uic = UIComponent(crusader_units_panel_uic:Find("recruitment_docker_crusaders"));
 
 	root:Adopt(crusader_recruitment_docker_uic:Address());
-	--garbage:DestroyChildren();
+	garbage:DestroyChildren();
 
 	local crusader_recruitment_clip_uic = UIComponent(crusader_recruitment_docker_uic:Find("recruitment_clip"));
 	local crusader_recruitment_options_uic = UIComponent(crusader_recruitment_clip_uic:Find("recruitment_options"));

@@ -386,7 +386,7 @@ function Check_Trait_Crusade_Battle_Victory(character)
 
 			if IRONMAN_ENABLED then
 				if character:faction():is_human() then
-					Unlock_Achievement("crusader_king");
+					Unlock_Achievement("achievement_crusader_king");
 				end
 			end
 		elseif character:is_faction_leader() == false and character:trait_level("mk_trait_crusades_crusader") < 3 then

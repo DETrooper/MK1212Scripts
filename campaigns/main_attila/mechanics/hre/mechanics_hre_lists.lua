@@ -38,6 +38,7 @@ HRE_FACTIONS_START = {
 	"mk_fact_milan",
 	"mk_fact_genoa",
 	"mk_fact_brandenburg",
+	"mk_fact_hansa", -- emergent
 	"mk_fact_saxony",
 	"mk_fact_bavaria",
 	"mk_fact_bohemia",
@@ -115,6 +116,7 @@ HRE_FACTIONS_WITH_CANDIDATE_IMAGES = {
 	"mk_fact_france",
 	"mk_fact_friesland",
 	"mk_fact_genoa",
+	"mk_fact_hansa",
 	"mk_fact_hre",
 	"mk_fact_hungary",
 	"mk_fact_latinempire",

@@ -39,13 +39,6 @@ function Add_HRE_UI_Listeners()
 		function(context) OnPanelOpenedCampaign_HRE_UI(context) end,
 		true
 	);
-	cm:add_listener(
-		"TimeTrigger_HRE_UI",
-		"TimeTrigger",
-		true,
-		function(context) TimeTrigger_HRE_UI(context) end,
-		true
-	);
 
 	CreateHREPanel();
 end
@@ -66,6 +59,8 @@ function CreateHREPanel()
 	local btnVoteX, btnVoteY = btnVote:Position();
 	local btnBackCandidate = UIComponent(panHRE:Find("button_back_candidate"));
 	local btnClose = UIComponent(panHRE:Find("button_close"));
+	local parchment_uic = UIComponent(panHRE:Find("parchment"));
+	local parchment_uicX, parchment_uicY = parchment_uic:Position();
 
 	btnClose:SetMoveable(true);
 	btnClose:MoveTo(btnVoteX - 175, btnVoteY);
@@ -77,54 +72,8 @@ function CreateHREPanel()
 	map_uic:SetMoveable(true);
 	map_uic:MoveTo(btnVoteX - 717, btnVoteY - 707);
 	map_uic:SetMoveable(false);
-
-	local garbage = UIComponent(root:Find("garbage"));
-
-	garbage:CreateComponent("HRE_Parchment", "UI/campaign ui/objectives_screen");
-	local parchment_uic = UIComponent(panHRE:Find("parchment"));
-	local parchment_uicX, parchment_uicY = parchment_uic:Position();
-	local title_plaque_uic = UIComponent(garbage:Find("title_plaque"));
-	local tx_objectives_uic = UIComponent(garbage:Find("tx_objectives"));
-	local tx_title_uic = UIComponent(garbage:Find("tx_title"));
-	local progress_bar_uic = UIComponent(garbage:Find("progress_bar"));
-
-	panHRE:Adopt(title_plaque_uic:Address());
-	tx_title_uic:Resize(600, 43);
-	parchment_uic:Adopt(tx_title_uic:Address());
-	title_plaque_uic:SetMoveable(true);
-	title_plaque_uic:MoveTo(parchment_uicX - 382, parchment_uicY - 49);
-	title_plaque_uic:SetMoveable(false);
-	tx_title_uic:SetMoveable(true);
-	tx_title_uic:MoveTo(parchment_uicX + 27, parchment_uicY + 218);
-	tx_title_uic:SetMoveable(false);
-	progress_bar_uic:SetVisible(false);
-	tx_objectives_uic:SetStateText("Pretender: Federico II");
-	tx_title_uic:SetStateText("This faction is the emperor!");
-	garbage:DestroyChildren();
-
-	garbage:CreateComponent("HRE_Titles", "UI/campaign ui/objectives_screen");
-	title_plaque_uic = UIComponent(garbage:Find("title_plaque"));
-	tx_title_uic = UIComponent(garbage:Find("tx_title"));
-	tx_objectives_uic = UIComponent(garbage:Find("tx_objectives"));
-	panHRE:Adopt(title_plaque_uic:Address());
-	progress_bar_uic = UIComponent(garbage:Find("progress_bar"));
-
-	tx_title_uic:Resize(600, 43);
-	parchment_uic:Adopt(tx_title_uic:Address());
-	title_plaque_uic:SetMoveable(true);
-	title_plaque_uic:MoveTo(parchment_uicX - 686, parchment_uicY - 49);
-	title_plaque_uic:SetMoveable(false);
-	tx_title_uic:SetMoveable(true);
-	tx_title_uic:MoveTo(parchment_uicX + 27, parchment_uicY + 383);
-	tx_title_uic:SetMoveable(false);
-	progress_bar_uic:SetVisible(false);
-	tx_objectives_uic:SetStateText("Emperor: Otto IV");
-	tx_title_uic:SetStateText("Elections");
-	garbage:DestroyChildren();
-
 	parchment_uic:CreateComponent("Parchment_UI_Layer", "UI/campaign ui/script_dummy");
 	parchment_uic:CreateComponent("Election_UI_Layer", "UI/campaign ui/script_dummy");
-
 	parchment_uic:Adopt(btnVote:Address());
 	parchment_uic:Adopt(btnBackCandidate:Address());
 	btnVote:SetMoveable(true);
@@ -139,21 +88,6 @@ function CreateHREPanel()
 	Setup_Reforms_HRE_UI(root);
 	Setup_Decrees_HRE_UI(root);
 
-	garbage:CreateComponent("HRE_Text", "UI/campaign ui/clan");
-	local btnSummary = UIComponent(garbage:Find("Summary"));
-   	local btnRecords = UIComponent(garbage:Find("Records"));
-	btnSummary:ClearSound();
-	btnSummary:SimulateClick();
-
-	local bar_uic = UIComponent(garbage:Find("bar"));
-	bar_uic:DestroyChildren();
-	bar_uic:SetVisible(false);
-	parchment_uic:Adopt(bar_uic:Address());
-
-	btnRecords:ClearSound();
-	btnRecords:SimulateClick();
-	cm:add_time_trigger("HRE_Text_Setup", 0.1);
-
 	panHRE:SetVisible(false);
 end
 
@@ -162,7 +96,7 @@ function OnComponentMouseOn_HRE_UI(context)
 		UIComponent(context.component):SetTooltipText("Cast your vote for this faction in the next election for the Holy Roman Emperor.");
 	elseif context.string == "button_back_candidate" then
 		UIComponent(context.component):SetTooltipText("Back this faction's candidate in the next election for the Holy Roman Emperor.");
-	elseif context.string == "dy_imperium" then
+	elseif context.string == "dy_imperial_authority" then
 		if HRE_PANEL_OPEN == true then
 			if HRE_FACTION_SELECTED == HRE_EMPEROR_KEY then
 				UIComponent(context.component):SetTooltipText(Get_Authority_Tooltip());
@@ -170,7 +104,7 @@ function OnComponentMouseOn_HRE_UI(context)
 				UIComponent(context.component):SetTooltipText(HRE_STATES[HRE_FACTIONS_STATES[HRE_FACTION_SELECTED]][2]);
 			end
 		end
-	elseif context.string == "tx_authority" then
+	elseif context.string == "tx_imperial_authority" then
 		UIComponent(context.component):SetTooltipText(Get_Authority_Tooltip());
 	elseif string.find(context.string, "button_decree_") then
 		local tltipDecree = UIComponent(context.component);
@@ -355,77 +289,20 @@ function OnPanelOpenedCampaign_HRE_UI(context)
 	CloseHREPanel(false);
 end
 
-function TimeTrigger_HRE_UI(context)
-	if context.string == "HRE_Text_Setup" then
-		local root = cm:ui_root();
-		local garbage = UIComponent(root:Find("garbage"));
-		local panHRE = UIComponent(root:Find("HRE_Panel"));
-		local parchment_uic = UIComponent(panHRE:Find("parchment"));
-		local parchment_uicX, parchment_uicY = parchment_uic:Position();
-		local faction_context_subpanel_uic = UIComponent(garbage:Find("faction_context_subpanel"));
-		local dy_name_uic = UIComponent(faction_context_subpanel_uic:Find("dy_name"));
-		local dy_faction_symbol_uic = UIComponent(faction_context_subpanel_uic:Find("dy_faction_symbol"));
-
-		dy_faction_symbol_uic:SetVisible(false);
-		parchment_uic:Adopt(faction_context_subpanel_uic:Address());
-		garbage:DestroyChildren();
-
-		faction_context_subpanel_uic:SetMoveable(true);
-		faction_context_subpanel_uic:MoveTo(parchment_uicX - 60, parchment_uicY + 210);
-		faction_context_subpanel_uic:SetMoveable(false);
-		dy_name_uic:Resize(570, 30);
-		dy_name_uic:SetMoveable(true);
-		dy_name_uic:MoveTo(parchment_uicX + 40, parchment_uicY + 10);
-		dy_name_uic:SetMoveable(false);
-
-		for i = 0, faction_context_subpanel_uic:ChildCount() - 1 do
-			local child = UIComponent(faction_context_subpanel_uic:Find(i));
-		
-			if child:Id() == "tx_prosperity" or child:Id() == "tx_faction_leader" or child:Id() == "tx_imperium" then
-				local childX, childY = child:Position();
-
-				child:SetMoveable(true);
-				child:MoveTo(childX - 110, childY);
-				child:SetMoveable(false);
-			elseif child:Id() == "tx_hordes_owned" then
-				local dy_hordes_owned_uic = UIComponent(child:Find("dy_hordes_owned"));
-
-				child:SetMoveable(true);
-				child:MoveTo(parchment_uicX + 260, parchment_uicY + 412);
-				child:SetMoveable(false);
-				dy_hordes_owned_uic:SetMoveable(true);
-				dy_hordes_owned_uic:MoveTo(parchment_uicX + 378, parchment_uicY + 576);
-				dy_hordes_owned_uic:SetMoveable(false);
-			end
-
-			if child:Id() ~= "dy_name" and child:Id() ~= "dy_faction_symbol" then		
-				for j = 0, child:ChildCount() - 1 do
-					local sub_child = UIComponent(child:Find(j));
-					local sub_childX, sub_childY = sub_child:Position();
-
-					sub_child:SetMoveable(true);
-					sub_child:MoveTo(sub_childX - 80, sub_childY);
-					sub_child:SetMoveable(false);
-				end
-			end
-		end
-	end
-end
-
 function OpenHREPanel()
 	local root = cm:ui_root();
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
 	local btnHREInfo = UIComponent(panHRE:Find("hre_info"));
 	local HREInfo_tab_child_uic = UIComponent(btnHREInfo:Find("tab_child"));
-	local tx_objectives_uic1 = UIComponent(UIComponent(panHRE:Find(4)):Find("tx_objectives"));
-	local tx_objectives_uic2 = UIComponent(UIComponent(panHRE:Find(5)):Find("tx_objectives"));
+	local tx_emperor_uic = UIComponent(UIComponent(panHRE:Find(2)):Find("tx_emperor"));
+	local tx_pretender_uic = UIComponent(UIComponent(panHRE:Find(3)):Find("tx_pretender"));
 	local btnHREPolicies = UIComponent(panHRE:Find("hre_policies"));
 	local hre_emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 	local emperor_number = "";
 	local hre_regions_owned = 0;
 
-	tx_objectives_uic1:DestroyChildren();
-	tx_objectives_uic2:DestroyChildren();
+	tx_emperor_uic:DestroyChildren();
+	tx_pretender_uic:DestroyChildren();
 
 	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
 		local hre_pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
@@ -438,16 +315,16 @@ function OpenHREPanel()
 			pretender_number = HRE_EMPERORS_ROMAN_NUMERALS[1];
 		end
 
-		tx_objectives_uic1:SetStateText("Pretender: "..NAMES_TO_LOCALISATION[hre_pretender_faction:faction_leader():get_forename()].." "..pretender_number);
-		tx_objectives_uic1:CreateComponent(HRE_EMPEROR_PRETENDER_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_PRETENDER_KEY.."_flag_small");
+		tx_emperor_uic:SetStateText("Pretender: "..NAMES_TO_LOCALISATION[hre_pretender_faction:faction_leader():get_forename()].." "..pretender_number);
+		tx_emperor_uic:CreateComponent(HRE_EMPEROR_PRETENDER_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_PRETENDER_KEY.."_flag_small");
 
-		local faction_logo_uic = UIComponent(tx_objectives_uic1:Find(0));
-		local tx_objectives_uic1X, tx_objectives_uic1Y = tx_objectives_uic1:Position();
+		local faction_logo_uic = UIComponent(tx_emperor_uic:Find(0));
+		local tx_emperor_uicX, tx_emperor_uicY = tx_emperor_uic:Position();
 		faction_logo_uic:SetMoveable(true);
-		faction_logo_uic:MoveTo(tx_objectives_uic1X - 32, tx_objectives_uic1Y + 4);
+		faction_logo_uic:MoveTo(tx_emperor_uicX - 32, tx_emperor_uicY + 4);
 		faction_logo_uic:SetMoveable(false);
 	else
-		tx_objectives_uic1:SetStateText("Pretender: None");
+		tx_emperor_uic:SetStateText("Pretender: None");
 	end
 
 	if HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()]  then
@@ -457,16 +334,16 @@ function OpenHREPanel()
 		emperor_number = HRE_EMPERORS_ROMAN_NUMERALS[1];
 	end
 
-	tx_objectives_uic2:SetStateText("Emperor: "..NAMES_TO_LOCALISATION[hre_emperor_faction:faction_leader():get_forename()].." "..emperor_number);
-	tx_objectives_uic2:CreateComponent(HRE_EMPEROR_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_KEY.."_flag_small");
+	tx_pretender_uic:SetStateText("Emperor: "..NAMES_TO_LOCALISATION[hre_emperor_faction:faction_leader():get_forename()].." "..emperor_number);
+	tx_pretender_uic:CreateComponent(HRE_EMPEROR_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_KEY.."_flag_small");
 
-	local faction_logo_uic = UIComponent(tx_objectives_uic2:Find(0));
-	local tx_objectives_uic2X, tx_objectives_uic2Y = tx_objectives_uic2:Position();
+	local faction_logo_uic = UIComponent(tx_pretender_uic:Find(0));
+	local tx_pretender_uicX, tx_pretender_uicY = tx_pretender_uic:Position();
 	faction_logo_uic:SetMoveable(true);
-	faction_logo_uic:MoveTo(tx_objectives_uic2X - 32, tx_objectives_uic2Y + 4);
+	faction_logo_uic:MoveTo(tx_pretender_uicX - 32, tx_pretender_uicY + 4);
 	faction_logo_uic:SetMoveable(false);
 
-	--[[tx_objectives_uic1:SetStateText("Emperor: "..NAMES_TO_LOCALISATION[hre_emperor_faction:faction_leader():get_forename()].." "..number);
+	--[[tx_emperor_uic:SetStateText("Emperor: "..NAMES_TO_LOCALISATION[hre_emperor_faction:faction_leader():get_forename()].." "..number);
 
 	for i = 1, #HRE_REGIONS do
 		local region_name = HRE_REGIONS[i];
@@ -478,7 +355,7 @@ function OpenHREPanel()
 		end
 	end
 
-	tx_objectives_uic2:SetStateText("Imperial Territory: ("..tostring(hre_regions_owned).."/"..tostring(#HRE_REGIONS)..")");]]--
+	tx_pretender_uic:SetStateText("Imperial Territory: ("..tostring(hre_regions_owned).."/"..tostring(#HRE_REGIONS)..")");]]--
 
 	Update_Map_Regions_HRE_UI(root);
 	Setup_Faction_Info_HRE_UI(root, cm:get_local_faction());
@@ -691,9 +568,9 @@ function Update_Authority_HRE_UI()
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
 	local btnHREPolicies = UIComponent(panHRE:Find("hre_policies"));
 	local btnHREPolicies_tab_child_uic = UIComponent(btnHREPolicies:Find("tab_child"));
-	local tx_authority_uic = UIComponent(btnHREPolicies_tab_child_uic:Find("tx_authority"));
+	local tx_imperial_authority_uic = UIComponent(btnHREPolicies_tab_child_uic:Find("tx_imperial_authority"));
 
-	tx_authority_uic:SetStateText("Imperial Authority: ("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_IMPERIAL_AUTHORITY_MAX)..")");
+	tx_imperial_authority_uic:SetStateText("Imperial Authority: ("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_IMPERIAL_AUTHORITY_MAX)..")");
 end
 
 function Round_Imperial_Authority_HRE_UI()
@@ -750,7 +627,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 	local in_hre = " This faction is a member of the Holy Roman Empire!";
 	local faction = cm:model():world():faction_by_key(faction_name);
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
-	local tx_title_uic = UIComponent(panHRE:Find("tx_title"));
+	local dy_faction_state_uic = UIComponent(panHRE:Find("dy_faction_state"));
 	local btnHREInfo = UIComponent(panHRE:Find("hre_info"));
 	local btnVote = UIComponent(panHRE:Find("button_vote"));
 	local btnBackCandidate = UIComponent(panHRE:Find("button_back_candidate"));
@@ -758,8 +635,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 	local parchment_uicX, parchment_uicY = parchment_uic:Position();
 	local parchment_ui_layer_uic = UIComponent(parchment_uic:Find("Parchment_UI_Layer"));
 	local election_ui_layer_uic = UIComponent(parchment_uic:Find("Election_UI_Layer"));
-	local faction_context_subpanel_uic = UIComponent(parchment_uic:Find("faction_context_subpanel"));
-	local dy_name_uic = UIComponent(faction_context_subpanel_uic:Find("dy_name"));
+	local dy_faction_name_uic = UIComponent(parchment_uic:Find("dy_faction_name"));
 
 	btnHREInfo:SimulateClick();
 
@@ -775,8 +651,8 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		in_hre = " This faction is not in the Holy Roman Empire!";
 	end
 
-	tx_title_uic:SetStateText(in_hre);
-	dy_name_uic:SetStateText(" "..Get_DFN_Localisation(faction_name));
+	dy_faction_state_uic:SetStateText(in_hre);
+	dy_faction_name_uic:SetStateText(" "..Get_DFN_Localisation(faction_name));
 
 	--if HasValue(FACTIONS_WITH_IMAGES, faction_name) then
 		parchment_ui_layer_uic:CreateComponent(faction_name.."_logo", "UI/new/faction_flags/"..faction_name.."_flag_big");
@@ -793,22 +669,21 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 	if HasValue(HRE_FACTIONS, faction_name) or HRE_EMPEROR_PRETENDER_KEY == faction_name then
 		Setup_Elector_Faction_Info_HRE_UI(root, faction_name);
 
-		for i = 0, faction_context_subpanel_uic:ChildCount() - 1 do
-			local child = UIComponent(faction_context_subpanel_uic:Find(i));
+		for i = 3, 8 do
+			local child = UIComponent(parchment_uic:Find(i));
 
-			if child:Id() ~= "dy_name" and child:Id() ~= "dy_faction_symbol" and child:Id() ~= "tx_hordes_owned" then
-				child:SetVisible(true);
-			end
+			child:SetVisible(true);
 		end
 
-		local child_1 = UIComponent(parchment_uic:Find(0));
-		local child_2 = UIComponent(parchment_uic:Find(1));
+		local child_1 = UIComponent(parchment_uic:Find(1));
+		local child_2 = UIComponent(parchment_uic:Find(2));
 		UIComponent(child_1:Find("hbar")):SetVisible(true);
 
 		if faction_name == HRE_EMPEROR_PRETENDER_KEY or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, faction_name) == false) then
-			UIComponent(child_2:Find("tx_title")):SetVisible(false);
+			
+			child_2:SetVisible(false);
 		else
-			UIComponent(child_2:Find("tx_title")):SetVisible(true);
+			child_2:SetVisible(true);
 		end
 
 		if HasValue(HRE_FACTIONS_WITH_CANDIDATE_IMAGES, faction_name) then
@@ -838,21 +713,21 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		mon_24:SetVisible(false);
 		diplomatic_relations_fill:SetVisible(false);
 
-		local dy_home_region_uic = UIComponent(faction_context_subpanel_uic:Find("dy_home-region"));
-		local tx_provinces_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_provinces_owned"));
-		local dy_provinces_owned_uic = UIComponent(tx_provinces_owned_uic:Find("dy_provinces_owned"));
-		local tx_regions_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_regions_owned"));
+		local dy_home_region_uic = UIComponent(parchment_uic:Find("dy_home-region"));
+		local tx_regions_owned_uic = UIComponent(parchment_uic:Find("tx_regions_owned"));
 		local dy_regions_owned_uic = UIComponent(tx_regions_owned_uic:Find("dy_regions_owned"));
-		local tx_faction_leader_uic = UIComponent(faction_context_subpanel_uic:Find("tx_faction_leader"));
-		local dy_faction_leader_uic = UIComponent(tx_faction_leader_uic:Find("dy_faction_leader"));
-		local tx_prosperity_uic = UIComponent(faction_context_subpanel_uic:Find("tx_prosperity"));
-		local dy_prosperity_uic = UIComponent(tx_prosperity_uic:Find("dy_prosperity"));
-		local tx_imperium_uic = UIComponent(faction_context_subpanel_uic:Find("tx_imperium"));
-		local dy_imperium_uic = UIComponent(tx_imperium_uic:Find("dy_imperium"));
+		local tx_regions_in_hre_uic = UIComponent(parchment_uic:Find("tx_regions_in_hre"));
+		local dy_regions_in_hre_uic = UIComponent(tx_regions_in_hre_uic:Find("dy_regions_in_hre"));
+		local tx_faction_rank_uic = UIComponent(parchment_uic:Find("tx_faction_rank"));
+		local dy_faction_rank_uic = UIComponent(tx_faction_rank_uic:Find("dy_faction_rank"));
+		local tx_population_uic = UIComponent(parchment_uic:Find("tx_population"));
+		local dy_population_uic = UIComponent(tx_population_uic:Find("dy_population"));
+		local tx_imperial_authority_uic = UIComponent(parchment_uic:Find("tx_imperial_authority"));
+		local dy_imperial_authority_uic = UIComponent(tx_imperial_authority_uic:Find("dy_imperial_authority"));
 
 		dy_home_region_uic:SetStateText(REGIONS_NAMES_LOCALISATION[faction:home_region():name()]);
-		dy_provinces_owned_uic:SetStateText(tostring(faction:region_list():num_items()));
-		tx_regions_owned_uic:SetStateText("Regions in HRE:");
+		dy_regions_owned_uic:SetStateText(tostring(faction:region_list():num_items()));
+		tx_regions_in_hre_uic:SetStateText("Regions in HRE:");
 
 		for i = 1, #HRE_REGIONS do
 			local region = cm:model():world():region_manager():region_by_key(HRE_REGIONS[i]);
@@ -862,39 +737,41 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 			end
 		end
 
-		dy_regions_owned_uic:SetStateText(tostring(hre_regions));
-		tx_faction_leader_uic:SetStateText("Faction rank:");
+		dy_regions_in_hre_uic:SetStateText(tostring(hre_regions));
+		tx_faction_rank_uic:SetStateText("Faction rank:");
 
 		if FACTIONS_DFN_LEVEL[faction_name] == 1 then
-			dy_faction_leader_uic:SetStateText("County/Duchy");
+			dy_faction_rank_uic:SetStateText("County/Duchy");
 		elseif FACTIONS_DFN_LEVEL[faction_name] == 2 then
-			dy_faction_leader_uic:SetStateText("Kingdom");
-		elseif FACTIONS_DFN_LEVEL[faction_name] >= 3 then
-			dy_faction_leader_uic:SetStateText("Empire");
+			dy_faction_rank_uic:SetStateText("Kingdom");
+		elseif FACTIONS_DFN_LEVEL[faction_name] >= 3 or faction_name == HRE_EMPEROR_KEY then
+			dy_faction_rank_uic:SetStateText("Empire");
 		end
 
-		tx_prosperity_uic:SetStateText("Population:");
-		dy_prosperity_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[faction_name]));
+		tx_population_uic:SetStateText("Population:");
+		dy_population_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[faction_name]));
 
 		Update_State_HRE_UI(faction_name);
 	else
 		faction_logo_uic:SetState("faded");
 		election_ui_layer_uic:SetVisible(false);
 
-		for i = 0, faction_context_subpanel_uic:ChildCount() - 1 do
-			local child = UIComponent(faction_context_subpanel_uic:Find(i));
+		for i = 3, 8 do
+			local child = UIComponent(parchment_uic:Find(i));
 
-			if child:Id() ~= "dy_name" then
-				child:SetVisible(false);
-			end
+			child:SetVisible(false);
 		end
 
-		local child_1 = UIComponent(parchment_uic:Find(0));
-		local child_2 = UIComponent(parchment_uic:Find(1));
+		local child_1 = UIComponent(parchment_uic:Find(1));
+		local child_2 = UIComponent(parchment_uic:Find(2));
+		local tx_chosen_candidate_uic = UIComponent(parchment_uic:Find("tx_chosen_candidate"));
+		local dy_votes_uic = UIComponent(parchment_uic:Find("dy_votes"));
 		local bar_uic = UIComponent(parchment_uic:Find("bar"));
 
 		UIComponent(child_1:Find("hbar")):SetVisible(false);
-		UIComponent(child_2:Find("tx_title")):SetVisible(false);
+		child_2:SetVisible(false);
+		tx_chosen_candidate_uic:SetStateText("");
+		dy_votes_uic:SetStateText("");
 		btnVote:SetVisible(false);
 		btnBackCandidate:SetVisible(false);
 		bar_uic:SetVisible(false);
@@ -907,19 +784,18 @@ function Update_State_HRE_UI(faction_name)
 	local root = cm:ui_root();
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
 	local parchment_uic = UIComponent(panHRE:Find("parchment"));
-	local faction_context_subpanel_uic = UIComponent(parchment_uic:Find("faction_context_subpanel"));
-	local tx_imperium_uic = UIComponent(faction_context_subpanel_uic:Find("tx_imperium"));
-	local dy_imperium_uic = UIComponent(tx_imperium_uic:Find("dy_imperium"));
+	local tx_imperial_authority_uic = UIComponent(parchment_uic:Find("tx_imperial_authority"));
+	local dy_imperial_authority_uic = UIComponent(tx_imperial_authority_uic:Find("dy_imperial_authority"));
 
 	if HasValue(HRE_FACTIONS, faction_name) and faction_name ~= HRE_EMPEROR_KEY and cm:model():world():faction_by_key(faction_name):is_human() == false then
-		tx_imperium_uic:SetStateText("Attitude:");
-		dy_imperium_uic:SetStateText(HRE_STATES[HRE_FACTIONS_STATES[faction_name]][1]);
+		tx_imperial_authority_uic:SetStateText("Attitude:");
+		dy_imperial_authority_uic:SetStateText(HRE_STATES[HRE_FACTIONS_STATES[faction_name]][1]);
 	elseif faction_name == HRE_EMPEROR_KEY then
-		tx_imperium_uic:SetStateText("Authority:");
-		dy_imperium_uic:SetStateText(Round_Number_Text(HRE_IMPERIAL_AUTHORITY).."/100");
+		tx_imperial_authority_uic:SetStateText("Authority:");
+		dy_imperial_authority_uic:SetStateText(Round_Number_Text(HRE_IMPERIAL_AUTHORITY).."/100");
 	else
-		tx_imperium_uic:SetStateText("");
-		dy_imperium_uic:SetStateText("");
+		tx_imperial_authority_uic:SetStateText("");
+		dy_imperial_authority_uic:SetStateText("");
 	end
 end
 
@@ -927,7 +803,6 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
 	local parchment_uic = UIComponent(panHRE:Find("parchment"));
 	local parchment_uicX, parchment_uicY = parchment_uic:Position();
-	local faction_context_subpanel_uic = UIComponent(parchment_uic:Find("faction_context_subpanel"));
 	local btnVote = UIComponent(panHRE:Find("button_vote"));
 	local btnBackCandidate = UIComponent(panHRE:Find("button_back_candidate"));
 	local election_ui_layer_uic = UIComponent(parchment_uic:Find("Election_UI_Layer"));
@@ -956,8 +831,8 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 			local mon_frame_candidate = UIComponent(candidate_name_uic:Find("mon_frame"));
 			local mon_24_candidate = UIComponent(candidate_name_uic:Find("mon_24"));
 			local diplomatic_relations_fill_candidate = UIComponent(candidate_name_uic:Find("diplomatic_relations_fill"));
-			local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
-			local dy_hordes_owned_uic = UIComponent(tx_hordes_owned_uic:Find("dy_hordes_owned"));
+			local tx_chosen_candidate_uic = UIComponent(parchment_uic:Find("tx_chosen_candidate"));
+			local dy_votes_uic = UIComponent(parchment_uic:Find("dy_votes"));
 			local bar_uic = UIComponent(parchment_uic:Find("bar"));
 
 			candidate_uic:SetMoveable(true);
@@ -977,10 +852,9 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 
 			local num_votes = Calculate_Num_Votes_HRE_Elections(faction_name);
 
-			tx_hordes_owned_uic:SetVisible(true);
-			dy_hordes_owned_uic:SetVisible(true);
-			tx_hordes_owned_uic:SetStateText("Chosen Candidate:");
-			dy_hordes_owned_uic:SetStateText("Votes: "..tostring(num_votes));
+			tx_chosen_candidate_uic:SetVisible(true);
+			dy_votes_uic:SetVisible(true);
+			dy_votes_uic:SetStateText("Votes: "..tostring(num_votes));
 
 			if num_votes > 0 then
 				bar_uic:Resize((26 * num_votes) + 4, 24);
@@ -1008,23 +882,25 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 				end
 			end
 		else
-			local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
-			local dy_hordes_owned_uic = UIComponent(tx_hordes_owned_uic:Find("dy_hordes_owned"));
+			local tx_chosen_candidate_uic = UIComponent(parchment_uic:Find("tx_chosen_candidate"));
+			local dy_votes_uic = UIComponent(parchment_uic:Find("dy_votes"));
 			local bar_uic = UIComponent(parchment_uic:Find("bar"));
 
-			tx_hordes_owned_uic:SetStateText("");
-			dy_hordes_owned_uic:SetStateText("");
+			tx_chosen_candidate_uic:SetStateText("");
+			dy_votes_uic:SetStateText("");
 			bar_uic:SetVisible(false);
 		end
 	end
 
 	if CURRENT_HRE_REFORM < 8 then
 		if info_faction_name == HRE_EMPEROR_PRETENDER_KEY then
-			local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
+			local tx_chosen_candidate_uic = UIComponent(parchment_uic:Find("tx_chosen_candidate"));
+			local dy_votes_uic = UIComponent(parchment_uic:Find("dy_votes"));
 			local bar_uic = UIComponent(parchment_uic:Find("bar"));
 
 			election_ui_layer_uic:SetVisible(false);
-			tx_hordes_owned_uic:SetVisible(false);
+			tx_chosen_candidate_uic:SetStateText("");
+			dy_votes_uic:SetStateText("");
 			btnVote:SetVisible(true);
 			btnVote:SetMoveable(true);
 			btnVote:MoveTo(parchment_uicX + 193, parchment_uicY + 644);
@@ -1047,10 +923,7 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 				btnVote:SetVisible(false);
 			end
 		else
-			local tx_hordes_owned_uic = UIComponent(faction_context_subpanel_uic:Find("tx_hordes_owned"));
-
 			election_ui_layer_uic:SetVisible(true);
-			tx_hordes_owned_uic:SetVisible(true);
 
 			if not HasValue(HRE_FACTIONS, cm:get_local_faction()) then
 				btnBackCandidate:SetVisible(false);
