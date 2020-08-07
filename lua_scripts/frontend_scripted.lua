@@ -255,13 +255,18 @@ function OnComponentLClickUp(context)
 
 					local boundsX = 225;
 					local boundsY = 32;
-					local columns = math.ceil(popup_list_uic:ChildCount() / 20);
 					local column = 1;
-					local row = 0;
+					local row = 1;
+					local max_rows = 21;
+					local num_columns = math.ceil(popup_list_uic:ChildCount() / max_rows);
 
-					popup_menu_uic:Resize((225 * columns), 650);
+					if popup_list_uic:ChildCount() < max_rows then
+						max_rows = popup_list_uic:ChildCount();
+					end
+
+					popup_menu_uic:Resize((225 * num_columns), (31 * max_rows) + 10);
 					popup_menu_uic:SetMoveable(true);
-					popup_menu_uic:MoveTo(popup_menuX - ((boundsX * columns) / 2), popup_menuY);
+					popup_menu_uic:MoveTo(popup_menuX - ((boundsX * num_columns) / 2), popup_menuY);
 					popup_menu_uic:SetMoveable(false);
 
 					popup_listX, popup_listY = popup_list_uic:Position(); -- Reset pos.
@@ -269,20 +274,13 @@ function OnComponentLClickUp(context)
 					for i = 1, popup_list_uic:ChildCount() do
 						local uic = UIComponent(popup_list_uic:Find("option"..tostring(i - 1)));
 
-						if row < 20 then
+						if i > 1 then
 							row = row + 1;
-						else
-							row = 1;
-						end
 
-						if i > 20 and i < 40 then
-							column = 2;
-						elseif i > 40 and i < 60 then
-							column = 3;
-						elseif i > 60 and i < 80 then
-							column = 4;
-						elseif i > 80 then
-							column = 5;
+							if row % max_rows == 1 then
+								column = column + 1;
+								row = 1;
+							end
 						end
 
 						uic:SetMoveable(true);

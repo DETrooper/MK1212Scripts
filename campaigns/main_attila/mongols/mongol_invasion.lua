@@ -26,7 +26,9 @@ MIN_ARMY_STRENGTH_PERCENT = 65; -- # of men left in an army on average before th
 BUNDLES_APPLIED_JOCHI = {};
 BUNDLES_APPLIED_TOLUI = {};
 FREE_UPKEEP_TIME = 20;
-WARN_AFTER = 1;
+
+local free_upkeep_warn_after = 1;
+local free_upkeep_warned_this_turn = false
 
 function Add_Mongol_Invasion_Listeners()
 	cm:add_listener(
@@ -96,6 +98,8 @@ function FactionTurnStart_Mongol_Preservation(context)
 	local turn_number = cm:model():turn_number();
 
 	if context:faction():name() == JOCHI_KEY and jochi:is_human() == false then
+		free_upkeep_warned_this_turn = false;
+
 		if turn_number == 1 then
 			if jochi:at_war_with(cumans) == false then
 				cm:force_declare_war(JOCHI_KEY, CUMANS_KEY);
@@ -106,6 +110,8 @@ function FactionTurnStart_Mongol_Preservation(context)
 			MongolArmyChecks(JOCHI_KEY);
 		end
 	elseif context:faction():name() == TOLUI_KEY and tolui:is_human() == false then
+		free_upkeep_warned_this_turn = false;
+
 		if turn_number == 1 then
 			if tolui:at_war_with(khwarazm) == false then
 				cm:force_declare_war(JOCHI_KEY, KHWARAZM_KEY);
@@ -169,8 +175,11 @@ function FactionTurnStart_Mongol_Preservation(context)
 		for i = 1, #BUNDLES_APPLIED_JOCHI do
 			BUNDLES_APPLIED_JOCHI[i].timer = BUNDLES_APPLIED_JOCHI[i].timer - 1;
 			
-			if BUNDLES_APPLIED_JOCHI[i].timer == WARN_AFTER then
-				WarnAboutUpkeep(BUNDLES_APPLIED_JOCHI[i].cqi);
+			if BUNDLES_APPLIED_JOCHI[i].timer == free_upkeep_warn_after then
+				if free_upkeep_warned_this_turn == false then
+					WarnAboutUpkeep(BUNDLES_APPLIED_JOCHI[i].cqi);
+				end
+
 				table.remove(BUNDLES_APPLIED_JOCHI, i);
 			end
 		end
@@ -178,8 +187,11 @@ function FactionTurnStart_Mongol_Preservation(context)
 		for i = 1, #BUNDLES_APPLIED_TOLUI do
 			BUNDLES_APPLIED_TOLUI[i].timer = BUNDLES_APPLIED_TOLUI[i].timer - 1;
 			
-			if BUNDLES_APPLIED_TOLUI[i].timer == WARN_AFTER then
-				WarnAboutUpkeep(BUNDLES_APPLIED_TOLUI[i].cqi);
+			if BUNDLES_APPLIED_TOLUI[i].timer == free_upkeep_warn_after then
+				if free_upkeep_warned_this_turn == false then
+					WarnAboutUpkeep(BUNDLES_APPLIED_TOLUI[i].cqi);
+				end
+
 				table.remove(BUNDLES_APPLIED_TOLUI, i);
 			end
 		end

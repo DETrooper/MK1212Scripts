@@ -7,10 +7,12 @@
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
 
+require("challenges/challenge_judgement_day");
 require("challenges/challenge_no_retreat");
 require("challenges/challenge_this_is_total_war");
 
 CHALLENGES_ENABLED = {
+	["judgement_day"] = false,
 	["no_retreat"] = false,
 	["this_is_total_war"] = false,
 };
@@ -22,6 +24,10 @@ function Challenge_Initializer()
 		for k, v in pairs(CHALLENGES_ENABLED) do
 			CHALLENGES_ENABLED[k] = svr:LoadBool("SBOOL_challenge_"..k);
 		end
+	end
+
+	if CHALLENGES_ENABLED["judgement_day"] == true then
+		Add_Challenge_Judgement_Day_Listeners();
 	end
 
 	if CHALLENGES_ENABLED["no_retreat"] == true then

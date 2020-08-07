@@ -1,21 +1,25 @@
 local dev = require("lua_scripts.dev");
 
 CHALLENGES = {
+	"judgement_day",
 	"no_retreat",
 	"this_is_total_war"
 };
 
 CHALLENGE_STRINGS = {
+	["judgement_day"] = {"Judgement Day", "Difficulty: Hard"},
 	["no_retreat"] = {"Not One Step Back!", "Difficulty: Easy"},
 	["this_is_total_war"] = {"This is Total War!", "Difficulty: Hard"}
 };
 
 CHALLENGE_BULLETINS = {
+	["judgement_day"] = {"All AI factions will become extremely aggressive, attacking you with little regard for defending their own regions.", "AI factions will also focus heavily on military spending and building armies."},
 	["no_retreat"] = {"When attacking or being attacked by an enemy force, you will not be able to retreat your force.", "Withdrawing units in battles is disabled."},
 	["this_is_total_war"] = {"At the start of the campaign you will automatically declare war against every faction.", "Any new factions encountered will automatically be declared war upon.", "All diplomatic options for the player are disabled, and the AI will never make peace offers.", "Story events (excluding world events) are disabled.", "The 'Subjugate' and 'Liberate' occupation decisions are disabled.", "The Papal Favour system is disabled and War Weariness penalties are decreased."}
 };
 
 CHALLENGES_ENABLED = {
+	["judgement_day"] = false,
 	["no_retreat"] = false,
 	["this_is_total_war"] = false
 };
