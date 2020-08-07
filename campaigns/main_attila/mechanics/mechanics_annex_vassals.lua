@@ -175,8 +175,6 @@ function FactionTurnStart_Annex(context)
 						end
 					end
 
-					vassal_faction_name = nil;
-
 					Stop_Annexing_Vassal(faction_name, vassal_faction_name);
 				end
 			else
@@ -203,8 +201,6 @@ function FactionTurnStart_Annex(context)
 						break;
 					end
 				end
-
-				vassal_faction_name = nil;
 
 				Stop_Annexing_Vassal(faction_name, vassal_faction_name);
 			end

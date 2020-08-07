@@ -25,7 +25,7 @@ MIN_ARMY_STRENGTH_PERCENT = 65; -- # of men left in an army on average before th
 
 BUNDLES_APPLIED_JOCHI = {};
 BUNDLES_APPLIED_TOLUI = {};
-FREE_UPKEEP_TIME = 20;
+FREE_UPKEEP_TIME = 25;
 
 local free_upkeep_warn_after = 1;
 local free_upkeep_warned_this_turn = false
@@ -43,13 +43,6 @@ function Add_Mongol_Invasion_Listeners()
 		"BattleCompleted",
 		true,
 		function(context) OnBattleCompleted_Mongol_Preservation(context) end,
-		true
-	);
-	cm:add_listener(
-		"TimeTrigger_Mongol_Invasion",
-		"TimeTrigger",
-		true,
-		function(context) TimeTrigger_Mongol_Invasion(context) end,
 		true
 	);
 
@@ -104,6 +97,17 @@ function FactionTurnStart_Mongol_Preservation(context)
 			if jochi:at_war_with(cumans) == false then
 				cm:force_declare_war(JOCHI_KEY, CUMANS_KEY);
 			end
+		elseif turn_number == MONGOL_INVASION_TURN then
+			for i = 1, #REGIONS_GOLDEN_HORDE do
+				local region = cm:model():world():region_manager():region_by_key(REGIONS_GOLDEN_HORDE[i]);
+			
+				if region:owning_faction():name() ~= JOCHI_KEY and region:owning_faction():name() ~= TOLUI_KEY then
+					if region:owning_faction():at_war_with(jochi) == false and region:owning_faction():allied_with(jochi) == false then
+						cm:force_declare_war(JOCHI_KEY, region:owning_faction():name());
+						SetFactionsHostile(JOCHI_KEY, region:owning_faction():name());
+					end
+				end
+			end
 		end
 
 		if turn_number < MONGOL_INVASION_TURN then
@@ -115,6 +119,17 @@ function FactionTurnStart_Mongol_Preservation(context)
 		if turn_number == 1 then
 			if tolui:at_war_with(khwarazm) == false then
 				cm:force_declare_war(JOCHI_KEY, KHWARAZM_KEY);
+			end
+		elseif turn_number == MONGOL_INVASION_TURN then
+			for i = 1, #REGIONS_ILKHANATE do
+				local region = cm:model():world():region_manager():region_by_key(REGIONS_ILKHANATE[i]);
+			
+				if region:owning_faction():name() ~= JOCHI_KEY and region:owning_faction():name() ~= TOLUI_KEY then
+					if region:owning_faction():at_war_with(tolui) == false and region:owning_faction():allied_with(tolui) == false then
+						cm:force_declare_war(TOLUI_KEY, region:owning_faction():name());
+						SetFactionsHostile(TOLUI_KEY, region:owning_faction():name());
+					end
+				end
 			end
 		end
 
@@ -134,7 +149,6 @@ function FactionTurnStart_Mongol_Preservation(context)
 			SpawnMongolArmyInZone(JOCHI_KEY, GOLDEN_HORDE_ALT_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
 
 			cm:force_change_cai_faction_personality(JOCHI_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
-			--cm:add_time_trigger("jochi_war", 0.1);
 		end
 
 		if INDEPENDENCE_TOLUI == false then
@@ -145,7 +159,6 @@ function FactionTurnStart_Mongol_Preservation(context)
 			SpawnMongolArmyInZone(TOLUI_KEY, ILKHANATE_ALT_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
 
 			cm:force_change_cai_faction_personality(TOLUI_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
-			--cm:add_time_trigger("tolui_war", 0.1);
 		end
 
 		local faction_name = (cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1])):name();
@@ -318,36 +331,6 @@ function MongolArmyChecks(faction_name)
 		if forces:num_items() - battered_armies < MIN_ARMY_STRENGTH_FORCES then
 			SpawnMongolArmyInZone(faction_name, army, "att_reg_scythia_sarai", zone);
 			SpawnMongolArmyInZone(faction_name, army, "att_reg_scythia_sarai", zone);
-		end
-	end
-end
-
-function TimeTrigger_Mongol_Invasion(context)
-	if context.string == "jochi_war" then
-		local jochi = cm:model():world():faction_by_key(JOCHI_KEY);
-
-		for i = 1, #REGIONS_GOLDEN_HORDE do
-			local region = cm:model():world():region_manager():region_by_key(REGIONS_GOLDEN_HORDE[i]);
-		
-			if region:owning_faction():name() ~= JOCHI_KEY and region:owning_faction():name() ~= TOLUI_KEY then
-				if region:owning_faction():at_war_with(jochi) == false and region:owning_faction():allied_with(jochi) == false then
-					cm:force_declare_war(JOCHI_KEY, region:owning_faction():name());
-					SetFactionsHostile(JOCHI_KEY, region:owning_faction():name());
-				end
-			end
-		end
-	elseif context.string == "tolui_war" then
-		local tolui = cm:model():world():faction_by_key(TOLUI_KEY);
-
-		for i = 1, #REGIONS_ILKHANATE do
-			local region = cm:model():world():region_manager():region_by_key(REGIONS_ILKHANATE[i]);
-		
-			if region:owning_faction():name() ~= JOCHI_KEY and region:owning_faction():name() ~= TOLUI_KEY then
-				if region:owning_faction():at_war_with(tolui) == false and region:owning_faction():allied_with(tolui) == false then
-					cm:force_declare_war(TOLUI_KEY, region:owning_faction():name());
-					SetFactionsHostile(TOLUI_KEY, region:owning_faction():name());
-				end
-			end
 		end
 	end
 end
