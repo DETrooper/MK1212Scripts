@@ -95,6 +95,7 @@ cm:register_first_tick_callback(
 -------------------------------------------------------
 
 require("mk1212_start");
+require("mk1212_discord");
 require("att_traits");
 
 require("byzantium/main");
@@ -108,4 +109,6 @@ require("timurids/main");
 
 require("challenges/main");
 require("ironman/main");
+
+-- Temporary
 require("pretender_crash_stopgap");

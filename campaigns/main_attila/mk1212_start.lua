@@ -43,6 +43,7 @@ function start_game_all_factions()
 	Add_Stopgap_Listeners();
 
 	-- MK1212 scripts.
+	Add_MK1212_Discord_Listeners();
 	Common_Initializer();
 	Challenge_Initializer();
 	Byzantium_Initializer();

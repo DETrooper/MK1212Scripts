@@ -1,3 +1,12 @@
+---------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------
+--
+-- 	MEDIEVAL KINGDOMS 1212 - MULTIPLAYER CAMPAIGN DISCLAIMER
+-- 	By: DETrooper
+--
+---------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------
+
 disclaimertitlestring = "Multiplayer Scripts Disclaimer";
 disclaimerstring = "Due to a lack of networking functionality in Total War: Attila's scripting environment, a great number of scripted features have been disabled for multiplayer campaigns."..
 					"\n\nEnabled Features:\nInvasions\nPapal Favour\nStarting Battles\nWar Weariness\nWorld Events\n\nPartially Working Features:\nDynamic Faction Names (Automatic)\nKingdom Events (Automatic)\nStory Events(HRE & Sicily Disabled)"..

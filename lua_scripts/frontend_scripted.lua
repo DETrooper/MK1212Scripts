@@ -1,3 +1,13 @@
+---------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------
+--
+-- 	MEDIEVAL KINGDOMS 1212 - FRONTEND SCRIPTS
+-- 	By: DETrooper
+-- 	Original Script by Creative Assembly
+--
+---------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------
+
 system.ClearRequiredFiles();
 
 package.path = ";?.lua;data/ui/templates/?.lua;data/ui/?.lua"
@@ -31,7 +41,8 @@ svr = ScriptedValueRegistry:new();
 m_root = nil;
 
 require "lua_scripts.frontend_challenges"
-require "lua_scripts.frontend_changelog"
+--require "lua_scripts.frontend_changelog" -- Obsolete now that there's a direct discord invite.
+require "lua_scripts.frontend_discord"
 require "lua_scripts.frontend_hbs"
 require "lua_scripts.frontend_mp_campaign"
 require "lua_scripts.frontend_start_date"
