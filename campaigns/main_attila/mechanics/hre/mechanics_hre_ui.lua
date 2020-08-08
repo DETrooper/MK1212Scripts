@@ -311,6 +311,8 @@ function OpenHREPanel()
 	tx_emperor_uic:DestroyChildren();
 	tx_pretender_uic:DestroyChildren();
 
+	-- coming back to this code months later I have no idea why the pretender gets assigned tx_emperor and vice versa lol
+
 	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
 		local hre_pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
 		local pretender_number = "";
@@ -764,7 +766,9 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 
 		Update_State_HRE_UI(faction_name);
 	else
-		faction_logo_uic:SetState("faded");
+		--faction_logo_uic:SetState("faded"); -- The faded state uses a low resolution image and I can't be bothered to go hex edit ~200 UI files manually to fix it.
+		faction_logo_uic:ShaderTechniqueSet("set_greyscale_t0", true);
+		faction_logo_uic:ShaderVarsSet(0.9, 0.9, 0, 0, true);
 		election_ui_layer_uic:SetVisible(false);
 
 		for i = 3, 8 do
