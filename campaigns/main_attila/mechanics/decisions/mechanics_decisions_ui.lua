@@ -159,8 +159,11 @@ function Refresh_Decisions_Map(decision)
 			image_uic:PropagateImageColour(204, 0, 0, 150);
 		end
 
-
-		image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/"..owning_faction_name.."_flag_small");
+		if HasValue(FACTIONS_WITH_IMAGES, owning_faction_name) then
+			image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/"..owning_faction_name.."_flag_small");
+		else
+			image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/mk_fact_unknown_flag_small");
+		end
 
 		local faction_logo_uic = UIComponent(image_uic:Find(region_name.."_logo"));
 		faction_logo_uic:SetMoveable(true);
@@ -176,31 +179,31 @@ function Refresh_Decisions_Map(decision)
 end
 
 function OnComponentMouseOn_Decisions_UI(context)
-	if context.string == "map_accept" then
-		local btnAccept = UIComponent(context.component);
+	if DECISION_PANEL_OPEN == true then
+		if context.string == "map_accept" then
+			local btnAccept = UIComponent(context.component);
 
-		btnAccept:SetTooltipText("Close Map");
-	elseif string.find(context.string, "_Decision_Button") then
-		local btnDecision = UIComponent(context.component);
-		local decision = string.gsub(context.string, "_Decision_Button", "");
+			btnAccept:SetTooltipText("Close Map");
+		elseif string.find(context.string, "_Decision_Button") then
+			local btnDecision = UIComponent(context.component);
+			local decision = string.gsub(context.string, "_Decision_Button", "");
 
-		btnDecision:SetTooltipText("Enact Decision");
-	elseif string.find(context.string, "_Decision_Tooltip") then
-		local tltipDecisions = UIComponent(context.component);
-		local decision = string.gsub(context.string, "_Decision_Tooltip", "");
+			btnDecision:SetTooltipText("Enact Decision");
+		elseif string.find(context.string, "_Decision_Tooltip") then
+			local tltipDecisions = UIComponent(context.component);
+			local decision = string.gsub(context.string, "_Decision_Tooltip", "");
 
-		tltipDecisions:SetTooltipText(Get_Decision_Tooltip(decision));
-	elseif string.find(context.string, "_Decision_Map_Button") then
-		local mapDecisions = UIComponent(context.component);
+			tltipDecisions:SetTooltipText(Get_Decision_Tooltip(decision));
+		elseif string.find(context.string, "_Decision_Map_Button") then
+			local mapDecisions = UIComponent(context.component);
 
-		mapDecisions:SetTooltipText("View a map of the regions required to enact this decision.");
+			mapDecisions:SetTooltipText("View a map of the regions required to enact this decision.");
+		end
 	end
 end
 
 function OnComponentLClickUp_Decisions_UI(context)
-	if context.string == "map_accept" then
-		UIComponent(UIComponent(context.component):Parent()):SetVisible(false);
-	elseif context.string == "button_decisions" then
+	if context.string == "button_decisions" then
 		local root = cm:ui_root();
 		local panDecisions = UIComponent(root:Find("Decisions_Panel"));
 
@@ -216,6 +219,8 @@ function OnComponentLClickUp_Decisions_UI(context)
 	elseif DECISION_PANEL_OPEN == true then
 		if context.string == "root" then
 			CloseDecisionsPanel(false);
+		elseif context.string == "map_accept" then
+			UIComponent(UIComponent(context.component):Parent()):SetVisible(false);
 		elseif string.find(context.string, "_Decision_Button") then
 			local root = cm:ui_root();
 			UIComponent(context.component):SetState("inactive");

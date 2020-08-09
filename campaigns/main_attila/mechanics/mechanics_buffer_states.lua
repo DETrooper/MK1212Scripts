@@ -58,14 +58,20 @@ function OnComponentLClickUp_Buffer_UI(context)
 		local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
 	
 		if panBufferWarning:Visible() == false then
-			local faction_string = Get_DFN_Localisation(REGIONS_LIBERATION_FACTIONS[REGION_SELECTED]);
+			local vassal_faction_name = REGIONS_LIBERATION_FACTIONS[REGION_SELECTED];
+			local faction_string = Get_DFN_Localisation(vassal_faction_name);
 			local region_string = REGIONS_NAMES_LOCALISATION[REGION_SELECTED];
 			local dy_buffer_info_uic = UIComponent(panBufferWarning:Find("dy_buffer_info"));
 			local scroll_frame_uic = UIComponent(panBufferWarning:Find("scroll_frame"));
 
 			dy_buffer_info_uic:SetStateText("Faction: "..faction_string.."\nRegion: "..region_string);
 			scroll_frame_uic:DestroyChildren();
-			scroll_frame_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..REGIONS_LIBERATION_FACTIONS[REGION_SELECTED].."_flag_big");
+
+			if HasValue(FACTIONS_WITH_IMAGES, vassal_faction_name) then
+				scroll_frame_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..vassal_faction_name.."_flag_big");
+			else
+				scroll_frame_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
+			end
 
 			local faction_logo_uic = UIComponent(scroll_frame_uic:Find(0));
 			local scroll_frame_uicX, scroll_frame_uicY = scroll_frame_uic:Position();
@@ -87,7 +93,14 @@ function OnComponentLClickUp_Buffer_UI(context)
 		local vassal_faction_name = REGIONS_LIBERATION_FACTIONS[REGION_SELECTED];
 		local vassal_faction = cm:model():world():faction_by_key(vassal_faction_name);
 		local spear_unit = BUFFER_STATE_SPEAR_UNITS[vassal_faction_name];
-		local unit_list = spear_unit..","..spear_unit..","..spear_unit..","..spear_unit;
+		local unit_list = "";
+
+		if spear_unit then
+			unit_list = spear_unit..","..spear_unit..","..spear_unit..","..spear_unit;
+		else
+			-- We need to give them something even if it's inaccurate, otherwise the army will not spawn.
+			unit_list = "att_rom_cohors";
+		end
 
 		if not FactionIsAlive(vassal_faction_name) then
 			local region = cm:model():world():region_manager():region_by_key(REGION_SELECTED);

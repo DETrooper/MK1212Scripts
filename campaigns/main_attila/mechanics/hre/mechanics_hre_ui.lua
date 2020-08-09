@@ -317,15 +317,26 @@ function OpenHREPanel()
 		local hre_pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
 		local pretender_number = "";
 
-		if HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()]  then
+		if HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()] then
 			pretender_number = HRE_EMPERORS_ROMAN_NUMERALS[HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()]];
 		else
 			HRE_EMPERORS_NAMES_NUMBERS[hre_pretender_faction:faction_leader():get_forename()] = 1;
 			pretender_number = HRE_EMPERORS_ROMAN_NUMERALS[1];
 		end
 
-		tx_emperor_uic:SetStateText("Pretender: "..NAMES_TO_LOCALISATION[hre_pretender_faction:faction_leader():get_forename()].." "..pretender_number);
-		tx_emperor_uic:CreateComponent(HRE_EMPEROR_PRETENDER_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_PRETENDER_KEY.."_flag_small");
+		local name_localisation = NAMES_TO_LOCALISATION[hre_pretender_faction:faction_leader():get_forename()];
+		
+		if name_localisation then
+			tx_emperor_uic:SetStateText("Pretender: "..name_localisation);
+		else
+			tx_emperor_uic:SetStateText("Pretender: Name Not Found");
+		end
+
+		if HasValue(FACTIONS_WITH_IMAGES, HRE_EMPEROR_PRETENDER_KEY) then
+			tx_emperor_uic:CreateComponent(HRE_EMPEROR_PRETENDER_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_PRETENDER_KEY.."_flag_small");
+		else
+			tx_emperor_uic:CreateComponent(HRE_EMPEROR_PRETENDER_KEY.."_logo", "UI/new/faction_flags/mk_fact_unknown_flag_small");
+		end
 
 		local faction_logo_uic = UIComponent(tx_emperor_uic:Find(0));
 		local tx_emperor_uicX, tx_emperor_uicY = tx_emperor_uic:Position();
@@ -336,35 +347,32 @@ function OpenHREPanel()
 		tx_emperor_uic:SetStateText("Pretender: None");
 	end
 
-	if HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()]  then
+	if HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()] then
 		emperor_number = HRE_EMPERORS_ROMAN_NUMERALS[HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()]];
 	else
 		HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()] = 1;
 		emperor_number = HRE_EMPERORS_ROMAN_NUMERALS[1];
 	end
 
-	tx_pretender_uic:SetStateText("Emperor: "..NAMES_TO_LOCALISATION[hre_emperor_faction:faction_leader():get_forename()].." "..emperor_number);
-	tx_pretender_uic:CreateComponent(HRE_EMPEROR_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_KEY.."_flag_small");
+	local name_localisation = NAMES_TO_LOCALISATION[hre_emperor_faction:faction_leader():get_forename()];
+		
+	if name_localisation then
+		tx_pretender_uic:SetStateText("Emperor: " ..name_localisation.." "..emperor_number);
+	else
+		tx_pretender_uic:SetStateText("Emperor: Name Not Found");
+	end
+
+	if HasValue(FACTIONS_WITH_IMAGES, HRE_EMPEROR_KEY) then
+		tx_pretender_uic:CreateComponent(HRE_EMPEROR_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_KEY.."_flag_small");
+	else
+		tx_pretender_uic:CreateComponent(HRE_EMPEROR_KEY.."_logo", "UI/new/faction_flags/mk_fact_unknown_flag_small");
+	end
 
 	local faction_logo_uic = UIComponent(tx_pretender_uic:Find(0));
 	local tx_pretender_uicX, tx_pretender_uicY = tx_pretender_uic:Position();
 	faction_logo_uic:SetMoveable(true);
 	faction_logo_uic:MoveTo(tx_pretender_uicX - 32, tx_pretender_uicY + 4);
 	faction_logo_uic:SetMoveable(false);
-
-	--[[tx_emperor_uic:SetStateText("Emperor: "..NAMES_TO_LOCALISATION[hre_emperor_faction:faction_leader():get_forename()].." "..number);
-
-	for i = 1, #HRE_REGIONS do
-		local region_name = HRE_REGIONS[i];
-		local region = cm:model():world():region_manager():region_by_key(region_name);
-		local owning_faction_name = region:owning_faction():name();
-
-		if HasValue(HRE_FACTIONS, owning_faction_name) then
-			hre_regions_owned = hre_regions_owned + 1;
-		end
-	end
-
-	tx_pretender_uic:SetStateText("Imperial Territory: ("..tostring(hre_regions_owned).."/"..tostring(#HRE_REGIONS)..")");]]--
 
 	Update_Map_Regions_HRE_UI(root);
 	Setup_Faction_Info_HRE_UI(root, cm:get_local_faction());
@@ -412,11 +420,11 @@ function Update_Map_Regions_HRE_UI(root)
 			image_uic:PropagateImageColour(204, 0, 0, 150);
 		end
 
-		--if HasValue(FACTIONS_WITH_IMAGES, owning_faction_name) then
+		if HasValue(FACTIONS_WITH_IMAGES, owning_faction_name) then
 			image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/"..owning_faction_name.."_flag_small");
-		--else
-			--image_uic:CreateComponent(region_name.."_logo", "UI/campaign ui/faction_flag_small");
-		--end
+		else
+			image_uic:CreateComponent(region_name.."_logo", "UI/new/faction_flags/mk_fact_unknown_flag_small");
+		end
 
 		local faction_logo_uic = UIComponent(image_uic:Find(region_name.."_logo"));
 		faction_logo_uic:SetMoveable(true);
@@ -667,11 +675,11 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 	dy_faction_state_uic:SetStateText(in_hre);
 	dy_faction_name_uic:SetStateText(" "..Get_DFN_Localisation(faction_name));
 
-	--if HasValue(FACTIONS_WITH_IMAGES, faction_name) then
+	if HasValue(FACTIONS_WITH_IMAGES, faction_name) then
 		parchment_ui_layer_uic:CreateComponent(faction_name.."_logo", "UI/new/faction_flags/"..faction_name.."_flag_big");
-	--else
-		--parchment_ui_layer_uic:CreateComponent(faction_name.."_logo", "UI/new/faction_flags/".."mk_fact_hre_flag_big");
-	--end
+	else
+		parchment_ui_layer_uic:CreateComponent(faction_name.."_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
+	end
 
 	local faction_logo_uic = UIComponent(parchment_ui_layer_uic:Find(faction_name.."_logo"));
 	faction_logo_uic:SetMoveable(true);
@@ -699,7 +707,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 			child_2:SetVisible(true);
 		end
 
-		if HasValue(HRE_FACTIONS_WITH_CANDIDATE_IMAGES, faction_name) then
+		if HasValue(FACTIONS_WITH_LEADER_IMAGES, faction_name) then
 			parchment_ui_layer_uic:CreateComponent(faction_name.."_candidate", "UI/new/hre_candidates/"..faction_name.."_candidate");
 			parchment_ui_layer_uic:CreateComponent(faction_name.."_candidate_name", "UI/campaign ui/city_info_bar_horde");
 		else
@@ -709,7 +717,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 
 		local faction_candidate_uic = UIComponent(parchment_ui_layer_uic:Find(faction_name.."_candidate"));
 		local faction_candidate_name_uic = UIComponent(parchment_ui_layer_uic:Find(faction_name.."_candidate_name"));
-		local dy_candidate_name = UIComponent(faction_candidate_name_uic:Find("dy_name"));
+		local dy_candidate_name_uic = UIComponent(faction_candidate_name_uic:Find("dy_name"));
 		local mon_frame = UIComponent(faction_candidate_name_uic:Find("mon_frame"));
 		local mon_24 = UIComponent(faction_candidate_name_uic:Find("mon_24"));
 		local diplomatic_relations_fill = UIComponent(faction_candidate_name_uic:Find("diplomatic_relations_fill"));
@@ -721,7 +729,15 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		faction_candidate_name_uic:SetMoveable(true);
 		faction_candidate_name_uic:MoveTo(parchment_uicX + 201, parchment_uicY + 178);
 		faction_candidate_name_uic:SetMoveable(false);
-		dy_candidate_name:SetStateText(NAMES_TO_LOCALISATION[faction:faction_leader():get_forename()].." ");
+
+		local name_localisation = NAMES_TO_LOCALISATION[faction:faction_leader():get_forename()];
+		
+		if name_localisation then
+			dy_candidate_name_uic:SetStateText(name_localisation.." ");
+		else
+			dy_candidate_name_uic:SetStateText("Name Not Found ");
+		end
+
 		mon_frame:SetVisible(false);
 		mon_24:SetVisible(false);
 		diplomatic_relations_fill:SetVisible(false);
@@ -829,7 +845,7 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 
 	if info_faction_name ~= HRE_EMPEROR_PRETENDER_KEY then
 		if (CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, info_faction_name))) and CURRENT_HRE_REFORM < 8 then
-			if HasValue(HRE_FACTIONS_WITH_CANDIDATE_IMAGES, faction_name) then
+			if HasValue(FACTIONS_WITH_LEADER_IMAGES, faction_name) then
 				election_ui_layer_uic:CreateComponent("candidate", "UI/new/hre_candidates/"..faction_name.."_candidate");
 				election_ui_layer_uic:CreateComponent("candidate_name", "UI/campaign ui/city_info_bar_horde");
 			else
@@ -857,7 +873,15 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 			candidate_name_uic:SetMoveable(true);
 			candidate_name_uic:MoveTo(parchment_uicX + 201, parchment_uicY + 543);
 			candidate_name_uic:SetMoveable(false);
-			dy_candidate_name_uic:SetStateText(NAMES_TO_LOCALISATION[faction:faction_leader():get_forename()].." ");
+
+			local name_localisation = NAMES_TO_LOCALISATION[faction:faction_leader():get_forename()];
+		
+			if name_localisation then
+				dy_candidate_name_uic:SetStateText(name_localisation.." ");
+			else
+				dy_candidate_name_uic:SetStateText("Name Not Found ");
+			end
+
 			candidate_icon_uic:SetMoveable(true);
 			candidate_icon_uic:MoveTo(parchment_uicX + 291, parchment_uicY + 514);
 			candidate_icon_uic:SetMoveable(false);
