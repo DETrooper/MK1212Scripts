@@ -29,7 +29,7 @@ function Add_Challenge_Judgement_Day_Listeners()
 	end
 end
 
-function FactionTurnStart_This_Is_Total_War(context)
+function FactionTurnStart_Judgement_Day(context)
 	if not context:faction():is_human() then
 		cm:force_change_cai_faction_personality(context:faction():name(), "mk1212_judgement_day_ai_uprising");
 	end
