@@ -8,6 +8,7 @@
 ------------------------------------------------------------------------------
 
 local dev = require("lua_scripts/dev");
+local svr = ScriptedValueRegistry:new();
 local util = require("lua_scripts/util");
 
 DISCLAIMER_ACCEPTED = false;
@@ -135,4 +136,6 @@ function ModifyHardcodedLimits()
 	local command = "MK1212_10slots.exe";
 
 	os.execute(command);
+
+	svr:SaveBool("SBOOL_Prompt_Already_Shown", true);
 end

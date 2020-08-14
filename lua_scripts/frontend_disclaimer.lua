@@ -72,8 +72,6 @@ function OnComponentLClickUp_Disclaimer(context)
 
 		button_discord_uic:SetState("active");
 		disclaimer_prompt_uic:SetVisible(false);
-
-		svr:SaveBool("SBOOL_Prompt_Already_Shown", true);
 	elseif context.string == "button_disclaimer" then
 		local disclaimer_prompt_uic = UIComponent(scripting.m_root:Find("disclaimer_prompt"));
 
@@ -118,6 +116,8 @@ function ModifyHardcodedLimits()
 		slotsFile:write(binary);
 		slotsFile:close();
 	end
+
+	svr:SaveBool("SBOOL_Prompt_Already_Shown", true);
 
 	local command = "MK1212_10slots.exe";
 
