@@ -275,6 +275,11 @@ end
 function FactionTurnEnd_HRE_UI(context)
 	if context:faction():is_human() then
 		CloseHREPanel(false);
+
+		local root = cm:ui_root();
+		local btnHRE = UIComponent(root:Find("button_hre"));
+
+		btnHRE:SetState("inactive");
 	end
 end
 

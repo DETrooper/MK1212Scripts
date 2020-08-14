@@ -10,10 +10,10 @@
 require("common/ui/mk1212_global_ui_lists");
 
 local convert_panel_open = false;
-local settlement_panel_open = false;
 
 DIPLOMACY_SELECTED_FACTION = nil;
 DIPLOMACY_PANEL_OPEN = false;
+SETTLEMENT_PANEL_OPEN = false;
 
 function Add_MK1212_Global_UI_Listeners()
 	cm:add_listener(
@@ -55,6 +55,8 @@ end
 function OnComponentLClickUp_Global_UI(context)
 	if context.string == "button_convert" then
 		convert_panel_open = true;
+	elseif context.string == "Summary" then
+		cm:add_time_trigger("Faction_Panel_Convert_Check", 0.0); -- Some regions shouldn't be convertable to, like Catholic Heresies.
 	elseif convert_panel_open == true then
 		if context.string == "button_tick" or context.string == "button_cancel" or context.string == "clan" then
 			cm:add_time_trigger("religion_possibly_changed", 0.0);
@@ -73,17 +75,19 @@ end
 
 function OnPanelOpenedCampaign_Global_UI(context)
 	if context.string == "settlement_panel" then
-		settlement_panel_open = true;
+		SETTLEMENT_PANEL_OPEN = true;
 	elseif context.string == "diplomacy_dropdown" then
 		DIPLOMACY_PANEL_OPEN = true;
 
 		cm:add_time_trigger("diplo_hud_check", 0.0);
+	elseif context.string == "clan" then
+		cm:add_time_trigger("Faction_Panel_Convert_Check", 0.0);
 	end
 end
 
 function OnPanelClosedCampaign_Global_UI(context)
 	if context.string == "settlement_panel" then
-		settlement_panel_open = false;
+		SETTLEMENT_PANEL_OPEN = false;
 	elseif context.string == "diplomacy_dropdown" then
 		DIPLOMACY_PANEL_OPEN = false;
 	end
@@ -97,6 +101,21 @@ function OnTimeTrigger_Global_UI(context)
 		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
 
 		Diplomacy_Hud_Check(diplomacy_dropdown_uic);
+	elseif context.string == "Faction_Panel_Convert_Check" then
+		local root = cm:ui_root();
+		local tab_summary_uic = UIComponent(root:Find("Summary"));
+		local details_uic = UIComponent(tab_summary_uic:Find("details"));
+		local religion_list_uic = UIComponent(details_uic:Find("religion_list"));
+		
+		for i = 0, religion_list_uic:ChildCount() - 1 do
+			local child = UIComponent(religion_list_uic:Find(i));
+
+			if child:Id() == "att_rel_other" then
+				local button_convert_uic = UIComponent(child:Find("button_convert"));
+
+				button_convert_uic:SetVisible(false);
+			end
+		end
 	end
 end
 

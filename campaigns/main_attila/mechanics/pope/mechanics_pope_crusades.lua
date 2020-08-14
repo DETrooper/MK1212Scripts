@@ -134,7 +134,7 @@ function FactionTurnStart_Pope_Crusades(context)
 					706
 				);
 			end
-		elseif cm:model():turn_number() == NEXT_CRUSADE_START_TURN and CRUSADE_ACTIVE == false then
+		elseif cm:model():turn_number() >= NEXT_CRUSADE_START_TURN and CRUSADE_ACTIVE == false then
 			local target = nil;
 
 			if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then

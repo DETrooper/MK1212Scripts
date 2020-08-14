@@ -41,8 +41,11 @@ tm = timer_manager:new(Timers);
 version_number = 2000;
 version_number_string = "v2.0.0";
 
+local dev = require("lua_scripts/dev");
+
 require("lua_scripts/frontend_challenges");
 --require("lua_scripts/frontend_changelog"); -- Obsolete now that there's a direct discord invite.
+require("lua_scripts/frontend_disclaimer");
 require("lua_scripts/frontend_discord");
 --require("lua_scripts/frontend_hbs"); -- There are no historical battles for MK1212 yet.
 require("lua_scripts/frontend_mp_campaign");

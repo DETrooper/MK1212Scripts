@@ -44,6 +44,7 @@ function start_game_all_factions()
 
 	-- MK1212 scripts.
 	Add_MK1212_Discord_Listeners();
+	Add_MK1212_Slots_Listeners();
 	Common_Initializer();
 	Challenge_Initializer();
 	Byzantium_Initializer();

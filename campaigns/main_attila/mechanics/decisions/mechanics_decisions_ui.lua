@@ -245,6 +245,11 @@ end
 function FactionTurnEnd_Decisions_UI(context)
 	if context:faction():is_human() then
 		CloseDecisionsPanel(false);
+
+		local root = cm:ui_root();
+		local btnDecisions = UIComponent(root:Find("button_decisions"));
+
+		btnDecisions:SetState("inactive");
 	end
 end
 

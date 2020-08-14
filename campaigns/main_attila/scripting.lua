@@ -96,6 +96,7 @@ cm:register_first_tick_callback(
 
 require("mk1212_start");
 require("mk1212_discord");
+require("mk1212_slots");
 require("att_traits");
 
 require("byzantium/main");

@@ -39,20 +39,15 @@ function OnFrontendScreenTransition_Discord(context)
 	if discord_prompt_uic:Visible() == true then
 		discord_prompt_uic:SetVisible(false);
 	end
-
-	if context.string == "main" then
-		discord_prompt_uic:SetState("active");
-	else
-		discord_prompt_uic:SetState("inactive");
- 	end
 end;
 
 function OnComponentLClickUp_Discord(context)
 	if context.string == "button_dis_ok" then
 		local discord_prompt_uic = UIComponent(scripting.m_root:Find("discord_prompt"));
 
-		discord_prompt_uic:SetVisible(false);
 		os.execute("start https://discord.com/invite/WzbeUxR");
+
+		discord_prompt_uic:SetVisible(false);
 	elseif context.string == "button_discord" then
 		local discord_prompt_uic = UIComponent(scripting.m_root:Find("discord_prompt"));
 
