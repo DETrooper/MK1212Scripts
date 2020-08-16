@@ -19,7 +19,6 @@ eh:add_listener(
 	function(context) OnFrontendScreenTransition_MP_Campaign(context) end,
 	true
 );
-
 eh:add_listener(
 	"OnComponentLClickUp_MP_Campaign",
 	"ComponentLClickUp",
@@ -41,12 +40,12 @@ end;
 
 function OnComponentLClickUp_MP_Campaign(context)
 	if context.string == "disclaimer_accept" or context.string == "button_home" then
-		local mp_grand_campaign_uic = UIComponent(scripting.m_root:Find("mp_grand_campaign"));
+		local mp_grand_campaign_uic = UIComponent(m_root:Find("mp_grand_campaign"));
 		local disclaimer_uic = UIComponent(mp_grand_campaign_uic:Find("disclaimer"));
 
 		disclaimer_uic:SetVisible(false);
 	elseif context.string == "button_disclaimer" then
-		local mp_grand_campaign_uic = UIComponent(scripting.m_root:Find("mp_grand_campaign"));
+		local mp_grand_campaign_uic = UIComponent(m_root:Find("mp_grand_campaign"));
 		local disclaimer_uic = UIComponent(mp_grand_campaign_uic:Find("disclaimer"));
 
 		if disclaimer_uic:Visible() then
@@ -59,7 +58,7 @@ end;
 
 
 function CreateScriptDisclaimer()
-	local mp_grand_campaign_uic = UIComponent(scripting.m_root:Find("mp_grand_campaign"));
+	local mp_grand_campaign_uic = UIComponent(m_root:Find("mp_grand_campaign"));
 
 	mp_grand_campaign_uic:CreateComponent("disclaimer", "UI/campaign ui/events");
 
@@ -77,7 +76,7 @@ function CreateScriptDisclaimer()
 	local disclaimer_textview_with_sub_uic = UIComponent(disclaimer_event_standard_uic:Find("textview_with_sub"));
 	local disclaimer_dy_subtitle_uic = UIComponent(disclaimer_event_standard_uic:Find("dy_subtitle"));
 	local disclaimer_text_uic = UIComponent(disclaimer_textview_with_sub_uic:Find("Text"));
-	local button_campaign_uic = UIComponent(scripting.m_root:Find("button_campaign"));
+	local button_campaign_uic = UIComponent(m_root:Find("button_campaign"));
 	local curX, curY = disclaimer_uic:Position();
 	local button_campaign_uicX, button_campaign_uicY = button_campaign_uic:Position();
 	disclaimer_event_dilemma_uic:SetVisible(false);

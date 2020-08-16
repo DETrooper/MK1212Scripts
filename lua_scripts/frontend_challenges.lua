@@ -42,7 +42,6 @@ eh:add_listener(
 	function(context) OnUICreated_Challenge_Menu(context) end,
 	true
 );
-
 eh:add_listener(
 	"OnFrontendScreenTransition_Challenge_Menu",
 	"FrontendScreenTransition",
@@ -50,7 +49,6 @@ eh:add_listener(
 	function(context) OnFrontendScreenTransition_Challenge_Menu(context) end,
 	true
 );
-
 eh:add_listener(
 	"OnComponentLClickUp_Challenge_Menu",
 	"ComponentLClickUp",
@@ -98,7 +96,7 @@ function OnComponentLClickUp_Challenge_Menu(context)
 			end
 		end
 
-		local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
+		local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
 		local sp_challenge_menu_uic = UIComponent(sp_grand_campaign_uic:Find("sp_challenge_menu"));
 		local button_select_challenge_uic = UIComponent(sp_challenge_menu_uic:Find("button_select_challenge"));
 
@@ -120,10 +118,10 @@ function OnComponentLClickUp_Challenge_Menu(context)
 
 		UpdateChallenges();
 	elseif context.string == "button_challenges" then
-		local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
+		local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
 		local sp_challenge_menu_uic = UIComponent(sp_grand_campaign_uic:Find("sp_challenge_menu"));
-		local checkbox_ironman_uic = UIComponent(scripting.m_root:Find("checkbox_ironman"));
-		local text_ironman_uic = UIComponent(scripting.m_root:Find("text_ironman"));
+		local checkbox_ironman_uic = UIComponent(m_root:Find("checkbox_ironman"));
+		local text_ironman_uic = UIComponent(m_root:Find("text_ironman"));
 
 		if sp_challenge_menu_uic:Visible() == true then
 			sp_challenge_menu_uic:SetVisible(false);
@@ -137,7 +135,7 @@ function OnComponentLClickUp_Challenge_Menu(context)
 			text_ironman_uic:SetVisible(false);
 		end
 	elseif context.string == "button_victory" or context.string == "button_options" then
-		local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
+		local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
 		local sp_challenge_menu_uic = UIComponent(sp_grand_campaign_uic:Find("sp_challenge_menu"));
 
 		if sp_challenge_menu_uic:Visible() == true then
@@ -147,7 +145,7 @@ function OnComponentLClickUp_Challenge_Menu(context)
 end
 
 function CreateChallengeMenu()
-	local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
+	local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
 	sp_grand_campaign_uic:CreateComponent("sp_challenge_menu", "UI/new/sp_challenge_menu");
 
 	local sp_challenge_menu_uic = UIComponent(sp_grand_campaign_uic:Find("sp_challenge_menu"));
@@ -185,7 +183,7 @@ function CreateChallengeMenu()
 end
 
 function ChallengeMenuSetup(challenge)
-	local sp_grand_campaign_uic = UIComponent(scripting.m_root:Find("sp_grand_campaign"));
+	local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
 	local sp_challenge_menu_uic = UIComponent(sp_grand_campaign_uic:Find("sp_challenge_menu"));
 	local dy_challenge_name_uic = UIComponent(sp_challenge_menu_uic:Find("dy_challenge_name"));
 	local tx_difficulty_uic = UIComponent(sp_challenge_menu_uic:Find("tx_difficulty"));

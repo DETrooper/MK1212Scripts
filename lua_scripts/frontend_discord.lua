@@ -34,7 +34,7 @@ function OnUICreated_Discord(context)
 end;
 
 function OnFrontendScreenTransition_Discord(context)
-	local discord_prompt_uic = UIComponent(scripting.m_root:Find("discord_prompt"));
+	local discord_prompt_uic = UIComponent(m_root:Find("discord_prompt"));
 
 	if discord_prompt_uic:Visible() == true then
 		discord_prompt_uic:SetVisible(false);
@@ -43,13 +43,13 @@ end;
 
 function OnComponentLClickUp_Discord(context)
 	if context.string == "button_dis_ok" then
-		local discord_prompt_uic = UIComponent(scripting.m_root:Find("discord_prompt"));
+		local discord_prompt_uic = UIComponent(m_root:Find("discord_prompt"));
 
 		os.execute("start https://discord.com/invite/WzbeUxR");
 
 		discord_prompt_uic:SetVisible(false);
 	elseif context.string == "button_discord" then
-		local discord_prompt_uic = UIComponent(scripting.m_root:Find("discord_prompt"));
+		local discord_prompt_uic = UIComponent(m_root:Find("discord_prompt"));
 
 		if discord_prompt_uic:Visible() == true then
 			discord_prompt_uic:SetVisible(false);
@@ -57,7 +57,7 @@ function OnComponentLClickUp_Discord(context)
 			discord_prompt_uic:SetVisible(true);
 		end
 	elseif context.string == "button_home" or context.string == "button_quit" or context.string == "button_dis_cancel" then
-		local discord_prompt_uic = UIComponent(scripting.m_root:Find("discord_prompt"));
+		local discord_prompt_uic = UIComponent(m_root:Find("discord_prompt"));
 
 		if discord_prompt_uic:Visible() == true then
 			discord_prompt_uic:SetVisible(false);
@@ -66,9 +66,9 @@ function OnComponentLClickUp_Discord(context)
 end;
 
 function CreateDiscordPrompt()
-	scripting.m_root:CreateComponent("discord_prompt", "ui/new/popup_discord_prompt");
+	m_root:CreateComponent("discord_prompt", "ui/new/popup_discord_prompt");
 
-	local discord_prompt_uic = UIComponent(scripting.m_root:Find("discord_prompt"));
+	local discord_prompt_uic = UIComponent(m_root:Find("discord_prompt"));
 
 	discord_prompt_uic:SetVisible(false);
 end

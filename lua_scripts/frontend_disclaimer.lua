@@ -55,7 +55,7 @@ function OnUICreated_Disclaimer(context)
 end;
 
 function OnFrontendScreenTransition_Disclaimer(context)
-	local disclaimer_prompt_uic = UIComponent(scripting.m_root:Find("disclaimer_prompt"));
+	local disclaimer_prompt_uic = UIComponent(m_root:Find("disclaimer_prompt"));
 
 	if disclaimer_prompt_uic:Visible() == true then
 		disclaimer_prompt_uic:SetVisible(false);
@@ -64,24 +64,27 @@ end;
 
 function OnComponentLClickUp_Disclaimer(context)
 	if context.string == "button_exe_ok" then
-		local button_discord_uic = UIComponent(scripting.m_root:Find("button_discord"));
-		local disclaimer_prompt_uic = UIComponent(scripting.m_root:Find("disclaimer_prompt"));
+		local button_discord_uic = UIComponent(m_root:Find("button_discord"));
+		local disclaimer_prompt_uic = UIComponent(m_root:Find("disclaimer_prompt"));
 
 		ModifyHardcodedLimits();
 		dev.changeSetting("MK1212_config.txt", "disclaimerAccepted", 1);
 
 		button_discord_uic:SetState("active");
 		disclaimer_prompt_uic:SetVisible(false);
-	elseif context.string == "button_disclaimer" then
-		local disclaimer_prompt_uic = UIComponent(scripting.m_root:Find("disclaimer_prompt"));
+	elseif context.string == "button_home" or context.string == "button_quit" then
+		local disclaimer_prompt_uic = UIComponent(m_root:Find("disclaimer_prompt"));
 
 		if disclaimer_prompt_uic:Visible() == true then
 			disclaimer_prompt_uic:SetVisible(false);
-		else
-			disclaimer_prompt_uic:SetVisible(true);
+
+			svr:SaveBool("SBOOL_Prompt_Already_Shown", true);
 		end
-	elseif context.string == "button_home" or context.string == "button_quit" or context.string == "button_exe_cancel" then
-		local disclaimer_prompt_uic = UIComponent(scripting.m_root:Find("disclaimer_prompt"));
+	elseif context.string == "button_exe_cancel" then
+		local button_discord_uic = UIComponent(m_root:Find("button_discord"));
+		local disclaimer_prompt_uic = UIComponent(m_root:Find("disclaimer_prompt"));
+
+		button_discord_uic:SetState("active");
 
 		if disclaimer_prompt_uic:Visible() == true then
 			disclaimer_prompt_uic:SetVisible(false);
@@ -92,9 +95,9 @@ function OnComponentLClickUp_Disclaimer(context)
 end;
 
 function CreateDisclaimerPrompt()
-	scripting.m_root:CreateComponent("disclaimer_prompt", "ui/new/popup_disclaimer_prompt");
+	m_root:CreateComponent("disclaimer_prompt", "ui/new/popup_disclaimer_prompt");
 
-	local disclaimer_prompt_uic = UIComponent(scripting.m_root:Find("disclaimer_prompt"));
+	local disclaimer_prompt_uic = UIComponent(m_root:Find("disclaimer_prompt"));
 
 	disclaimer_prompt_uic:SetVisible(false);
 end
@@ -125,8 +128,8 @@ function ModifyHardcodedLimits()
 end
 
 function ShowDisclaimerPrompt()
-	local button_discord_uic = UIComponent(scripting.m_root:Find("button_discord"));
-	local disclaimer_prompt_uic = UIComponent(scripting.m_root:Find("disclaimer_prompt"));
+	local button_discord_uic = UIComponent(m_root:Find("button_discord"));
+	local disclaimer_prompt_uic = UIComponent(m_root:Find("disclaimer_prompt"));
 
 	button_discord_uic:SetState("inactive");
 	disclaimer_prompt_uic:SetVisible(true);

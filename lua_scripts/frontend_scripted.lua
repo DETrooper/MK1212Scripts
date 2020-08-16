@@ -35,22 +35,10 @@ require("lua_scripts.fe_script_header");
 
 eh = event_handler:new(AddEventCallBack);
 m_root = nil;
-scripting = require "lua_scripts.EpisodicScripting";
 svr = ScriptedValueRegistry:new();
 tm = timer_manager:new(Timers);
 version_number = 2000;
 version_number_string = "v2.0.0";
-
-local dev = require("lua_scripts/dev");
-
-require("lua_scripts/frontend_challenges");
---require("lua_scripts/frontend_changelog"); -- Obsolete now that there's a direct discord invite.
-require("lua_scripts/frontend_disclaimer");
-require("lua_scripts/frontend_discord");
---require("lua_scripts/frontend_hbs"); -- There are no historical battles for MK1212 yet.
-require("lua_scripts/frontend_mp_campaign");
-require("lua_scripts/frontend_start_date");
-require("lua_scripts/frontend_strings");
 
 eh:add_listener(
 	"OnUICreated_MK1212_Frontend",
@@ -81,6 +69,15 @@ eh:add_listener(
 	true
 );
 
+require("lua_scripts/frontend_challenges");
+--require("lua_scripts/frontend_changelog"); -- Obsolete now that there's a direct discord invite.
+require("lua_scripts/frontend_disclaimer");
+require("lua_scripts/frontend_discord");
+--require("lua_scripts/frontend_hbs"); -- There are no historical battles for MK1212 yet.
+require("lua_scripts/frontend_mp_campaign");
+require("lua_scripts/frontend_start_date");
+require("lua_scripts/frontend_strings");
+
 function OnUICreated_MK1212_Frontend(context)
 	if context then
 		m_root = UIComponent(context.component);
@@ -91,19 +88,19 @@ function OnUICreated_MK1212_Frontend(context)
 end
 
 function ChangeFrontend(context)
+	local button_historical_battle_uic = UIComponent(m_root:Find("button_historical_battle"));
 	local text_version_number_uic = UIComponent(m_root:Find("version_number"));
-	local curX, curY = text_version_number_uic:Position();
 
-	text_version_number_uic:SetStateText(FRONTEND_STRINGS["text_version_string"]..version_number_string);
-	text_version_number_uic:SetMoveable(true);
-	text_version_number_uic:MoveTo(curX - 8, curY);
-	text_version_number_uic:SetMoveable(false);
+	if button_historical_battle_uic then
+		button_historical_battle_uic:SetState("inactive");
+	end
+
+	if text_version_number_uic then
+		text_version_number_uic:SetStateText(FRONTEND_STRINGS["text_version_string"]..version_number_string);
+	end
 
 	svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
 	svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", false);
-
-	local button_historical_battle_uic = UIComponent(m_root:Find("button_historical_battle"));
-	button_historical_battle_uic:SetState("inactive");
 
 	ChangeCampaignsPanel();
 end
@@ -309,24 +306,27 @@ end
 
 function ChangeCampaignsPanel()
 	local campaign_menu_uic = UIComponent(m_root:Find("campaign_menu"));
-	campaign_menu_uic:Resize(300, 230);
-	local button_load_campaign_uic = UIComponent(m_root:Find("button_load_campaign"));
-	local button_dlc_campaign_1_uic = UIComponent(m_root:Find("button_dlc_campaign_1"));
-	local button_dlc_campaign_2_uic = UIComponent(m_root:Find("button_dlc_campaign_2"));
-	local button_new_campaign_uic = UIComponent(m_root:Find("button_new_campaign"));
-	local button_multiplayer_campaign_uic = UIComponent(m_root:Find("button_multiplayer_campaign"));
-	local curX, curY = button_load_campaign_uic:Position();
 
-	button_dlc_campaign_2_uic:SetVisible(false);
-	button_new_campaign_uic:SetMoveable(true);
-	button_new_campaign_uic:MoveTo(-100, -100);
-	button_new_campaign_uic:SetMoveable(false);
-	button_dlc_campaign_1_uic:SetMoveable(true);
-	button_dlc_campaign_1_uic:MoveTo(-100, -200);
-	button_dlc_campaign_1_uic:SetMoveable(false);
-	button_multiplayer_campaign_uic:SetMoveable(true);
-	button_multiplayer_campaign_uic:MoveTo(curX, curY + 120);
-	button_multiplayer_campaign_uic:SetMoveable(false);
+	if campaign_menu_uic then
+		campaign_menu_uic:Resize(300, 230);
+		local button_load_campaign_uic = UIComponent(m_root:Find("button_load_campaign"));
+		local button_dlc_campaign_1_uic = UIComponent(m_root:Find("button_dlc_campaign_1"));
+		local button_dlc_campaign_2_uic = UIComponent(m_root:Find("button_dlc_campaign_2"));
+		local button_new_campaign_uic = UIComponent(m_root:Find("button_new_campaign"));
+		local button_multiplayer_campaign_uic = UIComponent(m_root:Find("button_multiplayer_campaign"));
+		local curX, curY = button_load_campaign_uic:Position();
+
+		button_dlc_campaign_2_uic:SetVisible(false);
+		button_new_campaign_uic:SetMoveable(true);
+		button_new_campaign_uic:MoveTo(-100, -100);
+		button_new_campaign_uic:SetMoveable(false);
+		button_dlc_campaign_1_uic:SetMoveable(true);
+		button_dlc_campaign_1_uic:MoveTo(-100, -200);
+		button_dlc_campaign_1_uic:SetMoveable(false);
+		button_multiplayer_campaign_uic:SetMoveable(true);
+		button_multiplayer_campaign_uic:MoveTo(curX, curY + 120);
+		button_multiplayer_campaign_uic:SetMoveable(false);
+	end
 end
 
 function ChangeEffects()
@@ -340,6 +340,8 @@ function ChangeEffects()
 	local max_columns = 20;
 	local spacing = 67;
 	local factions = {};
+
+	curX = curX + 34; -- I made some changes to the leader window's bounds and I'm too lazy to go fix all the offsets now.
 
 	tx_header_uic:SetStateText(FRONTEND_STRINGS["campaign_title_"..tostring(CHAPTER_SELECTED)]);
 

@@ -16,7 +16,6 @@ eh:add_listener(
 	function(context) OnFrontendScreenTransition_Campaign_Selection(context) end,
 	true
 );
-
 eh:add_listener(
 	"OnComponentLClickUp_Campaign_Selection",
 	"ComponentLClickUp",
@@ -30,8 +29,8 @@ function OnFrontendScreenTransition_Campaign_Selection(context)
 		tm:callback(
 			function()
 				CHAPTER_SELECTED = 1;
-				local chapter_2_uic = UIComponent(scripting.m_root:Find("2"));
-				local watermark_uic = UIComponent(scripting.m_root:Find("watermark"));
+				local chapter_2_uic = UIComponent(m_root:Find("2"));
+				local watermark_uic = UIComponent(m_root:Find("watermark"));
 				chapter_2_uic:SetState("inactive");
 				chapter_2_uic:SetInteractive(false);
 				watermark_uic:SetVisible(false);
@@ -50,10 +49,10 @@ function OnComponentLClickUp_Campaign_Selection(context)
 		local button_select_uic = UIComponent(context.component);
 		button_select_uic:SetState("active");
 		if CHAPTER_SELECTED == 1 then
-			local button_new_campaign_uic = UIComponent(scripting.m_root:Find("button_new_campaign"));
+			local button_new_campaign_uic = UIComponent(m_root:Find("button_new_campaign"));
 			button_new_campaign_uic:SimulateClick();
 		elseif CHAPTER_SELECTED == 2 then
-			local button_new_campaign_uic = UIComponent(scripting.m_root:Find("button_dlc_campaign_1"));
+			local button_new_campaign_uic = UIComponent(m_root:Find("button_dlc_campaign_1"));
 			button_new_campaign_uic:SimulateClick();
 		end
 	end

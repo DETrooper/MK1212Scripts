@@ -26,7 +26,6 @@ eh:add_listener(
 	function(context) OnUICreated_Changelog(context) end,
 	true
 );
-
 eh:add_listener(
 	"OnFrontendScreenTransition_Changelog",
 	"FrontendScreenTransition",
@@ -34,7 +33,6 @@ eh:add_listener(
 	function(context) OnFrontendScreenTransition_Changelog(context) end,
 	true
 );
-
 eh:add_listener(
 	"OnComponentLClickUp_Changelog",
 	"ComponentLClickUp",
@@ -64,23 +62,23 @@ function OnUICreated_Changelog(context)
 end;
 
 function OnFrontendScreenTransition_Changelog(context)
-	if UIComponent(scripting.m_root:Find("changelog")):Visible() == true then
-		UIComponent(scripting.m_root:Find("changelog")):SetVisible(false);
+	if UIComponent(m_root:Find("changelog")):Visible() == true then
+		UIComponent(m_root:Find("changelog")):SetVisible(false);
 	end
 
 	if context.string == "main" then
-		UIComponent(scripting.m_root:Find("button_message")):SetState("active");
+		UIComponent(m_root:Find("button_message")):SetState("active");
 	else
-		UIComponent(scripting.m_root:Find("button_message")):SetState("inactive");
+		UIComponent(m_root:Find("button_message")):SetState("inactive");
  	end
 end;
 
 function OnComponentLClickUp_Changelog(context)
 	if context.string == "changelog_accept" or context.string == "button_home" then
-		UIComponent(scripting.m_root:Find("changelog")):SetVisible(false);
+		UIComponent(m_root:Find("changelog")):SetVisible(false);
 	elseif context.string == "button_message" then
-		if UIComponent(scripting.m_root:Find("changelog")):Visible() == true then
-			UIComponent(scripting.m_root:Find("changelog")):SetVisible(false);
+		if UIComponent(m_root:Find("changelog")):Visible() == true then
+			UIComponent(m_root:Find("changelog")):SetVisible(false);
 		else
 			CreateChangelog();
 		end
@@ -88,11 +86,11 @@ function OnComponentLClickUp_Changelog(context)
 end;
 
 function CreateChangelog()
-	UIComponent(scripting.m_root:Find("logo")):DestroyChildren();
-	UIComponent(scripting.m_root:Find("logo")):CreateComponent("changelog", "UI/campaign ui/events");
-	UIComponent(scripting.m_root:Find("changelog")):CreateComponent("changelog_accept", "UI/new/basic_toggle_accept");
+	UIComponent(m_root:Find("logo")):DestroyChildren();
+	UIComponent(m_root:Find("logo")):CreateComponent("changelog", "UI/campaign ui/events");
+	UIComponent(m_root:Find("changelog")):CreateComponent("changelog_accept", "UI/new/basic_toggle_accept");
 
-	local logo_uic = UIComponent(scripting.m_root:Find("logo"));
+	local logo_uic = UIComponent(m_root:Find("logo"));
 	local changelog_uic = UIComponent(logo_uic:Find("changelog"));
 	local changelog_accept_uic = UIComponent(changelog_uic:Find("changelog_accept"));
 	local changelog_event_dilemma_uic = UIComponent(changelog_uic:Find("event_dilemma"));
@@ -104,7 +102,7 @@ function CreateChangelog()
 	local changelog_textview_with_sub_uic = UIComponent(changelog_event_standard_uic:Find("textview_with_sub"));
 	local changelog_dy_subtitle_uic = UIComponent(changelog_event_standard_uic:Find("dy_subtitle"));
 	local changelog_text_uic = UIComponent(changelog_textview_with_sub_uic:Find("Text"));
-	local button_campaign_uic = UIComponent(scripting.m_root:Find("button_campaign"));
+	local button_campaign_uic = UIComponent(m_root:Find("button_campaign"));
 	local curX, curY = changelog_uic:Position();
 	local button_campaign_uicX, button_campaign_uicY = button_campaign_uic:Position();
 	changelog_event_dilemma_uic:SetVisible(false);

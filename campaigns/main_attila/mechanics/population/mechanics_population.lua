@@ -156,8 +156,11 @@ function Add_Population_Listeners()
 		POPULATION_REGIONS_POPULATIONS = DeepCopy(POPULATION_REGIONS_STARTING_POPULATIONS);
 		POPULATION_REGIONS_MANPOWER = DeepCopy(POPULATION_REGIONS_STARTING_POPULATIONS);
 
-		for i = 1, #REGIONS_LIST do
-			local region_name = REGIONS_LIST[i];
+		local region_list = cm:model():world():region_manager():region_list();
+
+		for i = 0, region_list:num_items() - 1 do
+			local region = region_list:item_at(i);
+			local region_name = region:name();
 
 			for j = 1, 5 do
 				POPULATION_REGIONS_MANPOWER[region_name][j] = math.floor(POPULATION_REGIONS_MANPOWER[region_name][j] * POPULATION_MANPOWER_PERCENTAGE);
