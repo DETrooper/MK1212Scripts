@@ -85,15 +85,6 @@ function OnUICreated_MK1212_Frontend(context)
 	if context then
 		m_root = UIComponent(context.component);
 
-		m_root:CreateComponent("checkbox_ironman", "ui/templates/checkbox");
-		m_root:CreateComponent("text_ironman", "ui/campaign ui/script_dummy");
-		local checkbox_ironman_uic = UIComponent(m_root:Find("checkbox_ironman"));
-		local text_ironman_uic = UIComponent(m_root:Find("text_ironman"));
-		checkbox_ironman_uic:SetTooltipText(FRONTEND_STRINGS["ironman_tooltip"]);
-		text_ironman_uic:SetStateText(FRONTEND_STRINGS["ironman_title"]);	
-		checkbox_ironman_uic:SetVisible(false);
-		text_ironman_uic:SetVisible(false);
-
 		ChangeFrontend(context);
 		ChangeCampaignsPanel();
 	end
@@ -108,15 +99,8 @@ function ChangeFrontend(context)
 	text_version_number_uic:MoveTo(curX - 8, curY);
 	text_version_number_uic:SetMoveable(false);
 
-	local checkbox_ironman_uic = UIComponent(m_root:Find("checkbox_ironman"));
-	local text_ironman_uic = UIComponent(m_root:Find("text_ironman"));
-	checkbox_ironman_uic:SetVisible(false);
-	checkbox_ironman_uic:SetState("active");				
-
 	svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
-
-	text_ironman_uic:SetStateText("");
-	text_ironman_uic:SetVisible(false);
+	svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", false);
 
 	local button_historical_battle_uic = UIComponent(m_root:Find("button_historical_battle"));
 	button_historical_battle_uic:SetState("inactive");
@@ -210,11 +194,22 @@ function OnComponentLClickUp_MK1212_Frontend(context)
 			end, 
 			1
 		);
-	elseif context.string == "checkbox_ironman" then	
+	elseif context.string == "checkbox_ironman" then
 		if UIComponent(context.component):CurrentState() == "selected_down" or UIComponent(context.component):CurrentState() == "active" then
 			svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
+
+			UIComponent(m_root:Find("checkbox_lucky_nations")):SetState("selected");
 		elseif UIComponent(context.component):CurrentState() == "down" or UIComponent(context.component):CurrentState() == "selected" then
 			svr:SaveBool("SBOOL_IRONMAN_ENABLED", true);
+			svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", true);
+
+			UIComponent(m_root:Find("checkbox_lucky_nations")):SetState("selected_inactive");
+		end
+	elseif context.string == "checkbox_lucky_nations" then
+		if UIComponent(context.component):CurrentState() == "selected_down" or UIComponent(context.component):CurrentState() == "active" then
+			svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", false);
+		elseif UIComponent(context.component):CurrentState() == "down" or UIComponent(context.component):CurrentState() == "selected" then
+			svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", true);
 		end
 	elseif context.string == "button_random_faction" then
 		if CHAPTER_SELECTED == 1 then
@@ -231,19 +226,6 @@ function OnComponentLClickUp_MK1212_Frontend(context)
 			faction_uic:SetState("selected");	
 		end
 	end
-
-	tm:callback(
-		function()
-			if UIComponent(m_root:Find("3D_window")):Visible() == false or UIComponent(m_root:Find("3D_window")):Visible() == nil then
-				local checkbox_ironman_uic = UIComponent(m_root:Find("checkbox_ironman"));
-				local text_ironman_uic = UIComponent(m_root:Find("text_ironman"));
-				checkbox_ironman_uic:SetVisible(false);
-				text_ironman_uic:SetStateText("");
-				text_ironman_uic:SetVisible(false);
-			end
-		end, 
-		0.2
-	);
 
 	-- For custom battles.
 	if UIComponent(m_root:Find("battle_setup")):Visible() then
@@ -473,20 +455,6 @@ function ChangeEffects()
 	entries_window_uic:SetVisible(false);
 	
 	-- Right Side
-	local checkbox_ironman_uic = UIComponent(m_root:Find("checkbox_ironman"));
-	local text_ironman_uic = UIComponent(m_root:Find("text_ironman"));
-
-	checkbox_ironman_uic:SetMoveable(true);
-	checkbox_ironman_uic:MoveTo(curX + 114, curY - 20);
-	checkbox_ironman_uic:SetMoveable(false);
-	text_ironman_uic:Resize(200, 48);
-	text_ironman_uic:SetMoveable(true);
-	text_ironman_uic:MoveTo(curX + 144, curY - 12);
-	text_ironman_uic:SetMoveable(false);
-	checkbox_ironman_uic:SetVisible(true);
-	text_ironman_uic:SetStateText(FRONTEND_STRINGS["ironman_title"]);
-	text_ironman_uic:SetVisible(true);
-
 	local maps_uic = UIComponent(m_root:Find("maps"));
 	local map_rome_uic = find_uicomponent_by_table(m_root, {"sp_grand_campaign", "docker", "details_panel", "maps", "map_rome"});
 	local maps_frame_uic = find_uicomponent_by_table(m_root, {"sp_grand_campaign", "docker", "details_panel", "maps", "map_rome", "frame"});

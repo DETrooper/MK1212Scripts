@@ -102,6 +102,7 @@ require("att_traits");
 require("byzantium/main");
 require("common/main");
 require("kingdoms/main");
+require("luckynations/main");
 require("mechanics/main");
 require("mongols/main");
 require("startingbattles/main");

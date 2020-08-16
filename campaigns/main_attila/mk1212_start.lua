@@ -51,6 +51,7 @@ function start_game_all_factions()
 	--Islamic_Initializer();
 	Ironman_Initializer();
 	Kingdom_Initializer();
+	Lucky_Nations_Initializer();
 	Mechanic_Initializer();
 	Mongol_Initializer();
 	Starting_Battles_Initializer();

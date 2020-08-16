@@ -7,15 +7,20 @@
 -----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 
-IRONMAN_ENABLED = false;
+local util = require("lua_scripts/util");
+
 IRONMAN_DIPLOMACY_OCCURED = false; -- Auto-save after peace treaties or war declared involving player.
+IRONMAN_ENABLED = false;
+IRONMAN_SAVE_NAME = "";
 IRONMAN_TURN_ENDED = false; -- If turn ended, then force end turn if save is loaded from there.
 
 function Add_Ironman_Listeners()
 	if cm:is_new_game() then
+		local faction_localisation = Get_DFN_Localisation(cm:get_local_faction());
 		local svr = ScriptedValueRegistry:new();
 
 		IRONMAN_ENABLED = svr:LoadBool("SBOOL_IRONMAN_ENABLED");
+		IRONMAN_SAVE_NAME = faction_localisation.." Ironman "..tostring(os.date("%Y%m%d%H%M%S"));
 	end
 
 	if IRONMAN_ENABLED then
@@ -147,15 +152,42 @@ function DilemmaChoiceMadeEvent_Ironman(context)
 	Save_Game_Ironman(0.5);
 end
 
-function Save_Game_Ironman(disable_delay )
-	cm:disable_saving_game(false);
-	cm:autosave_at_next_opportunity();
-	cm:add_time_trigger("disable_saving", disable_delay);
-end
-
 function TimeTrigger_Ironman(context)
 	if context.string == "disable_saving" then
 		cm:disable_saving_game(true);
+	elseif context.string == "rename_save_game" then
+		Rename_Save_Ironman();
+	end
+end
+
+function Rename_Save_Ironman()
+	if cm:model():difficulty_level() > -3 then -- Legendary saves don't need to be renamed.
+		if IRONMAN_SAVE_NAME == "" then
+			local faction_localisation = FACTIONS_NAMES_LOCALISATION[cm:get_local_faction()];
+			IRONMAN_SAVE_NAME = faction_localisation.." Ironman "..tostring(os.date("%Y%m%d%H%M%S"));
+		end
+
+		local save_path = os.getenv("APPDATA")..[[\The Creative Assembly\Attila\save_games\]];
+		local auto_save_path = save_path.."auto_save.save";
+		local ironman_save_path = save_path..IRONMAN_SAVE_NAME..".save";
+
+		if util.fileExists(ironman_save_path) == true then
+			os.remove(ironman_save_path);
+		end
+
+		if util.fileExists(auto_save_path) == true then
+			os.rename(auto_save_path, ironman_save_path);
+		end
+	end
+end
+
+function Save_Game_Ironman(disable_delay)
+	cm:disable_saving_game(false);
+	cm:autosave_at_next_opportunity();
+	cm:add_time_trigger("disable_saving", disable_delay);
+
+	if cm:model():difficulty_level() > -3 then -- Legendary saves don't need to be renamed.
+		cm:add_time_trigger("rename_save_game", disable_delay);
 	end
 end
 
@@ -165,6 +197,7 @@ end
 cm:register_loading_game_callback(
 	function(context)
 		IRONMAN_ENABLED = cm:load_value("IRONMAN_ENABLED", false, context);
+		IRONMAN_SAVE_NAME = cm:load_value("IRONMAN_SAVE_NAME", "", context);
 		IRONMAN_TURN_ENDED = cm:load_value("IRONMAN_TURN_ENDED", false, context);
 	end
 );
@@ -172,6 +205,7 @@ cm:register_loading_game_callback(
 cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("IRONMAN_ENABLED", IRONMAN_ENABLED, context);
+		cm:save_value("IRONMAN_SAVE_NAME", IRONMAN_SAVE_NAME, context);
 		cm:save_value("IRONMAN_TURN_ENDED", IRONMAN_TURN_ENDED, context);
 	end
 );
