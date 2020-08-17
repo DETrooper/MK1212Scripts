@@ -75,14 +75,14 @@ CRUSADE_RECRUITABLE_UNITS = {
 	["early"] = {
 		"mk_mio_t1_hospitaller_sergeant_spearmen",
 		"mk_mio_t1_templar_sergeant_spearmen",
-		"mk_jer_t1_hospitaller_knights_dismounted",
-		"mk_jer_t1_templar_knights_dismounted",
+		"mk_mio_t1_hospitaller_knights_dismounted",
+		"mk_mio_t1_templar_knights_dismounted",
 		"mk_mio_t1_hospitaller_crossbowmen_sergeants",
 		"mk_mio_t1_templar_crossbowmen_sergeants",
 		"mk_mio_t1_hospitaller_mounted_sergeants",
-		"mk_jer_t1_hospitaller_knights",
+		"mk_mio_t1_hospitaller_knights",
 		"mk_mio_t1_templar_mounted_sergeants",
-		"mk_jer_t1_templar_knights",
+		"mk_mio_t1_templar_knights",
 		"mk_mio_t1_teu_mounted_sergeants",
 		"mk_mio_t1_teu_sariantbruder",
 		"mk_mio_t1_teu_ritterbruder",
@@ -93,20 +93,19 @@ CRUSADE_RECRUITABLE_UNITS_CAPS = {
 	["early"] = {
 		["mk_mio_t1_hospitaller_sergeant_spearmen"] = 2,
 		["mk_mio_t1_templar_sergeant_spearmen"] = 2,
-		["mk_jer_t1_hospitaller_knights_dismounted"] = 1,
-		["mk_jer_t1_templar_knights_dismounted"] = 1,
+		["mk_mio_t1_hospitaller_knights_dismounted"] = 1,
+		["mk_mio_t1_templar_knights_dismounted"] = 1,
 		["mk_mio_t1_hospitaller_crossbowmen_sergeants"] = 2,
 		["mk_mio_t1_templar_crossbowmen_sergeants"] = 2,
 		["mk_mio_t1_hospitaller_mounted_sergeants"] = 1,
-		["mk_jer_t1_hospitaller_knights"] = 1,
+		["mk_mio_t1_hospitaller_knights"] = 1,
 		["mk_mio_t1_templar_mounted_sergeants"] = 1,
-		["mk_jer_t1_templar_knights"] = 1,
+		["mk_mio_t1_templar_knights"] = 1,
 		["mk_mio_t1_teu_mounted_sergeants"] = 1,
 		["mk_mio_t1_teu_sariantbruder"] = 1,
 		["mk_mio_t1_teu_ritterbruder"] = 1
 	}
 }
-
 
 CRUSADE_REGIONS = {
 	-- Core European territories recieve priority over faraway lands.

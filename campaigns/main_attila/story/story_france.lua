@@ -154,9 +154,7 @@ function FactionTurnStart_France(context)
 			cm:trigger_dilemma(FRANCE_KEY, "mk_dilemma_story_france_english_rebels_alliance");
 			FRANCE_SECOND_DILEMMA_ISSUED = true;
 		end
-	end
-
-	if context:faction():name() == TOULOUSE_KEY then
+	elseif context:faction():name() == TOULOUSE_KEY then
 		if france:at_war_with(toulouse) == false and cm:model():turn_number() == CATHAR_REVOLT_TURN and toulouse:is_null_interface() == false then
 			cm:force_declare_war(TOULOUSE_KEY, FRANCE_KEY);
 		end

@@ -26,7 +26,7 @@ function Add_MK1212_Campaign_Cutscene_Listeners()
 	);
 end
 
-function PanelClosedCampaign_Campaign_Cutscenes(context) 
+function PanelClosedCampaign_Campaign_Cutscenes(context)
 	if context.string == "event_movie_panel" then
 		if CURRENT_CUTSCENE ~= "nil" then
 			Cutscene_Skipped(CURRENT_CUTSCENE);
@@ -37,8 +37,8 @@ end
 function Cutscene_Play(cutscene_name)
 	CURRENT_CUTSCENE = cutscene_name;
 
-	--cm:play_movie_in_ui(CUTSCENES_LIST[cutscene_name][1]); -- This function plays the movie based off a hardcoded string ID found in attila's .dll, which can be linked to the movie file in the movie_event_strings db.
-	cm:register_movies(cutscene_name); -- This function lets us use the actual video name instead of a hardcoded one. I guess the main difference is that only one of these can play at a time.
+	cm:play_movie_in_ui(CUTSCENES_LIST[cutscene_name][1]); -- This function plays the movie based off a hardcoded string ID found in attila's .dll, which can be linked to the movie file in the movie_event_strings db.
+	--cm:register_movies(cutscene_name); -- This function lets us use the actual video name instead of a hardcoded one. However, PanelClosedCampaign will not fire which is not desirable if we wish to stop the audio playing alongside it.
 	cm:play_sound(CUTSCENES_LIST[cutscene_name][2]); -- This method of adding audio can desync but it's better than nothing :(
 end
 

@@ -15,10 +15,10 @@ ARAGON_INTERVENTION_TURN = 3;
 ARAGON_CHOICE_MADE = false;
 
 TOULOUSE_SUPPORT_ARMY = 
-	"mk_ara_t1_knights,mk_ara_t1_knights,".. -- Heavy Shock Cav
-	"mk_ara_t1_spearmen_catalan,mk_ara_t1_spearmen,mk_ara_t1_pikemen,mk_ara_t1_pikemen,".. -- Spear Infantry
-	"mk_tou_t1_dismounted_chevaliers,mk_ara_t1_swordsmen_catalan,mk_ara_t1_swordsmen,mk_ara_t1_swordsmen,".. -- Sword Infantry
-	"mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_ara_t1_levy_crossbowmen,mk_ara_t1_levy_crossbowmen,mk_ara_t1_levy_crossbowmen,".. -- Missile Infantry
+	"mk_ara_t1_caballeros,mk_ara_t1_caballeros,".. -- Heavy Shock Cav
+	"mk_ara_t1_spearmen,mk_ara_t1_spearmen,mk_ara_t1_pikemen,mk_ara_t1_pikemen,".. -- Spear Infantry
+	"mk_ara_t1_dismounted_caballeros,mk_ara_t1_peones,mk_ara_t1_peones,mk_ara_t1_peones,".. -- Sword Infantry
+	"mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_ara_t1_peones_crossbowmen,mk_ara_t1_peones_crossbowmen,mk_ara_t1_peones_crossbowmen,".. -- Missile Infantry
 	"mk_tou_t1_mounted_crossbowmen,mk_tou_t1_mounted_crossbowmen"; -- Missile Cavalry
 
 function Add_Aragon_Story_Events_Listeners()

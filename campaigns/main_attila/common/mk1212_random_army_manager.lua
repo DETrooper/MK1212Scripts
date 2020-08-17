@@ -156,7 +156,6 @@ function Possible_Rebel_Forces()
 end
 
 function CreateCivilWarArmy(region, culture, rebel_faction_name, army_id, x, y)
-	-- DIFFICULTY LEVEL DETECTION
 	local difficulty = cm:model():difficulty_level();
 	local force = false;
 	
@@ -172,11 +171,11 @@ function CreateCivilWarArmy(region, culture, rebel_faction_name, army_id, x, y)
 
 	if culture == "cathar" then
 		if difficulty == 1 then
-			force = "mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_mounted_sergeants,mk_tou_t1_chevaliers";
+			force = "mk_tou_t1_spearmen,mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_mounted_sergeants,mk_tou_t1_chevaliers";
 		elseif difficulty == 0 or difficulty == -1 then
-			force = "mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_sergeants_foot,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_tou_t1_routiers_heavy,mk_tou_t1_chevaliers,mk_tou_t1_mounted_sergeants";
+			force = "mk_tou_t1_spearmen,mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_merc_fre_t1_routiers_lancer,mk_tou_t1_chevaliers,mk_tou_t1_mounted_sergeants";
 		elseif difficulty == -2 or difficulty == -3 then
-			force = "mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_sergeants_foot,mk_tou_t1_sergeants_foot,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_tou_t1_routiers_heavy,mk_tou_t1_chevaliers,mk_tou_t1_mounted_sergeants,mk_tou_t1_mounted_sergeants";			
+			force = "mk_tou_t1_spearmen,mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_merc_fre_t1_routiers_lancer,mk_tou_t1_chevaliers,mk_tou_t1_mounted_sergeants,mk_tou_t1_mounted_sergeants";			
 		end
 	end
 
