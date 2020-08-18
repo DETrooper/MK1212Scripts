@@ -172,6 +172,49 @@ function Check_Razed_Regions()
 	end
 end
 
+function CreateCivilWarArmy(region, culture, rebel_faction_name, army_id, x, y)
+	local difficulty = cm:model():difficulty_level();
+	local effect_bundle = "";
+	local force = "";
+	
+	if culture == "english" then
+		if difficulty == 1 then
+			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_mounted_serjeants";
+		elseif difficulty == 0 or difficulty == -1 then
+			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_mounted_serjeants,mk_eng_t1_mounted_serjeants";
+		elseif difficulty == -2 or difficulty == -3 then
+			force = "mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_spear_militia,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_serjeants,mk_eng_t1_axe_sergeant,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_longbowmen,mk_eng_t1_mounted_serjeants,mk_eng_t1_mounted_serjeants";
+		end
+
+		effect_bundle = "mk_bundle_army_english_rebellion";
+	elseif culture == "cathar" then
+		if difficulty == 1 then
+			force = "mk_tou_t1_spearmen,mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_mounted_sergeants,mk_tou_t1_chevaliers";
+		elseif difficulty == 0 or difficulty == -1 then
+			force = "mk_tou_t1_spearmen,mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_merc_fre_t1_routiers_lancer,mk_tou_t1_chevaliers,mk_tou_t1_mounted_sergeants";
+		elseif difficulty == -2 or difficulty == -3 then
+			force = "mk_tou_t1_spearmen,mk_tou_t1_spearmen,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_dismounted_chevaliers,mk_tou_t1_voulge_militia,mk_tou_t1_voulge_militia,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_sergeants,mk_tou_t1_archers,mk_tou_t1_archers,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_tou_t1_crossbowmen,mk_merc_fre_t1_routiers_lancer,mk_tou_t1_chevaliers,mk_tou_t1_mounted_sergeants,mk_tou_t1_mounted_sergeants";			
+		end
+
+		effect_bundle = "mk_bundle_army_cathar_rebellion";
+	else
+		return;
+	end
+
+	cm:create_force(
+		rebel_faction_name,
+		force,
+		region,
+		x,
+ 		y,
+		army_id,
+		true,
+		function(cqi)
+			cm:apply_effect_bundle_to_characters_force(effect_bundle, cqi, -1, true);
+		end
+	);
+end
+
 function FactionIsAlive(faction_name)
 	local faction = cm:model():world():faction_by_key(faction_name);
 

@@ -1,12 +1,8 @@
---[[
-Automatically generated via export from C:/Users/mitchell.heastie\DaVE_local\branches/attila/slavs/rome2/raw_data/db
-Edit manually at your own risk
---]]
-
 module(..., package.seeall)
 
 -- MK1212 Custom Events
 
+FactionUnvassalized = {}
 FactionVassalized = {}
 RegionResettled = {}
 UnitDisbanded = {}

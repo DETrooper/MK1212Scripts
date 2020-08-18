@@ -285,15 +285,45 @@ end
 
 function OnPanelOpenedCampaign_HRE_UI(context)
 	if context.string == "settlement_captured" then
-		if cm:get_local_faction() == HRE_EMPEROR_KEY then
-			local button_parent_uic = UIComponent(UIComponent(context.component):Find("button_parent"));
-			local occupation_decision_liberate_uic = UIComponent(button_parent_uic:Find("occupation_decision_liberate"));
+		local settlement_captured_uic = UIComponent(context.component);
+		local settlement_captured_uicbX, settlement_captured_uicbY = settlement_captured_uic:Bounds();
+		local button_parent_uic = UIComponent(settlement_captured_uic:Find("button_parent"));
+		local button_parent_uicbX, button_parent_uicbY = button_parent_uic:Bounds();
+		local occupation_decision_liberate_uic = UIComponent(button_parent_uic:Find("occupation_decision_liberate"));
 
-			if occupation_decision_liberate_uic  then
+		if occupation_decision_liberate_uic and occupation_decision_liberate_uic:Visible() then
+			if HRE_LIBERATION_DISABLED == false and cm:get_local_faction() == HRE_EMPEROR_KEY then
 				local option_button_uic = UIComponent(occupation_decision_liberate_uic:Find("option_button"));
 				local dy_option_uic = UIComponent(option_button_uic:Find("dy_option"));
 
 				dy_option_uic:SetStateText("Liberate Member State");
+			else
+				-- Remove the liberation occupation decision's UI for any faction that isn't the Emperor or the target faction isn't in the HRE.
+				local liberate_found = false;
+
+				settlement_captured_uic:Resize(settlement_captured_uicbX - 275, settlement_captured_uicbY);
+				button_parent_uic:Resize(button_parent_uicbX - 275, button_parent_uicbY);
+				occupation_decision_liberate_uic:SetVisible(false);
+
+				for i = 0, button_parent_uic:ChildCount() - 1 do
+					local child_uic = UIComponent(button_parent_uic:Find(i));
+
+					if child_uic:Id() ~= "occupation_decision_liberate" then
+						local child_uicX, child_uicY = child_uic:Position();
+
+						child_uic:SetMoveable(true);
+
+						if liberate_found == false then
+							child_uic:MoveTo(child_uicX + 137, child_uicY);
+						else
+							child_uic:MoveTo(child_uicX - 137, child_uicY);
+						end
+
+						child_uic:SetMoveable(false);
+					else
+						liberate_found = true;
+					end
+				end
 			end
 		end
 	end
