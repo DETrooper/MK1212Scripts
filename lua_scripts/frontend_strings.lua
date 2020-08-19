@@ -9,9 +9,10 @@
 
 FRONTEND_STRINGS = {
 	campaign_title_1 = "Early Campaign - 1212 AD",
-	campaign_title_2 = "Late Campaign - 1337 AD",
+	campaign_title_2 = "Late Campaign - Date TBD",
 	faction_strength = "Faction Strength: ",
 	faction_weakness = "Faction Weakness: ",
+	population = "Population: ",
 	text_version_string = "Medieval Kingdoms 1212: Campaign Build ",
 	select_random_faction_tooltip = "Select random faction!",
 };
@@ -30,6 +31,8 @@ FACTION_STRENGTHS = {
 	att_fact_group_arabia = "PLACEHOLDER", -- mk_fact_ayyubids
 	att_fact_group_nomadic = "PLACEHOLDER",-- mk_fact_goldenhorde
 	att_fact_group_eastern = "PLACEHOLDER", -- mk_fact_georgia
+	att_fact_ostrogothi = "PLACEHOLDER",
+	att_fact_visigothi = "PLACEHOLDER",
 	mk_fact_abbasids = "Diverse Roster",
 	mk_fact_almohads = "Large Territory",
 	mk_fact_antioch = "Unique Holy Order Units",
@@ -106,6 +109,8 @@ FACTION_WEAKNESSES = {
 	att_fact_group_arabia = "PLACEHOLDER", -- mk_fact_ayyubids
 	att_fact_group_nomadic = "PLACEHOLDER", -- mk_fact_goldenhorde
 	att_fact_group_eastern = "PLACEHOLDER", -- mk_fact_georgia
+	att_fact_ostrogothi = "PLACEHOLDER",
+	att_fact_visigothi = "PLACEHOLDER",
 	mk_fact_abbasids = "Few Avenues of Expansion",
 	mk_fact_almohads = "Religious Turmoil",
 	mk_fact_antioch = "Religious Turmoil",
@@ -171,6 +176,8 @@ FACTION_WEAKNESSES = {
 };
 
 FACTION_POPULATIONS = {
+	att_fact_ostrogothi = "PLACEHOLDER",
+	att_fact_visigothi = "PLACEHOLDER",
 	mk_fact_abbasids = "396,000",
 	mk_fact_achaea = "30,000",
 	mk_fact_alania = "10,500",

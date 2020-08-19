@@ -1032,7 +1032,6 @@ POPULATION_UNITS_TO_POPULATION = {
 	["mk_ara_t1_pikemen"] = {160, 2},
 	["mk_ara_t1_sergeant_crossbowmen"] = {130, 2},
 	["mk_ara_t1_slingers"] = {130, 3},
-	["mk_ara_t1_spearmen"] = {160, 2},
 	["mk_ara_t2_alforrats"] = {80, 2},
 	["mk_ara_t2_almogavars"] = {130, 2},
 	["mk_ara_t2_armats"] = {80, 1},

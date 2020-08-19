@@ -362,7 +362,7 @@ function TimeTrigger_Population_UI(context)
 								local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
 
 								if LAST_CHARACTER_SELECTED:has_region() then
-									Change_Manpower_Region(ARMY_SELECTED_REGION, unit_class, unit_strength);
+									Change_Manpower_Region(LAST_CHARACTER_SELECTED:region():name(), unit_class, unit_strength);
 								else
 									local region = FindClosestPort(x, y, LAST_CHARACTER_SELECTED:faction());
 									Change_Manpower_Region(region:name(), unit_class, unit_strength);
