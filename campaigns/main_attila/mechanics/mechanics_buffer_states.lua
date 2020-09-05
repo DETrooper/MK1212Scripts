@@ -163,9 +163,17 @@ function OnSettlementSelected_Buffer(context)
 	end
 
 	if region_owner_name == faction_name then
-		local vassal_faction = cm:model():world():faction_by_key(REGIONS_LIBERATION_FACTIONS[region_name]);
+		local vassal_faction_name = REGIONS_LIBERATION_FACTIONS[region_name];
+		local vassal_faction = cm:model():world():faction_by_key(vassal_faction_name);
 
-		if not FactionIsAlive(REGIONS_LIBERATION_FACTIONS[region_name]) then
+		if not FactionIsAlive(vassal_faction_name) then
+			-- Don't allow HRE factions to be released as buffer states unless Renovatio Imperii has already occured.
+			if HRE_FACTIONS_START and CURRENT_HRE_REFORM then
+				if HasValue(HRE_FACTIONS_START, vassal_faction_name) and CURRENT_HRE_REFORM < 9 then
+					return;
+				end
+			end
+
 			if cm:get_local_faction() == FACTION_TURN then
 				btnBuffer:SetState("active"); 
 				btnBuffer:SetVisible(true);

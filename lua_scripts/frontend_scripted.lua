@@ -41,6 +41,8 @@ tm = timer_manager:new(Timers);
 version_number = 2000;
 version_number_string = "v2.0.0";
 
+local checkbox_lucky_nations_selected = false;
+
 eh:add_listener(
 	"OnUICreated_MK1212_Frontend",
 	"UICreated",
@@ -101,6 +103,8 @@ function ChangeFrontend(context)
 
 	svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
 	svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", false);
+
+	checkbox_lucky_nations_selected = false;
 end
 
 function OnComponentLClickUp_MK1212_Frontend(context)
@@ -117,7 +121,13 @@ function OnComponentLClickUp_MK1212_Frontend(context)
 		if UIComponent(context.component):CurrentState() == "selected_down" or UIComponent(context.component):CurrentState() == "active" then
 			svr:SaveBool("SBOOL_IRONMAN_ENABLED", false);
 
-			UIComponent(m_root:Find("checkbox_lucky_nations")):SetState("selected");
+			if checkbox_lucky_nations_selected == true then
+				UIComponent(m_root:Find("checkbox_lucky_nations")):SetState("selected");
+			else
+				svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", false);
+
+				UIComponent(m_root:Find("checkbox_lucky_nations")):SetState("active");
+			end
 		elseif UIComponent(context.component):CurrentState() == "down" or UIComponent(context.component):CurrentState() == "selected" then
 			svr:SaveBool("SBOOL_IRONMAN_ENABLED", true);
 			svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", true);
@@ -127,61 +137,86 @@ function OnComponentLClickUp_MK1212_Frontend(context)
 	elseif context.string == "checkbox_lucky_nations" then
 		if UIComponent(context.component):CurrentState() == "selected_down" or UIComponent(context.component):CurrentState() == "active" then
 			svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", false);
+
+			checkbox_lucky_nations_selected = false;
 		elseif UIComponent(context.component):CurrentState() == "down" or UIComponent(context.component):CurrentState() == "selected" then
 			svr:SaveBool("SBOOL_LUCKY_NATIONS_ENABLED", true);
+
+			checkbox_lucky_nations_selected = true;
 		end
 	elseif context.string == "button_random_faction" then
 		SelectRandomFaction();
 	end
 
-	-- For custom battles.
+	-- For custom battles. There's a hardcoded limit apparently on how many columns of factions display leading to a UI overflow off screen, so that needs to be fixed manually.
 	if UIComponent(m_root:Find("battle_setup")):Visible() then
-		if context.string == "button_change_faction" then
+		if context.string == "button_change_faction" or context.string == "faction_dropdown" then
 			tm:callback(
 				function() 
 					local faction_dropdown_uic = UIComponent(m_root:Find("faction_dropdown"));
-					local popup_menu_uic = UIComponent(faction_dropdown_uic:Find("popup_menu"));
-					local popup_list_uic = UIComponent(popup_menu_uic:Find("popup_list"));
-					local popup_menuX, popup_menuY = popup_menu_uic:Position();
-					local popup_listX, popup_listY = popup_list_uic:Position();
 
-					local boundsX = 225;
-					local boundsY = 32;
-					local column = 1;
-					local row = 1;
-					local max_rows = 21;
-					local num_columns = math.ceil(popup_list_uic:ChildCount() / max_rows);
+					if faction_dropdown_uic then
+						local popup_menu_uic = UIComponent(faction_dropdown_uic:Find("popup_menu"));
+						local popup_list_uic = UIComponent(popup_menu_uic:Find("popup_list"))
+						local delay = (popup_list_uic:ChildCount() * 11) - 100;
 
-					if popup_list_uic:ChildCount() < max_rows then
-						max_rows = popup_list_uic:ChildCount();
-					end
+						if popup_menu_uic and popup_menu_uic:Visible() then
+							tm:callback(
+								function() 
+									local faction_dropdown_uic = UIComponent(m_root:Find("faction_dropdown"));
 
-					popup_menu_uic:Resize((225 * num_columns), (31 * max_rows) + 10);
-					popup_menu_uic:SetMoveable(true);
-					popup_menu_uic:MoveTo(popup_menuX - ((boundsX * num_columns) / 2), popup_menuY);
-					popup_menu_uic:SetMoveable(false);
+									if faction_dropdown_uic then
+										local popup_menu_uic = UIComponent(faction_dropdown_uic:Find("popup_menu"));
 
-					popup_listX, popup_listY = popup_list_uic:Position(); -- Reset pos.
-					
-					for i = 1, popup_list_uic:ChildCount() do
-						local uic = UIComponent(popup_list_uic:Find("option"..tostring(i - 1)));
+										if popup_menu_uic and popup_menu_uic:Visible() then
+											local popup_list_uic = UIComponent(popup_menu_uic:Find("popup_list"));
+											local popup_menuX, popup_menuY = popup_menu_uic:Position();
+											local popup_listX, popup_listY = popup_list_uic:Position();
 
-						if i > 1 then
-							row = row + 1;
+											local boundsX = 225;
+											local boundsY = 30;
+											local column = 1;
+											local row = 1;
+											local max_rows = 18;
+											local num_columns = math.ceil(popup_list_uic:ChildCount() / max_rows);
 
-							if row % max_rows == 1 then
-								column = column + 1;
-								row = 1;
-							end
+											if popup_list_uic:ChildCount() < max_rows then
+												max_rows = popup_list_uic:ChildCount();
+											end
+
+											popup_menu_uic:Resize((225 * num_columns), (30 * max_rows) + 12);
+											--popup_menu_uic:SetMoveable(true);
+											--popup_menu_uic:MoveTo(popup_menuX - ((boundsX * num_columns) / 2), popup_menuY);
+											--popup_menu_uic:SetMoveable(false);
+
+											popup_listX, popup_listY = popup_list_uic:Position(); -- Reset pos.
+											
+											for i = 1, popup_list_uic:ChildCount() do
+												local uic = UIComponent(popup_list_uic:Find("option"..tostring(i - 1)));
+
+												if i > 1 then
+													row = row + 1;
+
+													if row % max_rows == 1 then
+														column = column + 1;
+														row = 1;
+													end
+												end
+
+												uic:SetMoveable(true);
+												uic:MoveTo(popup_listX - boundsX + (boundsX * column), popup_listY + (boundsY * (row - 1)));
+												uic:SetMoveable(false);
+												uic:SetVisible(true);
+											end
+										end
+									end
+								end,
+								delay
+							);
 						end
-
-						uic:SetMoveable(true);
-						uic:MoveTo(popup_listX - boundsX + (boundsX * column), popup_listY + (boundsY * (row - 1)));
-						uic:SetMoveable(false);
-						uic:SetVisible(true);
 					end
 				end,
-				1
+				100
 			);
 		elseif UIComponent(UIComponent(context.component):Parent()) then
 			local parent_id = UIComponent(UIComponent(context.component):Parent()):Id();

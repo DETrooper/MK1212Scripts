@@ -84,6 +84,8 @@ function OnComponentLClickUp_Slots_UI(context)
 			if disclaimer_prompt_uic:Visible() == true then
 				disclaimer_prompt_uic:SetVisible(false);
 			end
+		else
+			cm:add_time_trigger("Show_Slots_Button", 0.1);
 		end
 	end
 end
@@ -100,36 +102,10 @@ end
 
 function OnPanelOpenedCampaign_Slots_UI(context)
 	if REGION_SELECTED ~= "" then
-		local region = cm:model():world():region_manager():region_by_key(REGION_SELECTED);
+		local region_owning_faction = cm:model():world():region_manager():region_by_key(REGION_SELECTED):owning_faction();
 
-		if region:owning_faction():name() == cm:get_local_faction() then
-			local root = cm:ui_root();
-			local disclaimer_prompt_uic = UIComponent(root:Find("disclaimer_prompt"));
-
-			if disclaimer_prompt_uic:Visible() == true then
-				disclaimer_prompt_uic:SetVisible(false);
-			end
-
-			if context.string == "settlement_panel" then
-				if DISCLAIMER_ACCEPTED == false then
-					local main_settlement_panel_uic = UIComponent(root:Find("main_settlement_panel"));
-					local button_disclaimer_uic = UIComponent(main_settlement_panel_uic:Find("button_disclaimer"));
-
-					if util.fileExists("MK1212_config.txt") == true then
-						if dev.settings["disclaimerAccepted"] then
-							if tonumber(dev.settings["disclaimerAccepted"]) == 0 then
-								button_disclaimer_uic:SetVisible(true);
-							end
-						else
-							dev.changeSetting("MK1212_config.txt", "disclaimerAccepted", 0);
-							button_disclaimer_uic:SetVisible(true);
-						end
-					else
-						dev.writeSettings("MK1212_config.txt");
-						button_disclaimer_uic:SetVisible(true);
-					end
-				end
-			end
+		if region_owning_faction:name() == cm:get_local_faction() then
+			cm:add_time_trigger("Show_Slots_Button", 0);
 		end
 	end
 end
@@ -178,20 +154,34 @@ function TimeTrigger_Slots_UI(context)
 
 		if DISCLAIMER_ACCEPTED == false then
 			local main_settlement_panel_uic = UIComponent(root:Find("main_settlement_panel"));
-			local button_disclaimer_uic = UIComponent(main_settlement_panel_uic:Find("button_disclaimer"));
 
-			if util.fileExists("MK1212_config.txt") == true then
-				if dev.settings["disclaimerAccepted"] then
-					if tonumber(dev.settings["disclaimerAccepted"]) == 0 then
+			if main_settlement_panel_uic and main_settlement_panel_uic:Visible() then
+				local building_slot_6_uic = UIComponent(main_settlement_panel_uic:Find("building_slot_6"));
+				local button_disclaimer_uic = UIComponent(main_settlement_panel_uic:Find("button_disclaimer"));
+
+				if building_slot_6_uic:ChildCount() > 0 then
+					local child_uic = UIComponent(building_slot_6_uic:Find(0));
+
+					if child_uic:Id() == "Slot5_Construction_Site" then
+						if UIComponent(child_uic:Find("frame_expand_slot")):Visible() then
+							return;
+						end
+					end
+
+					if util.fileExists("MK1212_config.txt") == true then
+						if dev.settings["disclaimerAccepted"] then
+							if tonumber(dev.settings["disclaimerAccepted"]) == 0 then
+								button_disclaimer_uic:SetVisible(true);
+							end
+						else
+							dev.changeSetting("MK1212_config.txt", "disclaimerAccepted", 0);
+							button_disclaimer_uic:SetVisible(true);
+						end
+					else
+						dev.writeSettings("MK1212_config.txt");
 						button_disclaimer_uic:SetVisible(true);
 					end
-				else
-					dev.changeSetting("MK1212_config.txt", "disclaimerAccepted", 0);
-					button_disclaimer_uic:SetVisible(true);
 				end
-			else
-				dev.writeSettings("MK1212_config.txt");
-				button_disclaimer_uic:SetVisible(true);
 			end
 		end
 	end

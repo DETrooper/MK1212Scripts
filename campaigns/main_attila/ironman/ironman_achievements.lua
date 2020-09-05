@@ -53,16 +53,16 @@ function Add_Ironman_Achievement_Listeners()
 		);
 	end
 
-	if util.fileExists("MK1212_achievements.txt") ~= true then
-		dev.writeAchievements("MK1212_achievements.txt", ACHIEVEMENT_KEY_LIST);
+	if util.fileExists("MK1212_achievements") ~= true then
+		dev.writeAchievements("MK1212_achievements", ACHIEVEMENT_KEY_LIST);
 	end
 
-	local achievement_list = dev.readAchievements("MK1212_achievements.txt");
+	local achievement_list = dev.readAchievements("MK1212_achievements");
 
 	if achievement_list == nil then
-		dev.writeAchievements("MK1212_achievements.txt", ACHIEVEMENT_KEY_LIST);
+		dev.writeAchievements("MK1212_achievements", ACHIEVEMENT_KEY_LIST);
 
-		achievement_list = dev.readAchievements("MK1212_achievements.txt");
+		achievement_list = dev.readAchievements("MK1212_achievements");
 	end
 
 	for i = 1, #ACHIEVEMENT_KEY_LIST do
@@ -80,7 +80,7 @@ function Add_Ironman_Achievement_Listeners()
 			ACHIEVEMENTS[achievement_key].unlocktime = string.sub(achievement_list[achievement_key][2], 1, 8).." "..string.sub(achievement_list[achievement_key][2], 9, 16); -- Create a space between the date and time.
 		else
 			-- Achievement not found in file!
-			dev.changeAchievement("MK1212_achievements.txt", achievement_key, "0", "n.d.");
+			dev.changeAchievement("MK1212_achievements", achievement_key, "0", "n.d.");
 		end
 	end
 
@@ -243,18 +243,20 @@ function Check_Achievement_Unlocked(achievement_key)
 end
 
 function Unlock_Achievement(achievement_key)
-	if ACHIEVEMENTS[achievement_key].unlocked ~= true then
-		local unlock_time = os.date("%c");
+	if ACHIEVEMENTS[achievement_key] then
+		if ACHIEVEMENTS[achievement_key].unlocked ~= true then
+			local unlock_time = os.date("%c");
 
-		if not util.fileExists("MK1212_achievements.txt") then
-			dev.writeAchievements("MK1212_achievements.txt", ACHIEVEMENT_KEY_LIST);
+			if not util.fileExists("MK1212_achievements") then
+				dev.writeAchievements("MK1212_achievements", ACHIEVEMENT_KEY_LIST);
+			end
+
+			dev.changeAchievement("MK1212_achievements", achievement_key, 1, unlock_time);
+
+			ACHIEVEMENTS[achievement_key].unlocked = true;
+			ACHIEVEMENTS[achievement_key].unlocktime = unlock_time;
+
+			Display_Achievement_Unlocked_UI(achievement_key);
 		end
-
-		dev.changeAchievement("MK1212_achievements.txt", achievement_key, 1, unlock_time);
-
-		ACHIEVEMENTS[achievement_key].unlocked = true;
-		ACHIEVEMENTS[achievement_key].unlocktime = unlock_time;
-
-		Display_Achievement_Unlocked_UI(achievement_key);
 	end
 end

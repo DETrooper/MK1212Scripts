@@ -37,14 +37,13 @@ function writeAchievements(filepath, achievement_key_list)
 
 	for i = 1, #achievement_key_list do
 		achievementFile:write(cipherAchievement(achievement_key_list[i].."=0-n.d.").."\n");
-		--achievementFile:write(achievement_key_list[i].." = 0 - n.d.\n");
 	end
 	
 	achievementFile:close();
 end
 
 function changeAchievement(filepath, achievement_key, value, date)
-	local achievements = readAchievements(modName.."achievements.txt");
+	local achievements = readAchievements(modName.."achievements");
 	local achievement_found = false;
 
 	achievementFile = io.open(filepath, "w");
@@ -52,10 +51,8 @@ function changeAchievement(filepath, achievement_key, value, date)
 	for k, v in pairs(achievements) do
 		if k ~= achievement_key then
 			achievementFile:write(cipherAchievement(k.."="..v[1].."-"..v[2]).."\n");
-			--achievementFile:write(k.." = "..v[1].." - "..v[2].."\n");
 		else
 			achievementFile:write(cipherAchievement(achievement_key.."="..tostring(value).."-"..date).."\n");
-			--achievementFile:write(achievement_key.." = "..tostring(value).." - "..date.."\n");
 
 			achievement_found = true;
 		end
@@ -64,7 +61,6 @@ function changeAchievement(filepath, achievement_key, value, date)
 	if achievement_found == false then
 		-- Achievement does not exist in file, write it.
 		achievementFile:write(cipherAchievement(achievement_key.."="..tostring(value).."-"..date).."\n");
-		--achievementFile:write(achievement_key.." = "..tostring(value).." - "..date.."\n");
 	end
 
 	achievementFile:close();
@@ -75,12 +71,6 @@ function readAchievements(filepath)
 	local achievementTable = {};
 
 	for line in achievementFile:lines() do
-		if line:sub(1, 1) == "#" or string.find(line, "achievement_") then
-			-- Achievements are plaintext so the player was probably a tester at one point before encryption got added.
-			achievementFile:close();
-			return nil;
-		end
-
 		local decipheredLine = decipherAchievement(line);
 
 		achievement, value, date = string.match(decipheredLine, "(.+)=(.+)-(.+)");

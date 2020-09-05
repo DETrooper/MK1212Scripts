@@ -564,6 +564,12 @@ function Check_Excommunication_Low_Favour(faction)
 			Remove_Decision("ask_pope_for_money");
 		end
 
+		if IRONMAN_ENABLED then
+			if faction:is_human() and cm:is_multiplayer() == false then
+				Unlock_Achievement("achievement_its_only_human_to_sin");
+			end
+		end
+
 		cm:show_message_event(
 			faction:name(),
 			"message_event_text_text_mk_event_pope_excommunication_title",
@@ -594,7 +600,7 @@ function Force_Excommunication(faction_name)
 		if cm:is_new_game() == false then
 			if IRONMAN_ENABLED then
 				if cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == false then
-					Unlock_Achievement("its_only_human_to_sin");
+					Unlock_Achievement("achievement_its_only_human_to_sin");
 				end
 			end
 
