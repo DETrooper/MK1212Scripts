@@ -59,6 +59,7 @@ function OnFrontendScreenTransition_Disclaimer(context)
 
 	if disclaimer_prompt_uic:Visible() == true then
 		disclaimer_prompt_uic:SetVisible(false);
+		disclaimer_prompt_uic:UnLockPriority();
 	end
 end;
 
@@ -72,11 +73,13 @@ function OnComponentLClickUp_Disclaimer(context)
 
 		button_discord_uic:SetState("active");
 		disclaimer_prompt_uic:SetVisible(false);
+		disclaimer_prompt_uic:UnLockPriority();
 	elseif context.string == "button_home" or context.string == "button_quit" then
 		local disclaimer_prompt_uic = UIComponent(m_root:Find("disclaimer_prompt"));
 
 		if disclaimer_prompt_uic:Visible() == true then
 			disclaimer_prompt_uic:SetVisible(false);
+			disclaimer_prompt_uic:UnLockPriority();
 
 			svr:SaveBool("SBOOL_Prompt_Already_Shown", true);
 		end
@@ -88,6 +91,7 @@ function OnComponentLClickUp_Disclaimer(context)
 
 		if disclaimer_prompt_uic:Visible() == true then
 			disclaimer_prompt_uic:SetVisible(false);
+			disclaimer_prompt_uic:UnLockPriority();
 		end
 
 		svr:SaveBool("SBOOL_Prompt_Already_Shown", true);
@@ -133,4 +137,5 @@ function ShowDisclaimerPrompt()
 
 	button_discord_uic:SetState("inactive");
 	disclaimer_prompt_uic:SetVisible(true);
+	disclaimer_prompt_uic:LockPriority(500);
 end

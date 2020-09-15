@@ -70,19 +70,23 @@ function OnComponentLClickUp_Slots_UI(context)
 			button_disclaimer_uic:SetVisible(false);
 			button_discord_uic:SetState("active");
 			disclaimer_prompt_uic:SetVisible(false);
+			disclaimer_prompt_uic:UnLockPriority();
 		elseif context.string == "button_disclaimer" then
 			local disclaimer_prompt_uic = UIComponent(root:Find("disclaimer_prompt"));
 
 			if disclaimer_prompt_uic:Visible() == true then
 				disclaimer_prompt_uic:SetVisible(false);
+				disclaimer_prompt_uic:UnLockPriority();
 			else
 				disclaimer_prompt_uic:SetVisible(true);
+				disclaimer_prompt_uic:LockPriority(500);
 			end
 		elseif context.string == "root" or context.string == "button_exe_cancel" then
 			local disclaimer_prompt_uic = UIComponent(root:Find("disclaimer_prompt"));
 
 			if disclaimer_prompt_uic:Visible() == true then
 				disclaimer_prompt_uic:SetVisible(false);
+				disclaimer_prompt_uic:UnLockPriority();
 			end
 		else
 			cm:add_time_trigger("Show_Slots_Button", 0.1);
@@ -150,6 +154,7 @@ function TimeTrigger_Slots_UI(context)
 
 		if disclaimer_prompt_uic:Visible() == true then
 			disclaimer_prompt_uic:SetVisible(false);
+			disclaimer_prompt_uic:UnLockPriority();
 		end
 
 		if DISCLAIMER_ACCEPTED == false then

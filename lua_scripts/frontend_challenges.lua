@@ -34,13 +34,6 @@ CHALLENGES_ENABLED = {
 CHALLENGE_SELECTED = CHALLENGES[1];
 
 eh:add_listener(
-	"OnUICreated_Challenge_Menu",
-	"UICreated",
-	true,
-	function(context) OnUICreated_Challenge_Menu(context) end,
-	true
-);
-eh:add_listener(
 	"OnFrontendScreenTransition_Challenge_Menu",
 	"FrontendScreenTransition",
 	true,
@@ -55,11 +48,6 @@ eh:add_listener(
 	true
 );
 
-function OnUICreated_Challenge_Menu(context)
-	--CreateChallengeMenu();
-	UpdateChallenges();
-end
-
 function OnFrontendScreenTransition_Challenge_Menu(context)
 	for k, v in pairs(CHALLENGES_ENABLED) do
 		CHALLENGES_ENABLED[k] = false;
@@ -70,7 +58,7 @@ function OnFrontendScreenTransition_Challenge_Menu(context)
 	if context.string == "sp_grand_campaign" then
 		tm:callback(
 			function()
-				CreateChallengeMenu();
+				PopulateChallengeMenu();
 			end, 
 			0.1
 		);
@@ -118,19 +106,24 @@ function OnComponentLClickUp_Challenge_Menu(context)
 	elseif context.string == "button_challenges" then
 		local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
 		local sp_challenge_menu_uic = UIComponent(sp_grand_campaign_uic:Find("sp_challenge_menu"));
+		local button_select_challenge_uic = UIComponent(sp_challenge_menu_uic:Find("button_select_challenge"));
 		local checkbox_ironman_uic = UIComponent(m_root:Find("checkbox_ironman"));
 		local text_ironman_uic = UIComponent(m_root:Find("text_ironman"));
 
 		if sp_challenge_menu_uic:Visible() == true then
 			sp_challenge_menu_uic:SetVisible(false);
+			sp_challenge_menu_uic:UnLockPriority();
 			checkbox_ironman_uic:SetVisible(true);
 			text_ironman_uic:SetStateText("[[rgba:255:255:242:150]]Enable Ironman[[/rgba:255:255:242:150]]");
 			text_ironman_uic:SetVisible(true);
 		else
 			sp_challenge_menu_uic:SetVisible(true);
+			sp_challenge_menu_uic:LockPriority(100);
 			checkbox_ironman_uic:SetVisible(false);
 			text_ironman_uic:SetStateText("");
 			text_ironman_uic:SetVisible(false);
+
+			button_select_challenge_uic:SetState("active");
 		end
 	elseif context.string == "button_victory" or context.string == "button_options" then
 		local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
@@ -138,14 +131,13 @@ function OnComponentLClickUp_Challenge_Menu(context)
 
 		if sp_challenge_menu_uic:Visible() == true then
 			sp_challenge_menu_uic:SetVisible(false);
+			sp_challenge_menu_uic:UnLockPriority();
 		end		
 	end
 end
 
-function CreateChallengeMenu()
+function PopulateChallengeMenu()
 	local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
-	sp_grand_campaign_uic:CreateComponent("sp_challenge_menu", "UI/new/sp_challenge_menu");
-
 	local sp_challenge_menu_uic = UIComponent(sp_grand_campaign_uic:Find("sp_challenge_menu"));
 	local sp_challenge_menu_uicX, sp_challenge_menu_uicY = sp_challenge_menu_uic:Position();
 	local list_panel_uic = UIComponent(sp_challenge_menu_uic:Find("list_panel"));

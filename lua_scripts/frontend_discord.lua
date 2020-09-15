@@ -38,6 +38,7 @@ function OnFrontendScreenTransition_Discord(context)
 
 	if discord_prompt_uic:Visible() == true then
 		discord_prompt_uic:SetVisible(false);
+		discord_prompt_uic:UnLockPriority();
 	end
 end;
 
@@ -48,19 +49,23 @@ function OnComponentLClickUp_Discord(context)
 		os.execute("start https://discord.com/invite/WzbeUxR");
 
 		discord_prompt_uic:SetVisible(false);
+		discord_prompt_uic:UnLockPriority();
 	elseif context.string == "button_discord" then
 		local discord_prompt_uic = UIComponent(m_root:Find("discord_prompt"));
 
 		if discord_prompt_uic:Visible() == true then
 			discord_prompt_uic:SetVisible(false);
+			discord_prompt_uic:UnLockPriority();
 		else
 			discord_prompt_uic:SetVisible(true);
+			discord_prompt_uic:LockPriority(500);
 		end
 	elseif context.string == "button_home" or context.string == "button_quit" or context.string == "button_dis_cancel" then
 		local discord_prompt_uic = UIComponent(m_root:Find("discord_prompt"));
 
 		if discord_prompt_uic:Visible() == true then
 			discord_prompt_uic:SetVisible(false);
+			discord_prompt_uic:UnLockPriority();
 		end
 	end
 end;

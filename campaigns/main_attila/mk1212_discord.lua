@@ -32,6 +32,7 @@ function OnComponentLClickUp_Discord(context)
 		local discord_prompt_uic = UIComponent(root:Find("discord_prompt"));
 
 		discord_prompt_uic:SetVisible(false);
+		discord_prompt_uic:UnLockPriority();
 		os.execute("start https://discord.com/invite/WzbeUxR");
 	elseif context.string == "button_encyclopedia" then -- Can't rename the button without the game crashing :(
 		local root = cm:ui_root();
@@ -39,8 +40,10 @@ function OnComponentLClickUp_Discord(context)
 
 		if discord_prompt_uic:Visible() == true then
 			discord_prompt_uic:SetVisible(false);
+			discord_prompt_uic:UnLockPriority();
 		else
 			discord_prompt_uic:SetVisible(true);
+			discord_prompt_uic:LockPriority(500);
 		end
 	elseif context.string == "root" or context.string == "button_dis_cancel" then
 		local root = cm:ui_root();
@@ -48,6 +51,7 @@ function OnComponentLClickUp_Discord(context)
 
 		if discord_prompt_uic:Visible() == true then
 			discord_prompt_uic:SetVisible(false);
+			discord_prompt_uic:UnLockPriority();
 		end
 	end
 end
@@ -58,6 +62,7 @@ function OnPanelOpenedCampaign_Discord(context)
 
 	if discord_prompt_uic:Visible() == true then
 		discord_prompt_uic:SetVisible(false);
+		discord_prompt_uic:UnLockPriority();
 	end
 end
 

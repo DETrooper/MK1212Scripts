@@ -56,7 +56,7 @@ function Add_Pope_Favour_Listeners()
 						Add_Decision("ask_pope_for_money", current_faction:name(), false, false);
 					end
 				else
-					Force_Excommunication(current_faction:name());
+					Force_Excommunication(current_faction:name(), true);
 				end
 			end
 		end
@@ -581,8 +581,10 @@ function Check_Excommunication_Low_Favour(faction)
 	end
 end
 
-function Force_Excommunication(faction_name)
+function Force_Excommunication(faction_name, silent)
 	if FACTION_EXCOMMUNICATED[faction_name] ~= true then
+		local faction = cm:model():world():faction_by_key(faction_name);
+
 		FACTION_POPE_FAVOUR[faction_name] = 0;
 		FACTION_EXCOMMUNICATED[faction_name] = true;
 
@@ -593,13 +595,13 @@ function Force_Excommunication(faction_name)
 		cm:apply_effect_bundle("mk_bundle_pope_favour_0", faction_name, 0);
 		cm:apply_effect_bundle("mk_bundle_pope_excommunication", faction_name, 0);
 
-		if cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == false then
+		if faction:is_human() and cm:is_multiplayer() == false then
 			Remove_Decision("ask_pope_for_money");
 		end
 
-		if cm:is_new_game() == false then
+		if not silent then
 			if IRONMAN_ENABLED then
-				if cm:model():world():faction_by_key(faction_name):is_human() and cm:is_multiplayer() == false then
+				if faction:is_human() and cm:is_multiplayer() == false then
 					Unlock_Achievement("achievement_its_only_human_to_sin");
 				end
 			end
@@ -617,16 +619,21 @@ function Force_Excommunication(faction_name)
 
 			for i = 0, faction_list:num_items() - 1 do
 				local current_faction = faction_list:item_at(i);
+				local current_faction_name = current_faction:name();
 
-				if current_faction:name() ~= faction_name and current_faction:is_human() then
-					local rank = FACTIONS_DFN_LEVEL(faction_name);
+				if current_faction_name ~= faction_name and current_faction:is_human() then
+					local faction_string = "factions_screen_name_"..faction_name;
+
+					if FACTIONS_DFN_LEVEL[faction_name] and FACTIONS_DFN_LEVEL[faction_name] > 1 then
+						faction_string = "campaign_localised_strings_string_"..faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]);
+					end
 
 					cm:show_message_event(
-						current_faction:name(),
+						faction_name,
 						"message_event_text_text_mk_event_pope_excommunication_other_title",
-						"campaign_localised_strings_string_"..faction_name.."_lvl"..tostring(rank),
+						faction_string,
 						"message_event_text_text_mk_event_pope_excommunication_other_secondary",
-						true, 
+						true,
 						707
 					);
 				end

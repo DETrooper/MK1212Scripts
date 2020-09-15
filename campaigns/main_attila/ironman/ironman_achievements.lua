@@ -77,7 +77,7 @@ function Add_Ironman_Achievement_Listeners()
 				ACHIEVEMENTS[achievement_key].unlocked = false;
 			end
 	
-			ACHIEVEMENTS[achievement_key].unlocktime = string.sub(achievement_list[achievement_key][2], 1, 8).." "..string.sub(achievement_list[achievement_key][2], 9, 16); -- Create a space between the date and time.
+			ACHIEVEMENTS[achievement_key].unlocktime = achievement_list[achievement_key][2];
 		else
 			-- Achievement not found in file!
 			dev.changeAchievement("MK1212_achievements", achievement_key, "0", "n.d.");
