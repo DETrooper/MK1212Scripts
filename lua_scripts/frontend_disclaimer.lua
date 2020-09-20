@@ -35,7 +35,7 @@ eh:add_listener(
 function OnUICreated_Disclaimer(context)
 	CreateDisclaimerPrompt();
 
-	if svr:LoadBool("SBOOL_Prompt_Already_Shown") ~= true then
+	if not svr:LoadBool("SBOOL_Prompt_Already_Shown") then
 		if util.fileExists("MK1212_config.txt") == true then
 			if dev.settings["disclaimerAccepted"] then
 				if tonumber(dev.settings["disclaimerAccepted"]) == 0 then
@@ -125,6 +125,7 @@ function ModifyHardcodedLimits()
 	end
 
 	svr:SaveBool("SBOOL_Prompt_Already_Shown", true);
+	svr:SaveBool("SBOOL_Hardcoded_Limits_Modified", true);
 
 	local command = "MK1212_10slots.exe";
 

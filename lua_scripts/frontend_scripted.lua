@@ -73,11 +73,12 @@ eh:add_listener(
 );
 
 require("lua_scripts/frontend_challenges");
---require("lua_scripts/frontend_changelog"); -- Obsolete now that there's a direct discord invite.
+require("lua_scripts/frontend_changelog");
 require("lua_scripts/frontend_disclaimer");
 require("lua_scripts/frontend_discord");
 --require("lua_scripts/frontend_hbs"); -- There are no historical battles for MK1212 yet.
 require("lua_scripts/frontend_mp_campaign");
+require("lua_scripts/frontend_pack_check");
 require("lua_scripts/frontend_start_date");
 require("lua_scripts/frontend_strings");
 

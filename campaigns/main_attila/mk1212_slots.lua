@@ -47,6 +47,10 @@ function Add_MK1212_Slots_Listeners()
 		if dev.settings["disclaimerAccepted"] then
 			if tonumber(dev.settings["disclaimerAccepted"]) == 1 then
 				DISCLAIMER_ACCEPTED = true;
+
+				if not svr:LoadBool("SBOOL_Hardcoded_Limits_Modified") then
+					ModifyHardcodedLimits();
+				end
 			end
 		end
 	end
@@ -227,6 +231,7 @@ function ModifyHardcodedLimits()
 	os.execute(command);
 
 	svr:SaveBool("SBOOL_Prompt_Already_Shown", true);
+	svr:SaveBool("SBOOL_Hardcoded_Limits_Modified", true);
 end
 
 function RefreshProvinceSelection()

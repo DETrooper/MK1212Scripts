@@ -13,6 +13,7 @@
 -- Other Pope stuff!!!
 require("mechanics/pope/mechanics_pope_lists");
 require("mechanics/pope/mechanics_pope_favour");
+--require("mechanics/pope/mechanics_pope_college");
 require("mechanics/pope/mechanics_pope_crusades");
 --require("mechanics/pope/mechanics_pope_missions");
 require("mechanics/pope/mechanics_pope_ui");
@@ -31,7 +32,7 @@ function Add_Pope_Listeners()
 		"FactionTurnStart_Pope",
 		"FactionTurnStart",
 		true,
-		function(context) Pope_Term_Check(context) end,
+		function(context) FactionTurnStart_Pope(context) end,
 		true
 	);
 
@@ -40,6 +41,7 @@ function Add_Pope_Listeners()
 
 	if cm:is_multiplayer() == false then
 		Add_Crusade_Event_Listeners();
+		--Add_Pope_College_Listeners();
 		Add_Pope_UI_Listeners();
 	end
 	
@@ -80,15 +82,17 @@ function Add_Pope_Listeners()
 					cm:force_diplomacy(current_faction:name(), PAPAL_STATES_KEY, "war", false, false);
 				end
 
-				if current_faction:is_human() == true and current_faction:state_religion() == "att_rel_chr_catholic" and cm:is_new_game() then
-					cm:show_message_event(
-						current_faction:name(),
-						"message_event_text_text_mk_event_mk1212_popeintro_title",
-						"message_event_text_text_mk_event_mk1212_popeintro_primary",
-						"message_event_text_text_mk_event_mk1212_popeintro_secondary",
-						true, 
-						701
-					);
+				if cm:is_new_game() then
+					if current_faction:is_human() == true and current_faction:state_religion() == "att_rel_chr_catholic" then
+						cm:show_message_event(
+							current_faction:name(),
+							"message_event_text_text_mk_event_mk1212_popeintro_title",
+							"message_event_text_text_mk_event_mk1212_popeintro_primary",
+							"message_event_text_text_mk_event_mk1212_popeintro_secondary",
+							true, 
+							701
+						);
+					end
 				end
 			end
 		end
@@ -100,7 +104,7 @@ function Add_Pope_Listeners()
 	end
 end
 
-function Pope_Term_Check(context)
+function FactionTurnStart_Pope(context)
 	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
 
 	if FactionIsAlive(PAPAL_STATES_KEY) ~= true and PAPAL_STATES_DEAD == false then

@@ -12,10 +12,9 @@ local util = require "lua_scripts.util";
 
 local changelogpriority = false; -- If true, always display.
 local changelogstring = 	"Welcome to the MK1212 Campaign Open Alpha!\n\n"..
-			"\n\n"..
-			"\n\n"..
-			"\n\n"..
-			"Discord Link: discord.gg/WzbeUxR (May be subject to change).";
+			"This update brings a wealth of new units, reworked rosters, and new playable factions in custom battles. Exciting new additions include cannon elephants, trebuchet artillery, and significantly larger battlefields. Several major bugs have also been fixed, such as the limit on the number of units per faction (though this comes at the cost of AI-generated armies in custom battles) and the infamous replay bug. Lastly, there has been major rebalancing and improvements to how the AI uses certain units such as cavalry.\n\n"..
+			"The campaign has also recieved major changes, such as: a new playable faction - the Kingdom of Navarre, the addition of tier 2 and tier 3 units into the campaign, complete technology trees, the Holy Roman Empire system, Ironman mode with custom achievements, and the building slot limit being raised from 6 to 10.\n\n"..
+			"We look forward to hearing any feedback you may have on the mod, which you can give in our mod's Discord channel. The mod now includes a convenient button that will open the Discord channel in your browser, found in the menu at the top-left of your screen.\n\n";
 
 changelogcreated = false;
 
@@ -45,7 +44,7 @@ function OnUICreated_Changelog(context)
 	if changelogpriority == true then 
 		CreateChangelog();
 	elseif util.fileExists("MK1212_config.txt") == true then
-		if dev.settings["changelogNumber"] == nil then
+		if not dev.settings["changelogNumber"] then
 			dev.writeSettings("MK1212_config.txt");
 			CreateChangelog();
 			dev.changeSetting("MK1212_config.txt", "changelogNumber", version_number);
@@ -129,9 +128,8 @@ function CreateChangelog()
 			changelog_dy_subtitle_uic:SetMoveable(false);
 
 			changelog_accept_uic:SetMoveable(true);
-			changelog_accept_uic:MoveTo(curX3 + 112, curY3 + 325);
+			changelog_accept_uic:MoveTo(curX3 + 115, curY3 + 325);
 			changelog_accept_uic:SetMoveable(false);
-
 		end, 
 		1
 	);
