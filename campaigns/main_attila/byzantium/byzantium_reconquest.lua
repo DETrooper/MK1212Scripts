@@ -194,6 +194,10 @@ function Roman_Empire_Restored(faction_name)
 		705
 	);
 
+	if NICKNAMES then
+		Add_Character_Nickname(cm:model():world():faction_by_key(faction_name):faction_leader():cqi(), "the_glorious", false);
+	end
+
 	cm:remove_listener("FactionTurnStart_Byzantium_Regions_Check");
 	cm:remove_listener("CharacterEntersGarrison_Byzantium_Regions_Check");
 end

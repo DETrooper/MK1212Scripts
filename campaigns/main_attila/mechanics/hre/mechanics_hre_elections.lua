@@ -69,7 +69,7 @@ function Process_Election_Result_HRE_Elections()
 		end
 	end
 
-	if winner  then
+	if winner then
 		local faction_string = "factions_screen_name_"..winner;
 
 		if FACTIONS_DFN_LEVEL[winner]  then

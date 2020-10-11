@@ -10,8 +10,10 @@
 --local dev = require("lua_scripts.dev");
 
 CHARACTERS_ON_CRUSADE = {};
+COLLEGE_OF_CARDINALS_PANEL_OPEN = false;
 CRUSADER_RECRUITMENT_PANEL_CREATED = false;
 CRUSADER_RECRUITMENT_PANEL_OPEN = false;
+POPE_ELECTION_PANEL_OPEN = false;
 
 function Add_Pope_UI_Listeners()
 	cm:add_listener(
@@ -64,11 +66,27 @@ function Add_Pope_UI_Listeners()
 		true
 	);
 
+	CreateCollegeOfCardinalsPanel();
 	CreateCrusaderRecruitmentPanel();
+
+	if POPE_ELECTION_PANEL_OPEN == true then
+		CreatePopeElectionPanel();
+	end
 
 	if CRUSADE_ACTIVE == true then
 		PopulateCrusaderRecruitmentPanel();
 	end
+end
+
+function CreateCollegeOfCardinalsPanel()
+	local root = cm:ui_root();
+	root:CreateComponent("college_of_cardinals_panel", "ui/new/college_of_cardinals_panel");
+
+	PopulateCollegeOfCardinalsPanel();
+
+	local crusader_units_panel_uic = UIComponent(root:Find("college_of_cardinals_panel"));
+
+	crusader_units_panel_uic:SetVisible(false);
 end
 
 function CreateCrusaderRecruitmentPanel()
@@ -105,32 +123,91 @@ function CreateCrusaderRecruitmentPanel()
 	CRUSADER_RECRUITMENT_PANEL_CREATED = true;
 end
 
-function CharacterSelected_Pope_UI(context)
+function CreatePopeElectionPanel()
 	local root = cm:ui_root();
+	local garbage = UIComponent(root:Find("garbage"));
+	local pope_election_panel_uic = UIComponent(garbage:CreateComponent("pope_election_panel", "ui/new/pope_election_panel"));
+	local preferati_list_uic = UIComponent(pope_election_panel_uic:Find("preferati_list"));
+	local listview_uic = UIComponent(preferati_list_uic:Find("listview"));
+	local list_clip_uic = UIComponent(listview_uic:Find("list_clip"));
+	local list_box_uic = UIComponent(list_clip_uic:Find("list_box"));
+
+	for i = 1, 3 do
+		local cardinal_template_uic = UIComponent(list_box_uic:CreateComponent("cardinal_template_"..tostring(i), "UI/new/cardinal_template"));
+		local cardinal_template_uicX, cardinal_template_uicY = cardinal_template_uic:Position();
+		local dy_cardinal_age_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_age"));
+		local dy_cardinal_faction_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_faction"));
+		local dy_cardinal_level_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_level"));
+		local dy_cardinal_name_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_name"));
+		local dy_cardinal_rank_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_rank"));
+		local faction_logo_uic = UIComponent(cardinal_template_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big"));
+		local tx_votes_uic = UIComponent(list_box_uic:CreateComponent("tx_votes_"..tostring(i), "UI/new/tx_votes"));
+	
+		faction_logo_uic:Resize(64, 64);
+		faction_logo_uic:SetMoveable(true);
+		faction_logo_uic:MoveTo(cardinal_template_uicX, cardinal_template_uicY + 22);
+		faction_logo_uic:SetMoveable(false);
+		faction_logo_uic:SetInteractive(false);
+	end
+
+	list_box_uic:Layout();
+
+	for i = 1, 3 do
+		local cardinal_template_uic = UIComponent(list_box_uic:Find("cardinal_template_"..tostring(i)));
+		local cardinal_template_uicX, cardinal_template_uicY = cardinal_template_uic:Position();
+		local button_vote_uic = UIComponent(list_box_uic:CreateComponent("button_vote_"..tostring(i), "UI/new/basic_toggle_accept"));
+
+		button_vote_uic:SetMoveable(true);
+		button_vote_uic:MoveTo(cardinal_template_uicX + 448, cardinal_template_uicY + 30);
+		button_vote_uic:SetMoveable(false);
+	end
+
+	pope_election_panel_uic:LockPriority(60);
+end
+
+function RemovePopeElectionPanel()
+	local root = cm:ui_root();
+	local garbage = UIComponent(root:Find("garbage"));
+	local pope_election_panel_uic = UIComponent(garbage:Find("pope_election_panel"));
+
+	if pope_election_panel_uic then
+		garbage:DestroyChildren();
+	end
+end
+
+function CharacterSelected_Pope_UI(context)
+	local character = context:character();
+	local root = cm:ui_root();
+	local button_college_of_cardinals_uic = UIComponent(root:Find("button_college_of_cardinals"));
 	local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
 	local button_join_crusade_uic = UIComponent(root:Find("button_join_crusade"));
 
+	button_college_of_cardinals_uic:SetVisible(false); -- Default to not visible.
 	button_crusaders_uic:SetVisible(false); -- Default to not visible.
 	button_join_crusade_uic:SetState("inactive"); -- Default to inactive.
 	button_join_crusade_uic:SetVisible(false); -- Default to not visible.
 
-	if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
-		CloseCrusaderRecruitmentPanel(false);
-	end
+	if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" then
+		button_college_of_cardinals_uic:SetVisible(true);
+	else
+		if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
+			CloseCrusaderRecruitmentPanel(false);
+		end
 
-	if CRUSADE_ACTIVE == true then
-		local faction_name = cm:get_local_faction();
-		
-		if context:character():faction():name() == faction_name then
-			if HasValue(FACTION_EXCOMMUNICATED, faction_name) ~= true and context:character():faction():state_religion() == "att_rel_chr_catholic" then
-				if context:character():military_force():unit_list():num_items() > 1 then
-					-- Not an agent or lone general.
-					button_join_crusade_uic:SetVisible(true);
+		if CRUSADE_ACTIVE == true then
+			local faction_name = cm:get_local_faction();
+			
+			if character:faction():name() == faction_name then
+				if HasValue(FACTION_EXCOMMUNICATED, faction_name) ~= true and character:faction():state_religion() == "att_rel_chr_catholic" then
+					if character:military_force():unit_list():num_items() > 1 then
+						-- Not an agent or lone general.
+						button_join_crusade_uic:SetVisible(true);
 
-					if not HasValue(CHARACTERS_ON_CRUSADE, LAST_CHARACTER_SELECTED:cqi()) then
-						button_join_crusade_uic:SetState("active");
-					elseif LAST_CHARACTER_SELECTED:region():majority_religion() == "att_rel_chr_catholic" then
-						button_crusaders_uic:SetVisible(true);
+						if not HasValue(CHARACTERS_ON_CRUSADE, LAST_CHARACTER_SELECTED:cqi()) then
+							button_join_crusade_uic:SetState("active");
+						elseif LAST_CHARACTER_SELECTED:region():majority_religion() == "att_rel_chr_catholic" then
+							button_crusaders_uic:SetVisible(true);
+						end
 					end
 				end
 			end
@@ -206,7 +283,13 @@ function OnComponentMouseOn_Pope_UI(context)
 end
 
 function OnComponentLClickUp_Pope_UI(context)
-	if context.string == "button_join_crusade" then
+	if context.string == "button_college_of_cardinals" then
+		if COLLEGE_OF_CARDINALS_PANEL_OPEN == false then
+			OpenCollegeOfCardinalsPanel();
+		else
+			CloseCollegeOfCardinalsPanel(true);
+		end
+	elseif context.string == "button_join_crusade" then
 		local faction_name = LAST_CHARACTER_SELECTED:faction():name();
 		local faction = LAST_CHARACTER_SELECTED:faction();
 		local force = LAST_CHARACTER_SELECTED:cqi();
@@ -256,10 +339,14 @@ function OnComponentLClickUp_Pope_UI(context)
 		else
 			CloseCrusaderRecruitmentPanel(true);
 		end
+	elseif COLLEGE_OF_CARDINALS_PANEL_OPEN == true then
+		if context.string == "button_ok" or context.string == "root" then
+			CloseCollegeOfCardinalsPanel(false);
+		end
 	elseif CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 	 	if context.string == "button_minimise" or context.string == "button_recruitment" or context.string == "button_mercenaries" or context.string == "root" then
 			CloseCrusaderRecruitmentPanel(false);
-		 elseif string.find(context.string, "_crusader") then
+		elseif string.find(context.string, "_crusader") then
 			if LAST_CHARACTER_SELECTED:military_force():unit_list():num_items() < 20 then
 				local unit_card_uic = UIComponent(context.component);
 				local unit_card_max_units_uic = UIComponent(unit_card_uic:Find("max_units"));
@@ -339,6 +426,12 @@ function OnComponentLClickUp_Pope_UI(context)
 				end
 			end
 		end
+	elseif POPE_ELECTION_PANEL_OPEN == true then
+		if context.string == "button_accept" then
+			RemovePopeElectionPanel();
+		elseif string.find(context.string, "button_vote_") then
+			RefreshPopeElectionPanel();
+		end
 	end
 end
 
@@ -372,6 +465,7 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 		end
 	end
 
+	CloseCollegeOfCardinalsPanel(false);
 	CloseCrusaderRecruitmentPanel(false);
 end
 
@@ -430,6 +524,125 @@ function UnitDisbanded_Pope_UI(context)
 			RefreshCrusaderRecruitmentPanel(false, false);
 			cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.1);
 		end
+	end
+end
+
+function OpenCollegeOfCardinalsPanel()
+	local root = cm:ui_root();
+	local college_of_cardinals_panel_uic = UIComponent(root:Find("college_of_cardinals_panel"));
+
+	college_of_cardinals_panel_uic:SetVisible(true);
+
+	COLLEGE_OF_CARDINALS_PANEL_OPEN = true;
+end
+
+function CloseCollegeOfCardinalsPanel(hover)
+	local root = cm:ui_root();
+	local college_of_cardinals_panel_uic = UIComponent(root:Find("college_of_cardinals_panel"));
+	local button_college_of_cardinals_uic = UIComponent(root:Find("button_college_of_cardinals"));
+
+	college_of_cardinals_panel_uic:SetVisible(false);
+
+	if hover == true then
+		button_college_of_cardinals_uic:SetState("hover");
+	else
+		button_college_of_cardinals_uic:SetState("active");
+	end
+
+	COLLEGE_OF_CARDINALS_PANEL_OPEN = false;
+end
+
+function PopulateCollegeOfCardinalsPanel()
+	local root = cm:ui_root();
+	local college_of_cardinals_panel_uic = UIComponent(root:Find("college_of_cardinals_panel"));
+	local listview_uic = UIComponent(college_of_cardinals_panel_uic:Find("listview"));
+	local list_clip_uic = UIComponent(listview_uic:Find("list_clip"));
+	local list_box_uic = UIComponent(list_clip_uic:Find("list_box"));
+	local title_plaque_pope_uic = UIComponent(college_of_cardinals_panel_uic:Find("title_plaque_pope"));
+	local tx_pope_uic = UIComponent(title_plaque_pope_uic:Find("tx_pope"));
+	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
+	local current_pope = papacy:faction_leader();
+
+	list_box_uic:DestroyChildren();
+
+	if current_pope then
+		tx_pope_uic:SetStateText("Pope "..NAMES_TO_LOCALISATION[current_pope:get_forename()] or "Name Not Found");
+	end
+
+	local preferati = {};
+	local cardinals = {};
+
+	for k, v in pairs(COLLEGE_OF_CARDINALS_CHARACTERS) do
+		if v == "preferati" then
+			table.insert(preferati, k);
+		else
+			table.insert(cardinals, k);
+		end
+	end
+
+	for i = 1, #preferati do
+		if i == 1 then
+			list_box_uic:CreateComponent("dy_preferati", "ui/new/preferati_hbar");
+		end
+
+		SetupCardinalTemplate(preferati[i], list_box_uic);
+	end
+
+	for i = 1, #cardinals do
+		if i == 1 then
+			list_box_uic:CreateComponent("dy_cardinals", "ui/new/cardinals_hbar");
+		end
+
+		SetupCardinalTemplate(cardinals[i], list_box_uic);
+	end
+
+	list_box_uic:Layout();
+end
+
+function SetupCardinalTemplate(character_cqi, list_box_uic)
+	local character = cm:model():character_for_command_queue_index(tonumber(character_cqi));
+
+	if character then
+		local character_faction = character:faction();
+		local character_faction_name = character_faction:name();
+		local character_rank = COLLEGE_OF_CARDINALS_CHARACTERS[character_cqi];
+		local character_rank_string = "Cardinal";
+
+		if character_rank == "preferati" then
+			character_rank_string = "Preferati";
+		end
+
+		list_box_uic:CreateComponent("cardinal_template_"..character_cqi, "UI/new/cardinal_template");
+
+		local cardinal_template_uic = UIComponent(list_box_uic:Find("cardinal_template_"..character_cqi));
+		local cardinal_template_uicX, cardinal_template_uicY = cardinal_template_uic:Position();
+		local dy_cardinal_age_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_age"));
+		--local dy_cardinal_date_joined_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_date_joined"));
+		local dy_cardinal_faction_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_faction"));
+		local dy_cardinal_level_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_level"));
+		local dy_cardinal_name_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_name"));
+		local dy_cardinal_rank_uic = UIComponent(cardinal_template_uic:Find("dy_cardinal_rank"));
+
+		dy_cardinal_age_uic:SetStateText(tostring(character:age()));
+		--dy_cardinal_date_joined_uic:SetStateText("1212");
+		dy_cardinal_faction_uic:SetStateText(Get_DFN_Localisation(character_faction_name));
+		dy_cardinal_level_uic:SetStateText(tostring(character:rank()));
+		dy_cardinal_name_uic:SetStateText(NAMES_TO_LOCALISATION[character:get_forename()] or "Name Not Found");
+		dy_cardinal_rank_uic:SetStateText(character_rank_string);
+
+		if HasValue(FACTIONS_WITH_IMAGES, character_faction_name) then
+			cardinal_template_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..character_faction_name.."_flag_big");
+		else
+			cardinal_template_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
+		end
+
+		local faction_logo_uic = UIComponent(cardinal_template_uic:Find("faction_logo"));
+
+		faction_logo_uic:Resize(64, 64);
+		faction_logo_uic:SetMoveable(true);
+		faction_logo_uic:MoveTo(cardinal_template_uicX, cardinal_template_uicY + 22);
+		faction_logo_uic:SetMoveable(false);
+		faction_logo_uic:SetInteractive(false);
 	end
 end
 
@@ -573,17 +786,51 @@ function RefreshCrusaderRecruitmentPanel(check_units, minus_one)
 	end
 end
 
+function RefreshPopeElectionPanel()
+	local root = cm:ui_root();
+	local garbage = UIComponent(root:Find("garbage"));
+	local pope_election_panel_uic = UIComponent(garbage:Find("pope_election_panel"));
+	local button_set_uic = UIComponent(pope_election_panel_uic:Find("button_set"));
+	local accept_uic = UIComponent(button_set_uic:Find("accept"));
+	local button_accept_uic = UIComponent(accept_uic:Find("button_accept"));
+	local preferati_list_uic = UIComponent(pope_election_panel_uic:Find("preferati_list"));
+	local list_box_uic = UIComponent(preferati_list_uic:Find("list_box"));
+
+	for i = 1, 3 do
+		local cardinal_template_uic = UIComponent(list_box_uic:Find("cardinal_template_"..tostring(i)));
+		local button_vote_uic = UIComponent(list_box_uic:Find("button_vote_"..tostring(i)));
+		local tx_votes_uic = UIComponent(list_box_uic:Find("tx_votes_"..tostring(i)));
+		local tx_votes_uicX, tx_votes_uicY = tx_votes_uic:Position();
+
+		button_vote_uic:SetState("inactive");
+
+		for j = 1, math.random(8) do
+			local faction_logo_uic = UIComponent(list_box_uic:CreateComponent("faction_logo_"..tostring(i).."_"..tostring(j), "UI/new/faction_flags/mk_fact_unknown_flag_small"));
+
+			faction_logo_uic:SetMoveable(true);
+			faction_logo_uic:MoveTo(tx_votes_uicX + 48 + (25 * (j - 1)), tx_votes_uicY);
+			faction_logo_uic:SetMoveable(false);
+		end
+	end
+
+	button_set_uic:SetVisible(true);
+	accept_uic:SetVisible(true);
+	button_accept_uic:SetVisible(true);
+end
+
 ------------------------------------------------
 ---------------- Saving/Loading ----------------
 ------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
+		cm:save_value("POPE_ELECTION_PANEL_OPEN", POPE_ELECTION_PANEL_OPEN, context);
 		SaveTable(context, CHARACTERS_ON_CRUSADE, "CHARACTERS_ON_CRUSADE");
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
+		POPE_ELECTION_PANEL_OPEN = cm:load_value("POPE_ELECTION_PANEL_OPEN", false, context);
 		CHARACTERS_ON_CRUSADE = LoadTableNumbers(context, "CHARACTERS_ON_CRUSADE");
 	end
 );

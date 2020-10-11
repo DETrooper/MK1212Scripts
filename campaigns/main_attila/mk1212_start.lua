@@ -54,6 +54,7 @@ function start_game_all_factions()
 	Lucky_Nations_Initializer();
 	Mechanic_Initializer();
 	Mongol_Initializer();
+	Nicknames_Initializer();
 	Starting_Battles_Initializer();
 	Story_Initializer();
 	Timurid_Initializer();

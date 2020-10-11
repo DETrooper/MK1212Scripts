@@ -105,6 +105,7 @@ require("kingdoms/main");
 require("luckynations/main");
 require("mechanics/main");
 require("mongols/main");
+require("nicknames/main");
 require("startingbattles/main");
 require("story/main");
 require("timurids/main");

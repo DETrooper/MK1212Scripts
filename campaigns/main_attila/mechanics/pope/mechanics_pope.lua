@@ -13,21 +13,32 @@
 -- Other Pope stuff!!!
 require("mechanics/pope/mechanics_pope_lists");
 require("mechanics/pope/mechanics_pope_favour");
---require("mechanics/pope/mechanics_pope_college");
+require("mechanics/pope/mechanics_pope_college");
 require("mechanics/pope/mechanics_pope_crusades");
 --require("mechanics/pope/mechanics_pope_missions");
 require("mechanics/pope/mechanics_pope_ui");
 
-PAPAL_STATES_KEY = "mk_fact_papacy";
-PAPAL_STATES_DEAD = false;
-CURRENT_POPE = 1;
-LAST_POPE = 0;
-POPE_MIN_AGE = 40; -- Minimum age for generated popes.
-POPE_MAX_AGE = 70; -- Maximum age for generated popes.
 MIN_YEARS_YEARS_IN_OFFICE = 10; -- The minimum number of years a generated Pope must be in office before we consider replacing him.
 MAX_YEARS_YEARS_IN_OFFICE = 20; -- The maximum number of years a generated Pope can be in office before we replace him.
+PAPAL_STATES_KEY = "mk_fact_papacy";
+POPE_MIN_AGE = 40; -- Minimum age for generated popes.
+POPE_MAX_AGE = 70; -- Maximum age for generated popes.
+
+AUTOMATIC_POPE_SELECTION = false;
+CURRENT_POPE = 1;
+LAST_POPE = 0;
+PAPAL_STATES_DEAD = false;
+POPE_CONTROLLING_FACTION = "mk_fact_papacy";
+POPE_DEAD = false;
 
 function Add_Pope_Listeners()
+	cm:add_listener(
+		"CharacterBecomesFactionLeader_Pope",
+		"CharacterBecomesFactionLeader",
+		true,
+		function(context) CharacterBecomesFactionLeader_Pope(context) end,
+		true
+	);
 	cm:add_listener(
 		"FactionTurnStart_Pope",
 		"FactionTurnStart",
@@ -41,8 +52,10 @@ function Add_Pope_Listeners()
 
 	if cm:is_multiplayer() == false then
 		Add_Crusade_Event_Listeners();
-		--Add_Pope_College_Listeners();
+		Add_Pope_College_Listeners();
 		Add_Pope_UI_Listeners();
+	else
+		AUTOMATIC_POPE_SELECTION = true;
 	end
 	
 	local faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
@@ -59,7 +72,6 @@ function Add_Pope_Listeners()
 				cm:force_diplomacy(PAPAL_STATES_KEY, current_faction:name(), "war", false, false);
 				cm:force_diplomacy(PAPAL_STATES_KEY, current_faction:name(), "join war", false, false);
 				cm:force_diplomacy( current_faction:name(), PAPAL_STATES_KEY, "join war", false, false);
-
 
 				-- Can't ally the Pope...
 				cm:force_diplomacy(PAPAL_STATES_KEY, current_faction:name(), "defensive alliance", false, false);
@@ -104,6 +116,16 @@ function Add_Pope_Listeners()
 	end
 end
 
+function CharacterBecomesFactionLeader_Pope(context)
+	if PAPAL_FAVOUR_SYSTEM_ACTIVE and not AUTOMATIC_POPE_SELECTION then
+		local faction_name = context:character():faction():name();
+
+		if faction_name == PAPAL_STATES_KEY then
+			POPE_DEAD = true;
+		end
+	end
+end
+
 function FactionTurnStart_Pope(context)
 	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
 
@@ -121,14 +143,14 @@ function FactionTurnStart_Pope(context)
 		end
 	end
 
-	if context:faction():is_human() then
+	if context:faction():is_human() and AUTOMATIC_POPE_SELECTION then
 		local turn_number = cm:model():turn_number();
 		local years_in_office = (turn_number - LAST_POPE) / 2;
 
 		if GetTurnFromYear(NextPope().year) == turn_number then
 			CURRENT_POPE = CURRENT_POPE + 1;
 			LAST_POPE = turn_number;
-			Pope_Changeover();
+			Pope_Changeover_Automatic();
 		elseif NextPope().year == -1 then
 			output("Next Pope is to be spawned randomly...");
 			-- There is no set date to install this Pope
@@ -141,36 +163,42 @@ function FactionTurnStart_Pope(context)
 				if cm:model():random_percent(CHANCE) then
 					CURRENT_POPE = CURRENT_POPE + 1;
 					LAST_POPE = turn_number;
-					Pope_Changeover();
+					Pope_Changeover_Automatic();
 				end
 			end
 		end
 	end
 end
 
-function Pope_Changeover()
+function Pope_Changeover_Automatic()
 	local age = cm:random_number(POPE_MAX_AGE, POPE_MIN_AGE);
-	local forename = GENERIC_POPE_NAMES[cm:random_number(#GENERIC_POPE_NAMES)];
-	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
+	local name = GENERIC_POPE_NAMES[cm:random_number(#GENERIC_POPE_NAMES)];
 
-	if POPE_LIST[CURRENT_POPE]  then
+	if POPE_LIST[CURRENT_POPE] then
 		age = POPE_LIST[CURRENT_POPE].age;
-		forename = POPE_LIST[CURRENT_POPE].name;
+		name = POPE_LIST[CURRENT_POPE].name;
 	end
 	
+	Set_Papal_Controller(PAPAL_STATES_KEY);
+	Pope_Changeover(name, age);
+end
+
+function Pope_Changeover(name, age)
+	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
+
 	-- Get a new Pope ready...
 	cm:spawn_character_into_family_tree(
-		PAPAL_STATES_KEY,					-- Faction Key
-		POPE_LIST[CURRENT_POPE].name,				-- Forename Key
-		"",							-- Family Name Key
-		"",							-- Clan Name Key
+		PAPAL_STATES_KEY,				-- Faction Key
+		name,							-- Forename Key
+		"",								-- Family Name Key
+		"",								-- Clan Name Key
 		"", 							-- Other Name Key
 		age, 							-- Age
 		true, 							-- Is Male?
 		"", 							-- Father Lookup
 		"", 							-- Mother Lookup
 		true, 							-- Is Immortal?
-		"cha_pope", 						-- Art Set ID
+		"mk_pap_t1_pope", 				-- Art Set ID
 		true, 							-- Make Heir?
 		false							-- Is Attila?
 	);
@@ -183,17 +211,11 @@ function Pope_Changeover()
 		cm:kill_character("character_cqi:"..current_pope:command_queue_index(), false, false);
 	end
 	
-	-- Give the new Pope his trait
+	-- Give the new Pope his trait and hide him
 	if papacy:has_faction_leader() then
 		local current_pope = papacy:faction_leader();
 
 		cm:force_add_trait("character_cqi:"..current_pope:command_queue_index(), "cha_trait_pope", false);
-	end
-	
-	-- Hide the new Pope
-	if papacy:has_faction_leader() then
-		local current_pope = papacy:faction_leader();
-
 		cm:hide_character("character_cqi:"..current_pope:command_queue_index(), true);
 	end
 	
@@ -204,33 +226,30 @@ function Pope_Changeover()
 		local current_faction = faction_list:item_at(i);
 		
 		if current_faction:is_null_interface() == false then
-			-- Only show Human Christians
+			-- Notify human Catholic factions about the new Pope.
 			if current_faction:is_human() == true and current_faction:state_religion() == "att_rel_chr_catholic" then
-				cm:show_message_event(
-					current_faction:name(),
-					"message_event_text_text_mk_event_pope_new_pope_title",
-					POPE_LIST[CURRENT_POPE].name,
-					"message_event_text_text_mk_event_pope_new_pope_secondary_detail",
-					true,
-					666
-				);
+				if current_faction:name() == POPE_CONTROLLING_FACTION then
+					cm:show_message_event(
+						current_faction:name(),
+						"message_event_text_text_mk_event_pope_new_pope_player_faction_title",
+						name,
+						"message_event_text_text_mk_event_pope_new_pope_player_faction_secondary_detail",
+						true,
+						666
+					);
+				else
+					cm:show_message_event(
+						current_faction:name(),
+						"message_event_text_text_mk_event_pope_new_pope_title",
+						name,
+						"message_event_text_text_mk_event_pope_new_pope_secondary_detail",
+						true,
+						666
+					);
+				end
 			end
 		end
 	end
-end
-
-function IsPopeAlive()
-	local faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
-
-	if faction:is_null_interface() == false and faction:has_faction_leader() then
-		return true;
-	else
-		return false;
-	end
-end
-
-function CurrentPope()
-	return POPE_LIST[CURRENT_POPE];
 end
 
 function NextPope()
@@ -246,21 +265,42 @@ function NextPope()
 	return POPE_LIST[CURRENT_POPE + 1];
 end
 
+function Set_Papal_Controller(faction_name)
+	local last_controller = cm:model():world():faction_by_key(POPE_CONTROLLING_FACTION);
+
+	if last_controller:is_human() then
+		cm:show_message_event(
+			current_faction:name(),
+			"message_event_text_text_mk_event_pope_new_pope_lost_control_title",
+			name,
+			"message_event_text_text_mk_event_pope_new_pope_lost_control_secondary_detail",
+			true,
+			666
+		);
+	end
+
+	POPE_CONTROLLING_FACTION = faction_name;
+end
+
 ------------------------------------------------
 ---------------- Saving/Loading ----------------
 ------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		cm:save_value("PAPAL_STATES_DEAD", PAPAL_STATES_DEAD, context);
+		cm:save_value("AUTOMATIC_POPE_SELECTION", AUTOMATIC_POPE_SELECTION, context);
 		cm:save_value("CURRENT_POPE", CURRENT_POPE, context);
 		cm:save_value("LAST_POPE", LAST_POPE, context);
+		cm:save_value("PAPAL_STATES_DEAD", PAPAL_STATES_DEAD, context);
+		cm:save_value("POPE_CONTROLLING_FACTION", POPE_CONTROLLING_FACTION, context);
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
-		PAPAL_STATES_DEAD = cm:load_value("PAPAL_STATES_DEAD", false, context);
+		AUTOMATIC_POPE_SELECTION = cm:load_value("AUTOMATIC_POPE_SELECTION", false, context);
 		CURRENT_POPE = cm:load_value("CURRENT_POPE", 1, context);
 		LAST_POPE = cm:load_value("LAST_POPE", 0, context);
+		PAPAL_STATES_DEAD = cm:load_value("PAPAL_STATES_DEAD", false, context);
+		POPE_CONTROLLING_FACTION = cm:load_value("POPE_CONTROLLING_FACTION", "mk_fact_papacy", context);
 	end
 );

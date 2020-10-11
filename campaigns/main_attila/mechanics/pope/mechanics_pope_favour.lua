@@ -556,9 +556,11 @@ function Update_Pope_Favour(faction)
 end
 
 function Check_Excommunication_Low_Favour(faction)
-	if FACTION_POPE_FAVOUR[faction:name()] == 0 and FACTION_EXCOMMUNICATED[faction:name()] ~= true then
-		cm:apply_effect_bundle("mk_bundle_pope_excommunication", faction:name(), 0);
-		FACTION_EXCOMMUNICATED[faction:name()] = true;
+	local faction_name = faction:name();
+
+	if FACTION_POPE_FAVOUR[faction_name] == 0 and FACTION_EXCOMMUNICATED[faction_name] ~= true then
+		cm:apply_effect_bundle("mk_bundle_pope_excommunication", faction_name, 0);
+		FACTION_EXCOMMUNICATED[faction_name] = true;
 
 		if faction:is_human() and cm:is_multiplayer() == false then
 			Remove_Decision("ask_pope_for_money");
@@ -571,13 +573,41 @@ function Check_Excommunication_Low_Favour(faction)
 		end
 
 		cm:show_message_event(
-			faction:name(),
+			faction_name,
 			"message_event_text_text_mk_event_pope_excommunication_title",
 			"message_event_text_text_mk_event_pope_excommunication_primary",
 			"message_event_text_text_mk_event_pope_excommunication_secondary",
 			true, 
 			707
 		);
+
+		local faction_list = cm:model():world():faction_list();
+
+		for i = 0, faction_list:num_items() - 1 do
+			local current_faction = faction_list:item_at(i);
+			local current_faction_name = current_faction:name();
+
+			if current_faction_name ~= faction_name and current_faction:is_human() then
+				local faction_string = "factions_screen_name_"..faction_name;
+
+				if FACTIONS_DFN_LEVEL[faction_name] and FACTIONS_DFN_LEVEL[faction_name] > 1 then
+					faction_string = "campaign_localised_strings_string_"..faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]);
+				end
+
+				cm:show_message_event(
+					current_faction_name,
+					"message_event_text_text_mk_event_pope_excommunication_other_title",
+					faction_string,
+					"message_event_text_text_mk_event_pope_excommunication_other_secondary",
+					true,
+					707
+				);
+			end
+		end
+
+		if NICKNAMES then
+			Increase_Character_Nickname_Stat(faction:faction_leader():cqi(), "times_excommunicated", 1);
+		end
 	end
 end
 
@@ -615,6 +645,8 @@ function Force_Excommunication(faction_name, silent)
 				707
 			);
 
+			Increase_Character_Nickname_Stat(faction:faction_leader():cqi(), "times_excommunicated", 1);
+
 			local faction_list = cm:model():world():faction_list();
 
 			for i = 0, faction_list:num_items() - 1 do
@@ -629,7 +661,7 @@ function Force_Excommunication(faction_name, silent)
 					end
 
 					cm:show_message_event(
-						faction_name,
+						current_faction_name,
 						"message_event_text_text_mk_event_pope_excommunication_other_title",
 						faction_string,
 						"message_event_text_text_mk_event_pope_excommunication_other_secondary",

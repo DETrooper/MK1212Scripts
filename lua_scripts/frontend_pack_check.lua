@@ -12,21 +12,22 @@ local dev = require("lua_scripts.dev");
 local util = require "lua_scripts.util";
 
 local all_packs_enabled = true;
+local all_packs_in_order = true;
 
 REQUIRED_PACKS = {
-	["1-1212scriptsTEST.pack"] = {enabled = true, order = 1, name = "1-1212scripts.pack"},
-	--["1-1212scripts.pack"] = {enabled = true, order = 1, name = "Medieval Kingdoms 1212 AD Scripts"},
-	["1212_all_settlement_walled_v2.pack"] = {enabled = false, order = 2, "All Settlement Walled - Siege Map Replacer"},
-	["1212compiletest.pack"] = {enabled = false, order = 3, name = "1212compiletest.pack"},
-	--["1212compbuild_v2.pack"] = {enabled = false, order = 3, name = "Medieval Kingdoms 1212 AD Base Pack"},
-	["1212models1_v2.pack"] = {enabled = false, order = 4, name = "Medieval Kingdoms 1212 AD Models Pack 1"},
-	["1212models2.pack"] = {enabled = false, order = 5, name = "Medieval Kingdoms 1212 AD Models Pack 2"},
-	["1212models3.pack"] = {enabled = false, order = 6, name = "Medieval Kingdoms 1212 AD Models Pack 3"},
-	["1212models4.pack"] = {enabled = false, order = 7, name = "Medieval Kingdoms 1212 AD Models Pack 4"},
-	["1212models5.pack"] = {enabled = false, order = 8, name = "Medieval Kingdoms 1212 AD Models Pack 5"},
-	["1212models6.pack"] = {enabled = false, order = 9, name = "Medieval Kingdoms 1212 AD Models Pack 6"},
-	["1212models7.pack"] = {enabled = false, order = 10, name = "Medieval Kingdoms 1212 AD Models Pack 7"},
-	--["1212music.pack"] = {enabled = false, order = 11, name = "Medieval Kingdoms 1212 AD Music"}
+	["1-1212scriptsTEST.pack"] = {enabled = true, packPos = nil, order = 1, name = "1-1212scripts.pack"},
+	--["1-1212scripts.pack"] = {enabled = true, packPos = nil, order = 1, name = "Medieval Kingdoms 1212 AD Scripts"},
+	["1212_all_settlement_walled_v2.pack"] = {enabled = false, packPos = nil, order = 2, name = "All Settlement Walled - Siege Map Replacer"},
+	["1212compiletest.pack"] = {enabled = false, packPos = nil, order = 3, name = "1212compiletest.pack"},
+	--["1212compbuild_v2.pack"] = {enabled = false, packPos = nil, order = 3, name = "Medieval Kingdoms 1212 AD Base Pack"},
+	["1212models1_v2.pack"] = {enabled = false, packPos = nil, order = 4, name = "Medieval Kingdoms 1212 AD Models Pack 1"},
+	["1212models2.pack"] = {enabled = false, packPos = nil, order = 5, name = "Medieval Kingdoms 1212 AD Models Pack 2"},
+	["1212models3.pack"] = {enabled = false, packPos = nil, order = 6, name = "Medieval Kingdoms 1212 AD Models Pack 3"},
+	["1212models4.pack"] = {enabled = false, packPos = nil, order = 7, name = "Medieval Kingdoms 1212 AD Models Pack 4"},
+	["1212models5.pack"] = {enabled = false, packPos = nil, order = 8, name = "Medieval Kingdoms 1212 AD Models Pack 5"},
+	["1212models6.pack"] = {enabled = false, packPos = nil, order = 9, name = "Medieval Kingdoms 1212 AD Models Pack 6"},
+	["1212models7.pack"] = {enabled = false, packPos = nil, order = 10, name = "Medieval Kingdoms 1212 AD Models Pack 7"},
+	["1212music.pack"] = {enabled = false, packPos = nil, order = 11, name = "Medieval Kingdoms 1212 AD Music"}
 }
 
 eh:add_listener(
@@ -52,7 +53,8 @@ eh:add_listener(
 );
 
 function OnUICreated_Pack_Check(context)
-	local warning_string = "The following mandatory .pack files are missing:\n\n";
+	local packPos = 0;
+	local warning_string = "";
 
 	if util.fileExists("used_mods.txt") == true then
 		local modsFile = io.open("used_mods.txt", "r");
@@ -60,9 +62,17 @@ function OnUICreated_Pack_Check(context)
 		for line in modsFile:lines() do
 			if line:sub(1, 3) == "mod" then
 				local packName = line:sub(6, #line - 2);
+				packPos = packPos + 1;
 
 				if REQUIRED_PACKS[packName] then
 					REQUIRED_PACKS[packName].enabled = true;
+					REQUIRED_PACKS[packName].packPos = packPos;
+
+					if all_packs_in_order == true then
+						if packPos ~= REQUIRED_PACKS[packName].order then
+							all_packs_in_order = false;
+						end
+					end
 				end
 			end
 		end
@@ -70,20 +80,36 @@ function OnUICreated_Pack_Check(context)
 		modsFile:close();
 	end
 
-	for k, v in pairs(REQUIRED_PACKS) do
-		local pack = v;
-
-		if pack.enabled ~= true then
-			if all_packs_enabled == true then
-				all_packs_enabled = false;
-			end
-
-			warning_string = warning_string..pack.name.."\n";
-		end
-	end
-
 	if all_packs_enabled == false then
+		warning_string = warning_string.."The following mandatory .pack files are missing:\n\n";
+
+		for k, v in pairs(REQUIRED_PACKS) do
+			local pack = v;
+	
+			if pack.enabled ~= true then
+				if all_packs_enabled == true then
+					all_packs_enabled = false;
+				end
+	
+				warning_string = warning_string..pack.name.."\n";
+			end
+		end
+
 		warning_string = warning_string.."\nWe recommend downloading the missing files from the Steam Workshop for the best experience!";
+
+		CreatePackWarning(warning_string);
+	elseif all_packs_in_order == false then
+		warning_string = warning_string.."The following .pack files are out of order:\n\n";
+
+		for k, v in pairs(REQUIRED_PACKS) do
+			local pack = v;
+
+			if pack.packPos ~= pack.order then
+				warning_string = warning_string.."("..tostring(pack.packPos)..") "..pack.name.."\nRecommended: "..tostring(pack.order).."\n";
+			end
+		end
+
+		warning_string = warning_string.."\nOut of order .pack files may make MK1212 multiplayer impossible due to incompatible versions.";
 
 		CreatePackWarning(warning_string);
 	end

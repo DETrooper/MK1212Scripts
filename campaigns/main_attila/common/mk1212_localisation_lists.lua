@@ -414,6 +414,25 @@ FACTIONS_NAMES_LOCALISATION = {
 	["mk_fact_zengids"] = "Zengid Atabegate"
 };
 
+NICKNAMES_TO_LOCALISATION = {
+	["the_blind"] = "the Blind",
+	["the_brave"] = "the Brave",
+	["the_conquerer"] = "the Conquerer",
+	["the_cruel"] = "the Cruel",
+	["the_crusader"] = "the Crusader",
+	["the_drunkard"] = "the Drunkard",
+	["the_exile"] = "the Exile",
+	["the_fair"] = "the Fair",
+	["the_glorious"] = "the Glorious",
+	["the_great"] = "the Great",
+	["the_mad"] = "the Mad",
+	["the_old"] = "the Old",
+	["the_ruthless"] = "the Ruthless",
+	["the_terrible"] = "the Terrible",
+	["the_undying"] = "the Undying",
+	["the_wicked"] = "the Wicked",
+};
+
 NAMES_TO_LOCALISATION = {
 	["names_name_2147380140"] = "Alda",
 	["names_name_2147380540"] = "Xystus IV",

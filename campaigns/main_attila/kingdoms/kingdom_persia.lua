@@ -85,6 +85,10 @@ function Persian_Empire_Formed(faction_name)
 		720
 	);
 
+	if NICKNAMES then
+		Add_Character_Nickname(cm:model():world():faction_by_key(faction_name):faction_leader():cqi(), "the_glorious", false);
+	end
+
 	cm:remove_listener("FactionTurnStart_Persian_Empire_Check");
 	cm:remove_listener("SettlementOccupied_Persian_Empire_Regions_Check");
 end
