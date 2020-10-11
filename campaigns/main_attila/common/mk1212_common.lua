@@ -13,6 +13,7 @@ FACTION_TURN = "nil";
 SACKED_SETTLEMENTS = {};
 SACKED_SETTLEMENTS2 = {};
 SACKED_SETTLEMENTS_TOTAL = {};
+FACTIONS_TO_RELIGIONS = {};
 HUMAN_FACTIONS = {};
 ARMY_SELECTED_REGION = nil;
 ARMY_SELECTED_TABLE = {};
@@ -28,6 +29,13 @@ function Add_MK1212_Common_Listeners()
 		"FactionTurnStart",
 		true,
 		function(context) FactionTurnStart_Global(context) end,
+		true
+	);
+	cm:add_listener(
+		"FactionTurnEnd_Global",
+		"FactionTurnEnd",
+		true,
+		function(context) FactionTurnEnd_Global(context) end,
 		true
 	);
 	cm:add_listener(
@@ -79,6 +87,12 @@ function Add_MK1212_Common_Listeners()
 		FACTION_TURN = cm:model():world():faction_list():item_at(0):name();
 
 		Check_Razed_Regions();
+
+		for i = 0, faction_list:num_items() - 1 do
+			local faction = faction_list:item_at(i);
+
+			FACTIONS_TO_RELIGIONS[faction:name()] = faction:state_religion();
+		end
 	end
 
 	for i = 0, faction_list:num_items() - 1 do
@@ -90,7 +104,13 @@ end
 
 function FactionTurnStart_Global(context)
 	FACTION_TURN = context:faction():name();
-	SACKED_SETTLEMENTS = {} -- Array is reset every faction turn.
+	SACKED_SETTLEMENTS = {}; -- Array is reset every faction turn.
+
+	Religion_Check(context:faction());
+end
+
+function FactionTurnEnd_Global(context)
+	Religion_Check(context:faction());
 end
 
 function CharacterEntersGarrison_Global(context)
@@ -332,6 +352,62 @@ function GetTurnFromYear(year)
 	local turn_number = (year - 1212) * 2 + 1;
 
 	return turn_number;
+end
+
+function Religion_Changed(faction_name)
+	local faction = cm:model():world():faction_by_key(faction_name);
+	local state_religion = faction:state_religion();
+	
+	if NICKNAMES then
+		Add_Character_Nickname(faction:faction_leader():cqi(), RELIGIONS_TO_NICKNAMES[state_religion], false);
+	end
+
+	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
+		if state_religion == "att_rel_chr_catholic" then
+			if faction_name == CURRENT_CRUSADE_TARGET_OWNER then
+				End_Crusade("aborted");
+			end
+
+			Update_Pope_Favour(faction);
+		elseif FACTION_POPE_FAVOUR[faction_name]  then
+			FACTION_POPE_FAVOUR[faction_name] = nil;
+
+			for i = 0, 10 do
+				cm:remove_effect_bundle("mk_bundle_pope_favour_"..i, faction_name);
+			end
+	
+			Remove_Excommunication_Manual(faction_name);
+	
+			if faction:is_human() then 
+				if cm:is_multiplayer() == false then
+					Remove_Decision("ask_pope_for_money");
+				end
+
+				if MISSION_TAKE_JERUSALEM_ACTIVE == true then
+					MISSION_TAKE_JERUSALEM_ACTIVE = false;
+					cm:remove_listener("CharacterEntersGarrison_Jerusalem");
+					cm:cancel_custom_mission(faction_name, "mk_mission_crusades_take_jerusalem_dilemma");
+					Make_Peace_Crusades(faction_name);
+				end
+			end
+
+			if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, faction_name) then
+				Remove_Faction_From_Crusade(faction_name);
+			end
+		end
+	end
+end
+
+function Religion_Check(faction)
+	local faction_name = faction:name();
+
+	if FACTIONS_TO_RELIGIONS[faction_name] then
+		if FACTIONS_TO_RELIGIONS[faction_name] ~= faction:state_religion() then
+			Religion_Changed(faction_name);
+		end
+	end
+
+	FACTIONS_TO_RELIGIONS[faction_name] = faction:state_religion();
 end
 
 function Transfer_Region_To_Faction(region_name, faction_name)

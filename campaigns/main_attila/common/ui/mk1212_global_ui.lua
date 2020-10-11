@@ -95,7 +95,7 @@ end
 
 function OnTimeTrigger_Global_UI(context)
 	if context.string == "religion_possibly_changed" then
-		Religion_Possibly_Changed(cm:get_local_faction());
+		Religion_Changed(cm:get_local_faction());
 	elseif context.string == "diplo_hud_check" then
 		local root = cm:ui_root();
 		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
@@ -154,45 +154,6 @@ function Diplomacy_Hud_Check(diplomacy_dropdown_uic)
 			DIPLOMACY_SELECTED_FACTION = faction_name;
 		else
 			DIPLOMACY_SELECTED_FACTION = cm:get_local_faction();
-		end
-	end
-end
-
-function Religion_Possibly_Changed(faction_name)
-	local faction = cm:model():world():faction_by_key(faction_name);
-
-	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
-		if faction:state_religion() == "att_rel_chr_catholic" then
-			if faction_name == CURRENT_CRUSADE_TARGET_OWNER then
-				End_Crusade("aborted");
-			end
-
-			Update_Pope_Favour(faction);
-		elseif FACTION_POPE_FAVOUR[faction_name]  then
-			FACTION_POPE_FAVOUR[faction_name] = nil;
-
-			for i = 0, 10 do
-				cm:remove_effect_bundle("mk_bundle_pope_favour_"..i, faction_name);
-			end
-	
-			Remove_Excommunication_Manual(faction_name);
-	
-			if faction:is_human() then 
-				if cm:is_multiplayer() == false then
-					Remove_Decision("ask_pope_for_money");
-				end
-
-				if MISSION_TAKE_JERUSALEM_ACTIVE == true then
-					MISSION_TAKE_JERUSALEM_ACTIVE = false;
-					cm:remove_listener("CharacterEntersGarrison_Jerusalem");
-					cm:cancel_custom_mission(faction_name, "mk_mission_crusades_take_jerusalem_dilemma");
-					Make_Peace_Crusades(faction_name);
-				end
-			end
-
-			if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, faction_name) then
-				Remove_Faction_From_Crusade(faction_name);
-			end
 		end
 	end
 end

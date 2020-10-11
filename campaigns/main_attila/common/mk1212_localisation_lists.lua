@@ -415,9 +415,15 @@ FACTIONS_NAMES_LOCALISATION = {
 };
 
 NICKNAMES_TO_LOCALISATION = {
+	["the_arian"] = "the Arian",
+	["the_bewitched"] = "the Bewitched",
 	["the_blind"] = "the Blind",
+	["the_bogomilist"] = "the Bogomilist",
 	["the_brave"] = "the Brave",
+	["the_cathar"] = "the Cathar",
+	["the_catholic"] = "the Catholic",
 	["the_conquerer"] = "the Conquerer",
+	["the_christian"] = "the Christian",
 	["the_cruel"] = "the Cruel",
 	["the_crusader"] = "the Crusader",
 	["the_drunkard"] = "the Drunkard",
@@ -425,13 +431,24 @@ NICKNAMES_TO_LOCALISATION = {
 	["the_fair"] = "the Fair",
 	["the_glorious"] = "the Glorious",
 	["the_great"] = "the Great",
+	["the_heretic"] = "the Heretic",
+	["the_ibadi"] = "the Ibadi",
+	["the_jew"] = "the Jew",
 	["the_mad"] = "the Mad",
+	["the_manichaean"] = "the Manichaean",
 	["the_old"] = "the Old",
+	["the_orthodox"] = "the Orthodox",
+	["the_pagan"] = "the Pagan",
 	["the_ruthless"] = "the Ruthless",
+	["the_shiite"] = "the Shiite",
+	["the_sunni"] = "the Sunni",
 	["the_terrible"] = "the Terrible",
 	["the_undying"] = "the Undying",
 	["the_wicked"] = "the Wicked",
+	["the_zoroastrian"] = "the Zoroastrian"
 };
+
+
 
 NAMES_TO_LOCALISATION = {
 	["names_name_2147380140"] = "Alda",
