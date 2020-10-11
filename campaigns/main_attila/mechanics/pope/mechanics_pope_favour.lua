@@ -149,6 +149,13 @@ function Activate_Papal_Favour_System()
 		true
 	);
 	cm:add_listener(
+		"FactionReligionConverted_Pope",
+		"FactionReligionConverted",
+		true,
+		function(context) FactionReligionConverted_Pope(context) end,
+		true
+	);
+	cm:add_listener(
 		"MissionFailed_Check_Mission",
 		"MissionFailed",
 		true,
@@ -218,6 +225,7 @@ function Deactivate_Papal_Favour_System()
 	cm:remove_listener("CharacterPostBattleSlaughter_Pope");
 	cm:remove_listener("CharacterBecomesFactionLeader_Pope");
 	cm:remove_listener("DilemmaChoiceMadeEvent_Pope");
+	cm:remove_listener("FactionReligionConverted_Pope");
 	cm:remove_listener("MissionFailed_Check_Mission");
 	cm:remove_listener("MissionSucceeded_Check_Mission");
 	cm:remove_listener("TimeTrigger_Pope");
@@ -461,6 +469,47 @@ function DilemmaChoiceMadeEvent_Pope(context)
 				cm:grant_faction_handover(context:faction():name(), PAPAL_STATES_KEY, turn_number-1, turn_number-1, context);
 			end]]--
 			Deactivate_Papal_Favour_System();
+		end
+	end
+end
+
+function FactionReligionConverted_Pope(context)
+	local faction = context:faction();
+	local faction_name = faction:name();
+	local state_religion = faction:state_religion();
+
+	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
+		if state_religion == "att_rel_chr_catholic" then
+			if faction_name == CURRENT_CRUSADE_TARGET_OWNER then
+				End_Crusade("aborted");
+			end
+
+			Update_Pope_Favour(faction);
+		elseif FACTION_POPE_FAVOUR[faction_name]  then
+			FACTION_POPE_FAVOUR[faction_name] = nil;
+
+			for i = 0, 10 do
+				cm:remove_effect_bundle("mk_bundle_pope_favour_"..i, faction_name);
+			end
+
+			Remove_Excommunication_Manual(faction_name);
+
+			if faction:is_human() then 
+				if cm:is_multiplayer() == false then
+					Remove_Decision("ask_pope_for_money");
+				end
+
+				if MISSION_TAKE_JERUSALEM_ACTIVE == true then
+					MISSION_TAKE_JERUSALEM_ACTIVE = false;
+					cm:remove_listener("CharacterEntersGarrison_Jerusalem");
+					cm:cancel_custom_mission(faction_name, "mk_mission_crusades_take_jerusalem_dilemma");
+					Make_Peace_Crusades(faction_name);
+				end
+			end
+
+			if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, faction_name) then
+				Remove_Faction_From_Crusade(faction_name);
+			end
 		end
 	end
 end

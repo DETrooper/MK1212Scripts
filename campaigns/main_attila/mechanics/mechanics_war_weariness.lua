@@ -194,12 +194,8 @@ function FactionLeaderSignsPeaceTreaty_WW(context)
 end
 
 function BattleCompleted_WW(context)
-	local attacker_cqi, attacker_force_cqi, attacker_name = cm:pending_battle_cache_get_attacker(1);
-	local defender_cqi, defender_force_cqi, defender_name = cm:pending_battle_cache_get_defender(1);
 	local attacker_result = cm:model():pending_battle():attacker_battle_result();
 	local defender_result = cm:model():pending_battle():defender_battle_result();
-	local attacker = cm:model():world():faction_by_key(attacker_name);
-	local defender = cm:model():world():faction_by_key(defender_name);
 	
 	if attacker_result == "close_defeat" and defender_result == "close_defeat" then
 		-- They've both had a close defeat, must have been a retreat not a battle!
@@ -207,21 +203,28 @@ function BattleCompleted_WW(context)
 	elseif attacker_result == nil or defender_result == nil then
 		return;
 	end
+
+	local attacker_cqi, attacker_force_cqi, attacker_name = cm:pending_battle_cache_get_attacker(1);
+	local defender_cqi, defender_force_cqi, defender_name = cm:pending_battle_cache_get_defender(1);
+	local attacker = cm:model():world():faction_by_key(attacker_name);
+	local defender = cm:model():world():faction_by_key(defender_name);
 	
 	if attacker:is_null_interface() == false then		
-		if attacker:is_human() then
+		--if attacker:is_human() then
 			local ww_value = battle_result_values[attacker_result];
+			
 			Add_War_Weariness(attacker:name(), ww_value);
 			Update_War_Weariness(attacker);
-		end
+		--end
 	end
 	
 	if defender:is_null_interface() == false then		
-		if defender:is_human() then
+		--if defender:is_human() then
 			local ww_value = battle_result_values[defender_result];
+
 			Add_War_Weariness(defender:name(), ww_value);
 			Update_War_Weariness(defender);
-		end
+		--end
 	end
 end
 

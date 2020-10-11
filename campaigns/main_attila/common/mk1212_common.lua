@@ -354,56 +354,12 @@ function GetTurnFromYear(year)
 	return turn_number;
 end
 
-function Religion_Changed(faction_name)
-	local faction = cm:model():world():faction_by_key(faction_name);
-	local state_religion = faction:state_religion();
-	
-	if NICKNAMES then
-		Add_Character_Nickname(faction:faction_leader():cqi(), RELIGIONS_TO_NICKNAMES[state_religion], false);
-	end
-
-	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
-		if state_religion == "att_rel_chr_catholic" then
-			if faction_name == CURRENT_CRUSADE_TARGET_OWNER then
-				End_Crusade("aborted");
-			end
-
-			Update_Pope_Favour(faction);
-		elseif FACTION_POPE_FAVOUR[faction_name]  then
-			FACTION_POPE_FAVOUR[faction_name] = nil;
-
-			for i = 0, 10 do
-				cm:remove_effect_bundle("mk_bundle_pope_favour_"..i, faction_name);
-			end
-	
-			Remove_Excommunication_Manual(faction_name);
-	
-			if faction:is_human() then 
-				if cm:is_multiplayer() == false then
-					Remove_Decision("ask_pope_for_money");
-				end
-
-				if MISSION_TAKE_JERUSALEM_ACTIVE == true then
-					MISSION_TAKE_JERUSALEM_ACTIVE = false;
-					cm:remove_listener("CharacterEntersGarrison_Jerusalem");
-					cm:cancel_custom_mission(faction_name, "mk_mission_crusades_take_jerusalem_dilemma");
-					Make_Peace_Crusades(faction_name);
-				end
-			end
-
-			if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, faction_name) then
-				Remove_Faction_From_Crusade(faction_name);
-			end
-		end
-	end
-end
-
 function Religion_Check(faction)
 	local faction_name = faction:name();
 
 	if FACTIONS_TO_RELIGIONS[faction_name] then
 		if FACTIONS_TO_RELIGIONS[faction_name] ~= faction:state_religion() then
-			Religion_Changed(faction_name);
+			cm:trigger_event("FactionReligionConverted", faction);
 		end
 	end
 

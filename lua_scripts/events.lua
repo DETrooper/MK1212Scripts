@@ -2,6 +2,7 @@ module(..., package.seeall)
 
 -- MK1212 Custom Events
 
+FactionReligionConverted = {}
 FactionUnvassalized = {}
 FactionVassalized = {}
 RegionResettled = {}

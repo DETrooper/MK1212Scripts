@@ -419,6 +419,7 @@ NICKNAMES_TO_LOCALISATION = {
 	["the_bewitched"] = "the Bewitched",
 	["the_blind"] = "the Blind",
 	["the_bogomilist"] = "the Bogomilist",
+	["the_bold"] = "the Bold",
 	["the_brave"] = "the Brave",
 	["the_cathar"] = "the Cathar",
 	["the_catholic"] = "the Catholic",
@@ -429,11 +430,14 @@ NICKNAMES_TO_LOCALISATION = {
 	["the_drunkard"] = "the Drunkard",
 	["the_exile"] = "the Exile",
 	["the_fair"] = "the Fair",
+	["the_fool"] = "the Fool",
 	["the_glorious"] = "the Glorious",
 	["the_great"] = "the Great",
 	["the_heretic"] = "the Heretic",
+	["the_hero"] = "the Hero",
 	["the_ibadi"] = "the Ibadi",
 	["the_jew"] = "the Jew",
+	["the_lame"] = "the Lame",
 	["the_mad"] = "the Mad",
 	["the_manichaean"] = "the Manichaean",
 	["the_old"] = "the Old",
@@ -443,12 +447,13 @@ NICKNAMES_TO_LOCALISATION = {
 	["the_shiite"] = "the Shiite",
 	["the_sunni"] = "the Sunni",
 	["the_terrible"] = "the Terrible",
+	["the_undefeated"] = "the Undefeated",
 	["the_undying"] = "the Undying",
+	["the_unlucky"] = "the Unlucky",
+	["the_victorious"] = "the Victorious",
 	["the_wicked"] = "the Wicked",
 	["the_zoroastrian"] = "the Zoroastrian"
 };
-
-
 
 NAMES_TO_LOCALISATION = {
 	["names_name_2147380140"] = "Alda",

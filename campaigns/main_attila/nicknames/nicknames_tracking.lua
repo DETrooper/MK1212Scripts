@@ -19,6 +19,13 @@ function Add_Nicknames_Tracking_Listeners()
 		true
 	);
 	cm:add_listener(
+		"BattleCompleted_Nicknames",
+		"BattleCompleted",
+		true,
+		function(context) BattleCompleted_Nicknames(context) end,
+		true
+	);
+	cm:add_listener(
 		"CharacterPerformsOccupationDecisionLoot_Nicknames",
 		"CharacterPerformsOccupationDecisionLoot",
 		true,
@@ -37,6 +44,13 @@ function Add_Nicknames_Tracking_Listeners()
 		"CharacterPostBattleSlaughter",
 		true,
 		function(context) CharacterPostBattle_Nicknames(context, "SLAUGHTER") end,
+		true
+	);
+	cm:add_listener(
+		"FactionReligionConverted_Nicknames",
+		"FactionReligionConverted",
+		true,
+		function(context) FactionReligionConverted_Nicknames(context) end,
 		true
 	);
 	cm:add_listener(
@@ -101,6 +115,51 @@ function FactionTurnStart_Nicknames(context)
 			if CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt >= 20 then
 				Add_Character_Nickname(cqi, "the_fair", false);
 			end
+
+			if CHARACTERS_TO_NICKNAME_STATS[cqi_str].heroic_victories >= 5 then
+				Add_Character_Nickname(cqi, "the_hero", false);
+			end
+
+			if character:offensive_ambush_battles_won() >= 5 then
+				Add_Character_Nickname(cqi, "the_bold", false);
+			end
+
+			if character:battles_won() >= 25 then
+				if character:battles_won() == character:battles_fought() then
+					Add_Character_Nickname(cqi, "the_undefeated", true);
+				else
+					Add_Character_Nickname(cqi, "the_victorious", false);
+				end
+			end
+		end
+	end
+end
+
+function BattleCompleted_Nicknames(context)
+	local attacker_result = cm:model():pending_battle():attacker_battle_result();
+	local defender_result = cm:model():pending_battle():defender_battle_result();
+	
+	if attacker_result == "close_defeat" and defender_result == "close_defeat" then
+		-- They've both had a close defeat, must have been a retreat not a battle!
+		return;
+	elseif attacker_result == nil or defender_result == nil then
+		return;
+	end
+
+	local attacker_cqi, attacker_force_cqi, attacker_name = cm:pending_battle_cache_get_attacker(1);
+	local defender_cqi, defender_force_cqi, defender_name = cm:pending_battle_cache_get_defender(1);
+	local attacker = cm:model():world():faction_by_key(attacker_name);
+	local defender = cm:model():world():faction_by_key(defender_name);
+	
+	if attacker:is_null_interface() == false then
+		if attacker_result == "heroic_victory" then
+			Increase_Character_Nickname_Stat(attacker_cqi, "heroic_victories", 1);
+		end
+	end
+	
+	if defender:is_null_interface() == false then
+		if defender_result == "heroic_victory" then
+			Increase_Character_Nickname_Stat(defender_cqi, "heroic_victories", 1);
 		end
 	end
 end
@@ -112,6 +171,16 @@ end
 function CharacterPostBattle_Nicknames(context, type)
 	if type == "SLAUGHTER" then
 		Increase_Character_Nickname_Stat(context:character():cqi(), "captives_killed", 1);
+	end
+end
+
+function FactionReligionConverted_Nicknames(context)
+	local faction_leader = context:faction():faction_leader();
+
+	if faction_leader then
+		local state_religion = context:faction():state_religion();
+
+		Add_Character_Nickname(context:faction():faction_leader():cqi(), RELIGIONS_TO_NICKNAMES[state_religion], false);
 	end
 end
 
@@ -158,6 +227,7 @@ function Validate_Characker_Nickname_Stats(cqi_str)
 			["captives_killed"] = 0,
 			["times_excommunicated"] = 0,
 			["turns_without_revolt"] = 0,
+			["heroic_victories"] = 0,
 		};
 	end
 end
@@ -183,7 +253,7 @@ local function SaveNicknamesStatsTable(context, tab, savename)
 	local savestring = "";
 	
 	for key, tab2 in pairs(tab) do
-		savestring = savestring..key..","..tostring(tab2.regions_taken)..","..tostring(tab2.captives_killed)..","..tostring(tab2.times_excommunicated)..","..tostring(tab2.turns_without_revolt)..",;";
+		savestring = savestring..key..","..tostring(tab2.regions_taken)..","..tostring(tab2.captives_killed)..","..tostring(tab2.times_excommunicated)..","..tostring(tab2.turns_without_revolt)..","..tostring(tab2.heroic_victories)",;";
 	end
 
 	cm:save_value(savename, savestring, context);
@@ -200,7 +270,7 @@ local function LoadNicknamesStatsTable(context, savename)
 		for i = 1, #first_split do
 			local second_split = SplitString(first_split[i], ",");
 
-			local nickname_stats_table = {["regions_taken"] = tonumber(second_split[2]), ["captives_killed"] = tonumber(second_split[3]), ["times_excommunicated"] = tonumber(second_split[4]), ["turns_without_revolt"] = tonumber(second_split[5])};
+			local nickname_stats_table = {["regions_taken"] = tonumber(second_split[2]), ["captives_killed"] = tonumber(second_split[3]), ["times_excommunicated"] = tonumber(second_split[4]), ["turns_without_revolt"] = tonumber(second_split[5]), ["heroic_victories"] = tonumber(second_split[6])};
 			tab[second_split[1]] = nickname_stats_table;
 		end
 	end

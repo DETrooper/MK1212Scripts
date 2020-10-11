@@ -29,6 +29,8 @@ function Add_Character_Nickname(character_cqi, nickname, ignore_priority)
 				CHARACTERS_TO_NICKNAMES[cqi] = nickname;
 			end
 		end
+	else
+		CHARACTERS_TO_NICKNAMES[cqi] = nickname;
 	end
 end
 
