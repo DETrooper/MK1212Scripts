@@ -7,9 +7,7 @@
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
-HISTORICAL_CHARACTERS_TO_NICKNAMES = {
-	["57"] = "the_fair",
-};
+HISTORICAL_CHARACTERS_TO_NICKNAMES = {};
 
 -- Priorities should be from 1 (highest) to 3 (lowest).
 NICKNAMES = {
@@ -21,13 +19,13 @@ NICKNAMES = {
 	["the_brave"] = {priority = 3}, -- Has trait 'att_trait_general_personality_all_bravery'.
 	["the_cathar"] = {priority = 2}, -- Religious conversion nickname.
 	["the_catholic"] = {priority = 2}, -- Religious conversion nickname.
-	["the_conquerer"] = {priority = 3}, -- Personally conquered 10 regions.
+	["the_conqueror"] = {priority = 3}, -- Personally conquered 10 regions.
 	["the_christian"] = {priority = 2}, -- Religious conversion nickname.
 	["the_cruel"] = {priority = 3}, -- Executed captives 5 times.
 	["the_crusader"] = {priority = 2}, -- Has traits 'mk_trait_crusades_crusader' or 'mk_trait_crusades_crusader_king'.
 	["the_drunkard"] = {priority = 3}, -- Has trait 'att_trait_all_personality_all_drink'.
 	["the_exile"] = {priority = 2}, -- Lost the capital of the faction.
-	["the_fair"] = {priority = 3}, -- Reigned for 10 years without a revolt.
+	["the_fair"] = {priority = 3}, -- Reigned for 20 years without a revolt (while having more than 4 regions in their faction).
 	["the_fool"] = {prioity = 3}, -- Has trait 'att_trait_all_personality_all_easily_deceived'.
 	["the_glorious"] = {priority = 1}, -- Formed a unique Empire.
 	["the_great"] = {priority = 1}, -- Personally conquered 30 regions.
@@ -38,13 +36,15 @@ NICKNAMES = {
 	["the_lame"] = {priority = 2}, -- Has traits 'att_trait_general_physical_all_maimed_arm' or 'att_trait_general_physical_all_maimed_leg'.
 	["the_mad"] = {priority = 2}, -- Has trait 'att_trait_general_personality_all_mad'.
 	["the_manichaean"] = {priority = 2}, -- Religious conversion nickname.
+	["the_merciless"] = {priority = 2}, -- Executed captives 20 times.
 	["the_old"] = {priority = 3}, -- Aged 65+.
 	["the_orthodox"] = {priority = 2}, -- Religious conversion nickname.
 	["the_pagan"] = {priority = 2}, -- Religious conversion nickname.
 	["the_ruthless"] = {priority = 2}, -- Has trait 'att_trait_general_military_all_high_casualties'.
 	["the_shiite"] = {priority = 2}, -- Religious conversion nickname.
+	["the_strong"] = {priority = 3}, -- Has trait 'att_trait_all_physical_all_healthy'.
 	["the_sunni"] = {priority = 2}, -- Religious conversion nickname.
-	["the_terrible"] = {priority = 2}, -- Executed captives 20 times.
+	["the_terrible"] = {priority = 2}, -- Has trait 'att_trait_general_military_all_looter'.
 	["the_undefeated"] = {priority = 1}, -- Won 25 battles undefeated.
 	["the_undying"] = {priority = 2}, -- Aged 90+.
 	["the_unlucky"] = {prioirty = 3}, -- Has trait 'att_trait_all_personality_all_unlucky'.
@@ -79,7 +79,9 @@ TRAITS_TO_NICKNAMES = {
 	["att_trait_all_personality_all_drink"] = "the_drunkard",
 	["att_trait_all_personality_all_easily_deceived"] = "the_fool",
 	["att_trait_all_personality_all_unlucky"] = "the_unlucky",
+	["att_trait_all_physical_all_healthy"] = "the_strong",
 	["att_trait_general_military_all_high_casualties"] = "the_ruthless",
+	["att_trait_general_military_all_looter"] = "the_terrible",
 	["att_trait_general_physical_all_blind"] = "the_blind",
 	["att_trait_general_physical_all_innate_deformed"] = "the_bewitched",
 	["att_trait_general_physical_all_maimed_arm"] = "the_lame",

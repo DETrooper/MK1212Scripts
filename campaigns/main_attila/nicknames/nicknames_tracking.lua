@@ -62,76 +62,31 @@ function Add_Nicknames_Tracking_Listeners()
 	);
 
 	if cm:is_new_game() then
-		CHARACTERS_TO_NICKNAMES = DeepCopy(HISTORICAL_CHARACTERS_TO_NICKNAMES);
+		--CHARACTERS_TO_NICKNAMES = DeepCopy(HISTORICAL_CHARACTERS_TO_NICKNAMES);
+
+		local faction_list = cm:model():world():faction_list();
+
+		for i = 0, faction_list:num_items() - 1 do
+			local faction = faction_list:item_at(i);
+			local character_list = faction:character_list();
+	
+			for i = 0, character_list:num_items() - 1 do
+				local character = character_list:item_at(i);
+		
+				Check_Character_Nickname(character);
+			end
+		end
 	end
 end
 
 function FactionTurnStart_Nicknames(context)
 	local faction = context:faction();
-	local faction_name = faction:name();
 	local character_list = faction:character_list();
 	
 	for i = 0, character_list:num_items() - 1 do
 		local character = character_list:item_at(i);
 
-		-- For now only generals will have nicknames, since most nicknames only really concern them.
-		if character:character_type("general") then
-			local age = character:age();
-			local cqi = character:cqi();
-			local cqi_str = tostring(cqi);
-
-			if age >= 90 then
-				Add_Character_Nickname(cqi, "the_undying", false);
-			elseif age >= 65 then
-				Add_Character_Nickname(cqi, "the_old", false);
-			end
-
-			for trait, nickname in pairs(TRAITS_TO_NICKNAMES) do
-				if character:has_trait(trait) then
-					Add_Character_Nickname(cqi, nickname, false);
-				end
-			end
-
-			Validate_Characker_Nickname_Stats(cqi_str);
-
-			CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt = CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt + 1;
-
-			if CHARACTERS_TO_NICKNAME_STATS[cqi_str].regions_taken >= 30 then
-				Add_Character_Nickname(cqi, "the_great", false);
-			elseif CHARACTERS_TO_NICKNAME_STATS[cqi_str].regions_taken >= 10 then
-				Add_Character_Nickname(cqi, "the_conquerer", false);
-			end
-
-			if CHARACTERS_TO_NICKNAME_STATS[cqi_str].captives_killed >= 20 then
-				Add_Character_Nickname(cqi, "the_terrible", false);
-			elseif CHARACTERS_TO_NICKNAME_STATS[cqi_str].captives_killed >= 5 then
-				Add_Character_Nickname(cqi, "the_cruel", false);
-			end
-
-			if CHARACTERS_TO_NICKNAME_STATS[cqi_str].times_excommunicated >= 2 then
-				Add_Character_Nickname(cqi, "the_wicked", false);
-			end
-
-			if CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt >= 20 then
-				Add_Character_Nickname(cqi, "the_fair", false);
-			end
-
-			if CHARACTERS_TO_NICKNAME_STATS[cqi_str].heroic_victories >= 5 then
-				Add_Character_Nickname(cqi, "the_hero", false);
-			end
-
-			if character:offensive_ambush_battles_won() >= 5 then
-				Add_Character_Nickname(cqi, "the_bold", false);
-			end
-
-			if character:battles_won() >= 25 then
-				if character:battles_won() == character:battles_fought() then
-					Add_Character_Nickname(cqi, "the_undefeated", true);
-				else
-					Add_Character_Nickname(cqi, "the_victorious", false);
-				end
-			end
-		end
+		Check_Character_Nickname(character);
 	end
 end
 
@@ -189,6 +144,70 @@ function RegionRebels_Nicknames(context)
 
 	if region_owning_faction_leader then
 		Set_Character_Nickname_Stat(region_owning_faction_leader:cqi(), "turns_without_revolt", 0);
+	end
+end
+
+function Check_Character_Nickname(character)
+	-- For now only generals will have nicknames, since most nicknames only really concern them.
+	if character:character_type("general") then
+		local age = character:age();
+		local cqi = character:cqi();
+		local cqi_str = tostring(cqi);
+		local faction_region_list = character:faction():region_list();
+
+		if age >= 90 then
+			Add_Character_Nickname(cqi, "the_undying", false);
+		elseif age >= 65 then
+			Add_Character_Nickname(cqi, "the_old", false);
+		end
+
+		for trait, nickname in pairs(TRAITS_TO_NICKNAMES) do
+			if character:has_trait(trait) then
+				Add_Character_Nickname(cqi, nickname, false);
+			end
+		end
+
+		Validate_Characker_Nickname_Stats(cqi_str);
+
+		if faction_region_list:num_items() > 4 then
+			CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt = CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt + 1;
+		end
+
+		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].regions_taken >= 30 then
+			Add_Character_Nickname(cqi, "the_great", false);
+		elseif CHARACTERS_TO_NICKNAME_STATS[cqi_str].regions_taken >= 10 then
+			Add_Character_Nickname(cqi, "the_conqueror", false);
+		end
+
+		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].captives_killed >= 20 then
+			Add_Character_Nickname(cqi, "the_merciless", false);
+		elseif CHARACTERS_TO_NICKNAME_STATS[cqi_str].captives_killed >= 5 then
+			Add_Character_Nickname(cqi, "the_cruel", false);
+		end
+
+		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].times_excommunicated >= 2 then
+			Add_Character_Nickname(cqi, "the_wicked", false);
+		end
+
+		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt >= 40 then
+			Add_Character_Nickname(cqi, "the_fair", false);
+		end
+
+		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].heroic_victories >= 5 then
+			Add_Character_Nickname(cqi, "the_hero", false);
+		end
+
+		if character:offensive_ambush_battles_won() >= 5 then
+			Add_Character_Nickname(cqi, "the_bold", false);
+		end
+
+		if character:battles_won() >= 25 then
+			if character:battles_won() == character:battles_fought() then
+				Add_Character_Nickname(cqi, "the_undefeated", true);
+			else
+				Add_Character_Nickname(cqi, "the_victorious", false);
+			end
+		end
 	end
 end
 

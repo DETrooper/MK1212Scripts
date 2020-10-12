@@ -517,6 +517,7 @@ end
 cm:register_loading_game_callback(
 	function(context)
 		FACTION_TURN = cm:load_value("FACTION_TURN", "nil", context);
+		FACTIONS_TO_RELIGIONS = LoadKeyPairTable(context, "FACTIONS_TO_RELIGIONS");
 		REGIONS_RAZED = LoadTable(context, "REGIONS_RAZED");
 		SACKED_SETTLEMENTS = LoadTable(context, "SACKED_SETTLEMENTS");
 		SACKED_SETTLEMENTS2 = LoadTable(context, "SACKED_SETTLEMENTS2");
@@ -527,6 +528,7 @@ cm:register_loading_game_callback(
 cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("FACTION_TURN", FACTION_TURN, context);
+		SaveKeyPairTable(context, FACTIONS_TO_RELIGIONS, "FACTIONS_TO_RELIGIONS");
 		SaveTable(context, REGIONS_RAZED, "REGIONS_RAZED");
 		SaveTable(context, SACKED_SETTLEMENTS, "SACKED_SETTLEMENTS");
 		SaveTable(context, SACKED_SETTLEMENTS2, "SACKED_SETTLEMENTS2");
