@@ -58,9 +58,11 @@ function OnComponentLClickUp_Global_UI(context)
 	elseif context.string == "Summary" then
 		cm:add_time_trigger("Faction_Panel_Convert_Check", 0.0); -- Some regions shouldn't be convertable to, like Catholic Heresies.
 	elseif convert_panel_open == true then
-		if context.string == "button_tick" or context.string == "button_cancel" or context.string == "clan" then
-			cm:add_time_trigger("religion_possibly_changed", 0.0);
-			convert_panel_open = false;
+		if cm:is_multiplayer() == false then
+			if context.string == "button_tick" or context.string == "button_cancel" or context.string == "clan" then
+				cm:add_time_trigger("religion_possibly_changed", 0.0);
+				convert_panel_open = false;
+			end
 		end
 	elseif DIPLOMACY_PANEL_OPEN == true then
 		if context.string == "map" or context.string == "button_icon" or context.string == "flag" then

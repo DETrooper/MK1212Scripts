@@ -163,7 +163,10 @@ function Check_Character_Nickname(character)
 
 		for trait, nickname in pairs(TRAITS_TO_NICKNAMES) do
 			if character:has_trait(trait) then
-				Add_Character_Nickname(cqi, nickname, false);
+				-- Make sure the character actually has the trait and it isn't just invisible.
+				if character:trait_level(trait) >= 1 then
+					Add_Character_Nickname(cqi, nickname, false);
+				end
 			end
 		end
 
@@ -268,18 +271,18 @@ cm:register_loading_game_callback(
 	end
 );
 
-local function SaveNicknamesStatsTable(context, tab, savename)
+function SaveNicknamesStatsTable(context, tab, savename)
 	local savestring = "";
 	
-	for key, tab2 in pairs(tab) do
-		savestring = savestring..key..","..tostring(tab2.regions_taken)..","..tostring(tab2.captives_killed)..","..tostring(tab2.times_excommunicated)..","..tostring(tab2.turns_without_revolt)..","..tostring(tab2.heroic_victories)",;";
+	for cqi, tab2 in pairs(tab) do
+		savestring = savestring..cqi..","..tostring(tab2["regions_taken"])..","..tostring(tab2["captives_killed"])..","..tostring(tab2["times_excommunicated"])..","..tostring(tab2["turns_without_revolt"])..","..tostring(tab2["heroic_victories"])..",;";
 	end
 
 	cm:save_value(savename, savestring, context);
 end
 
 
-local function LoadNicknamesStatsTable(context, savename)
+function LoadNicknamesStatsTable(context, savename)
 	local savestring = cm:load_value(savename, "", context);
 	local tab = {};
 	
