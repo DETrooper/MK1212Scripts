@@ -171,11 +171,11 @@ function Rename_Save_Ironman()
 		local auto_save_path = save_path.."auto_save.save";
 		local ironman_save_path = save_path..IRONMAN_SAVE_NAME..".save";
 
-		if util.fileExists(ironman_save_path) == true then
-			os.remove(ironman_save_path);
-		end
+		if util.fileExists(auto_save_path) then
+			if util.fileExists(ironman_save_path) then
+				os.remove(ironman_save_path);
+			end
 
-		if util.fileExists(auto_save_path) == true then
 			os.rename(auto_save_path, ironman_save_path);
 		end
 	end
@@ -187,7 +187,7 @@ function Save_Game_Ironman(disable_delay)
 	cm:add_time_trigger("disable_saving", disable_delay);
 
 	if cm:model():difficulty_level() > -3 then -- Legendary saves don't need to be renamed.
-		cm:add_time_trigger("rename_save_game", disable_delay);
+		cm:add_time_trigger("rename_save_game", 1);
 	end
 end
 

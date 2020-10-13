@@ -87,7 +87,5 @@ TRAITS_TO_NICKNAMES = {
 	["att_trait_general_physical_all_maimed_arm"] = "the_lame",
 	["att_trait_general_physical_all_maimed_leg"] = "the_lame",
 	["att_trait_general_personality_all_bravery"] = "the_brave",
-	["att_trait_general_personality_all_mad"] = "the_mad",
-	["mk_trait_crusades_crusader"] = "the_crusader",
-	["mk_trait_crusades_crusader_king"] = "the_crusader"
+	["att_trait_general_personality_all_mad"] = "the_mad"
 };

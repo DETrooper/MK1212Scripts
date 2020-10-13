@@ -356,14 +356,15 @@ end
 
 function Religion_Check(faction)
 	local faction_name = faction:name();
+	local state_religion = faction:state_religion();
 
 	if FACTIONS_TO_RELIGIONS[faction_name] then
-		if FACTIONS_TO_RELIGIONS[faction_name] ~= faction:state_religion() then
+		if FACTIONS_TO_RELIGIONS[faction_name] ~= state_religion then
 			cm:trigger_event("FactionReligionConverted", faction);
 		end
 	end
 
-	FACTIONS_TO_RELIGIONS[faction_name] = faction:state_religion();
+	FACTIONS_TO_RELIGIONS[faction_name] = state_religion;
 end
 
 function Transfer_Region_To_Faction(region_name, faction_name)

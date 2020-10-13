@@ -381,6 +381,10 @@ function Check_Trait_Crusade_Battle_Victory(character)
 	local character_faction_name = character:faction():name();
 
 	if HasValue(CURRENT_CRUSADE_FACTIONS_JOINED, character_faction_name) then
+		if NICKNAMES then
+			Add_Character_Nickname(character_cqi, "the_crusader", false);
+		end
+
 		if character:is_faction_leader() and character:trait_level("mk_trait_crusades_crusader_king") < 3 then
 			cm:force_add_trait("character_cqi:"..character_cqi, "mk_trait_crusades_crusader_king", true);
 

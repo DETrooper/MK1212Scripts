@@ -7,6 +7,8 @@
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
+--local dev = require("lua_scripts.dev");
+
 CHARACTERS_TO_NICKNAMES = {};
 CHARACTERS_TO_NICKNAME_STATS = {};
 
@@ -150,10 +152,10 @@ end
 function Check_Character_Nickname(character)
 	-- For now only generals will have nicknames, since most nicknames only really concern them.
 	if character:character_type("general") then
+		--dev.log("Checking character "..tostring(character:cqi()).." for faction "..character:faction():name());
 		local age = character:age();
 		local cqi = character:cqi();
 		local cqi_str = tostring(cqi);
-		local faction_region_list = character:faction():region_list();
 
 		if age >= 90 then
 			Add_Character_Nickname(cqi, "the_undying", false);
@@ -164,7 +166,7 @@ function Check_Character_Nickname(character)
 		for trait, nickname in pairs(TRAITS_TO_NICKNAMES) do
 			if character:has_trait(trait) then
 				-- Make sure the character actually has the trait and it isn't just invisible.
-				if character:trait_level(trait) >= 1 then
+				if character:trait_points(trait) >= 1 then
 					Add_Character_Nickname(cqi, nickname, false);
 				end
 			end
@@ -172,8 +174,12 @@ function Check_Character_Nickname(character)
 
 		Validate_Characker_Nickname_Stats(cqi_str);
 
-		if faction_region_list:num_items() > 4 then
-			CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt = CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt + 1;
+		if character:is_faction_leader() then
+			local faction_region_list = character:faction():region_list();
+
+			if faction_region_list:num_items() > 4 then
+				CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt = CHARACTERS_TO_NICKNAME_STATS[cqi_str].turns_without_revolt + 1;
+			end
 		end
 
 		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].regions_taken >= 30 then
@@ -216,6 +222,7 @@ end
 
 function Decrease_Character_Nickname_Stat(cqi, stat, amount)
 	local cqi_str = tostring(cqi);
+	--dev.log("Decreasing char nickname stat "..stat.." for "..cqi_str.." for faction "..character:faction():name());
 
 	Validate_Characker_Nickname_Stats(cqi_str);
 
@@ -228,6 +235,7 @@ end
 
 function Increase_Character_Nickname_Stat(cqi, stat, amount)
 	local cqi_str = tostring(cqi);
+	--dev.log("Increasing char nickname stat "..stat.." for "..cqi_str.." for faction "..character:faction():name());
 
 	Validate_Characker_Nickname_Stats(cqi_str);
 
@@ -236,6 +244,7 @@ end
 
 function Set_Character_Nickname_Stat(cqi, stat, value)
 	local cqi_str = tostring(cqi);
+	--dev.log("Increasing char nickname stat "..stat.." for "..cqi_str.." for faction "..character:faction():name());
 
 	Validate_Characker_Nickname_Stats(cqi_str);
 

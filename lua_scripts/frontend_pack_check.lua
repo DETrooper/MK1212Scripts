@@ -15,20 +15,20 @@ local all_packs_enabled = true;
 local all_packs_in_order = true;
 
 REQUIRED_PACKS = {
-	["1-1212scriptsTEST.pack"] = {enabled = true, packPos = nil, order = 1, name = "1-1212scripts.pack"},
-	--["1-1212scripts.pack"] = {enabled = true, packPos = nil, order = 1, name = "Medieval Kingdoms 1212 AD Scripts"},
-	["1212_all_settlement_walled_v2.pack"] = {enabled = false, packPos = nil, order = 2, name = "All Settlement Walled - Siege Map Replacer"},
-	["1212compiletest.pack"] = {enabled = false, packPos = nil, order = 3, name = "1212compiletest.pack"},
-	--["1212compbuild_v2.pack"] = {enabled = false, packPos = nil, order = 3, name = "Medieval Kingdoms 1212 AD Base Pack"},
-	["1212models1_v2.pack"] = {enabled = false, packPos = nil, order = 4, name = "Medieval Kingdoms 1212 AD Models Pack 1"},
-	["1212models2.pack"] = {enabled = false, packPos = nil, order = 5, name = "Medieval Kingdoms 1212 AD Models Pack 2"},
-	["1212models3.pack"] = {enabled = false, packPos = nil, order = 6, name = "Medieval Kingdoms 1212 AD Models Pack 3"},
-	["1212models4.pack"] = {enabled = false, packPos = nil, order = 7, name = "Medieval Kingdoms 1212 AD Models Pack 4"},
-	["1212models5.pack"] = {enabled = false, packPos = nil, order = 8, name = "Medieval Kingdoms 1212 AD Models Pack 5"},
-	["1212models6.pack"] = {enabled = false, packPos = nil, order = 9, name = "Medieval Kingdoms 1212 AD Models Pack 6"},
-	["1212models7.pack"] = {enabled = false, packPos = nil, order = 10, name = "Medieval Kingdoms 1212 AD Models Pack 7"},
-	["1212music.pack"] = {enabled = false, packPos = nil, order = 11, name = "Medieval Kingdoms 1212 AD Music"}
-}
+	{key = "1-1212scriptsTEST.pack", enabled = true, packPos = nil, order = 1, name = "1-1212scriptsTEST.pack"},
+	--{key = "1-1212scripts.pack", enabled = true, packPos = nil, order = 1, name = "Medieval Kingdoms 1212 AD Scripts"},
+	{key = "1212_all_settlement_walled_v2.pack", enabled = false, packPos = nil, order = 2, name = "All Settlement Walled - Siege Map Replacer"},
+	{key = "1212compiletest.pack", enabled = false, packPos = nil, order = 3, name = "1212compiletest.pack"},
+	--{key = "1212compbuild_v2.pack", enabled = false, packPos = nil, order = 3, name = "Medieval Kingdoms 1212 AD Base Pack"},
+	{key = "1212models1_v2.pack", enabled = false, packPos = nil, order = 4, name = "Medieval Kingdoms 1212 AD Models Pack 1"},
+	{key = "1212models2.pack", enabled = false, packPos = nil, order = 5, name = "Medieval Kingdoms 1212 AD Models Pack 2"},
+	{key = "1212models3.pack", enabled = false, packPos = nil, order = 6, name = "Medieval Kingdoms 1212 AD Models Pack 3"},
+	{key = "1212models4.pack", enabled = false, packPos = nil, order = 7, name = "Medieval Kingdoms 1212 AD Models Pack 4"},
+	{key = "1212models5.pack", enabled = false, packPos = nil, order = 8, name = "Medieval Kingdoms 1212 AD Models Pack 5"},
+	{key = "1212models6.pack", enabled = false, packPos = nil, order = 9, name = "Medieval Kingdoms 1212 AD Models Pack 6"},
+	{key = "1212models7.pack", enabled = false, packPos = nil, order = 10, name = "Medieval Kingdoms 1212 AD Models Pack 7"},
+	{key = "1212music.pack", enabled = false, packPos = nil, order = 11, name = "Medieval Kingdoms 1212 AD Music"}
+};
 
 eh:add_listener(
 	"OnUICreated_Pack_Check",
@@ -64,13 +64,15 @@ function OnUICreated_Pack_Check(context)
 				local packName = line:sub(6, #line - 2);
 				packPos = packPos + 1;
 
-				if REQUIRED_PACKS[packName] then
-					REQUIRED_PACKS[packName].enabled = true;
-					REQUIRED_PACKS[packName].packPos = packPos;
+				for i = 1, #REQUIRED_PACKS do
+					if REQUIRED_PACKS[i].key == packName then
+						REQUIRED_PACKS[i].enabled = true;
+						REQUIRED_PACKS[i].packPos = packPos;
 
-					if all_packs_in_order == true then
-						if packPos ~= REQUIRED_PACKS[packName].order then
-							all_packs_in_order = false;
+						if all_packs_in_order == true then
+							if packPos ~= REQUIRED_PACKS[i].order then
+								all_packs_in_order = false;
+							end
 						end
 					end
 				end
@@ -83,8 +85,8 @@ function OnUICreated_Pack_Check(context)
 	if all_packs_enabled == false then
 		warning_string = warning_string.."The following mandatory .pack files are missing:\n\n";
 
-		for k, v in pairs(REQUIRED_PACKS) do
-			local pack = v;
+		for i = 1, #REQUIRED_PACKS do
+			local pack = REQUIRED_PACKS[i];
 	
 			if pack.enabled ~= true then
 				if all_packs_enabled == true then
@@ -101,8 +103,8 @@ function OnUICreated_Pack_Check(context)
 	elseif all_packs_in_order == false then
 		warning_string = warning_string.."The following .pack files are out of order:\n\n";
 
-		for k, v in pairs(REQUIRED_PACKS) do
-			local pack = v;
+		for i = 1, #REQUIRED_PACKS do
+			local pack = REQUIRED_PACKS[i];
 
 			if pack.packPos ~= pack.order then
 				warning_string = warning_string.."("..tostring(pack.packPos)..") "..pack.name.."\nRecommended: "..tostring(pack.order).."\n";
