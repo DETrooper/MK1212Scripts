@@ -259,17 +259,23 @@ function Add_New_Electors_HRE_Elections()
 end
 
 function Check_Faction_Votes_HRE_Elections(faction_name)
+	local emperor_alive = FactionIsAlive(HRE_EMPEROR_KEY);
+
 	if FactionIsAlive(faction_name) then
 		local faction_state = HRE_Get_Faction_State(faction_name);
 
-		if faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor" then
+		if emperor_alive and (faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor") then
 			Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
 		elseif faction_state == "neutral" then
-			-- 50/50 chance of voting for themselves or for the emperor.
-			local chance = cm:random_number(2);
+			if emperor_alive then
+				-- 50/50 chance of voting for themselves or for the emperor.
+				local chance = cm:random_number(2);
 
-			if chance == 1 then
-				Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
+				if chance == 1 then
+					Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
+				else
+					Cast_Vote_For_Faction_HRE(faction_name, faction_name);
+				end
 			else
 				Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 			end
@@ -300,11 +306,15 @@ function Calculate_Num_Votes_HRE_Elections(faction_name)
 end
 
 function Cast_Vote_For_Faction_HRE(faction_name, candidate_faction_name)
-	HRE_FACTIONS_VOTES[faction_name] = candidate_faction_name;
+	if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, faction_name)) then
+		HRE_FACTIONS_VOTES[faction_name] = candidate_faction_name;
+	end
 end
 
 function Cast_Vote_For_Factions_Candidate_HRE(faction_name, supporting_faction_name)
-	HRE_FACTIONS_VOTES[faction_name] = HRE_FACTIONS_VOTES[supporting_faction_name];
+	if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, faction_name)) then
+		HRE_FACTIONS_VOTES[faction_name] = HRE_FACTIONS_VOTES[supporting_faction_name];
+	end
 end
 
 function HRE_Remove_Elector(faction_name)

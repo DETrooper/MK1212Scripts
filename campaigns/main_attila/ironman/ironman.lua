@@ -7,8 +7,6 @@
 -----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 
-local util = require("lua_scripts/util");
-
 IRONMAN_DIPLOMACY_OCCURED = false; -- Auto-save after peace treaties or war declared involving player.
 IRONMAN_ENABLED = false;
 IRONMAN_SAVE_NAME = "";
@@ -17,7 +15,6 @@ IRONMAN_TURN_ENDED = false; -- If turn ended, then force end turn if save is loa
 function Add_Ironman_Listeners()
 	if cm:is_new_game() then
 		local faction_localisation = Get_DFN_Localisation(cm:get_local_faction());
-		local svr = ScriptedValueRegistry:new();
 
 		IRONMAN_ENABLED = svr:LoadBool("SBOOL_IRONMAN_ENABLED");
 		IRONMAN_SAVE_NAME = faction_localisation.." Ironman "..tostring(os.date("%Y%m%d%H%M%S"));

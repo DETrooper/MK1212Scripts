@@ -70,8 +70,6 @@ end;
 
 -- Enabling this seems to cause a 'Save Failed' error, not entirely sure why.
 
---[[local dev = require("lua_scripts.dev");
-
-require("lua_scripts.logging_callbacks");
+--[[require("lua_scripts.logging_callbacks");
 
 dev.log("scripting.lua ended, all R2TR scripts loaded successfully\n");]]--

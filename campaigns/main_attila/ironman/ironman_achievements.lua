@@ -9,9 +9,6 @@
 
 require("ironman/ironman_achievements_ui");
 
-local dev = require("lua_scripts.dev");
-local util = require("lua_scripts.util");
-
 ACHIEVEMENTS = {};
 ACHIEVEMENT_KEY_LIST = {
 	"achievement_all_the_worlds_a_stage",

@@ -12,8 +12,6 @@ MISSION_MEDIAN_TURNS = 5;
 
 HEATHEN_ALLIANCES = {};
 
-local dev = require("lua_scripts.dev");
-
 function Add_Pope_Mission_Listeners()
 	--[[cm:add_listener(
 		"FactionTurnStart_Check_Mission_Prerequisites",

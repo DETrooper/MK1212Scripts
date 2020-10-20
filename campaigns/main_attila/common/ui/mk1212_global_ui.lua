@@ -97,7 +97,7 @@ end
 
 function OnTimeTrigger_Global_UI(context)
 	if context.string == "religion_possibly_changed" then
-		cm:trigger_event("FactionReligionConverted", cm:model():world():faction_by_key(cm:get_local_faction()));
+		Religion_Check(cm:model():world():faction_by_key(cm:get_local_faction()));
 	elseif context.string == "diplo_hud_check" then
 		local root = cm:ui_root();
 		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));

@@ -22,6 +22,10 @@ end;
 package.loaded["lua_scripts.Campaign_Script_Header"] = nil;
 require "lua_scripts.Campaign_Script_Header";
 
+dev = require("lua_scripts.dev");
+svr = ScriptedValueRegistry:new();
+util = require("lua_scripts.util");
+
 -- name of the campaign, sourced from the name of the containing folder
 campaign_name = get_folder_name_and_shortform();
 

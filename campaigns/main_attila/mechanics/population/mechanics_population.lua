@@ -6,7 +6,6 @@
 --
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
---local dev = require("lua_scripts.dev");
 
 require("mechanics/population/mechanics_population_economy");
 require("mechanics/population/mechanics_population_lists");

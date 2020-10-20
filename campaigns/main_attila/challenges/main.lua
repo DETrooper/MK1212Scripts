@@ -19,8 +19,6 @@ CHALLENGES_ENABLED = {
 
 function Challenge_Initializer()
 	if cm:is_new_game() then
-		local svr = ScriptedValueRegistry:new();
-
 		for k, v in pairs(CHALLENGES_ENABLED) do
 			CHALLENGES_ENABLED[k] = svr:LoadBool("SBOOL_challenge_"..k);
 		end

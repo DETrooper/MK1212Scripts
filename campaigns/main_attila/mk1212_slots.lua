@@ -7,10 +7,6 @@
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
-local dev = require("lua_scripts/dev");
-local svr = ScriptedValueRegistry:new();
-local util = require("lua_scripts/util");
-
 DISCLAIMER_ACCEPTED = false;
 
 function Add_MK1212_Slots_Listeners()

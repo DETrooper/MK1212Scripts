@@ -7,8 +7,6 @@
 --------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------
 
---local dev = require("lua_scripts.dev");
-
 CHARACTERS_ON_CRUSADE = {};
 COLLEGE_OF_CARDINALS_PANEL_OPEN = false;
 CRUSADER_RECRUITMENT_PANEL_CREATED = false;
@@ -66,7 +64,7 @@ function Add_Pope_UI_Listeners()
 		true
 	);
 
-	CreateCollegeOfCardinalsPanel();
+	--CreateCollegeOfCardinalsPanel();
 	CreateCrusaderRecruitmentPanel();
 
 	if POPE_ELECTION_PANEL_OPEN == true then
@@ -187,9 +185,9 @@ function CharacterSelected_Pope_UI(context)
 	button_join_crusade_uic:SetState("inactive"); -- Default to inactive.
 	button_join_crusade_uic:SetVisible(false); -- Default to not visible.
 
-	if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" then
+	--[[if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" then
 		button_college_of_cardinals_uic:SetVisible(true);
-	else
+	else]]--
 		if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 			CloseCrusaderRecruitmentPanel(false);
 		end
@@ -212,7 +210,7 @@ function CharacterSelected_Pope_UI(context)
 				end
 			end
 		end
-	end
+	--end
 end
 
 function OnComponentMouseOn_Pope_UI(context)
@@ -284,11 +282,11 @@ end
 
 function OnComponentLClickUp_Pope_UI(context)
 	if context.string == "button_college_of_cardinals" then
-		if COLLEGE_OF_CARDINALS_PANEL_OPEN == false then
+		--[[if COLLEGE_OF_CARDINALS_PANEL_OPEN == false then
 			OpenCollegeOfCardinalsPanel();
 		else
 			CloseCollegeOfCardinalsPanel(true);
-		end
+		end]]--
 	elseif context.string == "button_join_crusade" then
 		local faction_name = LAST_CHARACTER_SELECTED:faction():name();
 		local faction = LAST_CHARACTER_SELECTED:faction();
@@ -339,10 +337,10 @@ function OnComponentLClickUp_Pope_UI(context)
 		else
 			CloseCrusaderRecruitmentPanel(true);
 		end
-	elseif COLLEGE_OF_CARDINALS_PANEL_OPEN == true then
+	--[[elseif COLLEGE_OF_CARDINALS_PANEL_OPEN == true then
 		if context.string == "button_ok" or context.string == "root" then
 			CloseCollegeOfCardinalsPanel(false);
-		end
+		end]]--
 	elseif CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 	 	if context.string == "button_minimise" or context.string == "button_recruitment" or context.string == "button_mercenaries" or context.string == "root" then
 			CloseCrusaderRecruitmentPanel(false);
@@ -465,7 +463,7 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 		end
 	end
 
-	CloseCollegeOfCardinalsPanel(false);
+	--CloseCollegeOfCardinalsPanel(false);
 	CloseCrusaderRecruitmentPanel(false);
 end
 

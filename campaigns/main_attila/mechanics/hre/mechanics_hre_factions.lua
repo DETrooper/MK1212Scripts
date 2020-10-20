@@ -501,6 +501,9 @@ function HRE_Emperor_Check()
 		elseif CURRENT_HRE_REFORM < 8 then
 			if FactionIsAlive(HRE_EMPEROR_KEY) == false then
 				-- Emperor faction was destroyed, so elect a new emperor!
+				HRE_EMPEROR_KEY = "nil";
+
+				Refresh_HRE_Elections();
 				Process_Election_Result_HRE_Elections();
 			end
 		end

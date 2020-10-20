@@ -61,20 +61,28 @@ function OnUICreated_Pack_Check(context)
 	
 		for line in modsFile:lines() do
 			if line:sub(1, 3) == "mod" then
-				local packName = line:sub(6, #line - 2);
+				local pack_name = line:sub(6, #line - 2);
+				local pack_found = false;
 				packPos = packPos + 1;
 
 				for i = 1, #REQUIRED_PACKS do
-					if REQUIRED_PACKS[i].key == packName then
+					if REQUIRED_PACKS[i].key == pack_name then
 						REQUIRED_PACKS[i].enabled = true;
 						REQUIRED_PACKS[i].packPos = packPos;
+						pack_found = true;
 
 						if all_packs_in_order == true then
 							if packPos ~= REQUIRED_PACKS[i].order then
 								all_packs_in_order = false;
 							end
 						end
+
+						break;
 					end
+				end
+
+				if pack_found == false then
+					all_packs_enabled = false;
 				end
 			end
 		end

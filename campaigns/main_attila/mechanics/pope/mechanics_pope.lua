@@ -13,7 +13,7 @@
 -- Other Pope stuff!!!
 require("mechanics/pope/mechanics_pope_lists");
 require("mechanics/pope/mechanics_pope_favour");
-require("mechanics/pope/mechanics_pope_college");
+--require("mechanics/pope/mechanics_pope_college");
 require("mechanics/pope/mechanics_pope_crusades");
 --require("mechanics/pope/mechanics_pope_missions");
 require("mechanics/pope/mechanics_pope_ui");
@@ -52,7 +52,7 @@ function Add_Pope_Listeners()
 
 	if cm:is_multiplayer() == false then
 		Add_Crusade_Event_Listeners();
-		Add_Pope_College_Listeners();
+		--Add_Pope_College_Listeners();
 		Add_Pope_UI_Listeners();
 	else
 		AUTOMATIC_POPE_SELECTION = true;
