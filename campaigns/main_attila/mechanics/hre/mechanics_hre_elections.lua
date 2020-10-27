@@ -26,33 +26,35 @@ function Add_HRE_Election_Listeners()
 end
 
 function FactionTurnStart_HRE_Elections(context)
-	if context:faction():name() == HRE_EMPEROR_KEY then
-		if #HRE_FACTIONS_ELECTORS > 0 then
-			for i = 1, #HRE_FACTIONS_ELECTORS do
-				if not FactionIsAlive(HRE_FACTIONS_ELECTORS[i]) then
-					table.remove(HRE_FACTIONS_ELECTORS, i);
+	if not HRE_DESTROYED then
+		if context:faction():name() == HRE_EMPEROR_KEY then
+			if #HRE_FACTIONS_ELECTORS > 0 then
+				for i = 1, #HRE_FACTIONS_ELECTORS do
+					if not FactionIsAlive(HRE_FACTIONS_ELECTORS[i]) then
+						table.remove(HRE_FACTIONS_ELECTORS, i);
+					end
 				end
 			end
 		end
-	end
 
-	-- Has the first reform limiting the electors to a small group been passed?
-	if CURRENT_HRE_REFORM < 1 then
-		-- All factions in the HRE can currently vote.
+		-- Has the first reform limiting the electors to a small group been passed?
+		if CURRENT_HRE_REFORM < 1 then
+			-- All factions in the HRE can currently vote.
 
-		--[[if HasValue(HRE_FACTIONS, context:faction():name()) then
-			Check_Faction_Votes_HRE_Elections(context:faction():name());
-		end]]--
-	-- Has the eighth reform which abolishes elections been passed?
-	elseif CURRENT_HRE_REFORM < 8 then
-		-- Only the prince-electors (and emperor) can vote.
-		if #HRE_FACTIONS_ELECTORS < 7 then
-			Add_New_Electors_HRE_Elections();
+			--[[if HasValue(HRE_FACTIONS, context:faction():name()) then
+				Check_Faction_Votes_HRE_Elections(context:faction():name());
+			end]]--
+		-- Has the eighth reform which abolishes elections been passed?
+		elseif CURRENT_HRE_REFORM < 8 then
+			-- Only the prince-electors (and emperor) can vote.
+			if #HRE_FACTIONS_ELECTORS < 7 then
+				Add_New_Electors_HRE_Elections();
+			end
+
+			--[[if HasValue(HRE_FACTIONS_ELECTORS, context:faction():name()) or context:faction():name() == HRE_EMPEROR_KEY then
+				Check_Faction_Votes_HRE_Elections(context:faction():name());
+			end]]--
 		end
-
-		--[[if HasValue(HRE_FACTIONS_ELECTORS, context:faction():name()) or context:faction():name() == HRE_EMPEROR_KEY then
-			Check_Faction_Votes_HRE_Elections(context:faction():name());
-		end]]--
 	end
 end
 
@@ -131,17 +133,28 @@ function Process_Election_Result_HRE_Elections()
 			);
 		else
 			-- Emperor is dead and nobody is voting or there was a tie. Is the HRE dead?
-			
+			HRE_Destroyed_Check();
 		end
 	end
 
-	Refresh_HRE_Elections();
+	if not HRE_DESTROYED then
+		Refresh_HRE_Elections();
+	end
 end
 
-function Find_Strongest_Disloyal_Faction_HRE_Elections()
+function Find_Strongest_Faction_HRE_Elections(required_states)
 	local factions = {};
 	local strongest_faction = nil;
 	local strongest_faction_strength = 0;
+
+	if not required_states or (required_states and next(required_states) == nil) then
+		required_states = {};
+
+		-- Fill the required_states table with all HRE states as all will be valid.
+		for k, v in pairs(HRE_STATES) do
+			table.insert(required_states, k);
+		end
+	end
 
 	-- If there is a pretender, always vote for them.
 	if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
@@ -153,19 +166,21 @@ function Find_Strongest_Disloyal_Faction_HRE_Elections()
 		local faction = cm:model():world():faction_by_key(faction_name);
 		local faction_state = HRE_Get_Faction_State(faction_name);
 
-		if faction_state == "malcontent" or faction_state == "discontent" or faction_state == "ambitious" then
-			local faction_strength = (faction:region_list():num_items() * 10) + (faction:num_allies() * 15);
+		for i = 1, #required_states do
+			if faction_state == required_states[i] then
+				local faction_strength = (faction:region_list():num_items() * 10) + (faction:num_allies() * 15);
 
-			local forces = faction:military_force_list();
+				local forces = faction:military_force_list();
 
-			for i = 0, forces:num_items() - 1 do
-				local force = forces:item_at(i);
-				local unit_list = forces:item_at(i):unit_list();
+				for i = 0, forces:num_items() - 1 do
+					local force = forces:item_at(i);
+					local unit_list = forces:item_at(i):unit_list();
 
-				faction_strength = faction_strength + unit_list:num_items();
+					faction_strength = faction_strength + unit_list:num_items();
+				end
+
+				table.insert(factions, {faction_name, faction_strength});
 			end
-
-			table.insert(factions, {faction_name, faction_strength});
 		end
 	end
 
@@ -264,8 +279,13 @@ function Check_Faction_Votes_HRE_Elections(faction_name)
 	if FactionIsAlive(faction_name) then
 		local faction_state = HRE_Get_Faction_State(faction_name);
 
-		if emperor_alive and (faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor") then
-			Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
+		if faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor" then
+			if emperor_alive then
+				Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
+			else
+				-- Emperor faction is dead, so find strongest faction to elect emperor from among the loyalists' ranks.
+				Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Faction_HRE_Elections({"loyal", "puppet"}));
+			end
 		elseif faction_state == "neutral" then
 			if emperor_alive then
 				-- 50/50 chance of voting for themselves or for the emperor.
@@ -282,13 +302,13 @@ function Check_Faction_Votes_HRE_Elections(faction_name)
 		elseif faction_state == "ambitious" then
 			Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 		elseif faction_state == "malcontent" or faction_state == "discontent" then
-			Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Disloyal_Faction_HRE_Elections());
+			Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Faction_HRE_Elections({"malcontent", "discontent", "ambitious"}));
 		else
 			-- Faction doesn't have a state?
 			HRE_State_Check(faction_name);
 			Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 		end
-	elseif HRE_FACTIONS_VOTES[faction_name]  then
+	elseif HRE_FACTIONS_VOTES[faction_name] then
 		HRE_FACTIONS_VOTES[faction_name] = nil;
 	end
 end

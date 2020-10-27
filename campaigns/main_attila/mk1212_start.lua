@@ -6,6 +6,8 @@
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
 
+local fow_disabled = false;
+
 function start_game_all_factions()
 	local faction_list = cm:model():world():faction_list();
 
@@ -62,6 +64,16 @@ function start_game_all_factions()
 	--if cm:is_multiplayer() then
 		--Add_MK1212_Networking_Listeners();
 	--end
+
+	if fow_disabled then
+		local region_list = cm:model():world():region_manager():region_list();
+
+		for i = 0, region_list:num_items() - 1 do
+			local region_name = region_list:item_at(i):name();
+
+			cm:make_region_visible_in_shroud(cm:get_local_faction(), region_name);
+		end
+	end
 end;
 
 --------------------------------------------------------------------------------------------------------------------

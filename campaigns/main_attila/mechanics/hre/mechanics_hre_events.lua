@@ -18,54 +18,56 @@ HRE_CURRENT_EVENT_FACTION1 = "";
 HRE_CURRENT_EVENT_FACTION2 = "";
 
 function Add_HRE_Event_Listeners()
-	local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+	if not HRE_DESTROYED and HRE_EMPEROR_KEY and HRE_EMPEROR_KEY ~= "nil" then
+		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 
-	if emperor_faction:is_human() then
-		cm:add_listener(
-			"FactionTurnStart_HRE_Events",
-			"FactionTurnStart",
-			true,
-			function(context) FactionTurnStart_HRE_Events(context) end,
-			true
-		);
-		cm:add_listener(
-			"DilemmaChoiceMadeEvent_HRE_Events",
-			"DilemmaChoiceMadeEvent",
-			true,
-			function(context) DilemmaChoiceMadeEvent_HRE_Events(context) end,
-			true
-		);
-		cm:add_listener(
-			"DillemaOrIncidentStarted_HRE_Events",
-			"DillemaOrIncidentStarted",
-			true,
-			function(context) DillemaOrIncidentStarted_HRE_Events(context) end,
-			true
-		);
-		cm:add_listener(
-			"OnComponentLClickUp_HRE_Events",
-			"ComponentLClickUp",
-			true,
-			function(context) OnComponentMouseOnOrClick_HRE_Events(context) end,
-			true
-		);
-		cm:add_listener(
-			"OnComponentMouseOn_HRE_Events",
-			"ComponentMouseOn",
-			true,
-			function(context) OnComponentMouseOnOrClick_HRE_Events(context) end,
-			true
-		);
-		cm:add_listener(
-			"PanelOpenedCampaign_HRE_Events",
-			"PanelOpenedCampaign",
-			true,
-			function(context) PanelOpenedCampaign_HRE_Events(context) end,
-			true
-		);
+		if emperor_faction:is_human() then
+			cm:add_listener(
+				"FactionTurnStart_HRE_Events",
+				"FactionTurnStart",
+				true,
+				function(context) FactionTurnStart_HRE_Events(context) end,
+				true
+			);
+			cm:add_listener(
+				"DilemmaChoiceMadeEvent_HRE_Events",
+				"DilemmaChoiceMadeEvent",
+				true,
+				function(context) DilemmaChoiceMadeEvent_HRE_Events(context) end,
+				true
+			);
+			cm:add_listener(
+				"DillemaOrIncidentStarted_HRE_Events",
+				"DillemaOrIncidentStarted",
+				true,
+				function(context) DillemaOrIncidentStarted_HRE_Events(context) end,
+				true
+			);
+			cm:add_listener(
+				"OnComponentLClickUp_HRE_Events",
+				"ComponentLClickUp",
+				true,
+				function(context) OnComponentMouseOnOrClick_HRE_Events(context) end,
+				true
+			);
+			cm:add_listener(
+				"OnComponentMouseOn_HRE_Events",
+				"ComponentMouseOn",
+				true,
+				function(context) OnComponentMouseOnOrClick_HRE_Events(context) end,
+				true
+			);
+			cm:add_listener(
+				"PanelOpenedCampaign_HRE_Events",
+				"PanelOpenedCampaign",
+				true,
+				function(context) PanelOpenedCampaign_HRE_Events(context) end,
+				true
+			);
 
-		if cm:is_new_game() then
-			HRE_EVENTS_TIMER = cm:random_number(HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX - 1, HRE_EVENTS_MIN_TURN - 1);
+			if cm:is_new_game() then
+				HRE_EVENTS_TIMER = cm:random_number(HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX - 1, HRE_EVENTS_MIN_TURN - 1);
+			end
 		end
 	end
 end

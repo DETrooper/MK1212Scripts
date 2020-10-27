@@ -178,8 +178,6 @@ function FactionTurnStart_HRE_Factions(context)
 		if HRE_LIBERATION_DISABLED == true then
 			HRE_LIBERATION_DISABLED = false;
 		end
-
-		HRE_Check_Factions_In_Empire();
 	else
 		if HRE_LIBERATION_DISABLED == true then
 			HRE_LIBERATION_DISABLED = true;
@@ -187,7 +185,10 @@ function FactionTurnStart_HRE_Factions(context)
 	end
 
 	if context:faction():is_human() then
+		HRE_Check_Factions_In_Empire(); -- Check every turn to see which factions are still in the HRE or which should be removed (such as if they were destroyed).
+
 		HRE_Button_Check(); -- Check every turn if the HRE panel should be hidden or not.
+		HRE_Destroyed_Check(); -- Check to see if the HRE as a whole is destroyed.
 		HRE_Emperor_Check(); -- Check to see if the emperor's faction is dead or destroyed.
 	end
 end
@@ -443,69 +444,100 @@ function HRE_Calculate_Imperial_Authority()
 end
 
 function HRE_Check_Factions_In_Empire()
-	local hre_factions_copy = DeepCopy(HRE_FACTIONS);
+	if not HRE_DESTROYED then
+		local hre_factions_copy = DeepCopy(HRE_FACTIONS);
 
-	for i = 1, #hre_factions_copy do
-		local faction_name = hre_factions_copy[i];
-	
-		if not FactionIsAlive(faction_name) then
-			HRE_Remove_From_Empire(faction_name);
+		for i = 1, #hre_factions_copy do
+			local faction_name = hre_factions_copy[i];
+		
+			if not FactionIsAlive(faction_name) then
+				HRE_Remove_From_Empire(faction_name);
+			end
 		end
-	end
 
-	for i = 1, #HRE_FACTIONS_START do
-		local faction_name = HRE_FACTIONS_START[i];
-	
-		if FactionIsAlive(faction_name) and HasValue(HRE_FACTIONS, faction_name) == false then
-			HRE_Add_To_Empire(faction_name);
-		end	
+		for i = 1, #HRE_FACTIONS_START do
+			local faction_name = HRE_FACTIONS_START[i];
+		
+			if FactionIsAlive(faction_name) and HasValue(HRE_FACTIONS, faction_name) == false then
+				HRE_Add_To_Empire(faction_name);
+			end	
+		end
 	end
 end
 
 function HRE_Check_Regions_In_Empire()
-	local regions_in_empire = 0;
+	if not HRE_DESTROYED then
+		local regions_in_empire = 0;
 
-	for i = 1, #HRE_REGIONS do
-		if HasValue(HRE_FACTIONS, cm:model():world():region_manager():region_by_key(HRE_REGIONS[i]):owning_faction():name()) then
-			regions_in_empire = regions_in_empire + 1;
+		for i = 1, #HRE_REGIONS do
+			if HasValue(HRE_FACTIONS, cm:model():world():region_manager():region_by_key(HRE_REGIONS[i]):owning_faction():name()) then
+				regions_in_empire = regions_in_empire + 1;
+			end
+		end
+
+		HRE_REGIONS_IN_EMPIRE = regions_in_empire;
+	end
+end
+
+function HRE_Destroyed_Check()
+	local hre_faction_alive = false;
+
+	for i = 1, #HRE_FACTIONS do
+		if FactionIsAlive(HRE_FACTIONS[i]) then
+			hre_faction_alive = true;
+			break;
 		end
 	end
 
-	HRE_REGIONS_IN_EMPIRE = regions_in_empire;
+	if not hre_faction_alive then
+		HRE_DESTROYED = true;
+
+		cm:show_message_event(
+			cm:get_local_faction(),
+			"message_event_text_text_mk_event_hre_destroyed_title",
+			"message_event_text_text_mk_event_hre_destroyed_primary",
+			"message_event_text_text_mk_event_hre_destroyed_secondary",
+			true, 
+			713
+		);
+	end
 end
 
 function HRE_Emperor_Check()
-	if HRE_EMPEROR_KEY ~= "nil" then
-		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+	if not HRE_DESTROYED then
+		if HRE_EMPEROR_KEY ~= "nil" then
+			local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 
-		if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
-			local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
+			if HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
+				local pretender_faction = cm:model():world():faction_by_key(HRE_EMPEROR_PRETENDER_KEY);
 
-			if FactionIsAlive(HRE_EMPEROR_PRETENDER_KEY) == false then
-				if emperor_faction:is_human() then
-					cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
-				elseif pretender_faction:is_human() then
-					cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+				if FactionIsAlive(HRE_EMPEROR_PRETENDER_KEY) == false then
+					if emperor_faction:is_human() then
+						cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", true);
+					elseif pretender_faction:is_human() then
+						cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", false);
+					end
+
+					HRE_Pretender_End_Mission(false, "death");
+				elseif FactionIsAlive(HRE_EMPEROR_KEY) == false then
+					if emperor_faction:is_human() then
+						cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
+					elseif pretender_faction:is_human() then
+						cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+					end
+
+					HRE_Pretender_End_Mission(true, "victory");
 				end
-
-				HRE_Pretender_End_Mission(false, "death");
-			elseif FactionIsAlive(HRE_EMPEROR_KEY) == false then
-				if emperor_faction:is_human() then
-					cm:override_mission_succeeded_status(HRE_EMPEROR_KEY, "mk_mission_story_hre_survive_pretender", false);
-				elseif pretender_faction:is_human() then
-					cm:override_mission_succeeded_status(HRE_EMPEROR_PRETENDER_KEY, "mk_mission_story_pretender_take_frankfurt", true);
+			elseif CURRENT_HRE_REFORM < 8 then
+				if FactionIsAlive(HRE_EMPEROR_KEY) == false then
+					-- Emperor faction was destroyed, so elect a new emperor!
+					Refresh_HRE_Elections();
+					Process_Election_Result_HRE_Elections();
 				end
-
-				HRE_Pretender_End_Mission(true, "victory");
 			end
-		elseif CURRENT_HRE_REFORM < 8 then
-			if FactionIsAlive(HRE_EMPEROR_KEY) == false then
-				-- Emperor faction was destroyed, so elect a new emperor!
-				HRE_EMPEROR_KEY = "nil";
-
-				Refresh_HRE_Elections();
-				Process_Election_Result_HRE_Elections();
-			end
+		else
+			Refresh_HRE_Elections();
+			Process_Election_Result_HRE_Elections();
 		end
 	end
 end
@@ -513,16 +545,22 @@ end
 function HRE_Replace_Emperor(faction_name)
 	local new_emperor_faction = cm:model():world():faction_by_key(faction_name);
 	local old_emperor = HRE_EMPEROR_KEY;
-	local old_emperor_faction = cm:model():world():faction_by_key(old_emperor);
+	local old_emperor_faction = nil;
+
+	if old_emperor and old_emperor ~= "nil" then
+		old_emperor_faction = cm:model():world():faction_by_key(old_emperor);
+	end
 
 	for i = 1, #HRE_FACTIONS do
-		if HRE_FACTIONS[i] == old_emperor then
-			if not HasValue(HRE_FACTIONS_START, old_emperor) then
-				HRE_Set_Faction_State(old_emperor, "not_in_empire", true);
-				table.remove(HRE_FACTIONS, i);
-				break;
-			else
-				HRE_Set_Faction_State(old_emperor, "neutral", true);
+		if old_emperor_faction then
+			if HRE_FACTIONS[i] == old_emperor then
+				if not HasValue(HRE_FACTIONS_START, old_emperor) then
+					HRE_Set_Faction_State(old_emperor, "not_in_empire", true);
+					table.remove(HRE_FACTIONS, i);
+					break;
+				else
+					HRE_Set_Faction_State(old_emperor, "neutral", true);
+				end
 			end
 		end
 	end
@@ -532,8 +570,10 @@ function HRE_Replace_Emperor(faction_name)
 	end
 
 	if CURRENT_HRE_REFORM > 0 then
-		for i = 1, CURRENT_HRE_REFORM - 1 do
-			cm:remove_effect_bundle("mk_effect_bundle_reform_"..tostring(i), old_emperor);
+		if old_emperor_faction then
+			for i = 1, CURRENT_HRE_REFORM - 1 do
+				cm:remove_effect_bundle("mk_effect_bundle_reform_"..tostring(i), old_emperor);
+			end
 		end
 
 		cm:apply_effect_bundle("mk_effect_bundle_reform_"..tostring(CURRENT_HRE_REFORM), faction_name, 0);
@@ -548,8 +588,10 @@ function HRE_Replace_Emperor(faction_name)
 		HRE_Event_Reset_Timer();
 	end
 
-	if old_emperor_faction:is_human() then
-		Remove_HRE_Event_Listeners();
+	if old_emperor_faction then 
+		if old_emperor_faction:is_human() then
+			Remove_HRE_Event_Listeners();
+		end
 	end
 
 	HRE_EMPEROR_KEY = faction_name;
@@ -564,9 +606,12 @@ function HRE_Replace_Emperor(faction_name)
 	end
 
 	DFN_Disable_Forming_Kingdoms(faction_name);
-	DFN_Enable_Forming_Kingdoms(old_emperor);
 	DFN_Refresh_Faction_Name(faction_name);
-	DFN_Refresh_Faction_Name(old_emperor);
+
+	if old_emperor_faction then
+		DFN_Enable_Forming_Kingdoms(old_emperor);
+		DFN_Refresh_Faction_Name(old_emperor);
+	end
 
 	if faction_name == HRE_EMPEROR_PRETENDER_KEY then
 		if IRONMAN_ENABLED then
@@ -579,11 +624,13 @@ function HRE_Replace_Emperor(faction_name)
 			end
 		end
 
-		if old_emperor_faction:at_war_with(new_emperor_faction) then
-			cm:force_diplomacy(old_emperor, faction_name, "peace", true, true);
-			cm:force_diplomacy(faction_name, old_emperor, "peace", true, true);
-			cm:force_make_peace(faction_name, old_emperor);
-			SetFactionsNeutral(faction_name, old_emperor);
+		if old_emperor_faction then
+			if old_emperor_faction:at_war_with(new_emperor_faction) then
+				cm:force_diplomacy(old_emperor, faction_name, "peace", true, true);
+				cm:force_diplomacy(faction_name, old_emperor, "peace", true, true);
+				cm:force_make_peace(faction_name, old_emperor);
+				SetFactionsNeutral(faction_name, old_emperor);
+			end
 		end
 	end
 

@@ -182,8 +182,8 @@ function FactionTurnStart_Annex(context)
 
 				Stop_Annexing_Vassal(faction_name, vassalized_faction_name);
 			end
-		elseif faction_is_human == false and vassal_faction:is_human() == false then
-			if FACTIONS_VASSALIZED_DELAYS[vassalized_faction_name] == 0 and Get_Vassal_Currently_Annexing(faction_name) == nil then
+		elseif not faction_is_human and not vassal_faction:is_human() then
+			if FACTIONS_VASSALIZED_DELAYS[vassalized_faction_name] == 0 and not Get_Vassal_Currently_Annexing(faction_name) then
 				-- Todo: Add personality check?
 
 				Start_Annexing_Vassal(faction_name, vassalized_faction_name);
@@ -321,6 +321,13 @@ function OnComponentLClickUp_Annex_UI(context)
 		end
 	elseif DIPLOMACY_PANEL_OPEN == true then
 		if context.string == "map" or context.string == "button_icon" or context.string == "flag" or string.find(context.string, "faction_row_entry_") then
+			local root = cm:ui_root();
+			local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
+			local btnAnnex = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
+
+			btnAnnex:SetStateText("");
+			btnAnnex:SetState("inactive");
+
 			cm:add_time_trigger("annex_diplo_hud_check", 0.1);
 		end
 	end
@@ -340,22 +347,23 @@ function TimeTrigger_Annex_UI(context)
 		--local faction_left_status_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("faction_left_status_panel"));
 		--local diplomatic_relations_uic = UIComponent(faction_left_status_panel_uic:Find("diplomatic_relations"));
 		--local icon_vassals_uic = UIComponent( diplomatic_relations_uic:Find("icon_vassals"));
+	
+		local annexing_faction = Get_Vassal_Currently_Annexing(cm:get_local_faction());
 
-		btnAnnex:SetStateText("");
-		btnAnnex:SetState("inactive");
-	
-		if FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == false then
-			if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[cm:get_local_faction()], DIPLOMACY_SELECTED_FACTION) then
-				DIPLOMACY_SELECTED_FACTION = DIPLOMACY_SELECTED_FACTION;
-	
-				if FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION] == 0 then
-					btnAnnex:SetState("active"); 
-				else
-					btnAnnex:SetStateText(tostring(FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION]));
+		if not annexing_faction or annexing_faction == DIPLOMACY_SELECTED_FACTION then
+			if FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == false then
+				if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[cm:get_local_faction()], DIPLOMACY_SELECTED_FACTION) then
+					DIPLOMACY_SELECTED_FACTION = DIPLOMACY_SELECTED_FACTION;
+		
+					if FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION] == 0 then
+						btnAnnex:SetState("active"); 
+					else
+						btnAnnex:SetStateText(tostring(FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION]));
+					end
 				end
+			elseif HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[cm:get_local_faction()], DIPLOMACY_SELECTED_FACTION) then
+				btnAnnex:SetState("active");
 			end
-		elseif HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[cm:get_local_faction()], DIPLOMACY_SELECTED_FACTION) then
-			btnAnnex:SetState("active");
 		end
 
 		-- (Doesn't work) Having a true vassal (i.e. one released using the buffer state mechanic) will overwrite client states on the UI, so we need to fix that.
@@ -366,12 +374,14 @@ function TimeTrigger_Annex_UI(context)
 end
 
 function Start_Annexing_Vassal(master_faction_name, vassalized_faction_name)
-	FACTIONS_VASSALIZED_ANNEXING[vassalized_faction_name] = true;
+	if not Get_Vassal_Currently_Annexing(master_faction_name) then
+		FACTIONS_VASSALIZED_ANNEXING[vassalized_faction_name] = true;
 
-	for i = 1, #ANNEX_VASSALS_SIZES do
-		if cm:model():world():faction_by_key(vassalized_faction_name):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
-			cm:apply_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], master_faction_name, 0);
-			break;
+		for i = 1, #ANNEX_VASSALS_SIZES do
+			if cm:model():world():faction_by_key(vassalized_faction_name):region_list():num_items() >= tonumber(ANNEX_VASSALS_SIZES[i]) then
+				cm:apply_effect_bundle("mk_bundle_annex_vassal_regions_"..ANNEX_VASSALS_SIZES[i], master_faction_name, 0);
+				break;
+			end
 		end
 	end
 end

@@ -234,13 +234,15 @@ function CreateCivilWarArmy(region, culture, rebel_faction_name, army_id, x, y)
 end
 
 function FactionIsAlive(faction_name)
-	local faction = cm:model():world():faction_by_key(faction_name);
+	if faction_name and faction_name ~= "nil" then
+		local faction = cm:model():world():faction_by_key(faction_name);
 
-	if faction:has_home_region() or faction:military_force_list():num_items() > 0 then
-		return true;
+		if faction:has_home_region() or faction:military_force_list():num_items() > 0 then
+			return true;
+		end
+
+		return false;
 	end
-
-	return false;
 end
 
 function FindClosestRegion(x, y, faction)
