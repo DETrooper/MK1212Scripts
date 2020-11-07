@@ -217,6 +217,7 @@ FACTIONS_NAMES_LOCALISATION = {
 	["mk_fact_brandenburg"] = "Margraviate of Brandenburg",
 	["mk_fact_bulgaria"] = "Tsardom of Bulgaria",
 	["mk_fact_burgundy"] = "Duchy of Burgundy",
+	["mk_fact_candar"] = "Jandarid Beylik",
 	["mk_fact_castile"] = "Kingdom of Castile",
 	["mk_fact_chernigov"] = "Grand Knyazate of Chernigov",
 	["mk_fact_crimea"] = "Crimean Khanate",

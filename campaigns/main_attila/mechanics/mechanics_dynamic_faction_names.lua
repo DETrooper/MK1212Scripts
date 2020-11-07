@@ -148,13 +148,12 @@ function OnPanelOpenedCampaign_DFN_UI(context)
 end
 
 function Get_DFN_Localisation(faction_name)
-	local faction_string = FACTIONS_NAMES_LOCALISATION[faction_name];
+	local faction_string = FACTIONS_NAMES_LOCALISATION[faction_name] or "Unknown";
 
-	if FACTIONS_DFN_LEVEL[faction_name]  and FACTIONS_DFN_LEVEL[faction_name] > 1 then
+	if FACTIONS_DFN_LEVEL[faction_name] and FACTIONS_DFN_LEVEL[faction_name] > 1 then
 		local dfn_string = faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]);
+		
 		faction_string = DFN_NAMES_LOCALISATION[dfn_string];
-	else
-		faction_string = FACTIONS_NAMES_LOCALISATION[faction_name];
 	end
 
 	if faction_name == HRE_EMPEROR_KEY then

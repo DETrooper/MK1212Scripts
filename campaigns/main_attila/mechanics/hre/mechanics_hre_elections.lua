@@ -221,11 +221,19 @@ function Refresh_HRE_Elections()
 
 	if CURRENT_HRE_REFORM < 1 then
 		for i = 1, #HRE_FACTIONS do
-			Check_Faction_Votes_HRE_Elections(HRE_FACTIONS[i]);
+			local faction = cm:model():world():faction_by_key(HRE_FACTIONS[i]);
+			
+			if not faction:is_human() then
+				Check_Faction_Votes_HRE_Elections(HRE_FACTIONS[i]);
+			end
 		end
 	else
 		for i = 1, #HRE_FACTIONS_ELECTORS do
-			Check_Faction_Votes_HRE_Elections(HRE_FACTIONS_ELECTORS[i]);
+			local faction = cm:model():world():faction_by_key(HRE_FACTIONS_ELECTORS[i]);
+			
+			if not faction:is_human() then
+				Check_Faction_Votes_HRE_Elections(HRE_FACTIONS_ELECTORS[i]);
+			end
 		end
 	end
 end

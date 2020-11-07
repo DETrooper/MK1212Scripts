@@ -130,17 +130,21 @@ function CharacterPerformsOccupationDecisionLootSack_Global(context)
 		SACKED_SETTLEMENTS_TOTAL[faction_name] = {};
 	end
 
-	if not HasValue(SACKED_SETTLEMENTS_TOTAL[faction_name], region:name()) then
-		table.insert(SACKED_SETTLEMENTS_TOTAL[faction_name], region:name());
+	if region then
+		if not HasValue(SACKED_SETTLEMENTS_TOTAL[faction_name], region:name()) then
+			table.insert(SACKED_SETTLEMENTS_TOTAL[faction_name], region:name());
+		end
 	end
 end
 
 function CharacterPerformsOccupationDecisionRaze_Global(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	--dev.log("Razed "..region:name().."!");
+	if region then
+		--dev.log("Razed "..region:name().."!");
 
-	table.insert(REGIONS_RAZED, region:name());
+		table.insert(REGIONS_RAZED, region:name());
+	end
 end
 
 function OnSettlementSelected_Global(context)

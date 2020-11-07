@@ -308,59 +308,62 @@ end
 
 function Check_If_Catholic_Attacked(context, type)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
-	local region_name = region:name();
-	local faction_name = context:character():faction():name();
 
-	if region_name ~= "att_reg_italia_roma" then
-		if type == "LOOTED" or type == "SACKED" then
-			if SackExploitCheck_Pope(region_name) == true then
-				if context:character():faction():is_human() and context:character():faction():state_religion() == "att_rel_chr_catholic" and FACTION_EXCOMMUNICATED[faction_name] ~= true then
-					local defender_cqi, defender_force_cqi, defender_name = cm:pending_battle_cache_get_defender(1);
+	if region then
+		local region_name = region:name();
+		local faction_name = context:character():faction():name();
 
-					if defender_name ~= "rebels" then
-						if FAVOUR_LAST_ATTACKED_GARRISON ~= "" and (FAVOUR_LAST_ATTACKED_GARRISON ~= defender_name) then
-							defender_name = FAVOUR_LAST_ATTACKED_GARRISON;
-						end
+		if region_name ~= "att_reg_italia_roma" then
+			if type == "LOOTED" or type == "SACKED" then
+				if SackExploitCheck_Pope(region_name) == true then
+					if context:character():faction():is_human() and context:character():faction():state_religion() == "att_rel_chr_catholic" and FACTION_EXCOMMUNICATED[faction_name] ~= true then
+						local defender_cqi, defender_force_cqi, defender_name = cm:pending_battle_cache_get_defender(1);
 
-						local sacked_faction = cm:model():world():faction_by_key(defender_name);
+						if defender_name ~= "rebels" then
+							if FAVOUR_LAST_ATTACKED_GARRISON ~= "" and (FAVOUR_LAST_ATTACKED_GARRISON ~= defender_name) then
+								defender_name = FAVOUR_LAST_ATTACKED_GARRISON;
+							end
 
-						if sacked_faction:is_null_interface() == false then
-							local sacked_rel = sacked_faction:state_religion();
+							local sacked_faction = cm:model():world():faction_by_key(defender_name);
 
-							if sacked_rel == "att_rel_chr_catholic" then
-								-- Sacked/Looted another Catholic faction!
-								Subtract_Pope_Favour(faction_name, 1, "sacked_settlement");
+							if sacked_faction:is_null_interface() == false then
+								local sacked_rel = sacked_faction:state_religion();
+
+								if sacked_rel == "att_rel_chr_catholic" then
+									-- Sacked/Looted another Catholic faction!
+									Subtract_Pope_Favour(faction_name, 1, "sacked_settlement");
+								end
 							end
 						end
 					end
 				end
 			end
-		end
-	else
-		if region:owning_faction():name() == PAPAL_STATES_KEY then
-			if context:character():faction():is_human() then
-				if context:character():faction():state_religion() == "att_rel_chr_catholic" then
-					cm:trigger_dilemma(faction_name, "mk_dilemma_rome_attacked_christian");
-					Force_Excommunication(faction_name);
-				else
-					cm:show_message_event(
-						faction_name,
-						"message_event_text_text_mk_event_pope_rome_attacked_nonchrist_title",
-						"message_event_text_text_mk_event_pope_rome_attacked_nonchrist_primary",
-						"message_event_text_text_mk_event_pope_rome_attacked_nonchrist_secondary",
-						true,
-						708
-					);
+		else
+			if region:owning_faction():name() == PAPAL_STATES_KEY then
+				if context:character():faction():is_human() then
+					if context:character():faction():state_religion() == "att_rel_chr_catholic" then
+						cm:trigger_dilemma(faction_name, "mk_dilemma_rome_attacked_christian");
+						Force_Excommunication(faction_name);
+					else
+						cm:show_message_event(
+							faction_name,
+							"message_event_text_text_mk_event_pope_rome_attacked_nonchrist_title",
+							"message_event_text_text_mk_event_pope_rome_attacked_nonchrist_primary",
+							"message_event_text_text_mk_event_pope_rome_attacked_nonchrist_secondary",
+							true,
+							708
+						);
 
-					for i = 0, faction_list:num_items() - 1 do
-						local current_faction = faction_list:item_at(i);
+						for i = 0, faction_list:num_items() - 1 do
+							local current_faction = faction_list:item_at(i);
 
-						if current_faction:state_religion() == "att_rel_chr_catholic" then
-							cm:apply_effect_bundle("mk_bundle_christian_dejection", current_faction:name(), 0);
+							if current_faction:state_religion() == "att_rel_chr_catholic" then
+								cm:apply_effect_bundle("mk_bundle_christian_dejection", current_faction:name(), 0);
+							end
 						end
-					end
 
-					Deactivate_Papal_Favour_System();
+						Deactivate_Papal_Favour_System();
+					end
 				end
 			end
 		end

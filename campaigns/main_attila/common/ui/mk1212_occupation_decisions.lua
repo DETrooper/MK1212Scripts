@@ -55,9 +55,13 @@ end
 function OnCharacterPerformsOccupationDecisionOccupy_Occupation_Decisions(context)
 	if selected_faction_name then
 		if context:character():faction():name() == cm:get_local_faction() then
-			selected_region_name = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"):name(); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
+			local selected_region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-			cm:add_time_trigger("Gift_Region_Occupation_Decisions", 0.1);
+			if selected_region then
+				selected_region_name = selected_region:name();
+				
+				cm:add_time_trigger("Gift_Region_Occupation_Decisions", 0.1);
+			end
 		end
 	end
 end
@@ -131,28 +135,28 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 
 		-- If occupy button is enabled then search all factions for valid allies/vassals that can be gifted a region.
 		if occupation_decision_occupy_uic and occupation_decision_occupy_uic:Visible() then
-			--if not SACKED_SETTLEMENTS[region_key] == "sacked" then
-				local faction_list = cm:model():world():faction_list();
-				local button_gift_region_uic = UIComponent(settlement_captured_uic:Find("button_gift_region"));
-				local human_faction_name = cm:get_local_faction();
-				local human_faction = cm:model():world():faction_by_key(human_faction_name);
-				local faction_panel_uic = UIComponent(settlement_captured_uic:Find("faction_panel"));
-				local list_box_uic = UIComponent(faction_panel_uic:Find("list_box"));
+			local faction_list = cm:model():world():faction_list();
+			local button_gift_region_uic = UIComponent(settlement_captured_uic:Find("button_gift_region"));
+			local human_faction_name = cm:get_local_faction();
+			local human_faction = cm:model():world():faction_by_key(human_faction_name);
+			local faction_panel_uic = UIComponent(settlement_captured_uic:Find("faction_panel"));
+			local list_box_uic = UIComponent(faction_panel_uic:Find("list_box"));
 
-				button_gift_region_uic:SetState("inactive");
-				button_gift_region_uic:SetVisible(true);
+			button_gift_region_uic:SetState("inactive");
+			button_gift_region_uic:SetVisible(true);
 
+			if not SACKED_SETTLEMENTS[selected_region_name] == "sacked" then
 				for i = 0, faction_list:num_items() - 1 do
 					local current_faction = faction_list:item_at(i);
 					local current_faction_name = current_faction:name();
 
 					-- Faction is allied/vassalized.
 					if current_faction:allied_with(human_faction) then
-						table.insert(valid_allies, current_faction);
+						table.insert(valid_allies, current_faction_name);
 					elseif (FACTIONS_TO_FACTIONS_VASSALIZED and FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name] and HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name], current_faction_name)) then
 						-- Vassal tracking isn't 100% accurate so make sure the faction is alive.
 						if FactionIsAlive(current_faction_name) then
-							table.insert(valid_vassals, current_faction);
+							table.insert(valid_vassals, current_faction_name);
 						end
 					end
 				end
@@ -163,8 +167,7 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 						list_box_uic:CreateComponent("tx_allies_gift", "ui/new/allies_hbar");
 					end
 
-					local ally = valid_allies[i];
-					local ally_name = ally:name();
+					local ally_name = valid_allies[i];
 					local ally_row_uic = UIComponent(list_box_uic:CreateComponent("faction_row_"..ally_name, "ui/new/gift_region_faction_row"));
 					local ally_row_uicX, ally_row_uicY = ally_row_uic:Position();
 
@@ -178,7 +181,7 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 			
 					local faction_logo_uic = UIComponent(ally_row_uic:Find("faction_logo"));
 			
-					faction_logo_uic:Resize(64, 64);
+					faction_logo_uic:Resize(48, 48);
 					faction_logo_uic:SetMoveable(true);
 					faction_logo_uic:MoveTo(ally_row_uicX, ally_row_uicY);
 					faction_logo_uic:SetMoveable(false);
@@ -191,8 +194,7 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 						list_box_uic:CreateComponent("tx_vassals_gift", "ui/new/vassals_hbar");
 					end
 
-					local vassal = valid_vassals[i];
-					local vassal_name = vassal:name();
+					local vassal_name = valid_vassals[i];
 					local vassal_row_uic = UIComponent(list_box_uic:CreateComponent("faction_row_"..vassal_name, "ui/new/gift_region_faction_row"));
 					local vassal_row_uicX, vassal_row_uicY = vassal_row_uic:Position();
 
@@ -214,7 +216,7 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 				end
 
 				list_box_uic:Layout();
-			--end
+			end
 		end
 	end
 end

@@ -387,60 +387,70 @@ end
 function CharacterPerformsOccupationDecisionOccupy_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	--dev.log("Occupied "..region:name().."!");
+	if region then
+		--dev.log("Occupied "..region:name().."!");
 
-	for i = 1, 5 do
-		POPULATION_REGIONS_POPULATIONS[region:name()][i] = math.floor(POPULATION_REGIONS_POPULATIONS[region:name()][i] * 0.95);
-		POPULATION_REGIONS_MANPOWER[region:name()][i] = math.floor(POPULATION_REGIONS_MANPOWER[region:name()][i] * 0.95);
+		for i = 1, 5 do
+			POPULATION_REGIONS_POPULATIONS[region:name()][i] = math.floor(POPULATION_REGIONS_POPULATIONS[region:name()][i] * 0.95);
+			POPULATION_REGIONS_MANPOWER[region:name()][i] = math.floor(POPULATION_REGIONS_MANPOWER[region:name()][i] * 0.95);
+		end
+
+		POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
 	end
-
-	POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+	
 	Update_Faction_Total_Population(context:character():faction());
 end
 
 function CharacterPerformsOccupationDecisionLootSack_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	--dev.log("Looted & Occupied or Sacked "..region:name().."!");
+	if region then
+		--dev.log("Looted & Occupied or Sacked "..region:name().."!");
 
-	if SackExploitCheck_Population(context:character():region():name()) == true then
-		for i = 1, 5 do
-			POPULATION_REGIONS_POPULATIONS[region:name()][i] = math.floor(POPULATION_REGIONS_POPULATIONS[region:name()][i] * 0.80);
-			POPULATION_REGIONS_MANPOWER[region:name()][i] = math.floor(POPULATION_REGIONS_MANPOWER[region:name()][i] * 0.80);
+		if SackExploitCheck_Population(context:character():region():name()) == true then
+			for i = 1, 5 do
+				POPULATION_REGIONS_POPULATIONS[region:name()][i] = math.floor(POPULATION_REGIONS_POPULATIONS[region:name()][i] * 0.80);
+				POPULATION_REGIONS_MANPOWER[region:name()][i] = math.floor(POPULATION_REGIONS_MANPOWER[region:name()][i] * 0.80);
+			end
 		end
-	end
 
-	POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+		POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+	end
+	
 	Update_Faction_Total_Population(context:character():faction());
 end
 
 function CharacterPerformsOccupationDecisionRaze_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	--dev.log("Razed "..region:name().."!");
+	if region then
+		--dev.log("Razed "..region:name().."!");
 
-	for i = 1, 5 do
-		POPULATION_REGIONS_POPULATIONS[region:name()][i] = 0;
-		POPULATION_REGIONS_MANPOWER[region:name()][i] = 0;
+		for i = 1, 5 do
+			POPULATION_REGIONS_POPULATIONS[region:name()][i] = 0;
+			POPULATION_REGIONS_MANPOWER[region:name()][i] = 0;
+		end
+
+		POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
 	end
-
-	POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
 end
 
 --[[function CharacterPerformsOccupationDecisionResettle_Population(context)
 	local region = FindClosestRegion(context:character():logical_position_x(), context:character():logical_position_y(), "none"); -- Taking the character's region may be inaccurate if they're at sea or across a strait.
 
-	dev.log("Resettled "..region:name().."!");
+	if region then
+		dev.log("Resettled "..region:name().."!");
 
-	POPULATION_REGIONS_POPULATIONS[region:name()][1] = 100;
-	POPULATION_REGIONS_POPULATIONS[region:name()][2] = 400;
-	POPULATION_REGIONS_POPULATIONS[region:name()][3] = 1000;
-	POPULATION_REGIONS_MANPOWER[region:name()][1] = 25;
-	POPULATION_REGIONS_MANPOWER[region:name()][2] = 100;
-	POPULATION_REGIONS_MANPOWER[region:name()][3] = 200;
+		POPULATION_REGIONS_POPULATIONS[region:name()][1] = 100;
+		POPULATION_REGIONS_POPULATIONS[region:name()][2] = 400;
+		POPULATION_REGIONS_POPULATIONS[region:name()][3] = 1000;
+		POPULATION_REGIONS_MANPOWER[region:name()][1] = 25;
+		POPULATION_REGIONS_MANPOWER[region:name()][2] = 100;
+		POPULATION_REGIONS_MANPOWER[region:name()][3] = 200;
 
-	POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
-	Update_Faction_Total_Population(context:character():faction());
+		POPULATION_REGIONS_GROWTH_RATES[region:name()] = Compute_Region_Growth(region);
+		Update_Faction_Total_Population(context:character():faction());
+	end
 end]]--
 
 function ForceAdoptsStance_Population(context)

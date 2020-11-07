@@ -27,9 +27,10 @@ function Add_HRE_Listeners()
 			Add_HRE_Event_Listeners();
 			Add_HRE_Reforms_Listeners();
 			Add_HRE_Region_Listeners();
-			Add_HRE_UI_Listeners();
 		end
 	end
+
+	Add_HRE_UI_Listeners();
 
 	HRE_Button_Check();
 end

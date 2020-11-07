@@ -11,27 +11,32 @@ HRE_PANEL_OPEN = false;
 HRE_FACTION_SELECTED = nil;
 
 function Add_HRE_UI_Listeners()
-	cm:add_listener(
-		"FactionTurnEnd_HRE_UI",
-		"FactionTurnEnd",
-		true,
-		function(context) FactionTurnEnd_HRE_UI(context) end,
-		true
-	);
-	cm:add_listener(
-		"OnComponentMouseOn_HRE_UI",
-		"ComponentMouseOn",
-		true,
-		function(context) OnComponentMouseOn_HRE_UI(context) end,
-		true
-	);
-	cm:add_listener(
-		"OnComponentLClickUp_HRE_UI",
-		"ComponentLClickUp",
-		true,
-		function(context) OnComponentLClickUp_HRE_UI(context) end,
-		true
-	);
+	if not HRE_DESTROYED then
+		cm:add_listener(
+			"FactionTurnEnd_HRE_UI",
+			"FactionTurnEnd",
+			true,
+			function(context) FactionTurnEnd_HRE_UI(context) end,
+			true
+		);
+		cm:add_listener(
+			"OnComponentMouseOn_HRE_UI",
+			"ComponentMouseOn",
+			true,
+			function(context) OnComponentMouseOn_HRE_UI(context) end,
+			true
+		);
+		cm:add_listener(
+			"OnComponentLClickUp_HRE_UI",
+			"ComponentLClickUp",
+			true,
+			function(context) OnComponentLClickUp_HRE_UI(context) end,
+			true
+		);
+
+		CreateHREPanel();
+	end
+
 	cm:add_listener(
 		"OnPanelOpenedCampaign_HRE_UI",
 		"PanelOpenedCampaign",
@@ -39,8 +44,6 @@ function Add_HRE_UI_Listeners()
 		function(context) OnPanelOpenedCampaign_HRE_UI(context) end,
 		true
 	);
-
-	CreateHREPanel();
 end
 
 function CreateHREPanel()
@@ -292,7 +295,7 @@ function OnPanelOpenedCampaign_HRE_UI(context)
 		local occupation_decision_liberate_uic = UIComponent(button_parent_uic:Find("occupation_decision_liberate"));
 
 		if occupation_decision_liberate_uic and occupation_decision_liberate_uic:Visible() then
-			if HRE_LIBERATION_DISABLED == false and cm:get_local_faction() == HRE_EMPEROR_KEY then
+			if not HRE_DESTROYED and HRE_LIBERATION_DISABLED == false and cm:get_local_faction() == HRE_EMPEROR_KEY then
 				local option_button_uic = UIComponent(occupation_decision_liberate_uic:Find("option_button"));
 				local dy_option_uic = UIComponent(option_button_uic:Find("dy_option"));
 
@@ -328,7 +331,9 @@ function OnPanelOpenedCampaign_HRE_UI(context)
 		end
 	end
 
-	CloseHREPanel(false);
+	if HRE_PANEL_OPEN then
+		CloseHREPanel(false);
+	end
 end
 
 function OpenHREPanel()
