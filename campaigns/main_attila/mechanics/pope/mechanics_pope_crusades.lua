@@ -803,12 +803,28 @@ function GetCrusadeTarget_Crusades()
 end
 
 function Make_Peace_Crusades(faction_name)
-	if cm:model():world():faction_by_key(faction_name):at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) then
+	local faction = cm:model():world():faction_by_key(faction_name);
+	local target_owner = cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER);
+
+	if faction:at_war_with(target_owner) then
 		cm:force_diplomacy(faction_name, CURRENT_CRUSADE_TARGET_OWNER, "peace", true, true);
 		cm:force_diplomacy(CURRENT_CRUSADE_TARGET_OWNER, faction_name, "peace", true, true);
 
 		if not HasValue(CURRENT_CRUSADE_TARGET_PREEXISTING_ENEMIES, faction_name) then
 			cm:force_make_peace(CURRENT_CRUSADE_TARGET_OWNER, faction_name);
+
+			local faction_list = cm:model():world():faction_list();
+
+			-- this probably isn't very optimized but whatever
+			for i = 0, faction_list:num_items() - 1 do
+				local possible_ally = faction_list:item_at(i);
+				local possible_ally_name = possible_ally:name();
+
+				if (faction:allied_with(target_owner) == true or (FACTIONS_TO_FACTIONS_VASSALIZED[CURRENT_CRUSADE_TARGET_OWNER] and 
+				HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[CURRENT_CRUSADE_TARGET_OWNER], possible_ally_name))) and possible_ally:at_war_with(faction) then
+					Make_Peace_Crusades(possible_ally_name);
+				end
+			end
 		end
 	end
 end

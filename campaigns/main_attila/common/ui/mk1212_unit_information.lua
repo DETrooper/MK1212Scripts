@@ -29,7 +29,7 @@ function CreateUnitInformationPanel()
 	local info_panel_holder_uic = UIComponent(root:Find("custom_info_panel_holder"));
 	local info_panel_background_uic = UIComponent(info_panel_holder_uic:Find("info_panel_background"));
 	
-	info_panel_background_uic:Resize(260, 860);
+	info_panel_background_uic:Resize(260, 688);
 	info_panel_background_uic:CreateComponent("unit_information", "ui/new/unit_information_new");
 
 	local unit_information_uic = UIComponent(info_panel_background_uic:Find("unit_information"));

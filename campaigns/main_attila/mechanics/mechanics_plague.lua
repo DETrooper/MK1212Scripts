@@ -39,7 +39,7 @@ function OnFactionTurnStart_Plague(context)
 				local character = faction:character_list():item_at(j);
 
 				if character:has_trait(PLAGUE_TRAIT) then
-					cm:kill_character("character_cqi:"..character:command_queue_index(), false, true);
+					cm:kill_character("character_cqi:"..character:command_queue_index(), false, false);
 				end
 			end
 		end]]--

@@ -132,6 +132,7 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 		local button_parent_uicbX, button_parent_uicbY = button_parent_uic:Bounds();
 		local occupation_decision_occupy_uic = UIComponent(button_parent_uic:Find("occupation_decision_occupy"));
 		local occupation_decision_occupy_uicX, occupation_decision_occupy_uicY = occupation_decision_occupy_uic:Position();
+		local occupation_decision_sack_uic = UIComponent(button_parent_uic:Find("occupation_decision_sack"));
 
 		-- If occupy button is enabled then search all factions for valid allies/vassals that can be gifted a region.
 		if occupation_decision_occupy_uic and occupation_decision_occupy_uic:Visible() then
@@ -145,78 +146,84 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 			button_gift_region_uic:SetState("inactive");
 			button_gift_region_uic:SetVisible(true);
 
-			if not SACKED_SETTLEMENTS[selected_region_name] == "sacked" then
-				for i = 0, faction_list:num_items() - 1 do
-					local current_faction = faction_list:item_at(i);
-					local current_faction_name = current_faction:name();
+			if occupation_decision_sack_uic and occupation_decision_sack_uic:Visible() then
+				local dy_income_uic = UIComponent(occupation_decision_sack_uic:Find("dy_income"));
 
-					-- Faction is allied/vassalized.
-					if current_faction:allied_with(human_faction) then
-						table.insert(valid_allies, current_faction_name);
-					elseif (FACTIONS_TO_FACTIONS_VASSALIZED and FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name] and HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name], current_faction_name)) then
-						-- Vassal tracking isn't 100% accurate so make sure the faction is alive.
-						if FactionIsAlive(current_faction_name) then
-							table.insert(valid_vassals, current_faction_name);
-						end
-					end
+				if UIComponent(dy_income_uic:Find("icon")):CurrentState() == "no_income" then
+					return;
 				end
-
-				for i = 1, #valid_allies do
-					if i == 1 then
-						button_gift_region_uic:SetState("active");
-						list_box_uic:CreateComponent("tx_allies_gift", "ui/new/allies_hbar");
-					end
-
-					local ally_name = valid_allies[i];
-					local ally_row_uic = UIComponent(list_box_uic:CreateComponent("faction_row_"..ally_name, "ui/new/gift_region_faction_row"));
-					local ally_row_uicX, ally_row_uicY = ally_row_uic:Position();
-
-					UIComponent(ally_row_uic:Find("name")):SetStateText(Get_DFN_Localisation(ally_name));
-
-					if HasValue(FACTIONS_WITH_IMAGES, ally_name) then
-						ally_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..ally_name.."_flag_big");
-					else
-						ally_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
-					end
-			
-					local faction_logo_uic = UIComponent(ally_row_uic:Find("faction_logo"));
-			
-					faction_logo_uic:Resize(48, 48);
-					faction_logo_uic:SetMoveable(true);
-					faction_logo_uic:MoveTo(ally_row_uicX, ally_row_uicY);
-					faction_logo_uic:SetMoveable(false);
-					faction_logo_uic:SetInteractive(false);
-				end
-
-				for i = 1, #valid_vassals do
-					if i == 1 then
-						button_gift_region_uic:SetState("active");
-						list_box_uic:CreateComponent("tx_vassals_gift", "ui/new/vassals_hbar");
-					end
-
-					local vassal_name = valid_vassals[i];
-					local vassal_row_uic = UIComponent(list_box_uic:CreateComponent("faction_row_"..vassal_name, "ui/new/gift_region_faction_row"));
-					local vassal_row_uicX, vassal_row_uicY = vassal_row_uic:Position();
-
-					UIComponent(vassal_row_uic:Find("name")):SetStateText(Get_DFN_Localisation(vassal_name));
-
-					if HasValue(FACTIONS_WITH_IMAGES, vassal_name) then
-						vassal_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..vassal_name.."_flag_big");
-					else
-						vassal_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
-					end
-			
-					local faction_logo_uic = UIComponent(vassal_row_uic:Find("faction_logo"));
-			
-					faction_logo_uic:Resize(48, 48);
-					faction_logo_uic:SetMoveable(true);
-					faction_logo_uic:MoveTo(vassal_row_uicX, vassal_row_uicY);
-					faction_logo_uic:SetMoveable(false);
-					faction_logo_uic:SetInteractive(false);
-				end
-
-				list_box_uic:Layout();
 			end
+
+			for i = 0, faction_list:num_items() - 1 do
+				local current_faction = faction_list:item_at(i);
+				local current_faction_name = current_faction:name();
+
+				-- Faction is allied/vassalized.
+				if current_faction:allied_with(human_faction) then
+					table.insert(valid_allies, current_faction_name);
+				elseif (FACTIONS_TO_FACTIONS_VASSALIZED and FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name] and HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name], current_faction_name)) then
+					-- Vassal tracking isn't 100% accurate so make sure the faction is alive.
+					if FactionIsAlive(current_faction_name) then
+						table.insert(valid_vassals, current_faction_name);
+					end
+				end
+			end
+
+			for i = 1, #valid_allies do
+				if i == 1 then
+					button_gift_region_uic:SetState("active");
+					list_box_uic:CreateComponent("tx_allies_gift", "ui/new/allies_hbar");
+				end
+
+				local ally_name = valid_allies[i];
+				local ally_row_uic = UIComponent(list_box_uic:CreateComponent("faction_row_"..ally_name, "ui/new/gift_region_faction_row"));
+				local ally_row_uicX, ally_row_uicY = ally_row_uic:Position();
+
+				UIComponent(ally_row_uic:Find("name")):SetStateText(Get_DFN_Localisation(ally_name));
+
+				if HasValue(FACTIONS_WITH_IMAGES, ally_name) then
+					ally_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..ally_name.."_flag_big");
+				else
+					ally_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
+				end
+		
+				local faction_logo_uic = UIComponent(ally_row_uic:Find("faction_logo"));
+		
+				faction_logo_uic:Resize(48, 48);
+				faction_logo_uic:SetMoveable(true);
+				faction_logo_uic:MoveTo(ally_row_uicX, ally_row_uicY);
+				faction_logo_uic:SetMoveable(false);
+				faction_logo_uic:SetInteractive(false);
+			end
+
+			for i = 1, #valid_vassals do
+				if i == 1 then
+					button_gift_region_uic:SetState("active");
+					list_box_uic:CreateComponent("tx_vassals_gift", "ui/new/vassals_hbar");
+				end
+
+				local vassal_name = valid_vassals[i];
+				local vassal_row_uic = UIComponent(list_box_uic:CreateComponent("faction_row_"..vassal_name, "ui/new/gift_region_faction_row"));
+				local vassal_row_uicX, vassal_row_uicY = vassal_row_uic:Position();
+
+				UIComponent(vassal_row_uic:Find("name")):SetStateText(Get_DFN_Localisation(vassal_name));
+
+				if HasValue(FACTIONS_WITH_IMAGES, vassal_name) then
+					vassal_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..vassal_name.."_flag_big");
+				else
+					vassal_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
+				end
+		
+				local faction_logo_uic = UIComponent(vassal_row_uic:Find("faction_logo"));
+		
+				faction_logo_uic:Resize(48, 48);
+				faction_logo_uic:SetMoveable(true);
+				faction_logo_uic:MoveTo(vassal_row_uicX, vassal_row_uicY);
+				faction_logo_uic:SetMoveable(false);
+				faction_logo_uic:SetInteractive(false);
+			end
+
+			list_box_uic:Layout();
 		end
 	end
 end

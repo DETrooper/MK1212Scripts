@@ -59,6 +59,7 @@ DYNAMIC_FACTION_NAMES_FACTIONS = {
 	"mk_fact_schwyz",
 	"mk_fact_scotland",
 	"mk_fact_seljuks",
+	"mk_fact_serbia",
 	"mk_fact_shirvan",
 	"mk_fact_sicily",
 	"mk_fact_silesia",
@@ -138,6 +139,14 @@ FACTIONS_DFN_KINGDOMS = {
 	"mk_fact_volga",
 	"mk_fact_zagwe"
 };
+
+-- Factions in this array are exempt from the 'Form a Kingdom' decision due to becoming a kingdom another way.
+FACTIONS_DFN_KINGDOMS_EVENTS = {
+	"mk_fact_serbia",
+};
+
+-- Factions in this array are exempt from the 'Form an Empire' decision due to becoming an empire another way.
+FACTIONS_DFN_EMPIRES_EVENTS = {};
 
 -- Level 1 is handed by normal faction names.
 DFN_NAMES_LOCALISATION = {

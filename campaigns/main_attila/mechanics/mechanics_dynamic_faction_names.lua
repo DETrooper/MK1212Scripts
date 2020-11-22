@@ -88,46 +88,51 @@ function Global_DFN_Check()
 		local faction_name = DYNAMIC_FACTION_NAMES_FACTIONS[i];
 		local faction = cm:model():world():faction_by_key(faction_name);
 
-		if faction:is_null_interface() == false then
-			if FACTIONS_DFN_LEVEL[faction_name] == nil then
+		if not faction:is_null_interface() then
+			if not FACTIONS_DFN_LEVEL[faction_name] then
 				FACTIONS_DFN_LEVEL[faction_name] = 1;
 			end
 
-			if FACTIONS_DFN_LEVEL[faction_name] == 1 then
-				if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL2 and faction:region_list():num_items() < NUM_REQUIRED_REGIONS_LVL3 and faction_name ~= HRE_EMPEROR_KEY then
-					if faction:is_human() == false or cm:is_multiplayer() == true then
-						DFN_Set_Faction_Rank(faction_name, 2);
+			if FactionIsAlive(faction_name) then
+				if FACTIONS_DFN_LEVEL[faction_name] == 1 then
+					if not HasValue(FACTIONS_DFN_KINGDOMS_EVENTS, faction_name) then
+						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL2 and faction:region_list():num_items() < NUM_REQUIRED_REGIONS_LVL3 and faction_name ~= HRE_EMPEROR_KEY then
+							if faction:is_human() == false or cm:is_multiplayer() == true then
+								DFN_Set_Faction_Rank(faction_name, 2);
+							else
+								Enable_Decision("found_a_kingdom");
+							end
+						else
+							if faction:is_human() == true and cm:is_multiplayer() == false then
+								Disable_Decision("found_a_kingdom");
+							end
+						end
+					end
+				elseif FACTIONS_DFN_LEVEL[faction_name] == 2 then
+					if not HasValue(FACTIONS_DFN_EMPIRES_EVENTS, faction_name) then
+						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and HasValue(HRE_FACTIONS, faction_name) ~= true then
+							if faction:is_human() == false or cm:is_multiplayer() == true then
+								DFN_Set_Faction_Rank(faction_name, 3);
+							else
+								Enable_Decision("found_an_empire");
+							end
+						else
+							if faction:is_human() == true and cm:is_multiplayer() == false then
+								Disable_Decision("found_an_empire");
+							end
+						end
+					end
+				elseif FACTIONS_DFN_LEVEL[faction_name] == 4 then -- For Kingdom events.
+					if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and HasValue(HRE_FACTIONS, faction_name) ~= true then
+						if faction:is_human() == false or cm:is_multiplayer() == true then
+							DFN_Set_Faction_Rank(faction_name, 5);
+						else
+							Enable_Decision("found_an_empire");
+						end
 					else
-						Enable_Decision("found_a_kingdom");
-					end
-				else
-					if faction:is_human() == true and cm:is_multiplayer() == false then
-						Disable_Decision("found_a_kingdom");
-					end
-				end
-			elseif FACTIONS_DFN_LEVEL[faction_name] == 2 then
-				if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and HasValue(HRE_FACTIONS, faction_name) ~= true then
-					if faction:is_human() == false or cm:is_multiplayer() == true then
-						DFN_Set_Faction_Rank(faction_name, 3);
-					else
-						Enable_Decision("found_an_empire");
-					end
-				else
-					if faction:is_human() == true and cm:is_multiplayer() == false then
-						Disable_Decision("found_an_empire");
-					end
-				end
-			-- For Kingdom events.
-			elseif FACTIONS_DFN_LEVEL[faction_name] == 4 then
-				if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and HasValue(HRE_FACTIONS, faction_name) ~= true then
-					if faction:is_human() == false or cm:is_multiplayer() == true then
-						DFN_Set_Faction_Rank(faction_name, 5);
-					else
-						Enable_Decision("found_an_empire");
-					end
-				else
-					if faction:is_human() == true and cm:is_multiplayer() == false then
-						Disable_Decision("found_an_empire");
+						if faction:is_human() == true and cm:is_multiplayer() == false then
+							Disable_Decision("found_an_empire");
+						end
 					end
 				end
 			end

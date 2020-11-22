@@ -53,87 +53,92 @@ eh:add_listener(
 );
 
 function OnUICreated_Pack_Check(context)
-	local packPos = 0;
-	local warning_string = "";
+	if not svr:LoadBool("SBOOL_Pack_Check_Already_Shown") then
+		local packPos = 0;
+		local warning_string = "";
 
-	if util.fileExists("used_mods.txt") == true then
-		local modsFile = io.open("used_mods.txt", "r");
-	
-		for line in modsFile:lines() do
-			if line:sub(1, 3) == "mod" then
-				local pack_name = line:sub(6, #line - 2);
-				local pack_found = false;
-				packPos = packPos + 1;
+		if util.fileExists("used_mods.txt") == true then
+			local modsFile = io.open("used_mods.txt", "r");
+		
+			for line in modsFile:lines() do
+				if line:sub(1, 3) == "mod" then
+					local pack_name = line:sub(6, #line - 2);
 
-				for i = 1, #REQUIRED_PACKS do
-					if REQUIRED_PACKS[i].key == pack_name then
-						REQUIRED_PACKS[i].enabled = true;
-						REQUIRED_PACKS[i].packPos = packPos;
-						pack_found = true;
+					for i = 1, #REQUIRED_PACKS do
+						if REQUIRED_PACKS[i].key == pack_name then
+							pack_found = true;
+							packPos = packPos + 1;
+							REQUIRED_PACKS[i].enabled = true;
+							REQUIRED_PACKS[i].packPos = packPos;
 
-						if all_packs_in_order == true then
-							if packPos ~= REQUIRED_PACKS[i].order then
-								all_packs_in_order = false;
+							if all_packs_in_order == true then
+								if packPos ~= REQUIRED_PACKS[i].order then
+									all_packs_in_order = false;
+								end
 							end
-						end
 
-						break;
+							break;
+						end
 					end
 				end
-
-				if pack_found == false then
-					all_packs_enabled = false;
-				end
 			end
+		
+			modsFile:close();
 		end
-	
-		modsFile:close();
-	end
 
-	if all_packs_enabled == false then
 		warning_string = warning_string.."The following mandatory .pack files are missing:\n\n";
 
 		for i = 1, #REQUIRED_PACKS do
 			local pack = REQUIRED_PACKS[i];
-	
+
 			if pack.enabled ~= true then
 				if all_packs_enabled == true then
 					all_packs_enabled = false;
 				end
-	
+
 				warning_string = warning_string..pack.name.."\n";
 			end
 		end
 
-		warning_string = warning_string.."\nWe recommend downloading the missing files from the Steam Workshop for the best experience!";
+		if all_packs_enabled == false then
+			warning_string = warning_string.."\nWe recommend downloading the missing files from the Steam Workshop for the best experience!";
 
-		CreatePackWarning(warning_string);
-	elseif all_packs_in_order == false then
-		warning_string = warning_string.."The following .pack files are out of order:\n\n";
+			CreatePackWarning(warning_string);
+		elseif all_packs_in_order == false then
+			warning_string = "The following .pack files are out of order:\n\n";
 
-		for i = 1, #REQUIRED_PACKS do
-			local pack = REQUIRED_PACKS[i];
+			for i = 1, #REQUIRED_PACKS do
+				local pack = REQUIRED_PACKS[i];
 
-			if pack.packPos ~= pack.order then
-				warning_string = warning_string.."("..tostring(pack.packPos)..") "..pack.name.."\nRecommended: "..tostring(pack.order).."\n";
+				if pack.packPos ~= pack.order then
+					warning_string = warning_string.."("..tostring(pack.packPos)..") "..pack.name.."\nRecommended: "..tostring(pack.order).."\n";
+				end
 			end
+
+			warning_string = warning_string.."\nOut of order .pack files may make MK1212 multiplayer impossible due to incompatible versions.";
+
+			CreatePackWarning(warning_string);
 		end
 
-		warning_string = warning_string.."\nOut of order .pack files may make MK1212 multiplayer impossible due to incompatible versions.";
-
-		CreatePackWarning(warning_string);
+		svr:SaveBool("SBOOL_Pack_Check_Already_Shown", true);
 	end
 end
 
 function OnFrontendScreenTransition_Pack_Check(context)
-	if UIComponent(m_root:Find("pack_warning")):Visible() == true then
-		UIComponent(m_root:Find("pack_warning")):SetVisible(false);
+	local pack_warning_uic = UIComponent(m_root:Find("pack_warning"));
+
+	if pack_warning_uic and pack_warning_uic:Visible() == true then
+		pack_warning_uic:SetVisible(false);
 	end
 end;
 
 function OnComponentLClickUp_Pack_Check(context)
 	if context.string == "pack_warning_accept" or context.string == "button_home" then
-		UIComponent(m_root:Find("pack_warning")):SetVisible(false);
+		local pack_warning_uic = UIComponent(m_root:Find("pack_warning"));
+
+		if pack_warning_uic and pack_warning_uic:Visible() == true then
+			pack_warning_uic:SetVisible(false);
+		end;
 	end
 end;
 
