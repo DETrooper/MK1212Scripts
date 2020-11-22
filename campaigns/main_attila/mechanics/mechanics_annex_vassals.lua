@@ -350,6 +350,8 @@ function TimeTrigger_Annex_UI(context)
 	
 		local annexing_faction = Get_Vassal_Currently_Annexing(cm:get_local_faction());
 
+		btnAnnex:SetState("inactive");
+
 		if not annexing_faction or annexing_faction == DIPLOMACY_SELECTED_FACTION then
 			if FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == false then
 				if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[cm:get_local_faction()], DIPLOMACY_SELECTED_FACTION) then

@@ -380,10 +380,14 @@ function HRE_State_Check(faction_name)
 	local faction = cm:model():world():faction_by_key(faction_name);
 	local faction_state = HRE_Get_Faction_State(faction_name);
 	local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+	local stance = cm:model():campaign_ai():strategic_stance_between_factions(faction_name, HRE_EMPEROR_KEY);
+	local turn_number = cm:model():turn_number();
+
+	-- Possible stances from strategic_stance_between_factions are -3 to 3, corresponding to diplomatic stances (i.e. 2 being Very Friendly, -2 being Hostile).
 
 	-- If the HRE member state is not malcontent but is at war with the emperor, make them malcontent.
 	if faction_state ~= "malcontent" then
-		if faction:at_war_with(emperor_faction) then
+		if faction:at_war_with(emperor_faction) or (turn_number > 1 and stance <= -3) then
 			HRE_Set_Faction_State(faction_name, "malcontent", true);
 			return;
 		end
@@ -411,11 +415,30 @@ function HRE_State_Check(faction_name)
 			end
 		end
 
-		-- Give them a small chance to become ambitious.
-		local chance = cm:random_number(10);
+		-- If the HRE member state is on very friendly terms with the emperor, make them loyal. If they're hostile, make them malcontent.
+		if turn_number > 1 then
+			if stance >= 3 then
+				HRE_Set_Faction_State(HRE_LIBERATED_FACTION, "loyal", true);
+				return;
+			elseif stance > -1 then
+				HRE_Set_Faction_State(faction_name, "discontent", false);
+				return;
+			end
+		end
 
-		if chance == 1 then
-			HRE_Set_Faction_State(faction_name, "ambitious", false);
+		if faction_state == "neutral" then
+			-- Give them a small chance to become ambitious.
+			local chance = cm:random_number(10);
+
+			if chance == 1 then
+				HRE_Set_Faction_State(faction_name, "ambitious", false);
+			end
+		elseif faction_state == "ambitious" then
+			local chance = cm:random_number(5);
+
+			if chance == 1 then
+				HRE_Set_Faction_State(faction_name, "neutral", false);
+			end
 		else
 			HRE_Set_Faction_State(faction_name, "neutral", false);
 		end

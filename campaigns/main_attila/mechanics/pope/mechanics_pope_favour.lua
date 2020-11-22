@@ -30,7 +30,7 @@ function Add_Pope_Favour_Listeners()
 		"FactionTurnStart_Check_Catholic_Nations",
 		"FactionTurnStart",
 		true,
-		function(context) Check_Catholic_Nations(context) end,
+		function(context) FactionTurnStart_Check_Catholic_Nations(context) end,
 		true
 	);
 
@@ -256,23 +256,59 @@ function Force_Stop_Papal_Favour_System()
 	PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED = true;
 end
 
-function Check_Catholic_Nations(context)
+function FactionTurnStart_Check_Catholic_Nations(context)
 	local faction_name = context:faction():name();
 	local faction_religion = context:faction():state_religion();
+	local stance = cm:model():campaign_ai():strategic_stance_between_factions(PAPAL_STATES_KEY, faction_name);
 	local turn_number = cm:model():turn_number();
+
+	-- Possible stances from strategic_stance_between_factions are -3 to 3, corresponding to diplomatic stances (i.e. 2 being Very Friendly, -2 being Hostile).
 
 	if faction_religion == "att_rel_chr_catholic" then
 		local pope_faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
-		AT_WAR_WITH_POPE[faction_name] = context:faction():at_war_with(pope_faction);
+		local war_with_pope = context:faction():at_war_with(pope_faction);
 
-		if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
-			if context:faction():is_human() == true and cm:model():turn_number() > 1 then
+		AT_WAR_WITH_POPE[faction_name] = war_with_pope;
+
+		if PAPAL_FAVOUR_SYSTEM_ACTIVE then
+			-- Todo: See if this block is even necessary, dunno why it would be.
+			if context:faction():is_human() and cm:model():turn_number() > 1 then
 				-- Human faction changed religion, giving them an effect bundle!
 				cm:apply_effect_bundle("mk_bundle_pope_favour_5", faction_name, 0);
 			end
-		end
 
-		if PAPAL_FAVOUR_SYSTEM_ACTIVE == true then
+			if FACTION_EXCOMMUNICATED[faction_name] ~= true then
+				if war_with_pope then
+					Force_Excommunication(faction_name);
+				else
+					if stance <= -3 then
+						local chance = cm:random_number(3);
+
+						if chance == 1 then
+							Subtract_Pope_Favour(faction_name, 1, "relations_decay");
+						end
+					elseif stance == -2 then
+						local chance = cm:random_number(6);
+
+						if chance == 1 then
+							Subtract_Pope_Favour(faction_name, 1, "relations_decay");
+						end
+					elseif stance == 2 then
+						local chance = cm:random_number(6);
+
+						if chance == 1 then
+							Add_Pope_Favour(faction_name, 1, "relations_increase");
+						end
+					elseif stance >= 3 then
+						local chance = cm:random_number(3);
+						
+						if chance == 1 then
+							Add_Pope_Favour(faction_name, 1, "relations_increase");
+						end
+					end
+				end
+			end
+
 			Update_Pope_Favour(context:faction());
 		end
 	elseif faction_religion ~= "att_rel_chr_catholic" and FACTION_POPE_FAVOUR[faction_name]  then
@@ -291,7 +327,7 @@ function Check_Catholic_Nations(context)
 	end
 
 	if faction_name == PAPAL_STATES_KEY and PAPAL_FAVOUR_SYSTEM_ACTIVE == false then
-	-- Papal States liberated!
+		-- Papal States liberated!
 		Reactivate_Papal_Favour_System();
 	end
 end

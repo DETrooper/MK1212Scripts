@@ -16,14 +16,17 @@ function start_game_all_factions()
 		if cm:is_new_game() then
 			for i = 0, faction_list:num_items() - 1 do
 				local current_faction = faction_list:item_at(i);
-				cm:show_message_event(
-					current_faction:name(),
-					"message_event_text_text_mk_event_mk1212_intro_title", 
-					"message_event_text_text_mk_event_mk1212_intro_primary", 
-					"message_event_text_text_mk_event_mk1212_intro_secondary", 
-					true, 
-					700
-				);
+
+				if current_faction:is_human() then
+					cm:show_message_event(
+						current_faction:name(),
+						"message_event_text_text_mk_event_mk1212_intro_title", 
+						"message_event_text_text_mk_event_mk1212_intro_primary", 
+						"message_event_text_text_mk_event_mk1212_intro_secondary", 
+						true, 
+						700
+					);
+				end
 
 				-- Also remove useless faction group traits.
 				cm:remove_effect_bundle("mk_group_trait_gallia_et_frisia", current_faction:name());
