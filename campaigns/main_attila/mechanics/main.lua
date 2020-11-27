@@ -13,6 +13,7 @@ require("mechanics/mechanics_annex_vassals");
 require("mechanics/mechanics_buffer_states");
 require("mechanics/mechanics_dynamic_faction_names");
 require("mechanics/mechanics_plague");
+require("mechanics/mechanics_region_trading");
 require("mechanics/mechanics_settle_upkeep");
 require("mechanics/mechanics_silk_road");
 require("mechanics/mechanics_war_weariness");
@@ -32,6 +33,7 @@ function Mechanic_Initializer()
 		Add_Plague_Listeners();
 		Add_Pope_Listeners();
 		Add_Population_Listeners();
+		Add_Region_Trading_Listeners();
 		Add_Settle_Upkeep_Listeners();
 		Add_Silk_Road_Listeners();
 		Add_War_Weariness_Listeners();
@@ -42,25 +44,5 @@ function Mechanic_Initializer()
 		Add_Settle_Upkeep_Listeners();
 		Add_Silk_Road_Listeners();
 		Add_War_Weariness_Listeners();
-
-		-- Ensure annex vassal button is disabled in multiplayer, haven't figured out how to default it to disabled via hex-editing yet.
-		cm:add_listener(
-			"OnPanelOpenedCampaign_Multiplayer_UI",
-			"PanelOpenedCampaign",
-			true,
-			function(context) OnPanelOpenedCampaign_Multiplayer_UI(context) end,
-			true
-		);
-	end
-end
-
-function OnPanelOpenedCampaign_Multiplayer_UI(context)
-	if context.string == "diplomacy_dropdown" then
-		local root = cm:ui_root();
-		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
-		local btnAnnex = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
-
-		btnAnnex:SetStateText("");
-		btnAnnex:SetState("inactive");
 	end
 end

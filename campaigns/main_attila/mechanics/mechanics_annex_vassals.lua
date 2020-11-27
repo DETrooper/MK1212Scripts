@@ -323,10 +323,10 @@ function OnComponentLClickUp_Annex_UI(context)
 		if context.string == "map" or context.string == "button_icon" or context.string == "flag" or string.find(context.string, "faction_row_entry_") then
 			local root = cm:ui_root();
 			local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
-			local btnAnnex = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
+			local button_annex_vassal_uic = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
 
-			btnAnnex:SetStateText("");
-			btnAnnex:SetState("inactive");
+			button_annex_vassal_uic:SetStateText("");
+			button_annex_vassal_uic:SetState("inactive");
 
 			cm:add_time_trigger("annex_diplo_hud_check", 0.1);
 		end
@@ -343,14 +343,15 @@ function TimeTrigger_Annex_UI(context)
 	if context.string == "annex_diplo_hud_check" then
 		local root = cm:ui_root();
 		local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
-		local btnAnnex = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
+		local button_annex_vassal_uic = UIComponent(diplomacy_dropdown_uic:Find("button_annex_vassal"));
 		--local faction_left_status_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("faction_left_status_panel"));
 		--local diplomatic_relations_uic = UIComponent(faction_left_status_panel_uic:Find("diplomatic_relations"));
 		--local icon_vassals_uic = UIComponent( diplomatic_relations_uic:Find("icon_vassals"));
 	
 		local annexing_faction = Get_Vassal_Currently_Annexing(cm:get_local_faction());
 
-		btnAnnex:SetState("inactive");
+		button_annex_vassal_uic:SetState("inactive");
+		button_annex_vassal_uic:SetVisible(true);
 
 		if not annexing_faction or annexing_faction == DIPLOMACY_SELECTED_FACTION then
 			if FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == false then
@@ -358,13 +359,13 @@ function TimeTrigger_Annex_UI(context)
 					DIPLOMACY_SELECTED_FACTION = DIPLOMACY_SELECTED_FACTION;
 		
 					if FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION] == 0 then
-						btnAnnex:SetState("active"); 
+						button_annex_vassal_uic:SetState("active"); 
 					else
-						btnAnnex:SetStateText(tostring(FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION]));
+						button_annex_vassal_uic:SetStateText(tostring(FACTIONS_VASSALIZED_DELAYS[DIPLOMACY_SELECTED_FACTION]));
 					end
 				end
 			elseif HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[cm:get_local_faction()], DIPLOMACY_SELECTED_FACTION) then
-				btnAnnex:SetState("active");
+				button_annex_vassal_uic:SetState("active");
 			end
 		end
 
