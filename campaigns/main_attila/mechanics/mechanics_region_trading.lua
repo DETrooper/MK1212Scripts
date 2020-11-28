@@ -108,16 +108,16 @@ local function Calculate_Region_Trade_Value()
 	end;
 
 	if regions_checked > 0 then
-		if current_trade_weight < current_trade_value_other - 500 then
+		if current_trade_weight < current_trade_value_other - min_gift_value or (current_trade_weight < min_gift_value and current_trade_value_other <= 0) then
 			dy_chance_uic:SetState("low");
 			UIComponent(button_set1_uic:Find("button_send")):SetState("inactive");
 		elseif current_trade_weight < current_trade_value_other then
 			dy_chance_uic:SetState("moderate");
 			UIComponent(button_set1_uic:Find("button_send")):SetState("inactive");
-		elseif current_trade_weight >= current_trade_value_other and current_trade_weight < current_trade_value_other + min_gift_value then
+		elseif current_trade_weight >= current_trade_value_other and current_trade_weight < current_trade_value_other + (min_gift_value * 2) then
 			dy_chance_uic:SetState("moderate");
 			UIComponent(button_set1_uic:Find("button_send")):SetState("active");
-		elseif current_trade_weight >= current_trade_value_other + min_gift_value then
+		elseif current_trade_weight >= current_trade_value_other + (min_gift_value * 2) then
 			dy_chance_uic:SetState("high");
 			UIComponent(button_set1_uic:Find("button_send")):SetState("active");
 		end
@@ -148,7 +148,10 @@ local function Process_Region_Trade()
 		Transfer_Region_To_Faction(regions_recieving[i], faction_name);
 	end
 
+	UIComponent(button_set1_uic:Find("button_counteroffer")):SetVisible(true);
+	list_offers_list_box_uic:DestroyChildren();
 	list_offers_uic:SetVisible(false);
+	list_demands_list_box_uic:DestroyChildren();
 	list_demands_uic:SetVisible(false);
 	tx_likelihood_uic:SetVisible(false);
 end
@@ -228,7 +231,9 @@ function OnComponentLClickUp_Region_Trading_UI(context)
 				button_trade_regions_uic:SetState("inactive");
 
 				cm:add_time_trigger("region_trading_diplo_hud_check", 0.1);
-			elseif context.string == "button_ok" then
+			end
+		else
+			if context.string == "button_cancel" then
 				local root = cm:ui_root();
 				local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
 				local offers_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("offers_panel"));
@@ -238,18 +243,16 @@ function OnComponentLClickUp_Region_Trading_UI(context)
 				local list_demands_uic = UIComponent(offers_list_panel_uic:Find("list_demands"));
 				local list_demands_list_box_uic = UIComponent(list_demands_uic:Find("list_box"));
 				local tx_likelihood_uic = UIComponent(offers_list_panel_uic:Find("tx_likelihood_of_success"));
-			
+				local button_set1_uic = UIComponent(offers_panel_uic:Find("button_set1"));
+				local button_trade_regions_uic = UIComponent(diplomacy_dropdown_uic:Find("button_trade_regions"));
+
+				UIComponent(button_set1_uic:Find("button_counteroffer")):SetVisible(true);
+
 				list_offers_list_box_uic:DestroyChildren();
 				list_offers_uic:SetVisible(false);
 				list_demands_list_box_uic:DestroyChildren();
 				list_demands_uic:SetVisible(false);
 				tx_likelihood_uic:SetVisible(false);
-			end
-		else
-			if context.string == "button_cancel" then
-				local root = cm:ui_root();
-				local diplomacy_dropdown_uic = UIComponent(root:Find("diplomacy_dropdown"));
-				local button_trade_regions_uic = UIComponent(diplomacy_dropdown_uic:Find("button_trade_regions"));
 
 				if button_trade_regions_uic:CurrentState() == "down" then
 					button_trade_regions_uic:SetState("active");
