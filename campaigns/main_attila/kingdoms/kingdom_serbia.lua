@@ -38,6 +38,10 @@ function Serbia_Check(context)
 				end
 			end
 
+			if NICKNAMES then
+				Add_Character_Nickname(faction:faction_leader():cqi(), "the_first_crowned", false);
+			end
+
 			FACTIONS_DFN_LEVEL[faction_name] = 2;
 			SERBIAN_KINGDOM_FACTION = faction_name;
 			Rename_Faction(faction_name, faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]));

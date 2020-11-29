@@ -7,7 +7,17 @@
 -------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
 
-HISTORICAL_CHARACTERS_TO_NICKNAMES = {};
+-- Key can be a faction name for faction leader or a cqi to give to specific characters directly.
+HISTORICAL_CHARACTERS_TO_NICKNAMES = {
+	["mk_fact_aragon"] = "the_catholic",
+	["mk_fact_brabant"] = "the_courageous",
+	["mk_fact_castile"] = "the_noble",
+	["mk_fact_denmark"] = "the_conqueror",
+	["mk_fact_navarre"] = "the_strong",
+	["mk_fact_portugal"] = "the_fat",
+	["mk_fact_scotland"] = "the_rough",
+	["mk_fact_sweden"] = "the_survivor",
+};
 
 -- Priorities should be from 1 (highest) to 3 (lowest).
 NICKNAMES = {
@@ -19,13 +29,16 @@ NICKNAMES = {
 	["the_brave"] = {priority = 3}, -- Has trait 'att_trait_general_personality_all_bravery'.
 	["the_cathar"] = {priority = 2}, -- Religious conversion nickname.
 	["the_catholic"] = {priority = 2}, -- Religious conversion nickname.
-	["the_conqueror"] = {priority = 3}, -- Personally conquered 10 regions.
 	["the_christian"] = {priority = 2}, -- Religious conversion nickname.
+	["the_conqueror"] = {priority = 3}, -- Personally conquered 10 regions.
+	["the_courageous"] = {priority = 2},
 	["the_cruel"] = {priority = 3}, -- Executed captives 5 times.
 	["the_crusader"] = {priority = 2}, -- Has traits 'mk_trait_crusades_crusader' or 'mk_trait_crusades_crusader_king'.
 	["the_drunkard"] = {priority = 3}, -- Has trait 'att_trait_all_personality_all_drink'.
 	["the_exile"] = {priority = 2}, -- Lost the capital of the faction.
 	["the_fair"] = {priority = 3}, -- Reigned for 20 years without a revolt (while having more than 4 regions in their faction).
+	["the_fat"] = {priority = 3},
+	["the_first_crowned"] = {priority = 2}, -- Unique nickname given to the faction leader of Serbia via event.
 	["the_fool"] = {prioity = 3}, -- Has trait 'att_trait_all_personality_all_easily_deceived'.
 	["the_glorious"] = {priority = 1}, -- Formed a unique Empire.
 	["the_great"] = {priority = 1}, -- Personally conquered 30 regions.
@@ -37,13 +50,16 @@ NICKNAMES = {
 	["the_mad"] = {priority = 2}, -- Has trait 'att_trait_general_personality_all_mad'.
 	["the_manichaean"] = {priority = 2}, -- Religious conversion nickname.
 	["the_merciless"] = {priority = 2}, -- Executed captives 20 times.
+	["the_noble"] = {priority = 2},
 	["the_old"] = {priority = 3}, -- Aged 65+.
 	["the_orthodox"] = {priority = 2}, -- Religious conversion nickname.
 	["the_pagan"] = {priority = 2}, -- Religious conversion nickname.
+	["the_rough"] = {priority = 3},
 	["the_ruthless"] = {priority = 2}, -- Has trait 'att_trait_general_military_all_high_casualties'.
 	["the_shiite"] = {priority = 2}, -- Religious conversion nickname.
 	["the_strong"] = {priority = 3}, -- Has trait 'att_trait_all_physical_all_healthy'.
 	["the_sunni"] = {priority = 2}, -- Religious conversion nickname.
+	["the_survivor"] = {priority = 2},
 	["the_terrible"] = {priority = 2}, -- Has trait 'att_trait_general_military_all_looter'.
 	["the_undefeated"] = {priority = 1}, -- Won 25 battles undefeated.
 	["the_undying"] = {priority = 2}, -- Aged 90+.

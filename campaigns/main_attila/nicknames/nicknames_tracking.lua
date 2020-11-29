@@ -62,7 +62,19 @@ function Add_Nicknames_Tracking_Listeners()
 	);
 
 	if cm:is_new_game() then
-		--CHARACTERS_TO_NICKNAMES = DeepCopy(HISTORICAL_CHARACTERS_TO_NICKNAMES);
+		for k, v in pairs(HISTORICAL_CHARACTERS_TO_NICKNAMES) do
+			if string.find(k, "mk_fact_") then
+				local faction = cm:model():world():faction_by_key(faction_name);
+
+				if not faction:is_null_interface() then
+					local cqi = faction:faction_leader():cqi();
+
+					Add_Character_Nickname(cqi, v, true);
+				end
+			elseif tonumber(k) then
+				Add_Character_Nickname(tonumber(k), v, true);
+			end
+		end
 
 		local faction_list = cm:model():world():faction_list();
 
@@ -135,7 +147,7 @@ function FactionReligionConverted_Nicknames(context)
 	if faction_leader then
 		local state_religion = context:faction():state_religion();
 
-		Add_Character_Nickname(context:faction():faction_leader():cqi(), RELIGIONS_TO_NICKNAMES[state_religion], false);
+		Add_Character_Nickname(faction_leader:cqi(), RELIGIONS_TO_NICKNAMES[state_religion], false);
 	end
 end
 
