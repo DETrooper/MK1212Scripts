@@ -97,9 +97,9 @@ end
 function OnComponentMouseOn_HRE_UI(context)
 	if HRE_PANEL_OPEN == true then
 		if context.string == "button_vote" then
-			UIComponent(context.component):SetTooltipText("Cast your vote for this faction in the next election for the Holy Roman Emperor.");
+			UIComponent(context.component):SetTooltipText(UI_LOCALISATION["hre_button_vote_tooltip"]);
 		elseif context.string == "button_back_candidate" then
-			UIComponent(context.component):SetTooltipText("Back this faction's candidate in the next election for the Holy Roman Emperor.");
+			UIComponent(context.component):SetTooltipText(UI_LOCALISATION["hre_button_back_candidate_tooltip"]);
 		elseif context.string == "dy_fealty" then
 			if HRE_FACTION_SELECTED == HRE_EMPEROR_KEY then
 				UIComponent(context.component):SetTooltipText(Get_Authority_Tooltip());
@@ -123,17 +123,18 @@ function OnComponentMouseOn_HRE_UI(context)
 			local btnReform = UIComponent(context.component);
 
 			if cm:get_local_faction() == HRE_EMPEROR_KEY then
-				btnReform:SetTooltipText("Pass this reform!");
+				btnReform:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_pass"]);
 			else
 				if HasValue(HRE_REFORMS_VOTES, cm:get_local_faction()) then
-					btnReform:SetTooltipText("Retract your vote from this reform.");
+					btnReform:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_retract_vote"]);
 				else
-					btnReform:SetTooltipText("Vote in favor of this reform.");
+					btnReform:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_vote"]);
 				end
 			end
 		elseif string.find(context.string, "_logo") then
 			local state = "";
 			local in_hre = "";
+			local attitude = UI_LOCALISATION["hre_attitude"];
 
 			if string.find(context.string, "mk_fact_") then
 				local faction_name = string.gsub(context.string, "_logo", "");
@@ -142,22 +143,22 @@ function OnComponentMouseOn_HRE_UI(context)
 					local faction_state = HRE_FACTIONS_STATES[faction_name];
 				
 					if faction_state == "malcontent" or faction_state == "pretender" or faction_state == "ambitious" then
-						state = "\n\nAttitude: [[rgba:255:0:0:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
+						state = "\n\n"..attitude.." [[rgba:255:0:0:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
 					elseif faction_state == "discontent" then
-						state = "\n\nAttitude: [[rgba:255:255:0:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
+						state = "\n\n"..attitude.." [[rgba:255:255:0:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
 					elseif faction_state == "loyal" or faction_state == "emperor" then
-						state = "\n\nAttitude: [[rgba:8:201:27:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
+						state = "\n\n"..attitude.." [[rgba:8:201:27:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
 					elseif faction_state == "puppet" then
-						state = "\n\nAttitude: [[rgba:51:153:255:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
+						state = "\n\n"..attitude.." [[rgba:51:153:255:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
 					else
-						state = "\n\nAttitude: "..HRE_STATES[faction_state][1];
+						state = "\n\n"..attitude.." "..HRE_STATES[faction_state][1];
 					end
 				elseif faction_name == HRE_EMPEROR_KEY then
-					in_hre = "\n\n[[rgba:255:215:0:150]]This faction is the Emperor![[/rgba]]";
+					in_hre = "\n\n[[rgba:255:215:0:150]]"..UI_LOCALISATION["hre_in_hre_emperor"].."[[/rgba]]";
 				elseif faction_name == HRE_EMPEROR_PRETENDER_KEY then
-					in_hre = "\n\n[[rgba:255:215:0:150]]This faction is a pretender to the throne![[/rgba]]";
+					in_hre = "\n\n[[rgba:255:215:0:150]]"..UI_LOCALISATION["hre_in_hre_pretender"].."[[/rgba]]";
 				else
-					in_hre = "\n\n[[rgba:255:0:0:150]]This faction is not in the Holy Roman Empire![[/rgba]]";
+					in_hre = "\n\n[[rgba:255:0:0:150]]"..UI_LOCALISATION["hre_in_hre_not_member"].."[[/rgba]]";
 				end
 
 				UIComponent(context.component):SetTooltipText(Get_DFN_Localisation(faction_name)..in_hre..state);
@@ -175,25 +176,25 @@ function OnComponentMouseOn_HRE_UI(context)
 					local faction_state = HRE_FACTIONS_STATES[owning_faction_name];
 				
 					if faction_state == "malcontent" or faction_state == "pretender" or faction_state == "ambitious" then
-						state = "\n\nAttitude: [[rgba:255:0:0:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
+						state = "\n\n"..attitude.." [[rgba:255:0:0:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
 					elseif faction_state == "discontent" then
-						state = "\n\nAttitude: [[rgba:255:255:0:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
+						state = "\n\n"..attitude.." [[rgba:255:255:0:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
 					elseif faction_state == "loyal" or faction_state == "emperor" then
-						state = "\n\nAttitude: [[rgba:8:201:27:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
+						state = "\n\n"..attitude.." [[rgba:8:201:27:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
 					elseif faction_state == "puppet" then
-						state = "\n\nAttitude: [[rgba:51:153:255:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
+						state = "\n\n"..attitude.." [[rgba:51:153:255:150]]"..HRE_STATES[faction_state][1].."[[/rgba]]";
 					else
-						state = "\n\nAttitude: "..HRE_STATES[faction_state][1];
+						state = "\n\n"..attitude.." "..HRE_STATES[faction_state][1];
 					end
 				elseif owning_faction_name == HRE_EMPEROR_KEY then
-					in_hre = "\n\n[[rgba:255:215:0:150]]This faction is the Emperor![[/rgba]]";
+					in_hre = "\n\n[[rgba:255:215:0:150]]"..UI_LOCALISATION["hre_in_hre_emperor"].."[[/rgba]]";
 				elseif owning_faction_name == HRE_EMPEROR_PRETENDER_KEY then
-					in_hre = "\n\n[[rgba:255:215:0:150]]This faction is a pretender to the throne![[/rgba]]";
+					in_hre = "\n\n[[rgba:255:215:0:150]]"..UI_LOCALISATION["hre_in_hre_pretender"].."[[/rgba]]";
 				else
-					in_hre = "\n\n[[rgba:255:0:0:150]]This faction is not in the Holy Roman Empire![[/rgba]]";
+					in_hre = "\n\n[[rgba:255:0:0:150]]"..UI_LOCALISATION["hre_in_hre_not_member"].."[[/rgba]]";
 				end
 
-				UIComponent(context.component):SetTooltipText("Region: "..REGIONS_NAMES_LOCALISATION[region_name].."\nPopulation: "..population.."\nOwner: "..Get_DFN_Localisation(owning_faction_name)..in_hre..state);
+				UIComponent(context.component):SetTooltipText(UI_LOCALISATION["hre_region_tooltip_pt1"]..REGIONS_NAMES_LOCALISATION[region_name]..UI_LOCALISATION["hre_region_tooltip_pt2"]..population..UI_LOCALISATION["hre_region_tooltip_pt3"]..Get_DFN_Localisation(owning_faction_name)..in_hre..state);
 			end
 		end
 	end
@@ -299,7 +300,7 @@ function OnPanelOpenedCampaign_HRE_UI(context)
 				local option_button_uic = UIComponent(occupation_decision_liberate_uic:Find("option_button"));
 				local dy_option_uic = UIComponent(option_button_uic:Find("dy_option"));
 
-				dy_option_uic:SetStateText("Liberate Member State");
+				dy_option_uic:SetStateText(UI_LOCALISATION["hre_liberate_member_state"]);
 			else
 				-- Remove the liberation occupation decision's UI for any faction that isn't the Emperor or the target faction isn't in the HRE.
 				local liberate_found = false;
@@ -366,7 +367,7 @@ function OpenHREPanel()
 			pretender_number = HRE_EMPERORS_ROMAN_NUMERALS[1];
 		end
 		
-		tx_emperor_uic:SetStateText("Pretender: "..name_localisation);
+		tx_emperor_uic:SetStateText(UI_LOCALISATION["hre_pretender_prefix"]..name_localisation);
 
 		if HasValue(FACTIONS_WITH_IMAGES, HRE_EMPEROR_PRETENDER_KEY) then
 			tx_emperor_uic:CreateComponent(HRE_EMPEROR_PRETENDER_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_PRETENDER_KEY.."_flag_small");
@@ -380,7 +381,7 @@ function OpenHREPanel()
 		faction_logo_uic:MoveTo(tx_emperor_uicX - 32, tx_emperor_uicY + 4);
 		faction_logo_uic:SetMoveable(false);
 	else
-		tx_emperor_uic:SetStateText("Pretender: None");
+		tx_emperor_uic:SetStateText(UI_LOCALISATION["hre_pretender_none"]);
 	end
 
 	if HRE_EMPERORS_NAMES_NUMBERS[hre_emperor_faction:faction_leader():get_forename()] then
@@ -390,7 +391,7 @@ function OpenHREPanel()
 		emperor_number = HRE_EMPERORS_ROMAN_NUMERALS[1];
 	end
 		
-	tx_pretender_uic:SetStateText("Emperor: " ..name_localisation.." "..emperor_number);
+	tx_pretender_uic:SetStateText(UI_LOCALISATION["hre_emperor_prefix"]..name_localisation.." "..emperor_number);
 
 	if HasValue(FACTIONS_WITH_IMAGES, HRE_EMPEROR_KEY) then
 		tx_pretender_uic:CreateComponent(HRE_EMPEROR_KEY.."_logo", "UI/new/faction_flags/"..HRE_EMPEROR_KEY.."_flag_small");
@@ -559,7 +560,7 @@ function Update_Reforms_HRE_UI(hover_override)
 		end
 	end
 
-	tx_reforms:SetStateText("Support For "..HRE_REFORMS[CURRENT_HRE_REFORM + 1]["name"]..": ("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(#HRE_FACTIONS - 1)..")");
+	tx_reforms:SetStateText(UI_LOCALISATION["hre_support_for_prefix"]..HRE_REFORMS[CURRENT_HRE_REFORM + 1]["name"]..": ("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(#HRE_FACTIONS - 1)..")");
 end
 
 function Update_Active_Decrees_HRE_UI()
@@ -570,7 +571,7 @@ function Update_Active_Decrees_HRE_UI()
 	local tx_decrees_uic = UIComponent(btnHREPolicies_tab_child_uic:Find("tx_decrees"));
 
 	if HRE_ACTIVE_DECREE == "nil" then
-		tx_decrees_uic:SetStateText("There is currently no active decree!");
+		tx_decrees_uic:SetStateText(UI_LOCALISATION["hre_no_active_decree"]);
 
 		if HRE_ACTIVE_DECREE_TURNS_LEFT > 0 then
 			for i = 1, #HRE_DECREES do
@@ -599,9 +600,9 @@ function Update_Active_Decrees_HRE_UI()
 		end
 	else
 		if HRE_ACTIVE_DECREE_TURNS_LEFT == 1 then
-			tx_decrees_uic:SetStateText("'"..Get_Decree_Property(HRE_ACTIVE_DECREE, "name").."' is active for "..tostring(HRE_ACTIVE_DECREE_TURNS_LEFT).." more turn!");
+			tx_decrees_uic:SetStateText("'"..Get_Decree_Property(HRE_ACTIVE_DECREE, "name").."' "..UI_LOCALISATION["hre_decree_active_for"].." "..tostring(HRE_ACTIVE_DECREE_TURNS_LEFT)..UI_LOCALISATION["hre_decree_more_turn"]);
 		else
-			tx_decrees_uic:SetStateText("'"..Get_Decree_Property(HRE_ACTIVE_DECREE, "name").."' is active for "..tostring(HRE_ACTIVE_DECREE_TURNS_LEFT).." more turns!");	
+			tx_decrees_uic:SetStateText("'"..Get_Decree_Property(HRE_ACTIVE_DECREE, "name").."' "..UI_LOCALISATION["hre_decree_active_for"].." "..tostring(HRE_ACTIVE_DECREE_TURNS_LEFT)..UI_LOCALISATION["hre_decree_more_turns"]);
 		end
 
 		for i = 1, #HRE_DECREES do
@@ -621,7 +622,7 @@ function Update_Authority_HRE_UI()
 	local btnHREPolicies_tab_child_uic = UIComponent(btnHREPolicies:Find("tab_child"));
 	local dy_imperial_authority_uic = UIComponent(btnHREPolicies_tab_child_uic:Find("dy_imperial_authority"));
 
-	dy_imperial_authority_uic:SetStateText("Imperial Authority: ("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_IMPERIAL_AUTHORITY_MAX)..")");
+	dy_imperial_authority_uic:SetStateText(UI_LOCALISATION["hre_imperial_authority_prefix"].."("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_IMPERIAL_AUTHORITY_MAX)..")");
 end
 
 function Round_Imperial_Authority_HRE_UI()
@@ -675,7 +676,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 	local population = "0";
 	local hre_regions = 0;
 	local fealty = "";
-	local in_hre = " This faction is a member of the Holy Roman Empire!";
+	local in_hre = UI_LOCALISATION["hre_in_hre_member"];
 	local faction = cm:model():world():faction_by_key(faction_name);
 	local panHRE = UIComponent(root:Find("HRE_Panel"));
 	local dy_faction_state_uic = UIComponent(panHRE:Find("dy_faction_state"));
@@ -693,13 +694,13 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 	parchment_ui_layer_uic:DestroyChildren();
 
 	if faction_name == HRE_EMPEROR_KEY then
-		in_hre = " This faction is the Emperor!";
+		in_hre = UI_LOCALISATION["hre_in_hre_emperor"];
 	elseif faction_name == HRE_EMPEROR_PRETENDER_KEY then
-		in_hre = " This faction is a pretender to the throne!";
+		in_hre = UI_LOCALISATION["hre_in_hre_pretender"];
 	elseif HasValue(HRE_FACTIONS_ELECTORS, faction_name) then
-		in_hre = " This faction is a Prince-Elector!";
+		in_hre = UI_LOCALISATION["hre_in_hre_elector"];
 	elseif not HasValue(HRE_FACTIONS, faction_name) then
-		in_hre = " This faction is not in the Holy Roman Empire!";
+		in_hre = UI_LOCALISATION["hre_in_hre_not_member"];
 	end
 
 	dy_faction_state_uic:SetStateText(in_hre);
@@ -779,7 +780,7 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 
 		dy_home_region_uic:SetStateText(REGIONS_NAMES_LOCALISATION[faction:home_region():name()]);
 		dy_regions_owned_uic:SetStateText(tostring(faction:region_list():num_items()));
-		tx_regions_in_hre_uic:SetStateText("Regions in HRE:");
+		tx_regions_in_hre_uic:SetStateText(UI_LOCALISATION["hre_regions_in_hre"]);
 
 		for i = 1, #HRE_REGIONS do
 			local region = cm:model():world():region_manager():region_by_key(HRE_REGIONS[i]);
@@ -790,17 +791,17 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		end
 
 		dy_regions_in_hre_uic:SetStateText(tostring(hre_regions));
-		tx_faction_rank_uic:SetStateText("Faction rank:");
+		tx_faction_rank_uic:SetStateText(UI_LOCALISATION["dfn_faction_rank"]);
 
 		if FACTIONS_DFN_LEVEL[faction_name] == 1 then
-			dy_faction_rank_uic:SetStateText("County/Duchy");
+			dy_faction_rank_uic:SetStateText(UI_LOCALISATION["dfn_county"]);
 		elseif FACTIONS_DFN_LEVEL[faction_name] == 2 then
-			dy_faction_rank_uic:SetStateText("Kingdom");
+			dy_faction_rank_uic:SetStateText(UI_LOCALISATION["dfn_kingdom"]);
 		elseif FACTIONS_DFN_LEVEL[faction_name] >= 3 or faction_name == HRE_EMPEROR_KEY then
-			dy_faction_rank_uic:SetStateText("Empire");
+			dy_faction_rank_uic:SetStateText(UI_LOCALISATION["dfn_empire"]);
 		end
 
-		tx_population_uic:SetStateText("Population:");
+		tx_population_uic:SetStateText(UI_LOCALISATION["population_prefix_no_space"]);
 		dy_population_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[faction_name]));
 
 		Update_State_HRE_UI(faction_name);
@@ -842,10 +843,10 @@ function Update_State_HRE_UI(faction_name)
 	local dy_fealty_uic = UIComponent(tx_fealty_uic:Find("dy_fealty"));
 
 	if HasValue(HRE_FACTIONS, faction_name) and faction_name ~= HRE_EMPEROR_KEY and cm:model():world():faction_by_key(faction_name):is_human() == false then
-		tx_fealty_uic:SetStateText("Attitude:");
+		tx_fealty_uic:SetStateText(UI_LOCALISATION["hre_attitude"]);
 		dy_fealty_uic:SetStateText(HRE_STATES[HRE_FACTIONS_STATES[faction_name]][1]);
 	elseif faction_name == HRE_EMPEROR_KEY then
-		tx_fealty_uic:SetStateText("Authority:");
+		tx_fealty_uic:SetStateText(UI_LOCALISATION["hre_imperial_authority_short"]);
 		dy_fealty_uic:SetStateText(Round_Number_Text(HRE_IMPERIAL_AUTHORITY).."/100");
 	else
 		tx_fealty_uic:SetStateText("");
@@ -911,7 +912,7 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 
 				tx_chosen_candidate_uic:SetVisible(true);
 				dy_votes_uic:SetVisible(true);
-				dy_votes_uic:SetStateText("Votes: "..tostring(num_votes));
+				dy_votes_uic:SetStateText(UI_LOCALISATION["hre_votes_prefix"]..tostring(num_votes));
 
 				if num_votes > 0 then
 					bar_uic:Resize((26 * num_votes) + 4, 24);

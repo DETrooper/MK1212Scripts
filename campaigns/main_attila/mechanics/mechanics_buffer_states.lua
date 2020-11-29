@@ -46,9 +46,9 @@ function CreateBufferStateUI()
 	root:CreateComponent("Buffer_Warning", "UI/new/buffer_warning");
 	local panBufferWarning = UIComponent(root:Find("Buffer_Warning"));
 
-	UIComponent(panBufferWarning:Find("heading_txt")):SetStateText("Release Buffer State?");
-	UIComponent(panBufferWarning:Find("dy_buffer_info")):SetStateText("Faction: ".."\nRegion: ");
-	UIComponent(panBufferWarning:Find("txt")):SetStateText("This faction will become your vassal.");
+	UIComponent(panBufferWarning:Find("heading_txt")):SetStateText(UI_LOCALISATION["buffer_state_prompt_heading_text"]);
+	UIComponent(panBufferWarning:Find("dy_buffer_info")):SetStateText("");
+	UIComponent(panBufferWarning:Find("txt")):SetStateText(UI_LOCALISATION["buffer_state_prompt_description"]);
 	panBufferWarning:SetVisible(false);
 end
 
@@ -64,7 +64,7 @@ function OnComponentLClickUp_Buffer_UI(context)
 			local dy_buffer_info_uic = UIComponent(panBufferWarning:Find("dy_buffer_info"));
 			local scroll_frame_uic = UIComponent(panBufferWarning:Find("scroll_frame"));
 
-			dy_buffer_info_uic:SetStateText("Faction: "..faction_string.."\nRegion: "..region_string);
+			dy_buffer_info_uic:SetStateText(UI_LOCALISATION["buffer_state_prompt_info_pt1"]..faction_string..UI_LOCALISATION["buffer_state_prompt_info_pt2"]..region_string);
 			scroll_frame_uic:DestroyChildren();
 
 			if HasValue(FACTIONS_WITH_IMAGES, vassal_faction_name) then

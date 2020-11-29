@@ -77,7 +77,7 @@ function OnComponentLClickUp_Occupation_Decisions(context)
 			local dy_option_uic = UIComponent(option_button_uic:Find("dy_option"));
 			
 			if button_gift_region_uic:CurrentState() == "down" then
-				dy_option_uic:SetStateText("Gift to Faction");
+				dy_option_uic:SetStateText(UI_LOCALISATION["gift_to_faction"]);
 
 				for i = 0, button_parent_uic:ChildCount() - 1 do
 					local occupation_decision_child_uic = UIComponent(button_parent_uic:Find(i));
@@ -93,7 +93,7 @@ function OnComponentLClickUp_Occupation_Decisions(context)
 
 				ToggleGiftableFactionList(true);
 			else
-				dy_option_uic:SetStateText("Occupy");
+				dy_option_uic:SetStateText(UI_LOCALISATION["occupy"]);
 
 				for i = 0, button_parent_uic:ChildCount() - 1 do
 					local occupation_decision_child_uic = UIComponent(button_parent_uic:Find(i));

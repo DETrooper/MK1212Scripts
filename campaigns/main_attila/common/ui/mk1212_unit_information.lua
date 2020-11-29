@@ -99,7 +99,7 @@ function UpdateUnitInformationPanel(unit_name)
 	if UNIT_NAMES_LOCALISATION[unit_name]  then
 		tx_unit_type_uic:SetStateText(UNIT_NAMES_LOCALISATION[unit_name]);
 	else
-		tx_unit_type_uic:SetStateText("Unknown Unit");
+		tx_unit_type_uic:SetStateText(UI_LOCALISATION["unknown_unit"]);
 	end
 
 	for i = 0, bullet_point_parent_uic:ChildCount() - 1 do

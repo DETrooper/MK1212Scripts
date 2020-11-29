@@ -58,7 +58,7 @@ function CreateDecisionsPanel()
 	UIComponent(panDecisions:Find("button_info")):SetVisible(false);
 	UIComponent(panDecisions:Find("button_info_holder")):SetVisible(false);
 	UIComponent(panDecisions:Find("progress_bar")):SetVisible(false);
-	UIComponent(panDecisions:Find("tx_objectives")):SetStateText("Decisions");
+	UIComponent(panDecisions:Find("tx_objectives")):SetStateText(UI_LOCALISATION["decisions"]);
 	txt_title_uic:SetStateText(Get_DFN_Localisation(faction_name));
 	local curX, curY = txt_title_uic:Position();
 	txt_title_uic:SetMoveable(true);
@@ -183,12 +183,12 @@ function OnComponentMouseOn_Decisions_UI(context)
 		if context.string == "map_accept" then
 			local btnAccept = UIComponent(context.component);
 
-			btnAccept:SetTooltipText("Close Map");
+			btnAccept:SetTooltipText(UI_LOCALISATION["decision_close_map"]);
 		elseif string.find(context.string, "_Decision_Button") then
 			local btnDecision = UIComponent(context.component);
 			local decision = string.gsub(context.string, "_Decision_Button", "");
 
-			btnDecision:SetTooltipText("Enact Decision");
+			btnDecision:SetTooltipText(UI_LOCALISATION["decision_enact_decision"]);
 		elseif string.find(context.string, "_Decision_Tooltip") then
 			local tltipDecisions = UIComponent(context.component);
 			local decision = string.gsub(context.string, "_Decision_Tooltip", "");
@@ -197,7 +197,7 @@ function OnComponentMouseOn_Decisions_UI(context)
 		elseif string.find(context.string, "_Decision_Map_Button") then
 			local mapDecisions = UIComponent(context.component);
 
-			mapDecisions:SetTooltipText("View a map of the regions required to enact this decision.");
+			mapDecisions:SetTooltipText(UI_LOCALISATION["decision_map_button"]);
 		end
 	end
 end

@@ -249,12 +249,12 @@ function OnComponentMouseOn_Annex_UI(context)
 
 				turns = FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION];
 
-				UIComponent(context.component):SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
+				UIComponent(context.component):SetTooltipText(UI_LOCALISATION["annex_vassal_tooltip_pt1"]..vassal_string..UI_LOCALISATION["annex_vassal_tooltip_pt2"]..cost..UI_LOCALISATION["annex_vassal_tooltip_pt3"]..turns..UI_LOCALISATION["annex_vassal_tooltip_pt4"]);
 			else
-				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION].." turns left.[[/rgba]]");
+				UIComponent(context.component):SetTooltipText(UI_LOCALISATION["annex_vassal_annexing_tooltip_pt1"]..vassal_string..UI_LOCALISATION["annex_vassal_annexing_tooltip_pt2"]..FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION]..UI_LOCALISATION["annex_vassal_annexing_tooltip_pt3"]);
 			end
 		else
-			UIComponent(context.component):SetTooltipText("The "..vassal_string.." is not your vassal!");
+			UIComponent(context.component):SetTooltipText(UI_LOCALISATION["annex_vassal_not_vassal_tooltip_pt1"]..vassal_string..UI_LOCALISATION["annex_vassal_not_vassal_tooltip_pt2"]);
 		end
 	elseif string.find(context.string, "mk_bundle_annex_vassal_regions_") then
 		local vassalized_faction_name = Get_Vassal_Currently_Annexing(cm:get_local_faction());
@@ -263,7 +263,7 @@ function OnComponentMouseOn_Annex_UI(context)
 		local description_window_uic = UIComponent(TechTooltipPopup:Find("description_window"));
 		local vassal_string = Get_DFN_Localisation(vassalized_faction_name);
 
-		description_window_uic:SetStateText("You are in the process annexing a vassal state, costing you a significant amount of money every turn.\n\nAnnexing Faction: "..vassal_string.."\n\nTurns Remaining: "..tostring(FACTIONS_VASSALIZED_ANNEXATION_TIME[vassalized_faction_name]));
+		description_window_uic:SetStateText(UI_LOCALISATION["annex_vassal_bundle_tooltip_pt1"]..vassal_string..UI_LOCALISATION["annex_vassal_bundle_tooltip_pt2"]..tostring(FACTIONS_VASSALIZED_ANNEXATION_TIME[vassalized_faction_name]));
 	end
 end
 
@@ -310,14 +310,14 @@ function OnComponentLClickUp_Annex_UI(context)
 				turns = FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION];
 
 				UIComponent(context.component):SetStateText("");
-				UIComponent(context.component):SetTooltipText("Begin annexing the "..vassal_string..".\n\n[[rgba:255:0:0:150]]This will cost "..cost.." in tax rate for "..turns.." turns.[[/rgba]]");
+				UIComponent(context.component):SetTooltipText(UI_LOCALISATION["annex_vassal_tooltip_pt1"]..vassal_string..UI_LOCALISATION["annex_vassal_tooltip_pt2"]..cost..UI_LOCALISATION["annex_vassal_tooltip_pt3"]..turns..UI_LOCALISATION["annex_vassal_tooltip_pt4"]);
 			else
 				UIComponent(context.component):SetStateText("");
-				UIComponent(context.component):SetTooltipText("Abort the annexation of the "..vassal_string..".\n\n[[rgba:255:0:0:150]]There are "..FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION].." turns left.[[/rgba]]");
+				UIComponent(context.component):SetTooltipText(UI_LOCALISATION["annex_vassal_annexing_tooltip_pt1"]..vassal_string..UI_LOCALISATION["annex_vassal_annexing_tooltip_pt2"]..FACTIONS_VASSALIZED_ANNEXATION_TIME[DIPLOMACY_SELECTED_FACTION]..UI_LOCALISATION["annex_vassal_annexing_tooltip_pt3"]);
 			end
 		else
 			UIComponent(context.component):SetStateText("");
-			UIComponent(context.component):SetTooltipText("The "..vassal_string.." is not your vassal!");
+			UIComponent(context.component):SetTooltipText(UI_LOCALISATION["annex_vassal_not_vassal_tooltip_pt1"]..vassal_string..UI_LOCALISATION["annex_vassal_not_vassal_tooltip_pt2"]);
 		end
 	elseif DIPLOMACY_PANEL_OPEN == true then
 		if context.string == "map" or context.string == "button_icon" or context.string == "flag" or string.find(context.string, "faction_row_entry_") then

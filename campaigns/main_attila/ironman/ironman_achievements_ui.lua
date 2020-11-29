@@ -145,9 +145,9 @@ function Update_Achievement_Menu_UI()
 
 			if ACHIEVEMENTS[achievement_key].unlocked then
 				if ACHIEVEMENTS[achievement_key].unlocktime and ACHIEVEMENTS[achievement_key].unlocktime ~= "n.d." then
-					dy_unlock_date_uic:SetStateText("Unlocked: "..ACHIEVEMENTS[achievement_key].unlocktime);
+					dy_unlock_date_uic:SetStateText(UI_LOCALISATION["achievement_unlocked_date_prefix"]..ACHIEVEMENTS[achievement_key].unlocktime);
 				else
-					dy_unlock_date_uic:SetStateText("Unlocked: Date not found!");
+					dy_unlock_date_uic:SetStateText(UI_LOCALISATION["achievement_unlocked_date_not_found"]);
 				end
 
 				TOTAL_ACHIEVEMENTS_UNLOCKED = TOTAL_ACHIEVEMENTS_UNLOCKED + 1;
@@ -159,23 +159,23 @@ function Update_Achievement_Menu_UI()
 					achievement_icon_uic:ShaderVarsSet(0.9, 0.9, 0, 0, true);
 				end
 
-				dy_unlock_date_uic:SetStateText("Achievement not yet unlocked!");
+				dy_unlock_date_uic:SetStateText(UI_LOCALISATION["achievement_not_yet_unlocked"]);
 			end
 		end
 	end
 
 	if IRONMAN_ENABLED then
-		dy_ironman_uic:SetStateText("Ironman: [[rgba:8:201:27:150]]Enabled[[/rgba]]");
+		dy_ironman_uic:SetStateText(UI_LOCALISATION["ironman_disabled"]);
 	else
-		dy_ironman_uic:SetStateText("Ironman: [[rgba:255:0:0:150]]Disabled[[/rgba]]");
+		dy_ironman_uic:SetStateText(UI_LOCALISATION["ironman_enabled"]);
 	end
 
 	if TOTAL_ACHIEVEMENTS_UNLOCKED == 0 then
 		progress_bar_uic:Resize(1, 40);
-		progress_label_uic:SetStateText("Achievements Unlocked: 0/"..tostring(num_achievements).." (0%)");
+		progress_label_uic:SetStateText(UI_LOCALISATION["achievements_unlocked_prefix"].."0/"..tostring(num_achievements).." (0%)");
 	else
 		progress_bar_uic:Resize(PROGRESS_BAR_MAX_SIZE * (TOTAL_ACHIEVEMENTS_UNLOCKED / num_achievements), 40);
-		progress_label_uic:SetStateText("Achievements Unlocked: "..tostring(TOTAL_ACHIEVEMENTS_UNLOCKED).."/"..tostring(num_achievements).." ("..tostring(math.ceil((100 * TOTAL_ACHIEVEMENTS_UNLOCKED) / num_achievements)).."%)");
+		progress_label_uic:SetStateText(UI_LOCALISATION["achievements_unlocked_prefix"]..tostring(TOTAL_ACHIEVEMENTS_UNLOCKED).."/"..tostring(num_achievements).." ("..tostring(math.ceil((100 * TOTAL_ACHIEVEMENTS_UNLOCKED) / num_achievements)).."%)");
 	end
 end
 

@@ -418,7 +418,7 @@ function TimeTrigger_Population_UI(context)
 		local tx_provinces_owned_uic = UIComponent(tab_records_uic:Find("tx_provinces_owned"));
 		local dy_provinces_owned_uic = UIComponent(tx_provinces_owned_uic:Find("dy_provinces_owned"));
 
-		tx_provinces_owned_uic:SetStateText("Population:");
+		tx_provinces_owned_uic:SetStateText(UI_LOCALISATION["population_prefix_no_space"]);
 		dy_provinces_owned_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[cm:get_local_faction()]));
 		dy_population_uic:SetStateText(tostring(POPULATION_FACTION_TOTAL_POPULATIONS[cm:get_local_faction()]));
 	end
@@ -439,24 +439,25 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 	tribesmen_dy_uic = UIComponent(tribesmen_uic:Find("description_dy"));
 	local foreigners_uic = UIComponent(TechTooltipPopup:Find("building_info_generic_entry4"));
 	foreigners_dy_uic = UIComponent(foreigners_uic:Find("description_dy"));
+	local available_manpower_str = UI_LOCALISATION["population_available_manpower"];
 
 	if class == 0 then
-		instruction_window_uic:SetStateText("Population of "..REGIONS_NAMES_LOCALISATION[key]);
+		instruction_window_uic:SetStateText(UI_LOCALISATION["population_of_prefix"]..REGIONS_NAMES_LOCALISATION[key]);
 
 		if own_region == true then
-			description_window_uic:SetStateText("Total Population: "..tostring(POPULATION_REGIONS_POPULATIONS[key][1] + POPULATION_REGIONS_POPULATIONS[key][2] + POPULATION_REGIONS_POPULATIONS[key][3] + POPULATION_REGIONS_POPULATIONS[key][4] + POPULATION_REGIONS_POPULATIONS[key][5]).."\n\nLeft-click to cycle through growth details.");
+			description_window_uic:SetStateText(UI_LOCALISATION["total_population_prefix"]..tostring(POPULATION_REGIONS_POPULATIONS[key][1] + POPULATION_REGIONS_POPULATIONS[key][2] + POPULATION_REGIONS_POPULATIONS[key][3] + POPULATION_REGIONS_POPULATIONS[key][4] + POPULATION_REGIONS_POPULATIONS[key][5]).."\n\nLeft-click to cycle through growth details.");
 			description_window_uic:Resize(340, 64);
 		else
-			description_window_uic:SetStateText("Total Population: "..tostring(POPULATION_REGIONS_POPULATIONS[key][1] + POPULATION_REGIONS_POPULATIONS[key][2] + POPULATION_REGIONS_POPULATIONS[key][3] + POPULATION_REGIONS_POPULATIONS[key][4] + POPULATION_REGIONS_POPULATIONS[key][5]));
+			description_window_uic:SetStateText(UI_LOCALISATION["total_population_prefix"]..tostring(POPULATION_REGIONS_POPULATIONS[key][1] + POPULATION_REGIONS_POPULATIONS[key][2] + POPULATION_REGIONS_POPULATIONS[key][3] + POPULATION_REGIONS_POPULATIONS[key][4] + POPULATION_REGIONS_POPULATIONS[key][5]));
 			description_window_uic:Resize(340, 32);
 		end
 
 		description_window_uic:Resize(340, 64);
-		nobility_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[1]..": "..POPULATION_REGIONS_POPULATIONS[key][1].." "..Population_UI_Get_Growth(key, 1).."\nAvailable Manpower: "..POPULATION_REGIONS_MANPOWER[key][1]);
-		artisans_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[2]..": "..POPULATION_REGIONS_POPULATIONS[key][2].." "..Population_UI_Get_Growth(key, 2).."\nAvailable Manpower: "..POPULATION_REGIONS_MANPOWER[key][2]);
-		peasantry_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[3]..": "..POPULATION_REGIONS_POPULATIONS[key][3].." "..Population_UI_Get_Growth(key, 3).."\nAvailable Manpower: "..POPULATION_REGIONS_MANPOWER[key][3]);
-		tribesmen_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[4]..": "..POPULATION_REGIONS_POPULATIONS[key][4].." "..Population_UI_Get_Growth(key, 4).."\nAvailable Manpower: "..POPULATION_REGIONS_MANPOWER[key][4]);
-		foreigners_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[5]..": "..POPULATION_REGIONS_POPULATIONS[key][5].." "..Population_UI_Get_Growth(key, 5).."\nAvailable Manpower: "..POPULATION_REGIONS_MANPOWER[key][5]);
+		nobility_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[1]..": "..POPULATION_REGIONS_POPULATIONS[key][1].." "..Population_UI_Get_Growth(key, 1)..available_manpower_str..POPULATION_REGIONS_MANPOWER[key][1]);
+		artisans_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[2]..": "..POPULATION_REGIONS_POPULATIONS[key][2].." "..Population_UI_Get_Growth(key, 2)..available_manpower_str..POPULATION_REGIONS_MANPOWER[key][2]);
+		peasantry_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[3]..": "..POPULATION_REGIONS_POPULATIONS[key][3].." "..Population_UI_Get_Growth(key, 3)..available_manpower_str..POPULATION_REGIONS_MANPOWER[key][3]);
+		tribesmen_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[4]..": "..POPULATION_REGIONS_POPULATIONS[key][4].." "..Population_UI_Get_Growth(key, 4)..available_manpower_str..POPULATION_REGIONS_MANPOWER[key][4]);
+		foreigners_dy_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[5]..": "..POPULATION_REGIONS_POPULATIONS[key][5].." "..Population_UI_Get_Growth(key, 5)..available_manpower_str..POPULATION_REGIONS_MANPOWER[key][5]);
 
 		nobility_uic:SetVisible(true);
 		artisans_uic:SetVisible(true);
@@ -464,7 +465,7 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 		tribesmen_uic:SetVisible(true);
 		foreigners_uic:SetVisible(true);
 	elseif class ~= 0 then
-		instruction_window_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[class].." of "..REGIONS_NAMES_LOCALISATION[key].." Growth Factors");
+		instruction_window_uic:SetStateText(POPULATIONS_CLASSES_TITLE_STRINGS[class]..UI_LOCALISATION["of"]..REGIONS_NAMES_LOCALISATION[key]..UI_LOCALISATION["population_growth_factors"]);
 		description_window_uic:Resize(340, 300);
 
 		local class_population = "Class Population: "..tostring(POPULATION_REGIONS_POPULATIONS[key][class].."\n\n");

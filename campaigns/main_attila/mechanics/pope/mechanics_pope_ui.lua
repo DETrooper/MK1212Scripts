@@ -115,7 +115,7 @@ function CreateCrusaderRecruitmentPanel()
 	crusader_recruitment_clip_uic:SetVisible(true);
 	crusader_recruitment_options_uic:SetVisible(true);
 	button_confirm_uic:SetVisible(false);
-	tx_recruitment_options_uic:SetStateText("Crusader Recruitment");
+	tx_recruitment_options_uic:SetStateText(UI_LOCALISATION["pope_crusader_recruitment"]);
 	tx_mercenariers_cost_uic:SetVisible(false);
 
 	CRUSADER_RECRUITMENT_PANEL_CREATED = true;
@@ -220,9 +220,9 @@ function OnComponentMouseOn_Pope_UI(context)
 		local faction = cm:model():world():faction_by_key(faction_name);
 
 		if faction:at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) == false then
-			button_join_crusade_uic:SetTooltipText("Send this army on Crusade!\n\n[[rgba:230:0:0:150]]Note that clicking this button will declare war![[/rgba]]");
+			button_join_crusade_uic:SetTooltipText(UI_LOCALISATION["pope_crusade_button_war"]);
 		else
-			button_join_crusade_uic:SetTooltipText("Send this army on Crusade!");
+			button_join_crusade_uic:SetTooltipText(UI_LOCALISATION["pope_crusade_button"]);
 		end
 	elseif POSTBATTLE_DECISION_ENEMY_CATHOLIC == true then
 		if context.string == "button_kill" then
@@ -233,10 +233,10 @@ function OnComponentMouseOn_Pope_UI(context)
 			local faction_name = cm:get_local_faction();
 
 			if FACTION_POPE_FAVOUR[faction_name] > 1 then
-				txt_description_uic:SetStateText(txt_description_text.."\n\n[[rgba:230:0:0:150]]Executing the captives of a fellow Catholic faction will result in the loss of Papal Favour![[/rgba]]");
+				txt_description_uic:SetStateText(txt_description_text..UI_LOCALISATION["pope_execution_tooltip"]);
 				tooltip_captive_options_uic:Resize(278, 270);
 			elseif FACTION_EXCOMMUNICATED[faction_name] ~= true then
-				txt_description_uic:SetStateText(txt_description_text.."\n\n[[rgba:230:0:0:150]]With your Papal Favour already so low, executing the captives of a fellow Catholic faction will result in your excommunication![[/rgba]]");
+				txt_description_uic:SetStateText(txt_description_text..UI_LOCALISATION["pope_execution_excommunication_tooltip"]);
 				tooltip_captive_options_uic:Resize(278, 290);
 			end
 		elseif context.string == "option_button" then
@@ -254,9 +254,9 @@ function OnComponentMouseOn_Pope_UI(context)
 				end
 
 				if FACTION_POPE_FAVOUR[faction_name] > 1 then
-					option_button_uic:SetTooltipText(tooltip_text.."\n\n[[rgba:230:0:0:150]]Sacking the settlement of a fellow Catholic faction will result in the loss of Papal Favour![[/rgba]]");
+					option_button_uic:SetTooltipText(tooltip_text..UI_LOCALISATION["pope_sacking_tooltip"]);
 				elseif FACTION_EXCOMMUNICATED[faction_name] == false then
-					option_button_uic:SetTooltipText(tooltip_text.."\n\n[[rgba:230:0:0:150]]With your Papal Favour already so low, sacking the settlement of a fellow Catholic faction will result in your excommunication![[/rgba]]");
+					option_button_uic:SetTooltipText(tooltip_text..UI_LOCALISATION["pope_sacking_excommunication_tooltip"]);
 				end
 			end
 		end
@@ -268,9 +268,9 @@ function OnComponentMouseOn_Pope_UI(context)
 				local unit_name = string.gsub(context.string, "_crusader", "");
 
 				if UNIT_NAMES_LOCALISATION[unit_name]  then
-					unit_card_uic:SetTooltipText(UNIT_NAMES_LOCALISATION[unit_name].."\n\nLeft-click to recruit this Crusader unit.");
+					unit_card_uic:SetTooltipText(UNIT_NAMES_LOCALISATION[unit_name]..UI_LOCALISATION["pope_crusader_recruitment_tooltip"]);
 				else
-					unit_card_uic:SetTooltipText("Unknown Unit\n\nLeft-click to recruit this Crusader unit.");
+					unit_card_uic:SetTooltipText(UI_LOCALISATION["unknown_unit"]..UI_LOCALISATION["pope_crusader_recruitment_tooltip"]);
 				end
 
 				UpdateUnitInformationPanel(unit_name);
@@ -564,7 +564,7 @@ function PopulateCollegeOfCardinalsPanel()
 	list_box_uic:DestroyChildren();
 
 	if current_pope then
-		tx_pope_uic:SetStateText("Pope "..NAMES_TO_LOCALISATION[current_pope:get_forename()] or "Name Not Found");
+		tx_pope_uic:SetStateText(UI_LOCALISATION["pope_prefix"]..NAMES_TO_LOCALISATION[current_pope:get_forename()] or UI_LOCALISATION["name_not_found"]);
 	end
 
 	local preferati = {};
@@ -604,10 +604,10 @@ function SetupCardinalTemplate(character_cqi, list_box_uic)
 		local character_faction = character:faction();
 		local character_faction_name = character_faction:name();
 		local character_rank = COLLEGE_OF_CARDINALS_CHARACTERS[character_cqi];
-		local character_rank_string = "Cardinal";
+		local character_rank_string = UI_LOCALISATION["pope_college_cardinal"];
 
 		if character_rank == "preferati" then
-			character_rank_string = "Preferati";
+			character_rank_string = UI_LOCALISATION["pope_college_preferati"];
 		end
 
 		list_box_uic:CreateComponent("cardinal_template_"..character_cqi, "UI/new/cardinal_template");
@@ -625,7 +625,7 @@ function SetupCardinalTemplate(character_cqi, list_box_uic)
 		--dy_cardinal_date_joined_uic:SetStateText("1212");
 		dy_cardinal_faction_uic:SetStateText(Get_DFN_Localisation(character_faction_name));
 		dy_cardinal_level_uic:SetStateText(tostring(character:rank()));
-		dy_cardinal_name_uic:SetStateText(NAMES_TO_LOCALISATION[character:get_forename()] or "Name Not Found");
+		dy_cardinal_name_uic:SetStateText(NAMES_TO_LOCALISATION[character:get_forename()] or UI_LOCALISATION["name_not_found"]);
 		dy_cardinal_rank_uic:SetStateText(character_rank_string);
 
 		if HasValue(FACTIONS_WITH_IMAGES, character_faction_name) then

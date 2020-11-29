@@ -220,8 +220,8 @@ function PanelOpenedCampaign_HRE_Events(context)
 			option3_effect1_text = string.gsub(option3_effect1_text_uic:GetStateText(), "number", tostring(-HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][3]));
 
 			bg_description_txt:SetStateText(description_text);
-			option1_button_text_uic:SetStateText("Support "..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1)..".");
-			option2_button_text_uic:SetStateText("Support "..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2)..".");
+			option1_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1)..".");
+			option2_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2)..".");
 			option1_effect1_text_uic:SetStateText(option1_effect1_text);
 			option1_effect2_text_uic:SetStateText(option1_effect2_text);
 			option2_effect1_text_uic:SetStateText(option2_effect1_text);
@@ -287,8 +287,8 @@ function PanelOpenedCampaign_HRE_Events(context)
 			local option4_effect1_text = string.gsub(option4_effect1_text_uic:GetStateText(), "number", tostring(HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][4]));
 
 			bg_description_txt:SetStateText(description_text);
-			option1_button_text_uic:SetStateText("Support "..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1)..".");
-			option2_button_text_uic:SetStateText("Support "..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2)..".");
+			option1_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1)..".");
+			option2_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2)..".");
 			option1_effect1_text_uic:SetStateText(option1_effect1_text);
 			option1_effect2_text_uic:SetStateText(option1_effect2_text);
 			option2_effect1_text_uic:SetStateText(option2_effect1_text);
