@@ -116,28 +116,34 @@ function FactionTurnStart_France(context)
 		end
 
 		if england:is_human() == false and cm:model():turn_number() == ENGLISH_INVASION_TURN then
-			cm:force_declare_war(ENGLAND_KEY, FRANCE_KEY);
+			local region = cm:model():world():region_manager():region_by_key("att_reg_lugdunensis_rotomagus");
 
-			cm:show_message_event(
-				FRANCE_KEY,
-				"message_event_text_text_mk_event_fra_english_invasion_title", 
-				"message_event_text_text_mk_event_fra_english_invasion_primary", 
-				"message_event_text_text_mk_event_fra_english_invasion_secondary", 
-				true,
-				711
-			);
+			if region:owning_faction():name() == ENGLAND_KEY then
+				-- England somehow got Rouen on turn 1, maybe through region trading?
+			else
+				cm:force_declare_war(ENGLAND_KEY, FRANCE_KEY);
 
-			cm:add_listener(
-				"CharacterEntersGarrison_Normandy_France",
-				"CharacterEntersGarrison",
-				true,
-				function(context) CharacterEntersGarrison_Normandy_France(context) end,
-				true
-			);
+				cm:show_message_event(
+					FRANCE_KEY,
+					"message_event_text_text_mk_event_fra_english_invasion_title", 
+					"message_event_text_text_mk_event_fra_english_invasion_primary", 
+					"message_event_text_text_mk_event_fra_english_invasion_secondary", 
+					true,
+					711
+				);
 
-			cm:trigger_mission(FRANCE_KEY, "mk_mission_story_france_survive_invasion");
-			FRANCE_MISSION_ACTIVE = true;
-			SetFactionsHostile(ENGLAND_KEY, FRANCE_KEY);
+				cm:add_listener(
+					"CharacterEntersGarrison_Normandy_France",
+					"CharacterEntersGarrison",
+					true,
+					function(context) CharacterEntersGarrison_Normandy_France(context) end,
+					true
+				);
+
+				cm:trigger_mission(FRANCE_KEY, "mk_mission_story_france_survive_invasion");
+				FRANCE_MISSION_ACTIVE = true;
+				SetFactionsHostile(ENGLAND_KEY, FRANCE_KEY);
+			end
 		end
 
 		if cm:model():turn_number() == FRANCE_MISSION_WIN_TURN and FRANCE_MISSION_ACTIVE == true then

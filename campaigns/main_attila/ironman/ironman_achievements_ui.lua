@@ -165,9 +165,9 @@ function Update_Achievement_Menu_UI()
 	end
 
 	if IRONMAN_ENABLED then
-		dy_ironman_uic:SetStateText(UI_LOCALISATION["ironman_disabled"]);
-	else
 		dy_ironman_uic:SetStateText(UI_LOCALISATION["ironman_enabled"]);
+	else
+		dy_ironman_uic:SetStateText(UI_LOCALISATION["ironman_disabled"]);
 	end
 
 	if TOTAL_ACHIEVEMENTS_UNLOCKED == 0 then

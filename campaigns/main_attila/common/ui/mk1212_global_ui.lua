@@ -92,6 +92,7 @@ function OnPanelClosedCampaign_Global_UI(context)
 		SETTLEMENT_PANEL_OPEN = false;
 	elseif context.string == "diplomacy_dropdown" then
 		DIPLOMACY_PANEL_OPEN = false;
+		DIPLOMACY_SELECTED_FACTION = nil;
 	end
 end
 

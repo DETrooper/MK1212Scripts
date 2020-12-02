@@ -104,11 +104,17 @@ function FactionTurnStart_England(context)
 
 				-- Issue England a mission telling them to declare war on France, or face the consequences!
 
-				if cm:is_multiplayer() == false then
-					cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_war_with_france");
-				elseif cm:is_multiplayer() == true and england:allied_with(france) == false then
-					-- If game is MP and England isn't allied to France, that means it isn't a co-op campaign, so war can happen!
-					cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_war_with_france");
+				local region = cm:model():world():region_manager():region_by_key("att_reg_lugdunensis_rotomagus");
+
+				if region:owning_faction():name() == ENGLAND_KEY then
+					-- England somehow got Rouen on turn 1, maybe through region trading?
+				else
+					if cm:is_multiplayer() == false then
+						cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_war_with_france");
+					elseif cm:is_multiplayer() == true and england:allied_with(france) == false then
+						-- If game is MP and England isn't allied to France, that means it isn't a co-op campaign, so war can happen!
+						cm:trigger_dilemma(ENGLAND_KEY, "mk_dilemma_story_england_war_with_france");
+					end
 				end
 			end
 
@@ -133,6 +139,7 @@ function FactionTurnStart_England(context)
 					703
 				);
 			end
+
 			if ENGLISH_MISSION_ACTIVE == true then
 				local region = cm:model():world():region_manager():region_by_key("att_reg_lugdunensis_rotomagus");
 			
@@ -143,7 +150,13 @@ function FactionTurnStart_England(context)
 			end
 		elseif england:is_human() == false and france:is_human() == false then
 			if cm:model():turn_number() == ENGLISH_MISSION_TURN and england:at_war_with(france) == false then
-				cm:force_declare_war(ENGLAND_KEY, FRANCE_KEY);
+				local region = cm:model():world():region_manager():region_by_key("att_reg_lugdunensis_rotomagus");
+
+				if region:owning_faction():name() == ENGLAND_KEY then
+					-- England somehow got Rouen on turn 1, maybe through region trading?
+				else
+					cm:force_declare_war(ENGLAND_KEY, FRANCE_KEY);
+				end
 			end
 		end
 	elseif france:is_human() == true and context:faction():name() == FRANCE_KEY then

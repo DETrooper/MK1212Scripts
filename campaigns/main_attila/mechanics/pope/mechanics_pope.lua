@@ -104,6 +104,8 @@ function Add_Pope_Listeners()
 							true, 
 							701
 						);
+
+						cm:make_region_visible_in_shroud(current_faction:name(), faction:home_region():name());
 					end
 				end
 			end

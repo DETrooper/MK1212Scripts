@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
 
-local min_gift_value = 1000; -- Minimum value of a region before the AI will accept it as a gift.
+local min_gift_value = 1500; -- Minimum value of a region before the AI will accept it as a gift.
 local regions_giving = {}; -- Regions being given to the AI.
 local regions_recieving = {}; -- Regions being demanded by the player.
 local region_trade_panel_open = false;
@@ -39,20 +39,65 @@ end
 local function Calculate_Region_Value(region, purchaser_name)
 	local buildings_list = region:garrison_residence():buildings();
 	local owner = region:owning_faction();
-	local value = 0;
+	local regionX = region:settlement():logical_position_x();
+	local regionY = region:settlement():logical_position_y();
+	local farthest_region_distance;
+	local value = 0; -- Value of the region.
 
-	if purchaser_name then
+	-- Increase the value of the region by the sum of the monetary value of its buildings.
+	for i = 0, buildings_list:num_items() - 1 do
+		local building_value = REGION_TRADING_BUILDING_VALUES[buildings_list:item_at(i):name()] or 0;
+
+		value = value + building_value;
+	end
+
+	if purchaser_name then -- Region belongs to the player.
+		local purchaser_faction = cm:model():world():faction_by_key(purchaser_name);
+		local purchaser_region_list = purchaser_faction:region_list();
+
+		-- Modify value based off the region owner's attitude towards the purchasing faction.
 		local stance = cm:model():campaign_ai():strategic_stance_between_factions(owner:name(), purchaser_name);
 
 		if REGION_TRADING_STANCE_MODIFIERS[tostring(stance)] then
 			value = value + REGION_TRADING_STANCE_MODIFIERS[tostring(stance)];
 		end
-	end
-									
-	for i = 0, buildings_list:num_items() - 1 do
-		local building_value = REGION_TRADING_BUILDING_VALUES[buildings_list:item_at(i):name()] or 0;
 
-		value = value + building_value;
+		-- Decrease the value of the region by its distance from the purchasing faction's borders.
+		for i = 0, purchaser_region_list:num_items() - 1 do
+			local purchaser_region = purchaser_region_list:item_at(i);
+			local purchaser_region_adjacent_region_list = purchaser_region:adjacent_region_list();
+			local purchaser_regionX = purchaser_region:settlement():logical_position_x();
+			local purchaser_regionY = purchaser_region:settlement():logical_position_y();
+			local purchaser_region_distance = ((purchaser_regionX - regionX) ^ 2 + (purchaser_regionY - regionY) ^ 2) ^ 0.5;
+
+			-- If any of the purchasing faction's regions are adjacent to the traded region, skip the penalty.
+			if purchaser_region_adjacent_region_list:num_items() > 0 then
+				for k = 0, purchaser_region_adjacent_region_list:num_items() - 1 do
+					local adjacent_region = purchaser_region_adjacent_region_list:item_at(k);
+
+					if adjacent_region:name() == region:name() or purchaser_region_distance < 50 then
+						farthest_region_distance = "adjacent";
+						break;
+					end
+				end
+
+				if farthest_region_distance == "adjacent" then
+					break;
+				end
+			end
+
+			if not farthest_region_distance or farthest_region_distance < purchaser_region_distance then
+				farthest_region_distance = purchaser_region_distance;
+			end
+		end
+
+		if farthest_region_distance and farthest_region_distance ~= "adjacent" then
+			local distance_penalty = math.floor(farthest_region_distance * (value / 500));
+
+			--dev.log(region:name().." pre-penalty value: "..tostring(value));
+			value = value - distance_penalty;
+			--dev.log(region:name().." post-penalty value: "..tostring(value));
+		end
 	end
 
 	return value;
@@ -283,20 +328,27 @@ function TimeTrigger_Region_Trading_UI(context)
 
 		if diplomacy_dropdown_uic then
 			local button_trade_regions_uic = UIComponent(diplomacy_dropdown_uic:Find("button_trade_regions"));
-			local diplomacy_faction = cm:model():world():faction_by_key(DIPLOMACY_SELECTED_FACTION);
 
-			if diplomacy_faction then
+			button_trade_regions_uic:SetState("inactive");
+			button_trade_regions_uic:SetVisible(true);
+
+			if DIPLOMACY_SELECTED_FACTION then
+				local diplomacy_faction = cm:model():world():faction_by_key(DIPLOMACY_SELECTED_FACTION);
 				local faction = cm:model():world():faction_by_key(cm:get_local_faction());
 
-				button_trade_regions_uic:SetState("inactive");
-				button_trade_regions_uic:SetVisible(true);
-
-				if diplomacy_faction:region_list():num_items() > 1 and diplomacy_faction:at_war_with(faction) ~= true then
-					if FACTIONS_VASSALIZED_ANNEXING and FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == true then
+				if diplomacy_faction then
+					if diplomacy_faction:is_horde() or faction:is_horde() then
+						-- Hordes cannot trade regions!
 						return;
 					end
 
-					button_trade_regions_uic:SetState("active");
+					if diplomacy_faction:at_war_with(faction) ~= true then
+						if FACTIONS_VASSALIZED_ANNEXING and FACTIONS_VASSALIZED_ANNEXING[DIPLOMACY_SELECTED_FACTION] == true then
+							return;
+						end
+
+						button_trade_regions_uic:SetState("active");
+					end
 				end
 			end
 		end
