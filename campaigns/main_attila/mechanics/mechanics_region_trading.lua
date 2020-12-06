@@ -180,17 +180,23 @@ local function Process_Region_Trade()
 	local offers_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("offers_panel"));
 	local offers_list_panel_uic = UIComponent(offers_panel_uic:Find("offers_list_panel"));
 	local list_offers_uic = UIComponent(offers_list_panel_uic:Find("list_offers"));
+	local list_offers_list_box_uic = UIComponent(list_offers_uic:Find("list_box"));
 	local list_demands_uic = UIComponent(offers_list_panel_uic:Find("list_demands"));
+	local list_demands_list_box_uic = UIComponent(list_demands_uic:Find("list_box"));
 	local tx_likelihood_uic = UIComponent(offers_list_panel_uic:Find("tx_likelihood_of_success"));
 	local button_set1_uic = UIComponent(offers_panel_uic:Find("button_set1"));
 	local faction_name = cm:get_local_faction();
 
-	for i = 1, #regions_giving do
-		Transfer_Region_To_Faction(regions_giving[i], DIPLOMACY_SELECTED_FACTION);
+	if #regions_giving > 0 then
+		for i = 1, #regions_giving do
+			Transfer_Region_To_Faction(regions_giving[i], DIPLOMACY_SELECTED_FACTION);
+		end
 	end
 
-	for i = 1, #regions_recieving do
-		Transfer_Region_To_Faction(regions_recieving[i], faction_name);
+	if #regions_recieving > 0 then
+		for i = 1, #regions_recieving do
+			Transfer_Region_To_Faction(regions_recieving[i], faction_name);
+		end
 	end
 
 	UIComponent(button_set1_uic:Find("button_counteroffer")):SetVisible(true);
