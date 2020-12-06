@@ -863,9 +863,9 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 	local dy_votes_uic = UIComponent(parchment_uic:Find("dy_votes"));
 	local bar_uic = UIComponent(parchment_uic:Find("bar"));
 	local election_ui_layer_uic = UIComponent(parchment_uic:Find("Election_UI_Layer"));
-	election_ui_layer_uic:DestroyChildren();
-
 	local faction_name = HRE_FACTIONS_VOTES[info_faction_name];
+
+	election_ui_layer_uic:DestroyChildren();
 
 	if faction_name and FactionIsAlive(faction_name) then
 		local faction = cm:model():world():faction_by_key(faction_name);
@@ -1013,7 +1013,7 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 			btnBackCandidate:SetVisible(false);
 		end
 	else
-		if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, human_faction_name)) then
+		if cm:get_local_faction() ~= HRE_EMPEROR_PRETENDER_KEY and (CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, human_faction_name))) then
 			btnVote:SetVisible(true);
 			btnVote:SetMoveable(true);
 			btnVote:MoveTo(parchment_uicX + 193, parchment_uicY + 644);
