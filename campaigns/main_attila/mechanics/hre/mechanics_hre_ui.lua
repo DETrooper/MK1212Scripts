@@ -732,7 +732,6 @@ function Setup_Faction_Info_HRE_UI(root, faction_name)
 		UIComponent(child_1:Find("hbar")):SetVisible(true);
 
 		if faction_name == HRE_EMPEROR_PRETENDER_KEY or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, faction_name) == false) then
-			
 			child_2:SetVisible(false);
 		else
 			child_2:SetVisible(true);
@@ -868,7 +867,7 @@ function Setup_Elector_Faction_Info_HRE_UI(root, info_faction_name)
 
 	local faction_name = HRE_FACTIONS_VOTES[info_faction_name];
 
-	if faction_name then
+	if faction_name and FactionIsAlive(faction_name) then
 		local faction = cm:model():world():faction_by_key(faction_name);
 		local human_faction_name = cm:get_local_faction();
 		local name_localisation = NAMES_TO_LOCALISATION[faction:faction_leader():get_forename()] or "Name Not Found";

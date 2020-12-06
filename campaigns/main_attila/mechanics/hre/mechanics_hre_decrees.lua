@@ -17,7 +17,7 @@ HRE_DECREES = {
 	{
 		["key"] = "hre_decree_imperial_levies",
 		["name"] = "Muster Imperial Levies",
-		["cost"] = 25,
+		["cost"] = 15,
 		["emperor_effect_bundle_key"] = "mk_effect_bundle_hre_decree_imperial_levies",
 		["emperor_effects"] = {"Upkeep cost: +10% for land units", "Replenishment: +5%", "Army recruitment capacity: +1"},
 		["member_effect_bundle_key"] = "mk_effect_bundle_hre_member_imperial_levies",
@@ -26,7 +26,7 @@ HRE_DECREES = {
 	{
 		["key"] = "hre_decree_patronize_universities",
 		["name"] = "Patronize Universities",
-		["cost"] = 25,
+		["cost"] = 15,
 		["emperor_effect_bundle_key"] = "mk_effect_bundle_hre_decree_patronize_universities",
 		["emperor_effects"] = {"Research rate: +20%", "Agent recruit experience: +3 for priests", "Tax rate: -10%"},
 		["member_effect_bundle_key"] = "mk_effect_bundle_hre_member_patronize_universities",
@@ -35,7 +35,7 @@ HRE_DECREES = {
 	{
 		["key"] = "hre_decree_expand_bureaucracy",
 		["name"] = "Expand The Bureaucracy",
-		["cost"] = 25,
+		["cost"] = 15,
 		["emperor_effect_bundle_key"] = "mk_effect_bundle_hre_decree_expand_bureaucracy",
 		["emperor_effects"] = {"Loyalty: +2", "Corruption: +5%", "Tax rate: +15%"},
 		["member_effect_bundle_key"] = "mk_effect_bundle_hre_member_expand_bureaucracy",
@@ -44,7 +44,7 @@ HRE_DECREES = {
 	{
 		["key"] = "hre_decree_promote_commerce",
 		["name"] = "Promote Commerce",
-		["cost"] = 25,
+		["cost"] = 15,
 		["emperor_effect_bundle_key"] = "mk_effect_bundle_hre_decree_promote_commerce",
 		["emperor_effects"] = {"Trade income: -5% trade agreement tariffs", "Diplomatic standing: +10 with all factions", "Wealth: +25% from commercial buildings"},
 		["member_effect_bundle_key"] = "mk_effect_bundle_hre_member_promote_commerce",
@@ -53,7 +53,7 @@ HRE_DECREES = {
 	{
 		["key"] = "hre_decree_lessen_tax_burdens",
 		["name"] = "Lessen Tax Burdens",
-		["cost"] = 25,
+		["cost"] = 15,
 		["emperor_effect_bundle_key"] = "mk_effect_bundle_hre_decree_lessen_tax_burdens",
 		["emperor_effects"] = {"Population Growth: +0.5% Burgher and Peasantry Growth", "Tax rate: -15%", "Public order: +5"},
 		["member_effect_bundle_key"] = "mk_effect_bundle_hre_member_lessen_tax_burdens",
@@ -62,7 +62,7 @@ HRE_DECREES = {
 	{
 		["key"] = "hre_decree_encourage_development",
 		["name"] = "Encourage Development",
-		["cost"] = 25,
+		["cost"] = 15,
 		["emperor_effect_bundle_key"] = "mk_effect_bundle_hre_decree_encourage_development",
 		["emperor_effects"] = {"Sanitation: +2", "Construction cost: -25%", "Tax rate: -15%"},
 		["member_effect_bundle_key"] = "mk_effect_bundle_hre_member_encourage_development",
@@ -93,8 +93,12 @@ function FactionTurnStart_HRE_Decrees(context)
 		end
 
 		if not context:faction():is_human() then
-			if HRE_ACTIVE_DECREE == "nil" and HRE_IMPERIAL_AUTHORITY >= 25 then
-				Activate_Decree(HRE_DECREES[cm:random_number(#HRE_DECREES)]["key"]);
+			if HRE_ACTIVE_DECREE == "nil" then 
+				local random_decree = HRE_DECREES[cm:random_number(#HRE_DECREES)];
+
+				if HRE_IMPERIAL_AUTHORITY >= random_decree["cost"] then
+					Activate_Decree(random_decree["key"]);
+				end
 			end
 		end
 	end

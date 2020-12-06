@@ -418,7 +418,7 @@ function HRE_State_Check(faction_name)
 		-- If the HRE member state is on very friendly terms with the emperor, make them loyal. If they're hostile, make them malcontent.
 		if turn_number > 1 then
 			if stance >= 3 then
-				HRE_Set_Faction_State(HRE_LIBERATED_FACTION, "loyal", true);
+				HRE_Set_Faction_State(faction_name, "loyal", true);
 				return;
 			elseif stance > -1 then
 				HRE_Set_Faction_State(faction_name, "discontent", false);

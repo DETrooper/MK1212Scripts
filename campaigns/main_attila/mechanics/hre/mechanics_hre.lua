@@ -17,8 +17,11 @@ require("mechanics/hre/mechanics_hre_regions");
 require("mechanics/hre/mechanics_hre_ui");
 
 HRE_DESTROYED = false;
+--HRE_MESSAGE_SHOWN = false;
 
 function Add_HRE_Listeners()
+	local faction_name = cm:get_local_faction();
+
 	if not HRE_DESTROYED then
 		if CURRENT_HRE_REFORM < 9 then
 			Add_HRE_Faction_Listeners();
@@ -31,6 +34,19 @@ function Add_HRE_Listeners()
 	end
 
 	Add_HRE_UI_Listeners();
+
+	if cm:is_new_game() and (HasValue(HRE_FACTIONS, faction_name) or HRE_EMPEROR_PRETENDER_KEY == faction_name) then
+		cm:show_message_event(
+			faction_name,
+			"message_event_text_text_mk_event_mk1212_hreintro_title",
+			"message_event_text_text_mk_event_mk1212_hreintro_primary",
+			"message_event_text_text_mk_event_mk1212_hreintro_secondary",
+			true, 
+			713
+		);
+
+		--HRE_MESSAGE_SHOWN = true;
+	end
 
 	HRE_Button_Check();
 end
@@ -53,11 +69,13 @@ end
 cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("HRE_DESTROYED", HRE_DESTROYED, context);
+		--cm:save_value("HRE_MESSAGE_SHOWN", HRE_MESSAGE_SHOWN, context);
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
 		HRE_DESTROYED = cm:load_value("HRE_DESTROYED", false, context);
+		--HRE_MESSAGE_SHOWN = cm:load_value("HRE_MESSAGE_SHOWN", false, context);
 	end
 );
