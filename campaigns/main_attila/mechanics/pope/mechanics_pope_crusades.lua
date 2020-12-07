@@ -120,7 +120,7 @@ end
 
 function FactionTurnStart_Pope_Crusades(context)
 	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true and (CURRENT_CRUSADE < MAX_NUM_OF_CRUSADES or CRUSADE_ACTIVE == true) then
-		if cm:model():turn_number() == NEXT_CRUSADE_MESSAGE_TURN then
+		if context:faction():is_human() and cm:model():turn_number() >= NEXT_CRUSADE_MESSAGE_TURN and NEXT_CRUSADE_MESSAGE_TURN ~= -1 then
 			local owner = cm:model():world():region_manager():region_by_key(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)][1]):owning_faction();
 			local owner_religion = owner:state_religion();
 
@@ -133,8 +133,10 @@ function FactionTurnStart_Pope_Crusades(context)
 					true,
 					706
 				);
+
+				NEXT_CRUSADE_MESSAGE_TURN = -1;
 			end
-		elseif cm:model():turn_number() >= NEXT_CRUSADE_START_TURN and CRUSADE_ACTIVE == false then
+		elseif CRUSADE_ACTIVE ~= true and cm:model():turn_number() >= NEXT_CRUSADE_START_TURN then
 			local target = nil;
 
 			if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE + 1)]  then
@@ -205,7 +207,7 @@ function FactionTurnStart_Pope_Crusades(context)
 					End_Crusade("aborted");
 				end
 
-				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)]  then
+				if SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)] then
 					if HasValue(SCRIPTED_CRUSADES_LIST[tostring(CURRENT_CRUSADE)][6], context:faction():name()) then
 						if context:faction():state_religion() == "att_rel_chr_catholic" and context:faction():at_war_with(owner) == false and HasValue(FACTION_EXCOMMUNICATED, context:faction():name()) ~= true then
 							cm:force_declare_war(context:faction():name(), owner:name());

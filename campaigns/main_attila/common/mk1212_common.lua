@@ -17,6 +17,7 @@ ARMY_SELECTED_REGION = nil;
 ARMY_SELECTED_TABLE = {};
 ARMY_SELECTED_STRENGTHS_TABLE = {};
 REGION_SELECTED = "";
+REGION_TO_TRANSFER = nil;
 REGIONS_RAZED = {};
 LAST_CHARACTER_SELECTED = nil;
 LAST_SACKED_SETTLEMENT = "";
@@ -103,6 +104,18 @@ end
 function FactionTurnStart_Global(context)
 	FACTION_TURN = context:faction():name();
 	SACKED_SETTLEMENTS = {}; -- Array is reset every faction turn.
+
+	-- Crash fix by postponing AI region transfers by 1 turn.
+	if REGION_TO_TRANSFER then
+		local faction_name = REGION_TO_TRANSFER[1];
+		local region_name = REGION_TO_TRANSFER[2];
+
+		if context:faction():name() ~= faction_name then
+			Transfer_Region_To_Faction(region_name, faction_name);
+
+			REGION_TO_TRANSFER = nil;
+		end
+	end
 
 	Religion_Check(context:faction());
 end
@@ -373,14 +386,22 @@ end
 
 function Transfer_Region_To_Faction(region_name, faction_name)
 	-- If a region has a governor then they will die when a region is transferred, so we need to temporarily give them immortality.
+	local region = cm:model():world():region_manager():region_by_key(region_name);
+	local owning_faction = region:owning_faction();
 
-	if cm:model():world():region_manager():region_by_key(region_name):has_governor() then
-		local governor = cm:model():world():region_manager():region_by_key(region_name):governor():command_queue_index();
-		cm:set_character_immortality("character_cqi:"..governor, true);
-		cm:transfer_region_to_faction(region_name, faction_name);
-		cm:set_character_immortality("character_cqi:"..governor, false);
+	-- Transfering regions can crash if it happens on an AI faction's turn for some reason.
+	if owning_faction:is_human() or owning_faction:name() ~= FACTION_TURN then
+		if region:has_governor() then
+			local governor = region:governor():command_queue_index();
+
+			cm:set_character_immortality("character_cqi:"..governor, true);
+			cm:transfer_region_to_faction(region_name, faction_name);
+			cm:set_character_immortality("character_cqi:"..governor, false);
+		else
+			cm:transfer_region_to_faction(region_name, faction_name);
+		end
 	else
-		cm:transfer_region_to_faction(region_name, faction_name);
+		REGION_TO_TRANSFER = {faction_name, region_name};
 	end
 end
 

@@ -176,8 +176,13 @@ function Check_Character_Nickname(character)
 		for trait, nickname in pairs(TRAITS_TO_NICKNAMES) do
 			if character:has_trait(trait) then
 				-- Make sure the character actually has the trait and it isn't just invisible.
-				if character:trait_points(trait) >= 1 then
+				if character:trait_points(trait) >= 4 then
+					-- 100% chance past this threshold (4 points is generally level 2 trait).
 					Add_Character_Nickname(cqi, nickname, false);
+				elseif character:trait_points(trait) >= 2 then
+					if cm:random_number(10, 1) == 1 then
+						Add_Character_Nickname(cqi, nickname, false);
+					end
 				end
 			end
 		end

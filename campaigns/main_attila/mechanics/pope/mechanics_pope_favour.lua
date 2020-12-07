@@ -259,12 +259,9 @@ end
 function FactionTurnStart_Check_Catholic_Nations(context)
 	local faction_name = context:faction():name();
 	local faction_religion = context:faction():state_religion();
-	local stance = cm:model():campaign_ai():strategic_stance_between_factions(PAPAL_STATES_KEY, faction_name);
 	local turn_number = cm:model():turn_number();
 
-	-- Possible stances from strategic_stance_between_factions are -3 to 3, corresponding to diplomatic stances (i.e. 2 being Very Friendly, -2 being Hostile).
-
-	if faction_religion == "att_rel_chr_catholic" then
+	if faction_religion == "att_rel_chr_catholic" and faction_name ~= PAPAL_STATES_KEY then
 		local pope_faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
 		local war_with_pope = context:faction():at_war_with(pope_faction);
 
@@ -281,6 +278,9 @@ function FactionTurnStart_Check_Catholic_Nations(context)
 				if war_with_pope then
 					Force_Excommunication(faction_name);
 				else
+					-- Possible stances from strategic_stance_between_factions are -3 to 3, corresponding to diplomatic stances (i.e. 2 being Very Friendly, -2 being Hostile).
+					local stance = cm:model():campaign_ai():strategic_stance_between_factions(PAPAL_STATES_KEY, faction_name);
+
 					if stance <= -3 then
 						local chance = cm:random_number(3);
 
