@@ -6,53 +6,55 @@
 --
 ----------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------
+-- This is kind of shit since I should probably import everything related to units from DB into lua tables
+-- and then go from there, calculating the unit stats that way instead of manually inputting the numbers.
 
 unit_info = {
-	["mk_mio_t1_hospitaller_sergeant_spearmen"] = {["num_men"] = 160, ["upkeep"] = 146, ["unit_weight"] = "medium", ["unit_type"] = "att_inf_spear_land", ["tier"] = 1},
-	["mk_mio_t1_templar_sergeant_spearmen"] = {["num_men"] = 160, ["upkeep"] = 146, ["unit_weight"] = "medium", ["unit_type"] = "att_inf_spear_land", ["tier"] = 1},
-	["mk_mio_t1_hospitaller_knights_dismounted"] = {["num_men"] = 160, ["upkeep"] = 228, ["unit_weight"] = "heavy", ["unit_type"] = "att_inf_sword_land", ["tier"] = 1},
-	["mk_mio_t1_templar_knights_dismounted"] = {["num_men"] = 160, ["upkeep"] = 228, ["unit_weight"] = "heavy", ["unit_type"] = "att_inf_sword_land", ["tier"] = 1},
-	["mk_mio_t1_hospitaller_crossbowmen_sergeants"] = {["num_men"] = 130, ["upkeep"] = 189, ["unit_weight"] = "medium", ["unit_type"] = "att_inf_crossbow_land", ["tier"] = 1},
-	["mk_mio_t1_templar_crossbowmen_sergeants"] = {["num_men"] = 130, ["upkeep"] = 189, ["unit_weight"] = "medium", ["unit_type"] = "att_inf_crossbow_land", ["tier"] = 1},
-	["mk_mio_t1_hospitaller_mounted_sergeants"] = {["num_men"] = 80, ["upkeep"] = 218, ["unit_weight"] = "medium", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
-	["mk_mio_t1_hospitaller_knights"] = {["num_men"] = 80, ["upkeep"] = 332, ["unit_weight"] = "heavy", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
-	["mk_mio_t1_templar_mounted_sergeants"] = {["num_men"] = 80, ["upkeep"] = 218, ["unit_weight"] = "medium", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
-	["mk_mio_t1_templar_knights"] = {["num_men"] = 80, ["upkeep"] = 332, ["unit_weight"] = "heavy", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
-	["mk_mio_t1_teu_mounted_sergeants"] = {["num_men"] = 80, ["upkeep"] = 218, ["unit_weight"] = "medium", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
-	["mk_mio_t1_teu_sariantbruder"] = {["num_men"] = 80, ["upkeep"] = 246, ["unit_weight"] = "medium", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
-	["mk_mio_t1_teu_ritterbruder"] = {["num_men"] = 80, ["upkeep"] = 332, ["unit_weight"] = "heavy", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
+	["mk_mio_t1_hospitaller_sergeant_spearmen"] = {["num_men"] = 160, ["upkeep"] = 174, ["unit_weight"] = "medium", ["unit_type"] = "att_inf_spear_land", ["tier"] = 1},
+	["mk_mio_t1_templar_sergeant_spearmen"] = {["num_men"] = 160, ["upkeep"] = 174, ["unit_weight"] = "medium", ["unit_type"] = "att_inf_spear_land", ["tier"] = 1},
+	["mk_mio_t1_hospitaller_knights_dismounted"] = {["num_men"] = 160, ["upkeep"] = 307, ["unit_weight"] = "heavy", ["unit_type"] = "att_inf_sword_land", ["tier"] = 1},
+	["mk_mio_t1_templar_knights_dismounted"] = {["num_men"] = 160, ["upkeep"] = 307, ["unit_weight"] = "heavy", ["unit_type"] = "att_inf_sword_land", ["tier"] = 1},
+	["mk_mio_t1_hospitaller_crossbowmen_sergeants"] = {["num_men"] = 130, ["upkeep"] = 222, ["unit_weight"] = "medium", ["unit_type"] = "att_inf_crossbow_land", ["tier"] = 1},
+	["mk_mio_t1_templar_crossbowmen_sergeants"] = {["num_men"] = 130, ["upkeep"] = 222, ["unit_weight"] = "medium", ["unit_type"] = "att_inf_crossbow_land", ["tier"] = 1},
+	["mk_mio_t1_hospitaller_mounted_sergeants"] = {["num_men"] = 80, ["upkeep"] = 274, ["unit_weight"] = "medium", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
+	["mk_mio_t1_hospitaller_knights"] = {["num_men"] = 80, ["upkeep"] = 463, ["unit_weight"] = "heavy", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
+	["mk_mio_t1_templar_mounted_sergeants"] = {["num_men"] = 80, ["upkeep"] = 274, ["unit_weight"] = "medium", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
+	["mk_mio_t1_templar_knights"] = {["num_men"] = 80, ["upkeep"] = 463, ["unit_weight"] = "heavy", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
+	["mk_mio_t1_teu_mounted_sergeants"] = {["num_men"] = 80, ["upkeep"] = 274, ["unit_weight"] = "medium", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
+	["mk_mio_t1_teu_sariantbruder"] = {["num_men"] = 80, ["upkeep"] = 319, ["unit_weight"] = "medium", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
+	["mk_mio_t1_teu_ritterbruder"] = {["num_men"] = 80, ["upkeep"] = 463, ["unit_weight"] = "heavy", ["unit_type"] = "att_cav_shock_land", ["tier"] = 1},
 };
 
 unit_stats = {
-	["mk_mio_t1_hospitaller_sergeant_spearmen"] = {["melee_attack"] = 30, ["weapon_damage"] = 26, ["charge_bonus"] = 20, ["melee_defence"] = 35, ["armour"] = 25, ["health"] = 100, ["morale"] = 35, ["speed"] = 30, ["missile_block_chance"] = 25, ["bonus_vs_cavalry"] = 12},
-	["mk_mio_t1_templar_sergeant_spearmen"] = {["melee_attack"] = 30, ["weapon_damage"] = 26, ["charge_bonus"] = 20, ["melee_defence"] = 35, ["armour"] = 25, ["health"] = 100, ["morale"] = 35, ["speed"] = 30, ["missile_block_chance"] = 25, ["bonus_vs_cavalry"] = 12},
-	["mk_mio_t1_hospitaller_knights_dismounted"] = {["melee_attack"] = 41, ["weapon_damage"] = 26, ["charge_bonus"] = 25, ["melee_defence"] = 35, ["armour"] = 55, ["health"] = 100, ["morale"] = 50, ["speed"] = 30, ["missile_block_chance"] = 40},
-	["mk_mio_t1_templar_knights_dismounted"] = {["melee_attack"] = 41, ["weapon_damage"] = 26, ["charge_bonus"] = 25, ["melee_defence"] = 35, ["armour"] = 55, ["health"] = 100, ["morale"] = 50, ["speed"] = 30, ["missile_block_chance"] = 40},
-	["mk_mio_t1_hospitaller_crossbowmen_sergeants"] = {["melee_attack"] = 30, ["weapon_damage"] = 26, ["melee_defence"] = 15, ["armour"] = 25, ["missile_block_chance"] = 5, ["morale"] = 40, ["speed"] = 30, ["missile_damage"] = 48, ["ammo"] = 30, ["reloading"] = 23, ["weapon_range"] = 145, ["accuracy"] = 15},
-	["mk_mio_t1_templar_crossbowmen_sergeants"] = {["melee_attack"] = 30, ["weapon_damage"] = 26, ["melee_defence"] = 15, ["armour"] = 25, ["missile_block_chance"] = 5, ["morale"] = 40, ["speed"] = 30, ["missile_damage"] = 48, ["ammo"] = 30, ["reloading"] = 23, ["weapon_range"] = 145, ["accuracy"] = 15},
-	["mk_mio_t1_hospitaller_mounted_sergeants"] = {["melee_attack"] = 30, ["weapon_damage"] = 26, ["charge_bonus"] = 105, ["melee_defence"] = 30, ["armour"] = 25, ["health"] = 150, ["morale"] = 40, ["speed"] = 80, ["missile_block_chance"] = 25},
-	["mk_mio_t1_hospitaller_knights"] = {["melee_attack"] = 35, ["weapon_damage"] = 26, ["charge_bonus"] = 145, ["melee_defence"] = 35, ["armour"] = 55, ["health"] = 150, ["morale"] = 50, ["speed"] = 75, ["missile_block_chance"] = 40},
-	["mk_mio_t1_templar_mounted_sergeants"] =  {["melee_attack"] = 30, ["weapon_damage"] = 26, ["charge_bonus"] = 105, ["melee_defence"] = 30, ["armour"] = 25, ["health"] = 150, ["morale"] = 40, ["speed"] = 80, ["missile_block_chance"] = 25},
-	["mk_mio_t1_templar_knights"] = {["melee_attack"] = 35, ["weapon_damage"] = 26, ["charge_bonus"] = 145, ["melee_defence"] = 35, ["armour"] = 55, ["health"] = 150, ["morale"] = 50, ["speed"] = 75, ["missile_block_chance"] = 40},
-	["mk_mio_t1_teu_mounted_sergeants"] = {["melee_attack"] = 30, ["weapon_damage"] = 26, ["charge_bonus"] = 105, ["melee_defence"] = 30, ["armour"] = 25, ["health"] = 150, ["morale"] = 40, ["speed"] = 80, ["missile_block_chance"] = 25},
-	["mk_mio_t1_teu_sariantbruder"] = {["melee_attack"] = 35, ["weapon_damage"] = 30, ["charge_bonus"] = 105, ["melee_defence"] = 35, ["armour"] = 25, ["health"] = 150, ["morale"] = 50, ["speed"] = 80, ["missile_block_chance"] = 25},
-	["mk_mio_t1_teu_ritterbruder"] = {["melee_attack"] = 35, ["weapon_damage"] = 26, ["charge_bonus"] = 145, ["melee_defence"] = 35, ["armour"] = 55, ["health"] = 150, ["morale"] = 50, ["speed"] = 75, ["missile_block_chance"] = 40},
+	["mk_mio_t1_hospitaller_sergeant_spearmen"] = {["melee_attack"] = 34, ["weapon_damage"] = 29, ["charge_bonus"] = 15, ["melee_defence"] = 33, ["armour"] = 25, ["health"] = 100, ["morale"] = 35, ["speed"] = 30, ["missile_block_chance"] = 25, ["bonus_vs_cavalry"] = 12},
+	["mk_mio_t1_templar_sergeant_spearmen"] = {["melee_attack"] = 34, ["weapon_damage"] = 29, ["charge_bonus"] = 15, ["melee_defence"] = 33, ["armour"] = 25, ["health"] = 100, ["morale"] = 35, ["speed"] = 30, ["missile_block_chance"] = 25, ["bonus_vs_cavalry"] = 12},
+	["mk_mio_t1_hospitaller_knights_dismounted"] = {["melee_attack"] = 38, ["weapon_damage"] = 26, ["charge_bonus"] = 30, ["melee_defence"] = 37, ["armour"] = 55, ["health"] = 100, ["morale"] = 50, ["speed"] = 30, ["missile_block_chance"] = 40},
+	["mk_mio_t1_templar_knights_dismounted"] = {["melee_attack"] = 38, ["weapon_damage"] = 26, ["charge_bonus"] = 30, ["melee_defence"] = 37, ["armour"] = 55, ["health"] = 100, ["morale"] = 50, ["speed"] = 30, ["missile_block_chance"] = 40},
+	["mk_mio_t1_hospitaller_crossbowmen_sergeants"] = {["melee_attack"] = 30, ["weapon_damage"] = 26, ["melee_defence"] = 15, ["armour"] = 25, ["health"] = 100, ["morale"] = 35, ["speed"] = 30, ["missile_damage"] = 48, ["ammo"] = 30, ["reloading"] = 23, ["weapon_range"] = 145, ["accuracy"] = 15},
+	["mk_mio_t1_templar_crossbowmen_sergeants"] = {["melee_attack"] = 30, ["weapon_damage"] = 26, ["melee_defence"] = 15, ["armour"] = 25, ["health"] = 100, ["morale"] = 35, ["speed"] = 30, ["missile_damage"] = 48, ["ammo"] = 30, ["reloading"] = 23, ["weapon_range"] = 145, ["accuracy"] = 15},
+	["mk_mio_t1_hospitaller_mounted_sergeants"] = {["melee_attack"] = 30, ["weapon_damage"] = 29, ["charge_bonus"] = 95, ["melee_defence"] = 30, ["armour"] = 25, ["health"] = 150, ["morale"] = 35, ["speed"] = 90, ["missile_block_chance"] = 25},
+	["mk_mio_t1_hospitaller_knights"] = {["melee_attack"] = 38, ["weapon_damage"] = 27, ["charge_bonus"] = 155, ["melee_defence"] = 37, ["armour"] = 55, ["health"] = 150, ["morale"] = 50, ["speed"] = 75, ["missile_block_chance"] = 40},
+	["mk_mio_t1_templar_mounted_sergeants"] =  {["melee_attack"] = 30, ["weapon_damage"] = 29, ["charge_bonus"] = 95, ["melee_defence"] = 30, ["armour"] = 25, ["health"] = 150, ["morale"] = 35, ["speed"] = 90, ["missile_block_chance"] = 25},
+	["mk_mio_t1_templar_knights"] = {["melee_attack"] = 38, ["weapon_damage"] = 27, ["charge_bonus"] = 155, ["melee_defence"] = 37, ["armour"] = 55, ["health"] = 150, ["morale"] = 50, ["speed"] = 75, ["missile_block_chance"] = 40},
+	["mk_mio_t1_teu_mounted_sergeants"] = {["melee_attack"] = 30, ["weapon_damage"] = 29, ["charge_bonus"] = 95, ["melee_defence"] = 30, ["armour"] = 25, ["health"] = 150, ["morale"] = 35, ["speed"] = 90, ["missile_block_chance"] = 25},
+	["mk_mio_t1_teu_sariantbruder"] = {["melee_attack"] = 35, ["weapon_damage"] = 29, ["charge_bonus"] = 95, ["melee_defence"] = 35, ["armour"] = 25, ["health"] = 150, ["morale"] = 50, ["speed"] = 90, ["missile_block_chance"] = 25},
+	["mk_mio_t1_teu_ritterbruder"] = {["melee_attack"] = 38, ["weapon_damage"] = 27, ["charge_bonus"] = 155, ["melee_defence"] = 37, ["armour"] = 55, ["health"] = 150, ["morale"] = 50, ["speed"] = 75, ["missile_block_chance"] = 40},
 };
 
 unit_bullet_points = {
-	["mk_mio_t1_hospitaller_sergeant_spearmen"] = {"negative|Poor Armour|", "negative|Poor Missile Block Chance|"},
-	["mk_mio_t1_templar_sergeant_spearmen"] = {"negative|Poor Armour|", "negative|Poor Missile Block Chance|"},
-	["mk_mio_t1_hospitaller_knights_dismounted"] = {"very_negative|Very Poor Armour-piercing Damage|", "positive|Good Morale|", "positive|Good Armour|"},
-	["mk_mio_t1_templar_knights_dismounted"] = {"very_negative|Very Poor Armour-piercing Damage|", "positive|Good Morale|", "positive|Good Armour|"},
+	["mk_mio_t1_hospitaller_sergeant_spearmen"] = {"positive|Good Armour-piercing Damage|", "negative|Poor Armour|", "negative|Poor Missile Block Chance|"},
+	["mk_mio_t1_templar_sergeant_spearmen"] = {"positive|Good Armour-piercing Damage|", "negative|Poor Armour|", "negative|Poor Missile Block Chance|"},
+	["mk_mio_t1_hospitaller_knights_dismounted"] = {"very_positive|Excellent Morale|", "very_negative|Very Poor Armour-piercing Damage|", "positive|Good Armour|"},
+	["mk_mio_t1_templar_knights_dismounted"] = {"very_positive|Excellent Morale|", "very_negative|Very Poor Armour-piercing Damage|", "positive|Good Armour|"},
 	["mk_mio_t1_hospitaller_crossbowmen_sergeants"] = {"very_negative|Very Poor Missile Block Chance|", "positive|High Ammunition|", "negative|Poor Armour-Piercing Damage|"},
 	["mk_mio_t1_templar_crossbowmen_sergeants"] = {"very_negative|Very Poor Missile Block Chance|", "positive|High Ammunition|", "negative|Poor Armour-Piercing Damage|"},
-	["mk_mio_t1_hospitaller_mounted_sergeants"] = {"positive|Good Charge Bonus|", "positive|High Health|", "negative|Poor Armour|"},
-	["mk_mio_t1_hospitaller_knights"] = {"very_positive|Excellent Charge Bonus|", "positive|High Health|", "positive|Good Morale|"},
-	["mk_mio_t1_templar_mounted_sergeants"] = {"positive|Good Charge Bonus|", "positive|High Health|", "negative|Poor Armour|"},
-	["mk_mio_t1_templar_knights"] = {"very_positive|Excellent Charge Bonus|", "positive|High Health|", "positive|Good Morale|"},
-	["mk_mio_t1_teu_mounted_sergeants"] = {"positive|Good Charge Bonus|", "positive|High Health|", "negative|Poor Armour|"},
-	["mk_mio_t1_teu_sariantbruder"] = {"positive|Good Charge Bonus|", "positive|High Health|", "positive|Good Morale|"},
-	["mk_mio_t1_teu_ritterbruder"] = {"very_positive|Excellent Charge Bonus|", "positive|High Health|", "positive|Good Morale|"}
+	["mk_mio_t1_hospitaller_mounted_sergeants"] = {"positive|High Health|", "positive|Good Charge Bonus|", "negative|Poor Armour|"},
+	["mk_mio_t1_hospitaller_knights"] = {"very_positive|Excellent Charge Bonus|", "very_positive|Excellent Morale|", "positive|High Health|"},
+	["mk_mio_t1_templar_mounted_sergeants"] = {"positive|High Health|", "positive|Good Charge Bonus|", "negative|Poor Armour|"},
+	["mk_mio_t1_templar_knights"] = {"very_positive|Excellent Charge Bonus|", "very_positive|Excellent Morale|", "positive|High Health|"},
+	["mk_mio_t1_teu_mounted_sergeants"] = {"positive|High Health|", "positive|Good Charge Bonus|", "negative|Poor Armour|"},
+	["mk_mio_t1_teu_sariantbruder"] = {"very_positive|Excellent Morale|", "positive|High Health|", "positive|Good Charge Bonus|"},
+	["mk_mio_t1_teu_ritterbruder"] = {"very_positive|Excellent Charge Bonus|", "very_positive|Excellent Morale|", "positive|High Health|"}
 };
 
 unit_abilities = {

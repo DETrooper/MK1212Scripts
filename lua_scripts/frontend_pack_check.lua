@@ -6,7 +6,7 @@
 --
 ---------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------
--- Checks to see if all the required MK1212 .packs are enabled.
+-- Checks to see if all the required MK1212 .packs are enabled, and if so then enforce load order.
 
 local dev = require("lua_scripts.dev");
 local util = require "lua_scripts.util";
@@ -15,11 +15,11 @@ local all_packs_enabled = true;
 local all_packs_in_order = true;
 
 REQUIRED_PACKS = {
-	{key = "1-1212scriptsTEST.pack", enabled = true, packPos = nil, order = 1, name = "1-1212scriptsTEST.pack"},
-	--{key = "1-1212scripts.pack", enabled = true, packPos = nil, order = 1, name = "Medieval Kingdoms 1212 AD Scripts"},
+	--{key = "1-1212scriptsTEST.pack", enabled = true, packPos = nil, order = 1, name = "1-1212scriptsTEST.pack"},
+	{key = "1-1212scripts.pack", enabled = true, packPos = nil, order = 1, name = "Medieval Kingdoms 1212 AD Scripts"},
 	{key = "1212_all_settlement_walled_v2.pack", enabled = false, packPos = nil, order = 2, name = "All Settlement Walled - Siege Map Replacer"},
-	{key = "1212compiletest.pack", enabled = false, packPos = nil, order = 3, name = "1212compiletest.pack"},
-	--{key = "1212compbuild_v2.pack", enabled = false, packPos = nil, order = 3, name = "Medieval Kingdoms 1212 AD Base Pack"},
+	--{key = "1212compiletest.pack", enabled = false, packPos = nil, order = 3, name = "1212compiletest.pack"},
+	{key = "1212compbuild_v2.pack", enabled = false, packPos = nil, order = 3, name = "Medieval Kingdoms 1212 AD Base Pack"},
 	{key = "1212models1_v2.pack", enabled = false, packPos = nil, order = 4, name = "Medieval Kingdoms 1212 AD Models Pack 1"},
 	{key = "1212models2.pack", enabled = false, packPos = nil, order = 5, name = "Medieval Kingdoms 1212 AD Models Pack 2"},
 	{key = "1212models3.pack", enabled = false, packPos = nil, order = 6, name = "Medieval Kingdoms 1212 AD Models Pack 3"},
