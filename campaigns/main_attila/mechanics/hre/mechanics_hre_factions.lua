@@ -201,7 +201,7 @@ function CharacterBecomesFactionLeader_HRE_Factions(context)
 	local faction_name = context:character():faction():name();
 
 	-- When faction leaders of HRE member states die, set their attitude to neutral if not a puppet, then check to see if their state should be something else.
-	if HasValue(HRE_FACTIONS, faction_name) and faction_name ~= HRE_EMPEROR_KEY and not context:character():faction():is_human() then
+	if faction_name ~= HRE_EMPEROR_KEY and HasValue(HRE_FACTIONS, faction_name) and not context:character():faction():is_human() then
 		local faction_state = HRE_Get_Faction_State(faction_name);
 
 		if faction_state ~= "puppet" then
@@ -231,6 +231,8 @@ function CharacterBecomesFactionLeader_HRE_Factions(context)
 
 			HRE_Pretender_End_Mission(true, "victory");
 		end
+	elseif faction_name == HRE_EMPEROR_KEY and CURRENT_HRE_REFORM < 8 then
+		Process_Election_Result_HRE_Elections();
 	end
 end
 

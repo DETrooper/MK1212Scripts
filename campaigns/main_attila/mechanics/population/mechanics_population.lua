@@ -317,7 +317,7 @@ end
 function CheckArmyReplenishment(character)
 	local region = nil;
 
-	if character:has_military_force() then
+	if character:has_military_force() and not character:character_type("colonel") then
 		local force = character:military_force():unit_list();
 		local force_unit_strengths = {};
 		local replenishment_costs = {0, 0, 0, 0, 0};
