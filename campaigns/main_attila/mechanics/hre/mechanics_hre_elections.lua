@@ -282,9 +282,27 @@ function Add_New_Electors_HRE_Elections()
 end
 
 function Check_Faction_Votes_HRE_Elections(faction_name)
-	local emperor_alive = FactionIsAlive(HRE_EMPEROR_KEY);
+	-- Make sure the faction can actually vote!
+	if CURRENT_HRE_REFORM > 1 then
+		if CURRENT_HRE_REFORM < 8 then
+			if not HasValue(HRE_FACTIONS_ELECTORS, faction_name) then
+				if HRE_FACTIONS_VOTES[faction_name] then
+					HRE_FACTIONS_VOTES[faction_name] = nil;
+				end
+	
+				return;
+			end
+		else
+			if HRE_FACTIONS_VOTES[faction_name] then
+				HRE_FACTIONS_VOTES[faction_name] = nil;
+			end
+	
+			return;
+		end
+	end
 
 	if FactionIsAlive(faction_name) then
+		local emperor_alive = FactionIsAlive(HRE_EMPEROR_KEY);
 		local faction_state = HRE_Get_Faction_State(faction_name);
 
 		if faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor" then

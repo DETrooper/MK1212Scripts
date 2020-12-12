@@ -131,6 +131,7 @@ function Pass_HRE_Reform(reform_number)
 
 	if reform_number == 1 then
 		-- We need to add 7 Prince-Electors.
+		HRE_FACTIONS_VOTES = {};
 
 		for i = 1, #HRE_FACTIONS_HISTORICAL_ELECTORS do
 			local faction_name = HRE_FACTIONS_HISTORICAL_ELECTORS[i];

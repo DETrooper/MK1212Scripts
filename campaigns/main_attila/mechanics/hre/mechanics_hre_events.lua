@@ -312,7 +312,7 @@ function HRE_Event_Pick_Random_Event()
 			HRE_EVENTS_TIMER = HRE_EVENTS_TIMER + 1;
 		end
 	elseif chance == 2 then
-		HRE_Event_Pick_Random_Faction(false);
+		HRE_CURRENT_EVENT_FACTION1 = HRE_Event_Pick_Random_Faction(false, 1);
 
 		if HRE_CURRENT_EVENT_FACTION1 ~= "" then
 			cm:trigger_dilemma(HRE_EMPEROR_KEY, "mk_dilemma_hre_imperial_immediacy");
@@ -328,9 +328,10 @@ function HRE_Event_Pick_Random_Event()
 			HRE_EVENTS_TIMER = HRE_EVENTS_TIMER + 1;
 		end
 	elseif chance == 4 then
-		HRE_Event_Pick_Random_Faction(false);
+		HRE_CURRENT_EVENT_FACTION1 = HRE_Event_Pick_Random_Faction(false, 1);
+		HRE_CURRENT_EVENT_FACTION2 = HRE_Event_Pick_Random_Faction(false, 2);
 
-		if HRE_CURRENT_EVENT_FACTION1 ~= "" then
+		if HRE_CURRENT_EVENT_FACTION1 ~= "" and HRE_CURRENT_EVENT_FACTION2 ~= "" then
 			cm:trigger_dilemma(HRE_EMPEROR_KEY, "mk_dilemma_hre_imperial_diet");
 		else
 			HRE_EVENTS_TIMER = HRE_EVENTS_TIMER + 1;
@@ -338,41 +339,46 @@ function HRE_Event_Pick_Random_Event()
 	end
 end
 
-function HRE_Event_Pick_Random_Faction(should_have_bordering_hre_faction)
-	local rand = cm:random_number(#HRE_FACTIONS);
+function HRE_Event_Pick_Random_Faction(should_have_bordering_hre_faction, number)
 	local hre_factions = {};
 
 	for i = 1, #HRE_FACTIONS do
 		local potential_faction = HRE_FACTIONS[i];
 
-		if potential_faction ~= HRE_EMPEROR_KEY and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(HRE_EMPEROR_KEY)) == false then
-			if should_have_bordering_hre_faction == true then
-				for j = 1, #HRE_FACTIONS do
-					local bordering_faction = HRE_FACTIONS[j];
+		-- Make sure we don't get the same faction twice!
+		if number == 1 or (number == 2 and HRE_CURRENT_EVENT_FACTION1 ~= potential_faction) then
+			if potential_faction ~= HRE_EMPEROR_KEY and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(HRE_EMPEROR_KEY)) == false then
+				if should_have_bordering_hre_faction == true then
+					for j = 1, #HRE_FACTIONS do
+						local bordering_faction = HRE_FACTIONS[j];
 
-					if bordering_faction ~= HRE_EMPEROR_KEY and bordering_faction ~= potential_faction then
-						if Does_Faction_Border_Faction(potential_faction, bordering_faction) then
-							table.insert(hre_factions, potential_faction);
-							break;
+						if bordering_faction ~= HRE_EMPEROR_KEY and bordering_faction ~= potential_faction then
+							if Does_Faction_Border_Faction(potential_faction, bordering_faction) then
+								table.insert(hre_factions, potential_faction);
+								break;
+							end
 						end
 					end
+				else
+					table.insert(hre_factions, potential_faction);
 				end
-			else
-				table.insert(hre_factions, potential_faction);
 			end
 		end
 	end
 
 	if #hre_factions == 0 then
-		HRE_CURRENT_EVENT_FACTION1 = "";
-		return;
+		return "";
 	end
 
-	HRE_CURRENT_EVENT_FACTION1 = hre_factions[rand];
+ 	return hre_factions[cm:random_number(#hre_factions)];
 end
 
 function HRE_Event_Pick_Random_Bordering_Factions()
-	HRE_Event_Pick_Random_Faction(true); -- Set Faction 1.
+	HRE_CURRENT_EVENT_FACTION1 = HRE_Event_Pick_Random_Faction(true, 1); -- Set Faction 1.
+
+	if HRE_CURRENT_EVENT_FACTION1 == "" then
+		return;
+	end
 
 	local bordering_factions = {};
 
@@ -391,9 +397,7 @@ function HRE_Event_Pick_Random_Bordering_Factions()
 		return;
 	end
 
-	local rand = cm:random_number(#bordering_factions);
-
-	HRE_CURRENT_EVENT_FACTION2 = bordering_factions[rand];
+	HRE_CURRENT_EVENT_FACTION2 = bordering_factions[cm:random_number(#bordering_factions)];
 end
 
 function HRE_Event_Reset_Timer()

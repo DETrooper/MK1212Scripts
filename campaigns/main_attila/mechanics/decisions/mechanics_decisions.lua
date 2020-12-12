@@ -18,6 +18,24 @@ function Add_Decisions_Listeners()
 end
 
 function Add_Decision(decision_name, faction_name, enabled, priority)
+	-- Check first if the decision already exists!
+	if #PRIORITY_DECISIONS > 0 then
+		for i = 1, #PRIORITY_DECISIONS do
+			if PRIORITY_DECISIONS[i][1] == decision_name then
+				return;
+			end	
+		end
+	end
+
+	if #AVAILABLE_DECISIONS > 0 then
+		for i = 1, #AVAILABLE_DECISIONS do
+			if AVAILABLE_DECISIONS[i][1] == decision_name then
+				return;
+			end	
+		end
+	end
+
+	-- Decision does not already exist, so add it.
 	local decision = {decision_name, faction_name, enabled};
 
 	if priority == true then

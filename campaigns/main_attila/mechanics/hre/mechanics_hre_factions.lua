@@ -207,7 +207,10 @@ function CharacterBecomesFactionLeader_HRE_Factions(context)
 		if faction_state ~= "puppet" then
 			HRE_Set_Faction_State(faction_name, "neutral", true);
 			HRE_State_Check(faction_name);
-			Check_Faction_Votes_HRE_Elections(faction_name);
+
+			if CURRENT_HRE_REFORM > 1 and CURRENT_HRE_REFORM < 8 then
+				Check_Faction_Votes_HRE_Elections(faction_name);
+			end
 		end
 	elseif HRE_EMPEROR_PRETENDER_KEY ~= "nil" then
 		if faction_name == HRE_EMPEROR_PRETENDER_KEY then
@@ -373,6 +376,13 @@ function TimeTrigger_HRE_Factions(context)
 
 		HRE_LIBERATED_FACTION = nil;
 		HRE_Check_Regions_In_Empire();
+	elseif context.string == "hre_frankfurt_transfer_delay" then
+		local owning_faction_name = cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name();
+
+		-- If conqueror is an HRE faction, transfer Frankfurt to the new emperor!
+		if owning_faction_name ~= HRE_EMPEROR_KEY and HasValue(HRE_FACTIONS, owning_faction_name) then
+			Transfer_Region_To_Faction(HRE_FRANKFURT_KEY, HRE_EMPEROR_KEY);
+		end
 	end
 end
 
@@ -664,9 +674,7 @@ function HRE_Replace_Emperor(faction_name)
 	HRE_Set_Faction_State(faction_name, "emperor", true);
 	HRE_Button_Check();
 
-	if HRE_FRANKFURT_STATUS == "capital" and cm:model():world():region_manager():region_by_key(HRE_FRANKFURT_KEY):owning_faction():name() ~= faction_name then
-		Transfer_Region_To_Faction(HRE_FRANKFURT_KEY, faction_name);
-	end
+	cm:add_time_trigger("hre_frankfurt_transfer_delay", 0.5);
 
 	if FACTION_TURN == faction_name then
 		HRE_LIBERATION_DISABLED = false;

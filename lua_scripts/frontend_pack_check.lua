@@ -54,71 +54,14 @@ eh:add_listener(
 
 function OnUICreated_Pack_Check(context)
 	if not svr:LoadBool("SBOOL_Pack_Check_Already_Shown") then
-		local packPos = 0;
-		local warning_string = "";
+		--local kmm_path = os.getenv("APPDATA")..[[\Kaedrin Mod Manager\Profiles\Attila\profile_LastUsedMods.txt"]];
+		local modsFile;
 
-		if util.fileExists("used_mods.txt") == true then
-			local modsFile = io.open("used_mods.txt", "r");
-		
-			for line in modsFile:lines() do
-				if line:sub(1, 3) == "mod" then
-					local pack_name = line:sub(6, #line - 2);
-
-					for i = 1, #REQUIRED_PACKS do
-						if REQUIRED_PACKS[i].key == pack_name then
-							pack_found = true;
-							packPos = packPos + 1;
-							REQUIRED_PACKS[i].enabled = true;
-							REQUIRED_PACKS[i].packPos = packPos;
-
-							if all_packs_in_order == true then
-								if packPos ~= REQUIRED_PACKS[i].order then
-									all_packs_in_order = false;
-								end
-							end
-
-							break;
-						end
-					end
-				end
-			end
-		
-			modsFile:close();
+		if --[[not util.fileExists(kmm_path) and]] util.fileExists("used_mods.txt") then
+			modsFile = io.open("used_mods.txt", "r");
 		end
 
-		warning_string = warning_string.."The following mandatory .pack files are missing:\n\n";
-
-		for i = 1, #REQUIRED_PACKS do
-			local pack = REQUIRED_PACKS[i];
-
-			if pack.enabled ~= true then
-				if all_packs_enabled == true then
-					all_packs_enabled = false;
-				end
-
-				warning_string = warning_string..pack.name.."\n";
-			end
-		end
-
-		if all_packs_enabled == false then
-			warning_string = warning_string.."\nWe recommend downloading the missing files from the Steam Workshop for the best experience!";
-
-			CreatePackWarning(warning_string);
-		elseif all_packs_in_order == false then
-			warning_string = "The following .pack files are out of order:\n\n";
-
-			for i = 1, #REQUIRED_PACKS do
-				local pack = REQUIRED_PACKS[i];
-
-				if pack.packPos ~= pack.order then
-					warning_string = warning_string.."("..tostring(pack.packPos)..") "..pack.name.."\nRecommended: "..tostring(pack.order).."\n";
-				end
-			end
-
-			warning_string = warning_string.."\nOut of order .pack files may make MK1212 multiplayer impossible due to incompatible versions.";
-
-			CreatePackWarning(warning_string);
-		end
+		ShowPackWarning(modsFile);
 
 		svr:SaveBool("SBOOL_Pack_Check_Already_Shown", true);
 	end
@@ -194,4 +137,70 @@ function CreatePackWarning(warning_string)
 	pack_warning_dy_subtitle_uic:SetStateText("Warning! Missing .pack files!");
 	pack_warning_text_uic:SetStateText(warning_string);
 	pack_warning_uic:SetVisible(true);
+end
+
+function ShowPackWarning(modsFile)
+	local packPos = 0;
+	local warning_string = "";
+
+	if modsFile then
+		for line in modsFile:lines() do
+			if line:sub(1, 3) == "mod" then
+				local pack_name = line:sub(6, #line - 2);
+
+				for i = 1, #REQUIRED_PACKS do
+					if REQUIRED_PACKS[i].key == pack_name then
+						pack_found = true;
+						packPos = packPos + 1;
+						REQUIRED_PACKS[i].enabled = true;
+						REQUIRED_PACKS[i].packPos = packPos;
+
+						if all_packs_in_order == true then
+							if packPos ~= REQUIRED_PACKS[i].order then
+								all_packs_in_order = false;
+							end
+						end
+
+						break;
+					end
+				end
+			end
+		end
+	
+		modsFile:close();
+	end
+
+	warning_string = warning_string.."The following mandatory .pack files are missing:\n\n";
+
+	for i = 1, #REQUIRED_PACKS do
+		local pack = REQUIRED_PACKS[i];
+
+		if pack.enabled ~= true then
+			if all_packs_enabled == true then
+				all_packs_enabled = false;
+			end
+
+			warning_string = warning_string..pack.name.."\n";
+		end
+	end
+
+	if all_packs_enabled == false then
+		warning_string = warning_string.."\nWe recommend downloading the missing files from the Steam Workshop for the best experience!";
+
+		CreatePackWarning(warning_string);
+	elseif all_packs_in_order == false then
+		warning_string = "The following .pack files are out of order:\n\n";
+
+		for i = 1, #REQUIRED_PACKS do
+			local pack = REQUIRED_PACKS[i];
+
+			if pack.packPos ~= pack.order then
+				warning_string = warning_string.."("..tostring(pack.packPos)..") "..pack.name.."\nRecommended: "..tostring(pack.order).."\n";
+			end
+		end
+
+		warning_string = warning_string.."\nOut of order .pack files may make MK1212 multiplayer impossible due to incompatible versions.";
+
+		CreatePackWarning(warning_string);
+	end
 end

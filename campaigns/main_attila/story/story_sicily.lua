@@ -31,14 +31,7 @@ function Add_Sicily_Story_Events_Listeners()
 		function(context) FactionTurnStart_Sicily(context) end,
 		true
 	);
-	cm:add_listener(
-		"CharacterEntersGarrison_Frankfurt",
-		"CharacterEntersGarrison",
-		true,
-		function(context) CharacterEntersGarrison_Frankfurt(context) end,
-		true
-	);
-
+	
 	if sicily:is_human() == true then
 		cm:add_listener(
 			"DilemmaChoiceMadeEvent_Sicily",
