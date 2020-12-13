@@ -72,6 +72,13 @@ function Add_MK1212_Common_Listeners()
 		function(context) CharacterPerformsOccupationDecisionRaze_Global(context) end,
 		true
 	);
+	--[[cm:add_listener(
+		"RegionRebels_Global",
+		"RegionRebels",
+		true,
+		function(context) RegionRebels_Global(context) end,
+		true
+	);]]--
 	cm:add_listener(
 		"SettlementSelected_Global",
 		"SettlementSelected",
@@ -130,6 +137,34 @@ end
 
 function FactionTurnEnd_Global(context)
 	Religion_Check(context:faction());
+
+	-- Check if any single-unit separatist rebellion stacks have spawned. If so, give them more units!
+	local faction_list = cm:model():world():faction_list();
+
+	for i = 0, faction_list:num_items() - 1 do
+		local faction = faction_list:item_at(i);
+		local faction_name = faction:name();
+
+		if string.find(faction_name, "separatist") then
+			local forces = faction:military_force_list();
+
+			for j = 0, forces:num_items() - 1 do
+				local military_force = forces:item_at(j);
+
+				if military_force:unit_list():num_items() == 1 then
+					local unit_list = Generate_Unit_List(faction_name, 8);
+
+					if unit_list then
+						for k = 1, #unit_list do
+							cm:add_unit_to_force(unit_list[k], military_force:command_queue_index());
+						end
+					end
+
+					cm:apply_effect_bundle_to_force("mk_bundle_army_no_desertion", military_force:command_queue_index(), 5);
+				end
+			end
+		end
+	end
 end
 
 function CharacterEntersGarrison_Global(context)
@@ -173,8 +208,44 @@ function CharacterTurnStart_Global(context)
 	Check_Character_Age(context:character(), true);
 end
 
+--[[function RegionRebels_Global(context)
+	local faction_list = cm:model():world():faction_list();
+
+	for i = 0, faction_list:num_items() - 1 do
+		local faction = faction_list:item_at(i);
+		local faction_name = faction:name();
+
+		if string.find(faction_name, "separatist") then
+			local faction_characters = faction:character_list();
+
+			if faction_characters:num_items() > 0 then
+				for j = 0, faction_characters:num_items() - 1 do
+					local character = faction_characters:item_at(j);
+
+					if character:has_region() and character:region():name() == context:region():name() then
+						local military_force = character:military_force();
+
+						if military_force:unit_list():num_items() == 1 then
+							local unit_list = Generate_Unit_List(faction_name, 8);
+
+							if unit_list then
+								for k = 1, #unit_list do
+									cm:add_unit_to_force(unit_list[k], military_force:command_queue_index());
+								end
+							end
+
+							cm:apply_effect_bundle_to_characters_force("mk_bundle_army_no_desertion", character:cqi(), 5, true);
+						end
+					end
+				end
+			end
+		end
+	end
+end]]--
+
 function OnSettlementSelected_Global(context)
 	local region_name = context:garrison_residence():region():name();
+
 	REGION_SELECTED = region_name;
 end
 
@@ -414,6 +485,19 @@ function SpawnValidSettlement(region_name)
 	end
 
 	return true;
+end
+
+function Generate_Unit_List(faction_name, number_of_units)
+	if SEPARATIST_FACTION_REBELLION_UNITS[faction_name] then
+		local available_units = SEPARATIST_FACTION_REBELLION_UNITS[faction_name];
+		local unit_list = {};
+
+		for i = 1, number_of_units do
+			table.insert(unit_list, available_units[math.random(#available_units)]);
+		end
+
+		return unit_list;
+	end
 end
 
 function GetTurnFromYear(year)
