@@ -8,8 +8,8 @@
 ---------------------------------------------------------------------------------------------------------------------------------------
 -- Checks to see if all the required MK1212 .packs are enabled, and if so then enforce load order.
 
-local dev = require("lua_scripts.dev");
-local util = require "lua_scripts.util";
+local dev = require("lua_scripts/dev");
+local util = require("lua_scripts/util");
 
 local all_packs_enabled = true;
 local all_packs_in_order = true;

@@ -17,6 +17,7 @@ require "data.lua_scripts.all_scripted"
 events = get_events();
 
 local m_user_defined_event_callbacks = {}
+local util = require("lua_scripts/util");
 
 function AddEventCallBack(event, func, add_to_user_defined_list)
 	assert(events[event] , "Attempting to add event callback to non existant event ("..event..")")
@@ -87,6 +88,11 @@ function OnUICreated_MK1212_Frontend(context)
 		m_root = UIComponent(context.component);
 
 		ChangeFrontend(context);
+
+		if not svr:LoadBool("SBOOL_Preferences_Checked") then
+			CheckPreferences();
+			svr:SaveBool("SBOOL_Preferences_Checked", true);
+		end
 	end
 end
 
@@ -154,7 +160,8 @@ function OnComponentLClickUp_MK1212_Frontend(context)
 		if context.string == "button_change_faction" or context.string == "faction_dropdown" then
 			tm:callback(
 				function() 
-					local faction_dropdown_uic = UIComponent(m_root:Find("faction_dropdown"));
+					local battle_setup_uic = UIComponent(m_root:Find("battle_setup"));
+					local faction_dropdown_uic = UIComponent(battle_setup_uic:Find("faction_dropdown"));
 
 					if faction_dropdown_uic then
 						local popup_menu_uic = UIComponent(faction_dropdown_uic:Find("popup_menu"));
@@ -479,6 +486,64 @@ function ChangeUnitStatsLayout()
 			end
 
 			stat_uic:SetMoveable(false);
+		end
+	end
+end
+
+-- This function deletes any invalid default army/battle preferences that can cause crashes.
+function CheckPreferences()
+	local army_setups_path = os.getenv("APPDATA")..[[\The Creative Assembly\Attila\army_setups\]];
+	local battle_preferences_path = os.getenv("APPDATA")..[[\The Creative Assembly\Attila\battle_preferences\]];
+	local blacklisted_strings = {"att_", "bel_", "cha_", "bel_attila_map", "cha_attila_map"};
+	local openFile;
+
+	local paths_to_search = {
+		army_setups_path..".private_ambush_att.army_setup",
+		army_setups_path..".private_coastal_battle_att.army_setup",
+		army_setups_path..".private_land_att.army_setup",
+		army_setups_path..".private_land_def.army_setup",
+		army_setups_path..".private_naval_siege_att.army_setup",
+		army_setups_path..".private_naval_siege_def.army_setup",
+		army_setups_path..".private_river_crossing_att.army_setup",
+		army_setups_path..".private_siege_att.army_setup",
+		army_setups_path..".private_siege_def.army_setup",
+		army_setups_path..".private_unfortified_port_att.army_setup",
+		army_setups_path..".private_unfortified_settlement_att.army_setup",
+		army_setups_path..".private_unfortified_settlement_def.army_setup",
+		battle_preferences_path..".mp.battle_preferences",
+		battle_preferences_path..".sp.battle_preferences"
+	};
+
+	for i = 1, #paths_to_search do
+		local path = paths_to_search[i];
+
+		if util.fileExists(path) then
+			openFile = io.open(path, "rb");
+
+			if openFile then
+				local data = openFile:read("*all");
+				local validchars = "[%w%p%s]"
+				local pattern = string.rep(validchars, 6) .. "+%z"
+
+				for w in string.gfind(data, pattern) do
+					for j = 1, #blacklisted_strings do
+						if string.find(w, blacklisted_strings[j]) then
+							openFile:close();
+							openFile = nil;
+							os.remove(path);
+							break;
+						end
+					end
+
+					if not openFile then
+						break;
+					end
+				end
+			end
+
+			if openFile then
+				openFile:close();
+			end
 		end
 	end
 end
