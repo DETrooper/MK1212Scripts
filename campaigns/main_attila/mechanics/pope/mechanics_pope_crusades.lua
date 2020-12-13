@@ -64,6 +64,13 @@ function Add_Crusade_Event_Listeners()
 		true
 	);
 	cm:add_listener(
+		"MissionIssued_Crusades",
+		"MissionIssued",
+		true,
+		function(context) MissionIssued_Crusades(context) end,
+		true
+	);
+	cm:add_listener(
 		"TimeTrigger_Crusades",
 		"TimeTrigger",
 		true,
@@ -507,6 +514,18 @@ function FactionReligionConverted_Crusades(context)
 		end
 	end
 end
+
+function MissionIssued_Crusades(context)
+	local mission_name = context:mission():mission_record_key();
+
+	-- Catch if a crusade mission is somehow issued after a Crusade has ended.
+	if not CRUSADE_ACTIVE and mission_name == CURRENT_CRUSADE_MISSION_KEY then
+		local faction_name = context:faction():name();
+		
+		cm:cancel_custom_mission(faction_name, mission_name);
+	end
+end
+
 
 function MissionFailed_Crusades(context)
 	local faction_name = context:faction():name();

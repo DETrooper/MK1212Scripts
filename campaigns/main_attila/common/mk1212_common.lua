@@ -89,8 +89,16 @@ function Add_MK1212_Common_Listeners()
 
 		for i = 0, faction_list:num_items() - 1 do
 			local faction = faction_list:item_at(i);
+			local faction_characters = faction:character_list();
 
 			FACTIONS_TO_RELIGIONS[faction:name()] = faction:state_religion();
+
+			if faction_characters:num_items() > 0 then
+				for j = 0, faction_characters:num_items() - 1 do
+					-- Apply old age traits to induce death in older characters. Otherwise they can live to like 140+ for some reason.
+					Check_Character_Age(faction_characters:item_at(j), false);
+				end
+			end
 		end
 	end
 
@@ -160,9 +168,53 @@ function CharacterPerformsOccupationDecisionRaze_Global(context)
 	end
 end
 
+function CharacterTurnStart_Global(context)
+	-- Apply old age traits to induce death in older characters. Otherwise they can live to like 140+ for some reason.
+	Check_Character_Age(context:character(), true);
+end
+
 function OnSettlementSelected_Global(context)
 	local region_name = context:garrison_residence():region():name();
 	REGION_SELECTED = region_name;
+end
+
+function Check_Character_Age(character, random)
+	local character_age = character:age();
+	local old_trait_level = character:trait_level("mk_trait_old");
+
+	if old_trait_level == -1 then
+		old_trait_level = 0;
+	end
+
+	if character_age >= 45 and character_age < 60 then
+		if not character:has_trait("mk_trait_old") or character:trait_level("mk_trait_old") < 1 then
+			local chance = cm:random_number(6);
+
+			if not random or chance == 1 then
+				cm:force_add_trait("character_cqi:"..character:command_queue_index(), "mk_trait_old", false);
+			end
+		end
+	elseif character_age >= 60 and character_age < 75 then
+		if not character:has_trait("mk_trait_old") or character:trait_level("mk_trait_old") < 2 then
+			local chance = cm:random_number(6);
+
+			if not random or chance == 1 then
+				for i = 1, 2 - old_trait_level do
+					cm:force_add_trait("character_cqi:"..character:command_queue_index(), "mk_trait_old", false);
+				end
+			end
+		end
+	elseif character_age >= 75 then
+		if not character:has_trait("mk_trait_old") or character:trait_level("mk_trait_old") < 3 then
+			local chance = cm:random_number(6);
+
+			if not random or chance == 1 then
+				for i = 1, 3 - old_trait_level do
+					cm:force_add_trait("character_cqi:"..character:command_queue_index(), "mk_trait_old", false);
+				end
+			end
+		end
+	end
 end
 
 function Check_Last_Character_Force()

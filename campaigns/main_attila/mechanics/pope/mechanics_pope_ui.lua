@@ -218,11 +218,12 @@ function OnComponentMouseOn_Pope_UI(context)
 		local button_join_crusade_uic = UIComponent(context.component);
 		local faction_name = cm:get_local_faction();
 		local faction = cm:model():world():faction_by_key(faction_name);
+		local turns = tostring((NEXT_CRUSADE_START_TURN + CRUSADE_DURATION) - cm:model():turn_number());
 
 		if faction:at_war_with(cm:model():world():faction_by_key(CURRENT_CRUSADE_TARGET_OWNER)) == false then
-			button_join_crusade_uic:SetTooltipText(UI_LOCALISATION["pope_crusade_button_war"]);
+			button_join_crusade_uic:SetTooltipText(UI_LOCALISATION["pope_crusade_button_war"].."\n\n"..UI_LOCALISATION["pope_crusade_button_turns_pt1"]..turns..UI_LOCALISATION["pope_crusade_button_turns_pt2"]);
 		else
-			button_join_crusade_uic:SetTooltipText(UI_LOCALISATION["pope_crusade_button"]);
+			button_join_crusade_uic:SetTooltipText(UI_LOCALISATION["pope_crusade_button"].."\n\n"..UI_LOCALISATION["pope_crusade_button_turns_pt1"]..turns..UI_LOCALISATION["pope_crusade_button_turns_pt2"]);
 		end
 	elseif POSTBATTLE_DECISION_ENEMY_CATHOLIC == true then
 		if context.string == "button_kill" then
