@@ -56,7 +56,7 @@ function HRE_Button_Check()
 	local btnHRE = UIComponent(root:Find("button_hre"));
 	local faction_name = cm:get_local_faction();
 
-	if (HasValue(HRE_FACTIONS, faction_name) or faction_name == HRE_EMPEROR_PRETENDER_KEY) and CURRENT_HRE_REFORM ~= 9 then
+	if (HasValue(HRE_FACTIONS, faction_name) or faction_name == HRE_EMPEROR_PRETENDER_KEY) and CURRENT_HRE_REFORM < 9 then
 		btnHRE:SetVisible(true);
 	else
 		btnHRE:SetVisible(false);

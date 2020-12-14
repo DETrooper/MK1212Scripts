@@ -206,11 +206,11 @@ function DFN_Enable_Forming_Kingdoms(faction_name)
 	if cm:is_multiplayer() == false then
 		local faction = cm:model():world():faction_by_key(faction_name);
 
-		if FACTIONS_DFN_LEVEL[faction_name] == nil then
+		if not FACTIONS_DFN_LEVEL[faction_name] then
 			FACTIONS_DFN_LEVEL[faction_name] = 1;
 		end
 
-		if table.HasValue(DYNAMIC_FACTION_NAMES_FACTIONS, faction_name) then
+		if HasValue(DYNAMIC_FACTION_NAMES_FACTIONS, faction_name) then
 			if faction:is_human() then
 				if not HasValue(FACTIONS_DFN_KINGDOMS_EVENTS, faction_name) and FACTIONS_DFN_LEVEL[faction_name] < 2 then
 					Add_Decision("found_a_kingdom", faction_name, false, false);

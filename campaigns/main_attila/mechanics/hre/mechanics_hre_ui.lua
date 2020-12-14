@@ -11,7 +11,7 @@ HRE_PANEL_OPEN = false;
 HRE_FACTION_SELECTED = nil;
 
 function Add_HRE_UI_Listeners()
-	if not HRE_DESTROYED then
+	if not HRE_DESTROYED and CURRENT_HRE_REFORM < 9 then
 		cm:add_listener(
 			"FactionTurnEnd_HRE_UI",
 			"FactionTurnEnd",
