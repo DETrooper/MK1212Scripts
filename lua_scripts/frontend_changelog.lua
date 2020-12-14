@@ -7,8 +7,8 @@
 ---------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------
 
-local dev = require("lua_scripts.dev");
-local util = require "lua_scripts.util";
+local dev = require("lua_scripts/dev");
+local util = require ("lua_scripts/util");
 
 local changelogpriority = false; -- If true, always display.
 local changelogstring = 	"Welcome to the MK1212 Campaign Open Alpha!\n\n"..
