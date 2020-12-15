@@ -75,7 +75,7 @@ eh:add_listener(
 require("lua_scripts/frontend_cb_crash_fix");
 require("lua_scripts/frontend_challenges");
 require("lua_scripts/frontend_changelog");
-require("lua_scripts/frontend_disclaimer");
+--require("lua_scripts/frontend_disclaimer");
 require("lua_scripts/frontend_discord");
 --require("lua_scripts/frontend_hbs"); -- There are no historical battles for MK1212 yet.
 require("lua_scripts/frontend_mp_campaign");

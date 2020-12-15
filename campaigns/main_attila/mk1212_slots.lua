@@ -39,7 +39,7 @@ function Add_MK1212_Slots_Listeners()
 		true
 	);
 
-	if util.fileExists("MK1212_config.txt") == true then
+	--[[if util.fileExists("MK1212_config.txt") == true then
 		if dev.settings["disclaimerAccepted"] then
 			if tonumber(dev.settings["disclaimerAccepted"]) == 1 then
 				DISCLAIMER_ACCEPTED = true;
@@ -49,7 +49,9 @@ function Add_MK1212_Slots_Listeners()
 				end
 			end
 		end
-	end
+	end]]--
+
+	DISCLAIMER_ACCEPTED = svr:LoadBool("SBOOL_Hardcoded_Limits_Modified") or false;
 
 	CreateDisclaimerPrompt();
 end
@@ -157,7 +159,7 @@ function TimeTrigger_Slots_UI(context)
 			disclaimer_prompt_uic:UnLockPriority();
 		end
 
-		if DISCLAIMER_ACCEPTED == false then
+		if not DISCLAIMER_ACCEPTED then
 			local main_settlement_panel_uic = UIComponent(root:Find("main_settlement_panel"));
 
 			if main_settlement_panel_uic and main_settlement_panel_uic:Visible() then
@@ -173,7 +175,7 @@ function TimeTrigger_Slots_UI(context)
 						end
 					end
 
-					if util.fileExists("MK1212_config.txt") == true then
+					--[[if util.fileExists("MK1212_config.txt") == true then
 						if dev.settings["disclaimerAccepted"] then
 							if tonumber(dev.settings["disclaimerAccepted"]) == 0 then
 								button_disclaimer_uic:SetVisible(true);
@@ -185,7 +187,9 @@ function TimeTrigger_Slots_UI(context)
 					else
 						dev.writeSettings("MK1212_config.txt");
 						button_disclaimer_uic:SetVisible(true);
-					end
+					end]]--
+
+					button_disclaimer_uic:SetVisible(true);
 				end
 			end
 		end
