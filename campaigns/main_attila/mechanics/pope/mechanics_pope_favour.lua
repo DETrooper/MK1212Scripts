@@ -37,6 +37,42 @@ function Add_Pope_Favour_Listeners()
 	if PAPAL_FAVOUR_SYSTEM_ACTIVE == true and PAPAL_FAVOUR_SYSTEM_FORCE_STOPPED == false then
 		Activate_Papal_Favour_System();
 	end
+
+	if cm:is_multiplayer() == false then
+		Register_Decision(
+			"ask_pope_for_money", 
+			function() 	
+				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is religion: Catholic.\n";
+				local money = "5000";
+				local faction_name = cm:get_local_faction();
+				
+				if FACTION_EXCOMMUNICATED[faction_name] == true then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not excommunicated.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not excommunicated.\n";
+				end
+			
+				if FACTION_POPE_FAVOUR[faction_name] > 7 then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Papal Favour is greater than 7.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Papal Favour is greater than 7.\n";
+				end
+			
+				if FACTION_POPE_FAVOUR[faction_name] == 9 then
+					money = "7500";
+				elseif FACTION_POPE_FAVOUR[faction_name] == 10 then
+					money = "10000";
+				end
+			
+				conditionstring = conditionstring.."\nEffects:\n\n- Recieve [[rgba:255:215:0:215]]"..money.." money[[/rgba]] at the cost of [[rgba:255:0:0:150]]3 Papal Favour[[/rgba]].";
+			
+				return conditionstring;
+			end, 
+			nil, 
+			nil, 
+			Decision_Pope_Money
+		);
+	end
 	
 	local faction_list = cm:model():world():faction_list();
 	local pope_faction = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
@@ -850,33 +886,6 @@ function Remove_Excommunication_Manual(faction_name)
 
 		Update_Pope_Favour(faction);
 	end
-end
-
-function GetConditionsString_Pope_Money(faction_name)
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is religion: Catholic.\n";
-	local money = "5000";
-	
-	if FACTION_EXCOMMUNICATED[faction_name] == true then
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not excommunicated.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not excommunicated.\n";
-	end
-
-	if FACTION_POPE_FAVOUR[faction_name] > 7 then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Papal Favour is greater than 7.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Papal Favour is greater than 7.\n";
-	end
-
-	if FACTION_POPE_FAVOUR[faction_name] == 9 then
-		money = "7500";
-	elseif FACTION_POPE_FAVOUR[faction_name] == 10 then
-		money = "10000";
-	end
-
-	conditionstring = conditionstring.."\nEffects:\n\n- Recieve [[rgba:255:215:0:215]]"..money.." money[[/rgba]] at the cost of [[rgba:255:0:0:150]]3 Papal Favour[[/rgba]].";
-
-	return conditionstring;
 end
 
 function Decision_Pope_Money(faction_name)

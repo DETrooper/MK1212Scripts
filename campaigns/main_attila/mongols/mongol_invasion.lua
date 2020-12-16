@@ -90,51 +90,89 @@ function FactionTurnStart_Mongol_Preservation(context)
 	local host_name = (cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1])):name();
 	local turn_number = cm:model():turn_number();
 
-	if context:faction():name() == JOCHI_KEY and jochi:is_human() == false then
+	if context:faction():name() == JOCHI_KEY then
 		free_upkeep_warned_this_turn = false;
 
-		if turn_number == 1 then
-			if jochi:at_war_with(cumans) == false then
-				cm:force_declare_war(JOCHI_KEY, CUMANS_KEY);
-			end
-		elseif turn_number == MONGOL_INVASION_TURN then
-			for i = 1, #REGIONS_GOLDEN_HORDE do
-				local region = cm:model():world():region_manager():region_by_key(REGIONS_GOLDEN_HORDE[i]);
-			
-				if region:owning_faction():name() ~= JOCHI_KEY and region:owning_faction():name() ~= TOLUI_KEY then
-					if region:owning_faction():at_war_with(jochi) == false and region:owning_faction():allied_with(jochi) == false then
-						cm:force_declare_war(JOCHI_KEY, region:owning_faction():name());
-						SetFactionsHostile(JOCHI_KEY, region:owning_faction():name());
+		if jochi:is_human() == false then
+			if turn_number == 1 then
+				if jochi:at_war_with(cumans) == false then
+					cm:force_declare_war(JOCHI_KEY, CUMANS_KEY);
+				end
+			elseif turn_number == MONGOL_INVASION_TURN then
+				local valid_factions = {};
+
+				for i = 1, #REGIONS_GOLDEN_HORDE do
+					local region = cm:model():world():region_manager():region_by_key(REGIONS_GOLDEN_HORDE[i]);
+
+					-- Make sure region is not razed.
+					if not region:owning_faction():is_null_interface() and region:owning_faction():name() ~= "rebels" then
+						local region_owning_faction_name = region:owning_faction():name();
+
+						if region_owning_faction_name ~= JOCHI_KEY and region_owning_faction_name ~= TOLUI_KEY then
+							if region:owning_faction():at_war_with(jochi) == false and region:owning_faction():allied_with(jochi) == false then
+								table.insert(valid_factions, region_owning_faction_name);
+								SetFactionsHostile(JOCHI_KEY, region_owning_faction_name);
+							end
+						end
+					end
+				end
+
+				-- There seems to some bugs when allied to an AI faction that is force to declare war on multiple factions,
+				-- so instead we're just gonna make the AI mongol hate everyone but only declare war on the strongest.
+				if #valid_factions > 0 then
+					local strongest_faction = Get_Strongest_Faction(valid_factions);
+
+					if strongest_faction then
+						cm:force_declare_war(JOCHI_KEY, strongest_faction);
 					end
 				end
 			end
-		end
 
-		if turn_number < MONGOL_INVASION_TURN then
-			MongolArmyChecks(JOCHI_KEY);
+			if turn_number < MONGOL_INVASION_TURN then
+				MongolArmyChecks(JOCHI_KEY);
+			end
 		end
-	elseif context:faction():name() == TOLUI_KEY and tolui:is_human() == false then
+	elseif context:faction():name() == TOLUI_KEY then
 		free_upkeep_warned_this_turn = false;
 
-		if turn_number == 1 then
-			if tolui:at_war_with(khwarazm) == false then
-				cm:force_declare_war(JOCHI_KEY, KHWARAZM_KEY);
-			end
-		elseif turn_number == MONGOL_INVASION_TURN then
-			for i = 1, #REGIONS_ILKHANATE do
-				local region = cm:model():world():region_manager():region_by_key(REGIONS_ILKHANATE[i]);
-			
-				if region:owning_faction():name() ~= JOCHI_KEY and region:owning_faction():name() ~= TOLUI_KEY then
-					if region:owning_faction():at_war_with(tolui) == false and region:owning_faction():allied_with(tolui) == false then
-						cm:force_declare_war(TOLUI_KEY, region:owning_faction():name());
-						SetFactionsHostile(TOLUI_KEY, region:owning_faction():name());
+		if tolui:is_human() == false then
+			if turn_number == 1 then
+				if tolui:at_war_with(khwarazm) == false then
+					cm:force_declare_war(JOCHI_KEY, KHWARAZM_KEY);
+				end
+			elseif turn_number == MONGOL_INVASION_TURN then
+				local valid_factions = {};
+
+				for i = 1, #REGIONS_ILKHANATE do
+					local region = cm:model():world():region_manager():region_by_key(REGIONS_ILKHANATE[i]);
+
+					-- Make sure region is not razed.
+					if not region:owning_faction():is_null_interface() and region:owning_faction():name() ~= "rebels" then
+						local region_owning_faction_name = region:owning_faction():name();
+
+						if region_owning_faction_name ~= JOCHI_KEY and region_owning_faction_name ~= TOLUI_KEY then
+							if region:owning_faction():at_war_with(tolui) == false and region:owning_faction():allied_with(tolui) == false then
+								table.insert(valid_factions, region_owning_faction_name);
+								SetFactionsHostile(TOLUI_KEY, region_owning_faction_name);
+							end
+						end
+					end
+				end
+
+				-- There seems to some bugs when allied to an AI faction that is force to declare war on multiple factions,
+				-- so instead we're just gonna make the AI mongol hate everyone but only declare war on the strongest.
+				if #valid_factions > 0 then
+					local strongest_faction = Get_Strongest_Faction(valid_factions);
+
+					if strongest_faction then
+						cm:force_declare_war(TOLUI_KEY, strongest_faction);
 					end
 				end
 			end
-		end
 
-		if turn_number < MONGOL_INVASION_TURN then
-			MongolArmyChecks(TOLUI_KEY);
+			if turn_number < MONGOL_INVASION_TURN then
+				MongolArmyChecks(TOLUI_KEY);
+			end
 		end
 	end
 
@@ -148,7 +186,9 @@ function FactionTurnStart_Mongol_Preservation(context)
 			SpawnMongolArmyInZone(JOCHI_KEY, GOLDEN_HORDE_ALT_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
 			SpawnMongolArmyInZone(JOCHI_KEY, GOLDEN_HORDE_ALT_INVASION_ARMY, "att_reg_scythia_sarai", GOLDEN_HORDE_SPAWN_ZONE);
 
-			cm:force_change_cai_faction_personality(JOCHI_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
+			if jochi:is_human() == false then
+				cm:force_change_cai_faction_personality(JOCHI_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
+			end
 		end
 
 		if INDEPENDENCE_TOLUI == false then
@@ -158,7 +198,9 @@ function FactionTurnStart_Mongol_Preservation(context)
 			SpawnMongolArmyInZone(TOLUI_KEY, ILKHANATE_ALT_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
 			SpawnMongolArmyInZone(TOLUI_KEY, ILKHANATE_ALT_INVASION_ARMY, "att_reg_transcaspia_dahistan", ILKHANATE_SPAWN_ZONE);
 
-			cm:force_change_cai_faction_personality(TOLUI_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
+			if tolui:is_human() == false then
+				cm:force_change_cai_faction_personality(TOLUI_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
+			end
 		end
 
 		local faction_name = (cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1])):name();

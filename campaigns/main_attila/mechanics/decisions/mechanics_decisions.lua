@@ -7,21 +7,21 @@
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
 
-require("mechanics/decisions/mechanics_decisions_lists");
 require("mechanics/decisions/mechanics_decisions_ui");
 
 AVAILABLE_DECISIONS = {};
-PRIORITY_DECISIONS = {}; -- For important ones. Same as AVAILABLE_DECISIONS but these are at the top of the list and highlighted.
+PRIORITY_DECISIONS = {}; -- For important ones. Same as AVAILABLE_DECISIONS but these are always at the top of the list.
+REGISTRY_DECISIONS = {}; -- Stored decision data such as functions.
 
 function Add_Decisions_Listeners()
 	Add_Decisions_UI_Listeners();
 end
 
-function Add_Decision(decision_name, faction_name, enabled, priority)
+function Add_Decision(decision_key, faction_name, enabled, priority)
 	-- Check first if the decision already exists!
 	if #PRIORITY_DECISIONS > 0 then
 		for i = 1, #PRIORITY_DECISIONS do
-			if PRIORITY_DECISIONS[i][1] == decision_name then
+			if PRIORITY_DECISIONS[i][1] == decision_key then
 				return;
 			end	
 		end
@@ -29,14 +29,14 @@ function Add_Decision(decision_name, faction_name, enabled, priority)
 
 	if #AVAILABLE_DECISIONS > 0 then
 		for i = 1, #AVAILABLE_DECISIONS do
-			if AVAILABLE_DECISIONS[i][1] == decision_name then
+			if AVAILABLE_DECISIONS[i][1] == decision_key then
 				return;
 			end	
 		end
 	end
 
 	-- Decision does not already exist, so add it.
-	local decision = {decision_name, faction_name, enabled};
+	local decision = {decision_key, faction_name, enabled};
 
 	if priority == true then
 		table.insert(PRIORITY_DECISIONS, decision);
@@ -45,10 +45,10 @@ function Add_Decision(decision_name, faction_name, enabled, priority)
 	end
 end
 
-function Remove_Decision(decision_name)
+function Remove_Decision(decision_key)
 	if #PRIORITY_DECISIONS > 0 then
 		for i = 1, #PRIORITY_DECISIONS do
-			if PRIORITY_DECISIONS[i][1] == decision_name then
+			if PRIORITY_DECISIONS[i][1] == decision_key then
 				--dev.log("Removing decision: "..PRIORITY_DECISIONS[i][1]);
 				table.remove(PRIORITY_DECISIONS, i);
 				--dev.log("Decision removed.");
@@ -59,7 +59,7 @@ function Remove_Decision(decision_name)
 
 	if #AVAILABLE_DECISIONS > 0 then
 		for i = 1, #AVAILABLE_DECISIONS do
-			if AVAILABLE_DECISIONS[i][1] == decision_name then
+			if AVAILABLE_DECISIONS[i][1] == decision_key then
 				--dev.log("Removing decision: "..AVAILABLE_DECISIONS[i][1]);
 				table.remove(AVAILABLE_DECISIONS, i);
 				--dev.log("Decision removed.");
@@ -69,10 +69,19 @@ function Remove_Decision(decision_name)
 	end
 end
 
-function Enable_Decision(decision_name)
+function Register_Decision(decision_key, tooltip, required_regions, map_information, callback)
+	REGISTRY_DECISIONS[decision_key] = {};
+
+	REGISTRY_DECISIONS[decision_key].tooltip = tooltip;
+	REGISTRY_DECISIONS[decision_key].required_regions = required_regions;
+	REGISTRY_DECISIONS[decision_key].map_information = map_information;
+	REGISTRY_DECISIONS[decision_key].callback = callback;
+end
+
+function Enable_Decision(decision_key)
 	if #PRIORITY_DECISIONS > 0 then
 		for i = 1, #PRIORITY_DECISIONS do
-			if PRIORITY_DECISIONS[i][1] == decision_name and PRIORITY_DECISIONS[i][3] == false then
+			if PRIORITY_DECISIONS[i][1] == decision_key and PRIORITY_DECISIONS[i][3] == false then
 				PRIORITY_DECISIONS[i][3] = true;
 				Highlight_Decisions_Button();
 				--dev.log("Enabled decision: "..PRIORITY_DECISIONS[i][1]);
@@ -83,7 +92,7 @@ function Enable_Decision(decision_name)
 
 	if #AVAILABLE_DECISIONS > 0 then
 		for i = 1, #AVAILABLE_DECISIONS do
-			if AVAILABLE_DECISIONS[i][1] == decision_name and AVAILABLE_DECISIONS[i][3] == false then
+			if AVAILABLE_DECISIONS[i][1] == decision_key and AVAILABLE_DECISIONS[i][3] == false then
 				AVAILABLE_DECISIONS[i][3] = true;
 				Highlight_Decisions_Button();
 				--dev.log("Enabled decision: "..AVAILABLE_DECISIONS[i][1]);
@@ -93,10 +102,10 @@ function Enable_Decision(decision_name)
 	end
 end
 
-function Disable_Decision(decision_name)
+function Disable_Decision(decision_key)
 	if #PRIORITY_DECISIONS > 0 then
 		for i = 1, #PRIORITY_DECISIONS do
-			if PRIORITY_DECISIONS[i][1] == decision_name then
+			if PRIORITY_DECISIONS[i][1] == decision_key then
 				PRIORITY_DECISIONS[i][3] = false;
 				--dev.log("Disabled decision: "..PRIORITY_DECISIONS[i][1]);
 				return;
@@ -106,7 +115,7 @@ function Disable_Decision(decision_name)
 
 	if #AVAILABLE_DECISIONS > 0 then
 		for i = 1, #AVAILABLE_DECISIONS do
-			if AVAILABLE_DECISIONS[i][1] == decision_name then
+			if AVAILABLE_DECISIONS[i][1] == decision_key then
 				AVAILABLE_DECISIONS[i][3] = false;
 				--dev.log("Disabled decision: "..AVAILABLE_DECISIONS[i][1]);
 				return;

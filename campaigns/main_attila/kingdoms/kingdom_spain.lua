@@ -33,11 +33,44 @@ function Add_Kingdom_Spain_Listeners()
 		);
 	end
 
-	if cm:is_new_game() and cm:is_multiplayer() == false then
-		local faction_name = cm:get_local_faction();
-		
-		if faction_name == ARAGON_KEY or faction_name == CASTILE_KEY or faction_name == NAVARRE_KEY then
-			Add_Decision("form_kingdom_spain", faction_name, false, true);
+	if cm:is_multiplayer() == false then
+		Register_Decision(
+			"form_kingdom_spain", 
+			function() 	
+				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Crown of Aragon, Kingdom of Castile, or Kingdom of Navarre.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Spain does not yet exist.\n";
+				local faction_name = cm:get_local_faction();
+
+				if faction_name == HRE_EMPEROR_KEY then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+				end
+	
+				for i = 1, #REGIONS_SPAIN_NO_PORTUGAL do
+					local region = cm:model():world():region_manager():region_by_key(REGIONS_SPAIN_NO_PORTUGAL[i]);
+					
+					if region:owning_faction():name() == cm:get_local_faction() then
+						conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_SPAIN_NO_PORTUGAL[i]]..".\n";
+					else
+						conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_SPAIN_NO_PORTUGAL[i]]..".\n";
+					end
+				end
+			
+				conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Spain[[/rgba]].";
+			
+				return conditionstring;
+			end, 
+			REGIONS_SPAIN, 
+			{map_name = "kingdom_spain_map", x = "500", y = "500", map_pips = REGIONS_SPAIN_FACTION_PIPS_LOCATIONS},
+			Spanish_Kingdom_Formed
+		);
+
+		if cm:is_new_game() then
+			local faction_name = cm:get_local_faction();
+			
+			if faction_name == ARAGON_KEY or faction_name == CASTILE_KEY or faction_name == NAVARRE_KEY then
+				Add_Decision("form_kingdom_spain", faction_name, false, true);
+			end
 		end
 	end
 end
@@ -58,7 +91,7 @@ function Spanish_Regions_Check(context)
 	if has_regions == true then
 		if cm:is_multiplayer() == true or context:faction():is_human() == false then
 			Spanish_Kingdom_Formed(faction_name);
-		else
+		elseif faction_name ~= HRE_EMPEROR_KEY then
 			Enable_Decision("form_kingdom_spain");
 		end
 	end
@@ -83,27 +116,8 @@ function Spanish_Kingdom_Formed(faction_name)
 		722
 	);
 
-
 	cm:remove_listener("FactionTurnStart_Spain_Check");
 	cm:remove_listener("SettlementOccupied_Spanish_Regions_Check");
-end
-
-function GetConditionsString_Spain()
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Crown of Aragon, Kingdom of Castile, or Kingdom of Navarre.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Spain does not yet exist.\n";
-	
-	for i = 1, #REGIONS_SPAIN_NO_PORTUGAL do
-		local region = cm:model():world():region_manager():region_by_key(REGIONS_SPAIN_NO_PORTUGAL[i]);
-		
-		if region:owning_faction():name() == cm:get_local_faction() then
-			conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_SPAIN_NO_PORTUGAL[i]]..".\n";
-		else
-			conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_SPAIN_NO_PORTUGAL[i]]..".\n";
-		end
-	end
-
-	conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Spain[[/rgba]].";
-
-	return conditionstring;
 end
 
 --------------------------------------------------------------

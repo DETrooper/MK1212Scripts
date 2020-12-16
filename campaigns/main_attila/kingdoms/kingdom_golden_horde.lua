@@ -29,11 +29,44 @@ function Add_Kingdom_Golden_Horde_Listeners()
 		);
 	end
 
-	if cm:is_new_game() and cm:is_multiplayer() == false then
-		local faction_name = cm:get_local_faction();
-		
-		if faction_name == JOCHI_KEY then
-			Add_Decision("form_empire_golden_horde", faction_name, false, true);
+	if cm:is_multiplayer() == false then
+		Register_Decision(
+			"form_empire_golden_horde", 
+			function() 	
+				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Ulus of Jochi.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Golden Horde does not yet exist.\n";
+				local faction_name = cm:get_local_faction();
+
+				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				end
+	
+				for i = 1, #REGIONS_GOLDEN_HORDE do
+					local region = cm:model():world():region_manager():region_by_key(REGIONS_GOLDEN_HORDE[i]);
+					
+					if region:owning_faction():name() == cm:get_local_faction() then
+						conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_GOLDEN_HORDE[i]]..".\n";
+					else
+						conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_GOLDEN_HORDE[i]]..".\n";
+					end
+				end
+			
+				conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Golden Horde[[/rgba]].";
+			
+				return conditionstring;
+			end, 
+			REGIONS_GOLDEN_HORDE, 
+			{map_name = "kingdom_golden_horde_map", x = "1200", y = "900", map_pips = REGIONS_GOLDEN_HORDE_FACTION_PIPS_LOCATIONS},
+			Golden_Horde_Formed
+		);
+
+		if cm:is_new_game() then
+			local faction_name = cm:get_local_faction();
+			
+			if faction_name == JOCHI_KEY then
+				Add_Decision("form_empire_golden_horde", faction_name, false, true);
+			end
 		end
 	end
 end
@@ -54,7 +87,7 @@ function Golden_Horde_Regions_Check(context)
 	if has_regions == true then
 		if cm:is_multiplayer() == true or context:faction():is_human() == false then
 			Golden_Horde_Formed(faction_name);
-		else
+		elseif (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
 			Enable_Decision("form_empire_golden_horde");
 		end	
 	end
@@ -80,24 +113,6 @@ function Golden_Horde_Formed(faction_name)
 
 	cm:remove_listener("FactionTurnStart_Golden_Horde_Check");
 	cm:remove_listener("SettlementOccupied_Golden_Horde_Regions_Check");
-end
-
-function GetConditionsString_Golden_Horde()
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Ulus of Jochi.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Golden Horde does not yet exist.\n";
-	
-	for i = 1, #REGIONS_GOLDEN_HORDE do
-		local region = cm:model():world():region_manager():region_by_key(REGIONS_GOLDEN_HORDE[i]);
-		
-		if region:owning_faction():name() == cm:get_local_faction() then
-			conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_GOLDEN_HORDE[i]]..".\n";
-		else
-			conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_GOLDEN_HORDE[i]]..".\n";
-		end
-	end
-
-	conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Golden Horde[[/rgba]].";
-
-	return conditionstring;
 end
 
 --------------------------------------------------------------

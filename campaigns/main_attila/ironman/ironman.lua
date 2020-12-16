@@ -160,7 +160,8 @@ end
 function Rename_Save_Ironman()
 	if cm:model():difficulty_level() > -3 then -- Legendary saves don't need to be renamed.
 		if IRONMAN_SAVE_NAME == "" then
-			local faction_localisation = FACTIONS_NAMES_LOCALISATION[cm:get_local_faction()];
+			local faction_localisation = FACTIONS_NAMES_LOCALISATION[cm:get_local_faction()] or "Unknown";
+			
 			IRONMAN_SAVE_NAME = faction_localisation.." Ironman "..tostring(os.date("%Y%m%d%H%M%S"));
 		end
 
@@ -169,11 +170,11 @@ function Rename_Save_Ironman()
 		local ironman_save_path = save_path..IRONMAN_SAVE_NAME..".save";
 
 		if util.fileExists(auto_save_path) then
-			if util.fileExists(ironman_save_path) then
-				os.remove(ironman_save_path);
-			end
+			local ironman_file_exists = util.fileExists(ironman_save_path);
 
-			os.rename(auto_save_path, ironman_save_path);
+			if not ironman_file_exists or (ironman_file_exists and os.remove(ironman_save_path)) then
+				os.rename(auto_save_path, ironman_save_path);
+			end
 		end
 	end
 end

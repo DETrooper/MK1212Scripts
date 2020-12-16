@@ -37,11 +37,40 @@ function Add_Kingdom_Byzantium_Listeners()
 		);
 	end
 
-	if cm:is_new_game() and cm:is_multiplayer() == false then
-		local faction_name = cm:get_local_faction();
-		
-		if faction_name == EPIRUS_KEY or faction_name == NICAEA_KEY or faction_name == TREBIZOND_KEY then
-			Add_Decision("restore_byzantine_empire", faction_name, false, true);
+	if cm:is_multiplayer() == false then
+		Register_Decision(
+			"restore_byzantine_empire", 
+			function() 	
+				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Empire of Nicaea, Empire of Trebizond, or Desposate of Epirus.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Byzantine Empire does not exist.\n";
+				local faction_name = cm:get_local_faction();
+
+				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				end
+	
+				if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == cm:get_local_faction() then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of Constantinople.";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of Constantinople.";		
+				end
+			
+				conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Byzantine Empire[[/rgba]].";
+			
+				return conditionstring;
+			end, 
+			"att_reg_thracia_constantinopolis", 
+			nil, 
+			Byzantine_Empire_Restored
+		);
+
+		if cm:is_new_game() then
+			local faction_name = cm:get_local_faction();
+			
+			if faction_name == EPIRUS_KEY or faction_name == NICAEA_KEY or faction_name == TREBIZOND_KEY then
+				Add_Decision("restore_byzantine_empire", faction_name, false, true);
+			end
 		end
 	end
 end
@@ -83,7 +112,7 @@ end
 function Constantinople_Taken(faction_name)
 	if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
 		Byzantine_Empire_Restored(faction_name);
-	else
+	elseif (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
 		Enable_Decision("restore_byzantine_empire");
 	end
 end
@@ -127,20 +156,6 @@ function MissionIssued_Byzantium(context)
 			Constantinople_Check(faction_name);
 		end
 	end
-end
-
-function GetConditionsString_Byzantium()
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Empire of Nicaea, Empire of Trebizond, or Desposate of Epirus.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Byzantine Empire does not exist.\n";
-	
-	if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == cm:get_local_faction() then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of Constantinople.";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of Constantinople.";		
-	end
-
-	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Byzantine Empire[[/rgba]].";
-
-	return conditionstring;
 end
 
 --------------------------------------------------------------

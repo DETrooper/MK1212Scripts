@@ -39,7 +39,7 @@ m_root = nil;
 svr = ScriptedValueRegistry:new();
 tm = timer_manager:new(Timers);
 version_number = 2000;
-version_number_string = "v2.0.2";
+version_number_string = "v2.0.3";
 
 local checkbox_lucky_nations_selected = false;
 

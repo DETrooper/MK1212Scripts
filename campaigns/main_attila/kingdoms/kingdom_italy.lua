@@ -40,11 +40,44 @@ function Add_Kingdom_Italy_Listeners()
 		);
 	end
 
-	if cm:is_new_game() and cm:is_multiplayer() == false then
-		local faction_name = cm:get_local_faction();
-		
-		if HasValue(ITALIAN_FACTIONS, faction_name) then
-			Add_Decision("form_kingdom_italy", faction_name, false, false, true);
+	if cm:is_multiplayer() == false then
+		Register_Decision(
+			"form_kingdom_italy", 
+			function() 	
+				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is an Italian faction.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Italy does not yet exist.\n";
+				local faction_name = cm:get_local_faction();
+
+				if faction_name == HRE_EMPEROR_KEY then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+				end
+	
+				for i = 1, #REGIONS_ITALY do
+					local region = cm:model():world():region_manager():region_by_key(REGIONS_ITALY[i]);
+					
+					if region:owning_faction():name() == cm:get_local_faction() then
+						conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_ITALY[i]]..".\n";
+					else
+						conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_ITALY[i]]..".\n";
+					end
+				end
+				
+				conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Italy[[/rgba]].";
+			
+				return conditionstring;
+			end, 
+			REGIONS_ITALY, 
+			{map_name = "kingdom_italy_map", x = "500", y = "500", map_pips = REGIONS_ITALY_FACTION_PIPS_LOCATIONS},
+			Italian_Kingdom_Formed
+		);
+
+		if cm:is_new_game() then
+			local faction_name = cm:get_local_faction();
+			
+			if HasValue(ITALIAN_FACTIONS, faction_name) then
+				Add_Decision("form_kingdom_italy", faction_name, false, false, true);
+			end
 		end
 	end
 end
@@ -65,7 +98,7 @@ function Italian_Regions_Check(context)
 	if has_regions == true then
 		if cm:is_multiplayer() == true or context:faction():is_human() == false then
 			Italian_Kingdom_Formed(faction_name);
-		else
+		elseif faction_name ~= HRE_EMPEROR_KEY then
 			Enable_Decision("form_kingdom_italy");
 		end
 	end
@@ -92,24 +125,6 @@ function Italian_Kingdom_Formed(faction_name)
 
 	cm:remove_listener("FactionTurnStart_Italy_Check");
 	cm:remove_listener("SettlementOccupied_Italian_Regions_Check");
-end
-
-function GetConditionsString_Italy()
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is an Italian faction.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Italy does not yet exist.\n";
-	
-	for i = 1, #REGIONS_ITALY do
-		local region = cm:model():world():region_manager():region_by_key(REGIONS_ITALY[i]);
-		
-		if region:owning_faction():name() == cm:get_local_faction() then
-			conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_ITALY[i]]..".\n";
-		else
-			conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_ITALY[i]]..".\n";
-		end
-	end
-	
-	conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Kingdom of Italy[[/rgba]].";
-
-	return conditionstring;
 end
 
 --------------------------------------------------------------

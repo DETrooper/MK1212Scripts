@@ -41,6 +41,71 @@ function Add_Dynamic_Faction_Names_Listeners()
 		true
 	);
 
+	if cm:is_multiplayer() == false then
+		Register_Decision(
+			"found_a_kingdom", 
+			function() 	
+				local faction_name = cm:get_local_faction();
+				local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
+				local conditionstring = "Conditions:\n\n";
+			
+				if faction_name == HRE_EMPEROR_KEY then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+				end
+			
+				if num_regions >= NUM_REQUIRED_REGIONS_LVL2 then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL2).." regions.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL2).." regions.\n";
+				end
+			
+				conditionstring = conditionstring.."(Current total: "..tostring(num_regions)..")";
+				conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl2"].."[[\rgba]].";
+			
+				return conditionstring;	
+			end, 
+			nil, 
+			nil, 
+			DFN_Set_Faction_Rank
+		);
+
+		Register_Decision(
+			"found_an_empire", 
+			function() 	
+				local faction_name = cm:get_local_faction();
+				local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
+				local conditionstring = "Conditions:\n\n";
+			
+				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				end
+				
+				if num_regions >= NUM_REQUIRED_REGIONS_LVL3 then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL3).." regions\n.";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL3).." regions.\n";
+				end
+			
+				conditionstring = conditionstring.."(Current total: "..tostring(num_regions)..")";
+			
+				if FACTIONS_DFN_LEVEL[faction_name] == 4 then
+					conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl5"].."[[\rgba]].";
+				else
+					conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl3"].."[[\rgba]].";
+				end
+			
+				return conditionstring;	
+			end, 
+			nil, 
+			nil, 
+			DFN_Set_Faction_Rank
+		);
+	end
+
 	if cm:is_new_game() then
 		for i = 1, #FACTIONS_DFN_EMPIRES do
 			FACTIONS_DFN_LEVEL[FACTIONS_DFN_EMPIRES[i]] = 3;
@@ -59,7 +124,7 @@ function Add_Dynamic_Faction_Names_Listeners()
 					FACTIONS_DFN_LEVEL[faction_name] = 1;
 				end
 
-				if faction:is_human() then
+				if cm:is_multiplayer() == false and faction:is_human() then
 					if not HasValue(FACTIONS_DFN_KINGDOMS_EVENTS, faction_name) and FACTIONS_DFN_LEVEL[faction_name] < 2 then
 						Add_Decision("found_a_kingdom", faction_name, false, false);
 					end
@@ -110,7 +175,7 @@ function Global_DFN_Check()
 					end
 				elseif FACTIONS_DFN_LEVEL[faction_name] == 2 then
 					if not HasValue(FACTIONS_DFN_EMPIRES_EVENTS, faction_name) then
-						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and HasValue(HRE_FACTIONS, faction_name) ~= true then
+						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
 							if faction:is_human() == false or cm:is_multiplayer() == true then
 								DFN_Set_Faction_Rank(faction_name, 3);
 							else
@@ -123,7 +188,7 @@ function Global_DFN_Check()
 						end
 					end
 				elseif FACTIONS_DFN_LEVEL[faction_name] == 4 then -- For Kingdom events.
-					if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and HasValue(HRE_FACTIONS, faction_name) ~= true then
+					if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
 						if faction:is_human() == false or cm:is_multiplayer() == true then
 							DFN_Set_Faction_Rank(faction_name, 5);
 						else
@@ -170,9 +235,27 @@ function Get_DFN_Localisation(faction_name)
 	return faction_string;
 end
 
-function DFN_Set_Faction_Rank(faction_name, rank)
+function DFN_Set_Faction_Rank(faction_name, set_rank)
+	local rank = set_rank;
+
+	if not rank then
+		if FACTIONS_DFN_LEVEL[faction_name] then
+			rank = FACTIONS_DFN_LEVEL[faction_name] + 1;
+		else
+			rank = 2;
+		end
+	end
+
 	if rank == 3 and FACTIONS_DFN_LEVEL[faction_name] == 4 then
 		rank = 5;
+	end
+
+	if cm:is_multiplayer() == false then
+		if rank == 2 or rank == 4 then
+			Remove_Decision("found_a_kingdom");
+		elseif rank == 3 or rank == 5 then
+			Remove_Decision("found_an_empire");
+		end
 	end
 
 	local newname = faction_name.."_lvl"..tostring(rank);
@@ -237,57 +320,6 @@ function DFN_Refresh_Faction_Name(faction_name)
 	end
 
 	Rename_Faction(faction_name, newname);
-end
-
-function GetConditionsString_DFN_Kingdom()
-	local faction_name = cm:get_local_faction();
-	local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
-	local conditionstring = "Conditions:\n\n";
-
-	if faction_name == HRE_EMPEROR_KEY then
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
-	end
-
-	if num_regions >= NUM_REQUIRED_REGIONS_LVL2 then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL2).." regions.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL2).." regions.\n";
-	end
-
-	conditionstring = conditionstring.."(Current total: "..tostring(num_regions)..")";
-	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl2"].."[[\rgba]].";
-
-	return conditionstring;	
-end
-
-function GetConditionsString_DFN_Empire()
-	local faction_name = cm:get_local_faction();
-	local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
-	local conditionstring = "Conditions:\n\n";
-
-	if HasValue(HRE_FACTIONS, faction_name) then
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
-	end
-	
-	if num_regions >= NUM_REQUIRED_REGIONS_LVL3 then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL3).." regions\n.";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL3).." regions.\n";
-	end
-
-	conditionstring = conditionstring.."(Current total: "..tostring(num_regions)..")";
-
-	if FACTIONS_DFN_LEVEL[faction_name] == 4 then
-		conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl5"].."[[\rgba]].";
-	else
-		conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]"..DFN_NAMES_LOCALISATION[faction_name.."_lvl3"].."[[\rgba]].";
-	end
-
-	return conditionstring;	
 end
 
 function TimeTrigger_DFN_UI(context)

@@ -500,6 +500,41 @@ function Generate_Unit_List(faction_name, number_of_units)
 	end
 end
 
+function Get_Strongest_Faction(factions)
+	if #factions == 1 then
+		return factions[1];
+	else
+		local strongest_faction;
+		local strongest_faction_strength = 0;
+		local valid_factions = {};
+
+		for i = 1, #factions do
+			local faction_name = factions[i];
+			local faction = cm:model():world():faction_by_key(faction_name);
+			local faction_strength = (faction:region_list():num_items() * 10) + (faction:num_allies() * 15);
+			local forces = faction:military_force_list();
+
+			for j = 0, forces:num_items() - 1 do
+				local force = forces:item_at(j);
+				local unit_list = forces:item_at(j):unit_list();
+
+				faction_strength = faction_strength + unit_list:num_items();
+			end
+
+			table.insert(valid_factions, {faction_name, faction_strength});
+		end
+
+		for i = 1, #valid_factions do
+			if valid_factions[i][2] > strongest_faction_strength then
+				strongest_faction = valid_factions[i][1];
+				strongest_faction_strength = valid_factions[i][2];
+			end
+		end
+
+		return strongest_faction;
+	end
+end
+
 function GetTurnFromYear(year)
 	-- 2TPY, so turn 2 of the year should have .5 added to it.
 	local turn_number = (year - 1212) * 2 + 1;

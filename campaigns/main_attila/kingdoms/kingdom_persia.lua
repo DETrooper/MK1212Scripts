@@ -32,11 +32,44 @@ function Add_Kingdom_Persia_Listeners()
 		);
 	end
 
-	if cm:is_new_game() and cm:is_multiplayer() == false then
-		local faction_name = cm:get_local_faction();
-		
-		if faction_name == GHURIDS_KEY or faction_name == HAZARASPIDS_KEY or faction_name == ILDEGIZIDS_KEY or faction_name == SALGHURIDS_KEY then
-			Add_Decision("form_empire_persia", faction_name, false, true);
+	if cm:is_multiplayer() == false then
+		Register_Decision(
+			"form_empire_persia", 
+			function() 	
+				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Ghurid Sultanate, Hazaraspid Atabegate, Ildegizid Atabegate, or Salghurid Atabegate.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Persian Empire does not yet exist.\n";
+				local faction_name = cm:get_local_faction();
+
+				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				end
+	
+				for i = 1, #REGIONS_PERSIA do
+					local region = cm:model():world():region_manager():region_by_key(REGIONS_PERSIA[i]);
+					
+					if region:owning_faction():name() == cm:get_local_faction() then
+						conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_PERSIA[i]]..".\n";
+					else
+						conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_PERSIA[i]]..".\n";
+					end
+				end
+			
+				conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Persian Empire[[/rgba]].";
+			
+				return conditionstring;
+			end, 
+			REGIONS_PERSIA, 
+			{map_name = "kingdom_persia_map", x = "650", y = "650", map_pips = REGIONS_PERSIA_FACTION_PIPS_LOCATIONS},
+			Persian_Empire_Formed
+		);
+
+		if cm:is_new_game() then
+			local faction_name = cm:get_local_faction();
+			
+			if faction_name == GHURIDS_KEY or faction_name == HAZARASPIDS_KEY or faction_name == ILDEGIZIDS_KEY or faction_name == SALGHURIDS_KEY then
+				Add_Decision("form_empire_persia", faction_name, false, true);
+			end
 		end
 	end
 end
@@ -57,7 +90,7 @@ function Persian_Empire_Regions_Check(context)
 	if has_regions == true then
 		if cm:is_multiplayer() == true or context:faction():is_human() == false then
 			Persian_Empire_Formed(faction_name);
-		else
+		elseif (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
 			Enable_Decision("form_empire_persia");
 		end		
 	end
@@ -91,24 +124,6 @@ function Persian_Empire_Formed(faction_name)
 
 	cm:remove_listener("FactionTurnStart_Persian_Empire_Check");
 	cm:remove_listener("SettlementOccupied_Persian_Empire_Regions_Check");
-end
-
-function GetConditionsString_Persian_Empire()
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Ghurid Sultanate, Hazaraspid Atabegate, Ildegizid Atabegate, or Salghurid Atabegate.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Persian Empire does not yet exist.\n";
-	
-	for i = 1, #REGIONS_PERSIA do
-		local region = cm:model():world():region_manager():region_by_key(REGIONS_PERSIA[i]);
-		
-		if region:owning_faction():name() == cm:get_local_faction() then
-			conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_PERSIA[i]]..".\n";
-		else
-			conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION[REGIONS_PERSIA[i]]..".\n";
-		end
-	end
-
-	conditionstring = conditionstring.."\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Persian Empire[[/rgba]].";
-
-	return conditionstring;
 end
 
 --------------------------------------------------------------

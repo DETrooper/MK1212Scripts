@@ -144,8 +144,7 @@ end
 
 function Find_Strongest_Faction_HRE_Elections(required_states)
 	local factions = {};
-	local strongest_faction = nil;
-	local strongest_faction_strength = 0;
+	local strongest_faction;
 
 	if not required_states or (required_states and next(required_states) == nil) then
 		required_states = {};
@@ -165,35 +164,17 @@ function Find_Strongest_Faction_HRE_Elections(required_states)
 		local faction_name = HRE_FACTIONS[i];
 		local faction = cm:model():world():faction_by_key(faction_name);
 		local faction_state = HRE_Get_Faction_State(faction_name);
+		local factions = {};
 
-		for i = 1, #required_states do
-			if faction_state == required_states[i] then
-				local faction_strength = (faction:region_list():num_items() * 10) + (faction:num_allies() * 15);
-
-				local forces = faction:military_force_list();
-
-				for i = 0, forces:num_items() - 1 do
-					local force = forces:item_at(i);
-					local unit_list = forces:item_at(i):unit_list();
-
-					faction_strength = faction_strength + unit_list:num_items();
-				end
-
-				table.insert(factions, {faction_name, faction_strength});
-			end
+		if faction:is_human() or HasValue(required_states, faction_state) then
+			table.insert(factions);
 		end
 	end
 
-	for i = 1, #factions do
-		if factions[i][2] > strongest_faction_strength then
-			strongest_faction = factions[i][1];
-			strongest_faction_strength = factions[i][2];
-		end
-	end
+	strongest_faction = Get_Strongest_Faction(factions);
 
-	if strongest_faction == nil then
+	if not strongest_faction then
 		-- Still haven't found a faction to return. Pick one at random that isn't the emperor.
-
 		local random_faction = HRE_FACTIONS[math.random(#HRE_FACTIONS)];
 
 		while HRE_FACTIONS_STATES[random_faction] == "emperor" do

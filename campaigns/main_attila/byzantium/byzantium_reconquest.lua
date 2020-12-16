@@ -37,6 +37,92 @@ function Add_Byzantium_Reconquest_Listeners()
 			true
 		);
 	end
+
+	if cm:is_multiplayer() == false then
+		Register_Decision(
+			"restore_roman_empire", 
+			function() 
+				local faction_name = cm:get_local_faction();
+				local has_regions_africa = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_AFRICA);
+				local has_regions_anatolia = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ANATOLIA);
+				--local has_regions_cyrenaica = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_CYRENAICA);
+				local has_regions_dalmatia = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_DALMATIA);
+				local has_regions_egypt = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_EGYPT);
+				local has_regions_italy = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ITALY);
+				local has_regions_greece = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_GREECE);
+				local has_regions_oriens = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ORIENS);
+			
+				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Byzantine Empire.\n([[rgba:8:201:27:150]]Y[[/rgba]]) - The Roman Empire does not exist.\n";
+			
+				if LATIN_EMPIRE_DEAD == true then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - The Latin Empire does not exist.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - The Latin Empire does not exist.\n";
+				end
+
+				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
+				end
+			
+				if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == BYZANTINE_EMPIRE_FACTION then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION["att_reg_thracia_constantinopolis"]..".\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION["att_reg_thracia_constantinopolis"]..".\n";
+				end
+			
+				if has_regions_greece == true then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Greece.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Greece.\n";
+				end
+			
+				if has_regions_anatolia == true then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Anatolia.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Anatolia.\n";
+				end
+			
+				if has_regions_oriens == true then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the Levant.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the Levant.\n";
+				end
+			
+				if has_regions_egypt == true then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Egypt.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Egypt.\n";
+				end
+				
+				if has_regions_africa == true then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Tunisia and Tripolitania.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Tunisia and Tripolitania.\n";
+				end
+			
+				if has_regions_italy == true then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Italy.\n";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Italy.\n";
+				end
+			
+				if has_regions_dalmatia == true then
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Dalmatia.";
+				else
+					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Dalmatia.";
+				end
+			
+				conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Roman Empire[[/rgba]].";
+			
+				return conditionstring;
+			end, 
+			REGIONS_ROME, 
+			{map_name = "kingdom_roman_empire_map", x = "1200", y = "900", map_pips = REGIONS_ROME_FACTION_PIPS_LOCATIONS},
+			Roman_Empire_Restored
+		);
+	end
 end
 
 function FactionTurnStart_Byzantium_Regions_Check(context)
@@ -166,7 +252,7 @@ function Byzantium_Regions_Check(faction_name)
 	if ROMAN_EMPIRE_RESTORED == false and LATIN_EMPIRE_DEAD == true and has_constantinople == true and has_regions_africa == true and has_regions_anatolia == true and has_regions_dalmatia == true and has_regions_egypt == true and has_regions_italy == true and has_regions_greece == true and has_regions_oriens == true then
 		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
 			Roman_Empire_Restored(faction_name);
-		else
+		elseif (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
 			Enable_Decision("restore_roman_empire");
 		end
 	end
@@ -200,77 +286,6 @@ function Roman_Empire_Restored(faction_name)
 
 	cm:remove_listener("FactionTurnStart_Byzantium_Regions_Check");
 	cm:remove_listener("CharacterEntersGarrison_Byzantium_Regions_Check");
-end
-
-function GetConditionsString_Roman_Empire()
-	local has_regions_africa = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_AFRICA);
-	local has_regions_anatolia = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ANATOLIA);
-	--local has_regions_cyrenaica = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_CYRENAICA);
-	local has_regions_dalmatia = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_DALMATIA);
-	local has_regions_egypt = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_EGYPT);
-	local has_regions_italy = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ITALY);
-	local has_regions_greece = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_GREECE);
-	local has_regions_oriens = Has_Required_Regions(BYZANTINE_EMPIRE_FACTION, BYZ_REGIONS_ORIENS);
-
-	local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Byzantine Empire.\n([[rgba:8:201:27:150]]Y[[/rgba]]) - The Roman Empire does not exist.\n";
-
-	if LATIN_EMPIRE_DEAD == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - The Latin Empire does not exist.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - The Latin Empire does not exist.\n";
-	end
-
-	if cm:model():world():region_manager():region_by_key("att_reg_thracia_constantinopolis"):owning_faction():name() == BYZANTINE_EMPIRE_FACTION then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION["att_reg_thracia_constantinopolis"]..".\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the region of "..REGIONS_NAMES_LOCALISATION["att_reg_thracia_constantinopolis"]..".\n";
-	end
-
-	if has_regions_greece == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Greece.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Greece.\n";
-	end
-
-	if has_regions_anatolia == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Anatolia.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Anatolia.\n";
-	end
-
-	if has_regions_oriens == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of the Levant.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of the Levant.\n";
-	end
-
-	if has_regions_egypt == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Egypt.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Egypt.\n";
-	end
-	
-	if has_regions_africa == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Tunisia and Tripolitania.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Tunisia and Tripolitania.\n";
-	end
-
-	if has_regions_italy == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Italy.\n";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Italy.\n";
-	end
-
-	if has_regions_dalmatia == true then
-		conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Own the entirety of Dalmatia.";
-	else
-		conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Own the entirety of Dalmatia.";
-	end
-
-	conditionstring = conditionstring.."\n\nEffects:\n\n- Become the [[rgba:255:215:0:215]]Roman Empire[[/rgba]].";
-
-	return conditionstring;
 end
 
 --------------------------------------------------------------
