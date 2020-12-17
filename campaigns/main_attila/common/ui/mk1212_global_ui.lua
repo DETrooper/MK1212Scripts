@@ -13,6 +13,7 @@ local convert_panel_open = false;
 
 DIPLOMACY_SELECTED_FACTION = nil;
 DIPLOMACY_PANEL_OPEN = false;
+MISSION_PANEL_OPEN = false;
 SETTLEMENT_PANEL_OPEN = false;
 
 function Add_MK1212_Global_UI_Listeners()
@@ -82,6 +83,8 @@ function OnPanelOpenedCampaign_Global_UI(context)
 		DIPLOMACY_PANEL_OPEN = true;
 
 		cm:add_time_trigger("diplo_hud_check", 0.0);
+	elseif context.string == "objectives_screen" then
+		MISSION_PANEL_OPEN = true;
 	elseif context.string == "clan" then
 		cm:add_time_trigger("Faction_Panel_Convert_Check", 0.0);
 	end
@@ -93,6 +96,8 @@ function OnPanelClosedCampaign_Global_UI(context)
 	elseif context.string == "diplomacy_dropdown" then
 		DIPLOMACY_PANEL_OPEN = false;
 		DIPLOMACY_SELECTED_FACTION = nil;
+	elseif context.string == "objectives_screen" then
+		MISSION_PANEL_OPEN = false;
 	end
 end
 

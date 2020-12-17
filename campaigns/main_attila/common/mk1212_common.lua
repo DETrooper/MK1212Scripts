@@ -72,13 +72,13 @@ function Add_MK1212_Common_Listeners()
 		function(context) CharacterPerformsOccupationDecisionRaze_Global(context) end,
 		true
 	);
-	--[[cm:add_listener(
+	cm:add_listener(
 		"RegionRebels_Global",
 		"RegionRebels",
 		true,
 		function(context) RegionRebels_Global(context) end,
 		true
-	);]]--
+	);
 	cm:add_listener(
 		"SettlementSelected_Global",
 		"SettlementSelected",
@@ -138,7 +138,7 @@ end
 function FactionTurnEnd_Global(context)
 	Religion_Check(context:faction());
 
-	-- Check if any single-unit separatist rebellion stacks have spawned. If so, give them more units!
+	-- Separatist rebels take attrition, so we need to make sure they don't.
 	local faction_list = cm:model():world():faction_list();
 
 	for i = 0, faction_list:num_items() - 1 do
@@ -146,21 +146,15 @@ function FactionTurnEnd_Global(context)
 		local faction_name = faction:name();
 
 		if string.find(faction_name, "separatist") then
-			local forces = faction:military_force_list();
+			if faction:region_list():num_items() == 0 then
+				local forces = faction:military_force_list();
 
-			for j = 0, forces:num_items() - 1 do
-				local military_force = forces:item_at(j);
+				for j = 0, forces:num_items() - 1 do
+					local military_force = forces:item_at(j);
 
-				if military_force:unit_list():num_items() == 1 then
-					local unit_list = Generate_Unit_List(faction_name, 8);
-
-					if unit_list then
-						for k = 1, #unit_list do
-							cm:add_unit_to_force(unit_list[k], military_force:command_queue_index());
-						end
+					if military_force:unit_list():num_items() == 4 then
+						cm:apply_effect_bundle_to_force("mk_bundle_army_no_desertion", military_force:command_queue_index(), 5);
 					end
-
-					cm:apply_effect_bundle_to_force("mk_bundle_army_no_desertion", military_force:command_queue_index(), 5);
 				end
 			end
 		end
@@ -207,41 +201,6 @@ function CharacterTurnStart_Global(context)
 	-- Apply old age traits to induce death in older characters. Otherwise they can live to like 140+ for some reason.
 	Check_Character_Age(context:character(), true);
 end
-
---[[function RegionRebels_Global(context)
-	local faction_list = cm:model():world():faction_list();
-
-	for i = 0, faction_list:num_items() - 1 do
-		local faction = faction_list:item_at(i);
-		local faction_name = faction:name();
-
-		if string.find(faction_name, "separatist") then
-			local faction_characters = faction:character_list();
-
-			if faction_characters:num_items() > 0 then
-				for j = 0, faction_characters:num_items() - 1 do
-					local character = faction_characters:item_at(j);
-
-					if character:has_region() and character:region():name() == context:region():name() then
-						local military_force = character:military_force();
-
-						if military_force:unit_list():num_items() == 1 then
-							local unit_list = Generate_Unit_List(faction_name, 8);
-
-							if unit_list then
-								for k = 1, #unit_list do
-									cm:add_unit_to_force(unit_list[k], military_force:command_queue_index());
-								end
-							end
-
-							cm:apply_effect_bundle_to_characters_force("mk_bundle_army_no_desertion", character:cqi(), 5, true);
-						end
-					end
-				end
-			end
-		end
-	end
-end]]--
 
 function OnSettlementSelected_Global(context)
 	local region_name = context:garrison_residence():region():name();

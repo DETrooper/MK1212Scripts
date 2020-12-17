@@ -342,6 +342,12 @@ function OnComponentLClickUp_Pope_UI(context)
 		if context.string == "button_ok" or context.string == "root" then
 			CloseCollegeOfCardinalsPanel(false);
 		end]]--
+	elseif context.string == "button_missions" then
+		cm:add_time_trigger("Crusade_Mission_UI_Check", 0.0);
+	elseif MISSION_PANEL_OPEN == true then
+		if context.string == "tab_missions" or (context.string ~= "root" and UIComponent(UIComponent(context.component):Parent()):Id() == "button_group") then
+			cm:add_time_trigger("Crusade_Mission_UI_Check", 0.0);
+		end
 	elseif CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 	 	if context.string == "button_minimise" or context.string == "button_recruitment" or context.string == "button_mercenaries" or context.string == "root" then
 			CloseCrusaderRecruitmentPanel(false);
@@ -461,6 +467,23 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 			end
 
 			CRUSADE_END_EVENT_OPEN = false;
+		else -- Ensure crusade mission duration is in sync with the actual crusade duration as the mission can be issued late.
+			local root = cm:ui_root();
+			--local tx_title_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "title_plaque", "tx_title"});
+			local event_mission_uic = find_uicomponent_by_table(root, {"panel_manager", "events", "event_mission"});
+
+			--if tx_title_uic and tx_title_uic:GetStateText() == "Mission Issued" then
+			if event_mission_uic:Visible() then
+				local dy_subtitle_uic = UIComponent(event_mission_uic:Find("dy_subtitle"));
+
+				-- Is the mission a crusade mission?
+				if string.find(dy_subtitle_uic:GetStateText(), UI_LOCALISATION["pope_crusade_mission_title_prefix"]) then
+					local dy_extra_info_uic = UIComponent(event_mission_uic:Find("dy_extra_info"));
+					local turns = tostring((NEXT_CRUSADE_START_TURN + CRUSADE_DURATION) - cm:model():turn_number());
+
+					dy_extra_info_uic:SetStateText("Turns remaining:  "..tostring(turns));
+				end
+			end
 		end
 	end
 
@@ -514,6 +537,17 @@ function TimeTrigger_Pope_UI(context)
 
 		cm:add_time_trigger("Check_Army_Size", 0.0);
 		cm:add_time_trigger("Reselect_Crusader_Recruitment_Button", 0.0);
+	elseif context.string == "Crusade_Mission_UI_Check" then
+		local dy_title_uic = find_uicomponent_by_table(cm:ui_root(), {"objectives_screen", "TabGroup", "tab_missions", "missions", "dy_title"});
+		local dy_turns_uic = find_uicomponent_by_table(cm:ui_root(), {"objectives_screen", "TabGroup", "tab_missions", "missions", "subpanel_reward", "dy_turns"});
+
+		if dy_title_uic and dy_turns_uic then
+			if string.find(dy_title_uic:GetStateText(), UI_LOCALISATION["pope_crusade_mission_title_prefix"]) then
+				local turns = tostring((NEXT_CRUSADE_START_TURN + CRUSADE_DURATION) - cm:model():turn_number());
+
+				dy_turns_uic:SetStateText(tostring(turns));
+			end
+		end
 	end
 end
 

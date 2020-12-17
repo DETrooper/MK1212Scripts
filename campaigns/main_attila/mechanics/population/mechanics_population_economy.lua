@@ -43,7 +43,7 @@ function FactionTurnStart_Population_Economy(context)
 				Apply_Region_Economy_Factionwide(context:faction());
 			end
 		else
-			Apply_Horde_Economy_Factionwide(context:faction());
+			--Apply_Horde_Economy_Factionwide(context:faction());
 		end
 	end
 end

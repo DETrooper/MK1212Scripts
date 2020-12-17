@@ -11808,6 +11808,7 @@ UI_LOCALISATION = {
 	["pope_crusade_button_turns_pt1"] = "There are ",
 	["pope_crusade_button_turns_pt2"] = " turns of the Crusade left!",
 	["pope_crusade_button_war"] = "Send this army on Crusade!\n\n[[rgba:230:0:0:150]]Note that clicking this button will declare war![[/rgba]]",
+	["pope_crusade_mission_title_prefix"] = "Crusade for",
 	["pope_crusader_recruitment"] = "Crusader Recruitment",
 	["pope_crusader_recruitment_tooltip"] = "\n\nLeft-click to recruit this Crusader unit.",
 	["pope_execution_tooltip"] = "\n\n[[rgba:230:0:0:150]]Executing the captives of a fellow Catholic faction will result in the loss of Papal Favour![[/rgba]]",
