@@ -60,7 +60,7 @@ function Add_Kingdom_Persia_Listeners()
 				return conditionstring;
 			end, 
 			REGIONS_PERSIA, 
-			{map_name = "kingdom_persia_map", x = "650", y = "650", map_pips = REGIONS_PERSIA_FACTION_PIPS_LOCATIONS},
+			{map_name = "kingdom_persia_map", x = "650", y = "650", map_pips = REGIONS_ILKHANATE_PERSIA_FACTION_PIPS_LOCATIONS},
 			Persian_Empire_Formed
 		);
 

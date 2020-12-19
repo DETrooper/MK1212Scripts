@@ -1,5 +1,3 @@
-
-
 -------------------------------------------------------
 -------------------------------------------------------
 --	EVENT HANDLER
@@ -7,6 +5,9 @@
 -------------------------------------------------------
 
 -- Minor edits by DETrooper to add better support for custom contexts and triggering custom events.
+
+local callbacks_listed = false;
+local dev = require("lua_scripts/dev");
 
 __event_handler = nil;
 
@@ -95,7 +96,6 @@ function event_handler:add_listener(new_name, new_event, new_condition, new_call
 end;
 
 function event_handler:attach_to_event(eventname)
-
 	for i = 1, #self.attached_events do
 		if self.attached_events[i].name == eventname then
 			-- we're already attached
@@ -116,8 +116,11 @@ function event_handler:attach_to_event(eventname)
 	table.insert(self.attached_events, event_to_attach);
 end;
 
-function event_handler:event_callback(eventname, context)	
-	-- self:list_events();
+function event_handler:event_callback(eventname, context)
+	--[[if not callbacks_listed and eventname == "FactionTurnStart" then
+		self:list_events();
+		callbacks_listed = true;
+	end]]--
 	
 	-- make a list of callbacks to fire and listeners to remove. We can't call the callbacks whilst
 	-- processing the list because the callbacks may alter the list length, and we can't rescan because
@@ -140,8 +143,16 @@ function event_handler:event_callback(eventname, context)
 	
 	-- clean out all the listeners that have been marked for removal
 	self:clean_listeners();
-	
+
+	--[[if eventname == "FactionTurnStart" then
+		dev.log("\n");
+	end]]--
+
 	for i = 1, #callbacks_to_call do
+		--[[if eventname == "FactionTurnStart" then
+			dev.log(tostring(callbacks_to_call[i]));
+		end]]--
+
 		callbacks_to_call[i](context);
 	end;
 end;
@@ -161,11 +172,11 @@ end;
 function event_handler:remove_listener(name_to_remove, start_point)
 	local start_point = start_point or 1;
 	
-	-- print("eh:remove_listener(" .. tostring(name_to_remove) .. ", " .. tostring(start_point) .. ") called. #self.listeners is " .. tostring(#self.listeners));
+	-- dev.log("eh:remove_listener(" .. tostring(name_to_remove) .. ", " .. tostring(start_point) .. ") called. #self.listeners is " .. tostring(#self.listeners));
 
 	for i = start_point, #self.listeners do
-		-- print("\tchecking listener " .. i);
-		-- print("\t\tlistener name is " .. self.listeners[i].name);
+		-- dev.log("\tchecking listener " .. i);
+		-- dev.log("\t\tlistener name is " .. self.listeners[i].name);
 		if self.listeners[i].name == name_to_remove then
 			table.remove(self.listeners, i);
 			--rescan
@@ -176,26 +187,24 @@ function event_handler:remove_listener(name_to_remove, start_point)
 end;
 
 function event_handler:list_events()
-	print("**************************************");
-	print("**************************************");
-	print("**************************************");
-	print("Event Handler attached events");
-	print("**************************************");
+	dev.log("**************************************");
+	dev.log("Event Handler attached events");
+	dev.log("**************************************");
 	
 	local attached_events = self.attached_events;
 	for i = 1, #attached_events do
-		print(i .. "\tname:\t\t" .. attached_events[i].name .. "\tcallback:" .. tostring(attached_events[i].callback));
+		dev.log(i .. "\tname:\t\t" .. attached_events[i].name .. "\tcallback:" .. tostring(attached_events[i].callback));
 	end;
-	print("**************************************");
-	print("Event Handler listeners");
-	print("**************************************");
+	dev.log("**************************************");
+	dev.log("Event Handler listeners");
+	dev.log("**************************************");
 	
 	local listeners = self.listeners;
 	for i = 1, #listeners do
 		local l = listeners[i];
-		print(i .. ":\tname:" .. tostring(l.name) .. "\tevent:" .. tostring(l.event) .. "\tcondition:" .. tostring(l.condition) .. "\tcallback:" .. tostring(l.callback) .. "\tpersistent:" .. tostring(l.persistent));
+		dev.log(i .. ":\tname:" .. tostring(l.name) .. "\tevent:" .. tostring(l.event) .. "\tcondition:" .. tostring(l.condition) .. "\tcallback:" .. tostring(l.callback) .. "\tpersistent:" .. tostring(l.persistent));
 	end;
-	print("**************************************");
+	dev.log("**************************************");
 end;
 
 function event_handler:register_event(event)

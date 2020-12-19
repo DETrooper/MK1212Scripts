@@ -119,7 +119,7 @@ function Add_Pope_Listeners()
 end
 
 function CharacterBecomesFactionLeader_Pope(context)
-	if PAPAL_FAVOUR_SYSTEM_ACTIVE and not AUTOMATIC_POPE_SELECTION then
+	if PAPAL_FAVOUR_SYSTEM_ACTIVE --[[and not AUTOMATIC_POPE_SELECTION]] then
 		local faction_name = context:character():faction():name();
 
 		if faction_name == PAPAL_STATES_KEY then
@@ -145,16 +145,11 @@ function FactionTurnStart_Pope(context)
 		end
 	end
 
-	if context:faction():is_human() and AUTOMATIC_POPE_SELECTION then
+	if context:faction():is_human() --[[and AUTOMATIC_POPE_SELECTION]] then
 		local turn_number = cm:model():turn_number();
 		local years_in_office = (turn_number - LAST_POPE) / 2;
 
-		if GetTurnFromYear(NextPope().year) == turn_number then
-			CURRENT_POPE = CURRENT_POPE + 1;
-			LAST_POPE = turn_number;
-			Pope_Changeover_Automatic();
-		elseif NextPope().year == -1 then
-			output("Next Pope is to be spawned randomly...");
+		if not NextPope() or NextPope().year == -1 then
 			-- There is no set date to install this Pope
 			-- Make sure the current Pope has served his minimum term
 			-- Give the current Pope an increasing chance of being replaced every turn
@@ -166,6 +161,20 @@ function FactionTurnStart_Pope(context)
 					CURRENT_POPE = CURRENT_POPE + 1;
 					LAST_POPE = turn_number;
 					Pope_Changeover_Automatic();
+				end
+			end
+		elseif GetTurnFromYear(NextPope().year) == turn_number then
+			CURRENT_POPE = CURRENT_POPE + 1;
+			LAST_POPE = turn_number;
+			Pope_Changeover_Automatic();
+		elseif turn_number > GetTurnFromYear(NextPope().year) then
+			-- Basically a catch if somehow the Pope transition got skipped.
+			for i = 1, #POPE_LIST do
+				if GetTurnFromYear(POPE_LIST[i].year) > turn_number then
+					CURRENT_POPE = i - 1;
+					LAST_POPE = turn_number;
+					Pope_Changeover_Automatic();
+					break;
 				end
 			end
 		end
@@ -255,14 +264,14 @@ function Pope_Changeover(name, age)
 end
 
 function NextPope()
-	if POPE_LIST[CURRENT_POPE + 1] == nil then
+	--[[if POPE_LIST[CURRENT_POPE + 1] == nil then
 		for i = 1, #POPE_LIST do
 			if POPE_LIST[i].year == -1 then
-				CURRENT_POPE = i-1;
+				CURRENT_POPE = i - 1;
 				return POPE_LIST[CURRENT_POPE + 1];
 			end
 		end
-	end
+	end]]--
 
 	return POPE_LIST[CURRENT_POPE + 1];
 end

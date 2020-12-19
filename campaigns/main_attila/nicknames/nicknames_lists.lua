@@ -22,45 +22,52 @@ HISTORICAL_CHARACTERS_TO_NICKNAMES = {
 -- Priorities should be from 1 (highest) to 3 (lowest).
 NICKNAMES = {
 	["the_arian"] = {priority = 2}, -- Religious conversion nickname.
+	["the_beloved"] = {priority = 2}, -- Has trait 'att_trait_general_status_all_popular'.
 	["the_bewitched"] = {priority = 1}, -- Has trait 'att_trait_general_physical_all_innate_deformed'.
 	["the_blind"] = {priority = 2}, -- Has trait 'att_trait_general_physical_all_blind'.
 	["the_bogomilist"] = {priority = 2}, -- Religious conversion nickname.
 	["the_bold"] = {priority = 2}, -- Won 5 offensive ambush battles.
 	["the_brave"] = {priority = 3}, -- Has trait 'att_trait_general_personality_all_bravery'.
+	["the_builder"] = {priority = 2}, -- Has trait 'att_trait_general_government_all_architect'.
 	["the_cathar"] = {priority = 2}, -- Religious conversion nickname.
 	["the_catholic"] = {priority = 2}, -- Religious conversion nickname.
 	["the_christian"] = {priority = 2}, -- Religious conversion nickname.
 	["the_conqueror"] = {priority = 3}, -- Personally conquered 10 regions.
-	["the_courageous"] = {priority = 2},
+	["the_courageous"] = {priority = 2}, -- Historical character nickname, no implementation yet.
 	["the_cruel"] = {priority = 3}, -- Executed captives 5 times.
 	["the_crusader"] = {priority = 2}, -- Has traits 'mk_trait_crusades_crusader' or 'mk_trait_crusades_crusader_king'.
+	["the_despised"] = {priority = 2}, -- Has trait 'att_trait_general_status_all_unpopular'.
+	["the_destroyer"] = {priority = 2}, -- Has trait 'att_trait_general_military_all_looter'.
 	["the_drunkard"] = {priority = 3}, -- Has trait 'att_trait_all_personality_all_drink'.
 	["the_exile"] = {priority = 2}, -- Lost the capital of the faction.
 	["the_fair"] = {priority = 3}, -- Reigned for 20 years without a revolt (while having more than 4 regions in their faction).
-	["the_fat"] = {priority = 3},
+	["the_fat"] = {priority = 3}, -- Historical character nickname, no implementation yet.
 	["the_first_crowned"] = {priority = 2}, -- Unique nickname given to the faction leader of Serbia via event.
 	["the_fool"] = {prioity = 3}, -- Has trait 'att_trait_all_personality_all_easily_deceived'.
 	["the_glorious"] = {priority = 1}, -- Formed a unique Empire.
-	["the_great"] = {priority = 1}, -- Personally conquered 30 regions.
+	["the_great"] = {priority = 1}, -- Personally conquered 25 regions.
 	["the_heretic"] = {priority = 2}, -- Religious conversion nickname.
 	["the_hero"] = {priority = 1}, -- Won 5 heroic victories.
+	["the_hideous"] = {priority = 1}, -- Has trait 'att_trait_general_physical_all_scar_disfiguring'.
 	["the_ibadi"] = {priority = 2}, -- Religious conversion nickname.
+	["the_impaler"] = {priority = 1}, -- Has trait 'att_trait_ruler_personality_all_harsh'.
 	["the_jew"] = {priority = 2}, -- Religious conversion nickname.
 	["the_lame"] = {priority = 2}, -- Has traits 'att_trait_general_physical_all_maimed_arm' or 'att_trait_general_physical_all_maimed_leg'.
-	["the_mad"] = {priority = 2}, -- Has trait 'att_trait_general_personality_all_mad'.
+	["the_mad"] = {priority = 2}, -- Has trait 'att_trait_general_personality_all_mad' or 'att_trait_ruler_personality_all_mad'.
 	["the_manichaean"] = {priority = 2}, -- Religious conversion nickname.
-	["the_merciless"] = {priority = 2}, -- Executed captives 20 times.
-	["the_noble"] = {priority = 2},
+	["the_merciless"] = {priority = 2}, -- Executed captives 15 times.
+	["the_noble"] = {priority = 2}, -- Historical character nickname, no implementation yet.
 	["the_old"] = {priority = 3}, -- Aged 65+.
 	["the_orthodox"] = {priority = 2}, -- Religious conversion nickname.
 	["the_pagan"] = {priority = 2}, -- Religious conversion nickname.
-	["the_rough"] = {priority = 3},
+	["the_rough"] = {priority = 3}, -- Historical character nickname, no implementation yet.
 	["the_ruthless"] = {priority = 2}, -- Has trait 'att_trait_general_military_all_high_casualties'.
+	["the_shadow"] = {priority = 2}, -- Has trait 'att_trait_ruler_government_all_spymaster'.
 	["the_shiite"] = {priority = 2}, -- Religious conversion nickname.
 	["the_strong"] = {priority = 3}, -- Has trait 'att_trait_all_physical_all_healthy'.
 	["the_sunni"] = {priority = 2}, -- Religious conversion nickname.
-	["the_survivor"] = {priority = 2},
-	["the_terrible"] = {priority = 2}, -- Has trait 'att_trait_general_military_all_looter'.
+	["the_survivor"] = {priority = 2}, -- Has trait 'att_trait_general_physical_all_scar_distinguishing'.
+	["the_terrible"] = {priority = 2}, -- Has trait 'att_trait_ruler_personality_all_unjust'.
 	["the_undefeated"] = {priority = 1}, -- Won 25 battles undefeated.
 	["the_undying"] = {priority = 2}, -- Aged 90+.
 	["the_unlucky"] = {prioirty = 3}, -- Has trait 'att_trait_all_personality_all_unlucky'.
@@ -96,12 +103,21 @@ TRAITS_TO_NICKNAMES = {
 	["att_trait_all_personality_all_easily_deceived"] = "the_fool",
 	["att_trait_all_personality_all_unlucky"] = "the_unlucky",
 	["att_trait_all_physical_all_healthy"] = "the_strong",
+	["att_trait_general_government_all_architect"] = "the_builder",
 	["att_trait_general_military_all_high_casualties"] = "the_ruthless",
-	["att_trait_general_military_all_looter"] = "the_terrible",
+	["att_trait_general_military_all_looter"] = "the_destroyer",
 	["att_trait_general_physical_all_blind"] = "the_blind",
 	["att_trait_general_physical_all_innate_deformed"] = "the_bewitched",
 	["att_trait_general_physical_all_maimed_arm"] = "the_lame",
 	["att_trait_general_physical_all_maimed_leg"] = "the_lame",
+	["att_trait_general_physical_all_scar_disfiguring"] = "the_hideous",
+	["att_trait_general_physical_all_scar_distinguishing"] = "the_survivor",
 	["att_trait_general_personality_all_bravery"] = "the_brave",
-	["att_trait_general_personality_all_mad"] = "the_mad"
+	["att_trait_general_personality_all_mad"] = "the_mad",
+	["att_trait_general_status_all_popular"] = "the_beloved",
+	["att_trait_general_status_all_unpopular"] = "the_despised",
+	["att_trait_ruler_government_all_spymaster"] = "the_shadow",
+	["att_trait_ruler_personality_all_mad"] = "the_mad",
+	["att_trait_ruler_personality_all_harsh"] = "the_impaler",
+	["att_trait_ruler_personality_all_unjust"] = "the_terrible"
 };

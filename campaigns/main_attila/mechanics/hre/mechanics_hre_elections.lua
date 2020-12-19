@@ -146,7 +146,7 @@ function Find_Strongest_Faction_HRE_Elections(required_states)
 	local factions = {};
 	local strongest_faction;
 
-	if not required_states or (required_states and next(required_states) == nil) then
+	if not required_states then
 		required_states = {};
 
 		-- Fill the required_states table with all HRE states as all will be valid.
@@ -160,14 +160,18 @@ function Find_Strongest_Faction_HRE_Elections(required_states)
 		return HRE_EMPEROR_PRETENDER_KEY;
 	end
 
+	-- Assemble a list of valid factions.
 	for i = 1, #HRE_FACTIONS do
 		local faction_name = HRE_FACTIONS[i];
 		local faction = cm:model():world():faction_by_key(faction_name);
-		local faction_state = HRE_Get_Faction_State(faction_name);
-		local factions = {};
 
-		if faction:is_human() or HasValue(required_states, faction_state) then
-			table.insert(factions);
+		if not faction:is_null_interface() and FactionIsAlive(faction_name) then
+			local faction_state = HRE_Get_Faction_State(faction_name);
+			local factions = {};
+
+			if faction:is_human() or HasValue(required_states, faction_state) then
+				table.insert(factions, faction_name);
+			end
 		end
 	end
 
@@ -175,13 +179,13 @@ function Find_Strongest_Faction_HRE_Elections(required_states)
 
 	if not strongest_faction then
 		-- Still haven't found a faction to return. Pick one at random that isn't the emperor.
-		local random_faction = HRE_FACTIONS[math.random(#HRE_FACTIONS)];
+		--[[local random_faction = HRE_FACTIONS[math.random(#HRE_FACTIONS)];
 
 		while HRE_FACTIONS_STATES[random_faction] == "emperor" do
 			random_faction = HRE_FACTIONS[math.random(#HRE_FACTIONS)];
 		end
 
-		strongest_faction = random_faction;
+		strongest_faction = random_faction;]]--
 	end
 
 	return strongest_faction;
@@ -288,10 +292,14 @@ function Check_Faction_Votes_HRE_Elections(faction_name)
 
 		if faction_state == "loyal" or faction_state == "puppet" or faction_state == "emperor" then
 			if emperor_alive then
-				Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
+				if CURRENT_HRE_REFORM == 0 and HRE_FACTIONS_VOTES[HRE_EMPEROR_KEY] then
+					Cast_Vote_For_Factions_Candidate_HRE(faction_name, HRE_EMPEROR_KEY);
+				else
+					Cast_Vote_For_Faction_HRE(faction_name, HRE_EMPEROR_KEY);
+				end
 			else
 				-- Emperor faction is dead, so find strongest faction to elect emperor from among the loyalists' ranks.
-				Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Faction_HRE_Elections({"loyal", "puppet"}));
+				Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Faction_HRE_Elections({"loyal", "puppet"}) or faction_name);
 			end
 		elseif faction_state == "neutral" then
 			if emperor_alive then
@@ -309,7 +317,7 @@ function Check_Faction_Votes_HRE_Elections(faction_name)
 		elseif faction_state == "ambitious" then
 			Cast_Vote_For_Faction_HRE(faction_name, faction_name);
 		elseif faction_state == "malcontent" or faction_state == "discontent" then
-			Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Faction_HRE_Elections({"malcontent", "discontent", "ambitious"}));
+			Cast_Vote_For_Faction_HRE(faction_name, Find_Strongest_Faction_HRE_Elections({"malcontent", "discontent", "ambitious"}) or faction_name);
 		else
 			-- Faction doesn't have a state?
 			HRE_State_Check(faction_name);
@@ -333,14 +341,18 @@ function Calculate_Num_Votes_HRE_Elections(faction_name)
 end
 
 function Cast_Vote_For_Faction_HRE(faction_name, candidate_faction_name)
-	if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, faction_name)) then
-		HRE_FACTIONS_VOTES[faction_name] = candidate_faction_name;
+	if faction_name and candidate_faction_name then
+		if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, faction_name)) then
+			HRE_FACTIONS_VOTES[faction_name] = candidate_faction_name;
+		end
 	end
 end
 
 function Cast_Vote_For_Factions_Candidate_HRE(faction_name, supporting_faction_name)
-	if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, faction_name)) then
-		HRE_FACTIONS_VOTES[faction_name] = HRE_FACTIONS_VOTES[supporting_faction_name];
+	if faction_name and supporting_faction_name and HRE_FACTIONS_VOTES[supporting_faction_name] then
+		if CURRENT_HRE_REFORM == 0 or (CURRENT_HRE_REFORM > 0 and HasValue(HRE_FACTIONS_ELECTORS, faction_name)) then
+			HRE_FACTIONS_VOTES[faction_name] = HRE_FACTIONS_VOTES[supporting_faction_name];
+		end
 	end
 end
 

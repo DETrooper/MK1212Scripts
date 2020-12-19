@@ -197,13 +197,13 @@ function Check_Character_Nickname(character)
 			end
 		end
 
-		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].regions_taken >= 30 then
+		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].regions_taken >= 25 then
 			Add_Character_Nickname(cqi, "the_great", false);
 		elseif CHARACTERS_TO_NICKNAME_STATS[cqi_str].regions_taken >= 10 then
 			Add_Character_Nickname(cqi, "the_conqueror", false);
 		end
 
-		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].captives_killed >= 20 then
+		if CHARACTERS_TO_NICKNAME_STATS[cqi_str].captives_killed >= 15 then
 			Add_Character_Nickname(cqi, "the_merciless", false);
 		elseif CHARACTERS_TO_NICKNAME_STATS[cqi_str].captives_killed >= 5 then
 			Add_Character_Nickname(cqi, "the_cruel", false);
