@@ -88,7 +88,7 @@ function FactionTurnStart_Vassal_Tracking(context)
 	local faction_name = context:faction():name();
 	local faction_is_human = context:faction():is_human();
 
-	if FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] == nil then
+	if not FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] then
 		FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] = {};
 	end
 
@@ -96,8 +96,9 @@ function FactionTurnStart_Vassal_Tracking(context)
 		local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED[faction_name][i];
 		local vassal_faction = cm:model():world():faction_by_key(vassal_faction_name);
 
-		if FactionIsAlive(vassal_faction_name) ~= true or vassal_faction:has_home_region() ~= true then
-			
+		if vassal_faction:region_list():num_items() < 1 then
+			Faction_Unvassalized(faction_name, vassal_faction_name);
+			break;
 		end
 	end
 end
@@ -190,7 +191,7 @@ function TimeTrigger_Vassal_Tracking(context)
 		recipient = nil;
 		vassal = nil;
 	elseif context.string == "diplo_vassal_check" then
-		if proposer  and recipient  and vassal  then
+		if proposer and recipient  and vassal  then
 			if recipient == vassal then
 				--dev.log("RECIPIENT == VASSAL");
 
@@ -238,7 +239,7 @@ function Faction_Unvassalized(master_faction_name, vassalized_faction_name)
 	local master_faction = cm:model():world():faction_by_key(master_faction_name);
 	local vassalized_faction = cm:model():world():faction_by_key(vassalized_faction_name);
 
-	if FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name] == nil then
+	if not FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name] then
 		FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name] = {};
 	else
 		for i = 1, #FACTIONS_TO_FACTIONS_VASSALIZED[master_faction_name] do

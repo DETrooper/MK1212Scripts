@@ -128,6 +128,18 @@ function FactionTurnStart_Annex(context)
 
 				if FACTIONS_VASSALIZED_ANNEXATION_TIME[vassalized_faction_name] == 0 then
 					cm:grant_faction_handover(faction_name, vassalized_faction_name, cm:model():turn_number() - 1, cm:model():turn_number() - 1, context);
+
+					if POPULATION_REGIONS_POPULATIONS then
+						local regions = context:faction():region_list();
+			
+						for i = 0, regions:num_items() - 1 do
+							local region = regions:item_at(i);
+			
+							cm:apply_effect_bundle_to_region("mk_bundle_population_bundle_region", region:name(), 0);
+						end
+			
+						Apply_Region_Economy_Factionwide(context:faction());
+					end
 					
 					local faction_string = "factions_screen_name_"..vassalized_faction_name;
 

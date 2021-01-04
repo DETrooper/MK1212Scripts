@@ -525,6 +525,12 @@ function HRE_Destroyed_Check()
 	end
 
 	if not hre_faction_alive then
+		local faction_list = cm:model():world():faction_list();
+
+		for i = 0, faction_list:num_items() - 1 do
+			HRE_Remove_Unlawful_Territory_Effect_Bundles(faction_list:item_at(i):name());
+		end
+
 		HRE_DESTROYED = true;
 
 		cm:show_message_event(

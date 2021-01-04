@@ -163,6 +163,7 @@ function Pass_HRE_Reform(reform_number)
 	elseif reform_number == 8 then
 		
 	elseif reform_number == 9 then
+		local faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
 		local turn_number = cm:model():turn_number();
 
 		for i = 1, #HRE_FACTIONS do
@@ -173,6 +174,20 @@ function Pass_HRE_Reform(reform_number)
 			end
 		end
 
+		if POPULATION_REGIONS_POPULATIONS then
+			local regions = faction:region_list();
+
+			for i = 0, regions:num_items() - 1 do
+				local region = regions:item_at(i);
+
+				cm:apply_effect_bundle_to_region("mk_bundle_population_bundle_region", region:name(), 0);
+			end
+
+			Apply_Region_Economy_Factionwide(faction);
+		end
+
+		HRE_Remove_Imperial_Expansion_Effect_Bundles(HRE_EMPEROR_KEY);
+		HRE_Remove_Unlawful_Territory_Effect_Bundles(HRE_EMPEROR_KEY);
 		HRE_Vanquish_Pretender();
 		CloseHREPanel(false);
 
@@ -226,7 +241,7 @@ function Get_Reform_Tooltip(reform_key)
 			end
 
 			if CURRENT_HRE_REFORM < i - 1 then
-				reformstring = reformstring.."\n\n[[rgba:255:0:0:150]]The previous reform must be unlocked first![[/rgba]]";
+				reformstring = reformstring.."\n\n[[rgba:255:0:0:150]]"..UI_LOCALISATION["hre_reform_tooltip_locked"].."[[/rgba]]";
 			elseif CURRENT_HRE_REFORM == i - 1 then
 				local color1 = "[[rgba:255:0:0:150]]";
 				local color2 = "[[rgba:255:0:0:150]]";
@@ -239,9 +254,9 @@ function Get_Reform_Tooltip(reform_key)
 					color2 = "[[rgba:8:201:27:150]]";
 				end
 
-				reformstring = reformstring.."\n\n"..color1.."Imperial Authority: ("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_REFORM_COST)..")[[/rgba]]\n"..color2.."Votes: ("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(math.ceil((#HRE_FACTIONS - 1) / 2)).." Required)[[/rgba]]";
+				reformstring = reformstring.."\n\n"..color1..UI_LOCALISATION["hre_imperial_authority_prefix"].."("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_REFORM_COST)..")[[/rgba]]\n"..color2..UI_LOCALISATION["hre_votes_prefix"].."("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(math.ceil((#HRE_FACTIONS - 1) / 2))..UI_LOCALISATION["hre_votes_required"].."[[/rgba]]";
 			elseif CURRENT_HRE_REFORM > i - 1 then
-				reformstring = reformstring.."\n\nThis reform has already been unlocked!";
+				reformstring = reformstring.."\n\n[[rgba:8:201:27:150]]"..UI_LOCALISATION["hre_reform_tooltip_unlocked"].."[[/rgba]]";
 			end
 		end
 	end

@@ -43,7 +43,7 @@ function Add_HRE_Region_Listeners()
 end
 
 function FactionTurnStart_HRE_Regions(context)
-	if not HRE_DESTROYED then
+	if not HRE_DESTROYED and CURRENT_HRE_REFORM < 9 then
 		if context:faction():is_human() then
 			HRE_Check_Regions_In_Empire();
 		end

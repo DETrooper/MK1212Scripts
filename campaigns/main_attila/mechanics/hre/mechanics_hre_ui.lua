@@ -120,15 +120,15 @@ function OnComponentMouseOn_HRE_UI(context)
 
 			tltipReform:SetTooltipText(Get_Reform_Tooltip(reform_key));
 		elseif string.find(context.string, "_Reform_Button") then
-			local btnReform = UIComponent(context.component);
+			local reform_button_uic = UIComponent(context.component);
 
 			if cm:get_local_faction() == HRE_EMPEROR_KEY then
-				btnReform:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_pass"]);
+				reform_button_uic:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_pass"]);
 			else
 				if HasValue(HRE_REFORMS_VOTES, cm:get_local_faction()) then
-					btnReform:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_retract_vote"]);
+					reform_button_uic:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_retract_vote"]);
 				else
-					btnReform:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_vote"]);
+					reform_button_uic:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_vote"]);
 				end
 			end
 		elseif string.find(context.string, "_logo") then
@@ -248,11 +248,11 @@ function OnComponentLClickUp_HRE_UI(context)
 					if HasValue(HRE_REFORMS_VOTES, cm:get_local_faction()) then
 						Remove_Vote_For_Current_Reform_HRE(cm:get_local_faction());
 						Update_Reforms_HRE_UI(true);
-						reform_button_uic:SetTooltipText("Vote in favor of this reform.");
+						reform_button_uic:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_retract_vote"]);
 					else
 						Cast_Vote_For_Current_Reform_HRE(cm:get_local_faction());
 						Update_Reforms_HRE_UI(true);
-						reform_button_uic:SetTooltipText("Retract your vote from this reform.");
+						reform_button_uic:SetTooltipText(UI_LOCALISATION["hre_reform_tooltip_retract_vote"]);
 					end
 				end
 			end
@@ -540,20 +540,26 @@ function Update_Reforms_HRE_UI(hover_override)
 
 	for i = 1, #HRE_REFORMS do
 		local btnReform = UIComponent(panReformsView:Find(HRE_REFORMS[i]["key"].."_Reform_Button"));
+		local btnTooltip = UIComponent(panReformsView:Find(HRE_REFORMS[i]["key"].."_Reform_Tooltip"));
 
-		btnReform:SetState("inactive");
+		if CURRENT_HRE_REFORM >= i then
+			-- Make button for reform disappear if it has already been passed.
+			btnReform:SetVisible(false);
+		else
+			btnReform:SetState("inactive");
 
-		if CURRENT_HRE_REFORM == i - 1 then
-			if cm:get_local_faction() == HRE_EMPEROR_KEY then
-				if HRE_IMPERIAL_AUTHORITY == HRE_REFORM_COST and #HRE_REFORMS_VOTES >= math.ceil((#HRE_FACTIONS - 1) / 2) then
-					btnReform:SetState("active");
-				end
-			else
-				if HasValue(HRE_FACTIONS, cm:get_local_faction()) then
-					if hover_override == true then
-						btnReform:SetState("hover");
-					else
+			if CURRENT_HRE_REFORM == i - 1 then
+				if cm:get_local_faction() == HRE_EMPEROR_KEY then
+					if HRE_IMPERIAL_AUTHORITY == HRE_REFORM_COST and #HRE_REFORMS_VOTES >= math.ceil((#HRE_FACTIONS - 1) / 2) then
 						btnReform:SetState("active");
+					end
+				else
+					if HasValue(HRE_FACTIONS, cm:get_local_faction()) then
+						if hover_override == true then
+							btnReform:SetState("hover");
+						else
+							btnReform:SetState("active");
+						end
 					end
 				end
 			end
