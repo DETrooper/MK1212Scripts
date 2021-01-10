@@ -127,6 +127,8 @@ function TimeTrigger_Slots_UI(context)
 		local player_provinces_uic = UIComponent(regions_dropdown_uic:Find("player_provinces"));
 		local list_box_uic = UIComponent(player_provinces_uic:Find("list_box"));
 
+		tab_regions_uic:SimulateClick();
+
 		for i = 0, list_box_uic:ChildCount() - 1 do
 			local child = UIComponent(list_box_uic:Find(i));
 

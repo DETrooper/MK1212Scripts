@@ -166,7 +166,7 @@ function TimeTrigger_Nicknames(context)
 			end
 		end
 
-		if DIPLOMACY_SELECTED_FACTION then
+		if DIPLOMACY_SELECTED_FACTION and DIPLOMACY_SELECTED_FACTION ~= cm:get_local_faction() then
 			local faction_right_faction_leader = cm:model():world():faction_by_key(DIPLOMACY_SELECTED_FACTION):faction_leader();
 
 			if faction_right_faction_leader then

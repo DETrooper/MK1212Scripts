@@ -209,7 +209,43 @@ function OnSettlementSelected_Global(context)
 end
 
 function Check_Character_Age(character, random)
-	local character_age = character:age();
+	if character:is_faction_leader() then
+		local character_age = character:age();
+
+		if character_age >= 60 then
+			local character_list = character:faction():character_list();
+			local heir_found = false;
+			
+			for i = 0, character_list:num_items() - 1 do
+				local other_character = character_list:item_at(i);
+
+				if other_character:cqi() ~= character:cqi() and other_character:character_type("general") then
+					heir_found = true;
+					break;
+				end
+			end
+
+			if not heir_found then
+				cm:spawn_character_into_family_tree(
+					character:faction():name(),		-- Faction Key
+					character:get_forename(),		-- Forename Key
+					"",								-- Family Name Key
+					"",								-- Clan Name Key
+					"", 							-- Other Name Key
+					math.random(16, 30), 			-- Age
+					true, 							-- Is Male?
+					"", 							-- Father Lookup
+					"", 							-- Mother Lookup
+					false, 							-- Is Immortal?
+					"", 							-- Art Set ID
+					true, 							-- Make Heir?
+					false							-- Is Attila?
+				);
+			end
+		end
+	end
+
+	--[[local character_age = character:age();
 	local old_trait_level = character:trait_level("mk_trait_old");
 
 	if old_trait_level == -1 then
@@ -244,7 +280,7 @@ function Check_Character_Age(character, random)
 				end
 			end
 		end
-	end
+	end]]--
 end
 
 function Check_Last_Character_Force()

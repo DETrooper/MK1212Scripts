@@ -60,7 +60,7 @@ function Add_Kingdom_Spain_Listeners()
 			
 				return conditionstring;
 			end, 
-			REGIONS_SPAIN, 
+			REGIONS_SPAIN_NO_PORTUGAL, 
 			{map_name = "kingdom_spain_map", x = "500", y = "500", map_pips = REGIONS_SPAIN_FACTION_PIPS_LOCATIONS},
 			Spanish_Kingdom_Formed
 		);

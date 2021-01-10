@@ -82,8 +82,8 @@ function Add_Nicknames_Tracking_Listeners()
 			local faction = faction_list:item_at(i);
 			local character_list = faction:character_list();
 	
-			for i = 0, character_list:num_items() - 1 do
-				local character = character_list:item_at(i);
+			for j = 0, character_list:num_items() - 1 do
+				local character = character_list:item_at(j);
 		
 				Check_Character_Nickname(character);
 			end
