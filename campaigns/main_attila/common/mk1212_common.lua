@@ -132,6 +132,19 @@ function FactionTurnStart_Global(context)
 		end
 	end
 
+	if context:faction():is_human() then
+		local faction_list = cm:model():world():faction_list();
+
+		for i = 0, faction_list:num_items() - 1 do
+			local faction = faction_list:item_at(i);
+			local faction_leader = faction:faction_leader();
+
+			if not faction_leader:is_null_interface() then
+				Check_Character_Age(faction_leader, true);
+			end
+		end
+	end
+
 	Religion_Check(context:faction());
 end
 
@@ -197,11 +210,6 @@ function CharacterPerformsOccupationDecisionRaze_Global(context)
 	end
 end
 
-function CharacterTurnStart_Global(context)
-	-- Apply old age traits to induce death in older characters. Otherwise they can live to like 140+ for some reason.
-	Check_Character_Age(context:character(), true);
-end
-
 function OnSettlementSelected_Global(context)
 	local region_name = context:garrison_residence():region():name();
 
@@ -219,7 +227,7 @@ function Check_Character_Age(character, random)
 			for i = 0, character_list:num_items() - 1 do
 				local other_character = character_list:item_at(i);
 
-				if other_character:cqi() ~= character:cqi() and other_character:character_type("general") then
+				if other_character:cqi() ~= character:cqi() and other_character:is_male() and other_character:character_type("general") and other_character:family_member():has_father() then
 					heir_found = true;
 					break;
 				end
