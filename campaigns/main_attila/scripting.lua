@@ -99,12 +99,14 @@ cm:register_first_tick_callback(
 -------------------------------------------------------
 
 require("mk1212_start");
-require("mk1212_discord");
-require("mk1212_slots");
+require("common/main");
 require("att_traits");
 
+require("mk1212_change_capital");
+require("mk1212_discord");
+require("mk1212_slots");
+
 require("byzantium/main");
-require("common/main");
 require("kingdoms/main");
 require("luckynations/main");
 require("mechanics/main");

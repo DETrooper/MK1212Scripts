@@ -11746,6 +11746,7 @@ UI_LOCALISATION = {
 	["buffer_state_prompt_heading_text"] = "Release Buffer State?",
 	["buffer_state_prompt_info_pt1"] = "Faction: ",
 	["buffer_state_prompt_info_pt2"] = "\nRegion: ",
+	["change_capital_prompt_header"] = "Run Executable to Change Capital to dy_region?",
 	["decision_close_map"] = "Close Map",
 	["decision_enact_decision"] = "Enact Decision",
 	["decision_map_button"] = "View a map of the regions required to enact this decision.",

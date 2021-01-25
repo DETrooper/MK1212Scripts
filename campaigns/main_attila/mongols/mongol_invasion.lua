@@ -18,10 +18,11 @@ INDEPENDENCE_JOCHI = false;
 INDEPENDENCE_TOLUI = false;
 MONGOL_INVASION_STARTED = false;
 MONGOL_INVASION_TURN = 15;
+MONGOL_PRECURSOR_INCIDENT_TURN = 10;
 
-MIN_ARMY_STRENGTH_FORCES = 3; -- # of armies.
-MIN_ARMY_STRENGTH_UNITS = 14; -- # of units before an army is considered too small.
-MIN_ARMY_STRENGTH_PERCENT = 65; -- # of men left in an army on average before the army is considered too small.
+local MIN_ARMY_STRENGTH_FORCES = 3; -- # of armies.
+local MIN_ARMY_STRENGTH_UNITS = 14; -- # of units before an army is considered too small.
+local MIN_ARMY_STRENGTH_PERCENT = 65; -- % of men left in an army on average before the army is considered too small.
 
 BUNDLES_APPLIED_JOCHI = {};
 BUNDLES_APPLIED_TOLUI = {};
@@ -32,10 +33,10 @@ local free_upkeep_warned_this_turn = false
 
 function Add_Mongol_Invasion_Listeners()
 	cm:add_listener(
-		"FactionTurnStart_Mongol_Preservation",
+		"FactionTurnStart_Mongols",
 		"FactionTurnStart",
 		true,
-		function(context) FactionTurnStart_Mongol_Preservation(context) end,
+		function(context) FactionTurnStart_Mongols(context) end,
 		true
 	);
 	cm:add_listener(
@@ -58,7 +59,7 @@ function Add_Mongol_Invasion_Listeners()
 				local unit_list = forces:item_at(i):unit_list();
 
 				if unit_list:num_items() < MIN_ARMY_STRENGTH_UNITS then
-					for j = 0, MIN_ARMY_STRENGTH_UNITS - unit_list:num_items() do
+					for j = 1, MIN_ARMY_STRENGTH_UNITS - unit_list:num_items() do
 						cm:add_unit_to_force("mk_mon_t1_golden_horse_archers", force:command_queue_index());
 					end
 				end
@@ -73,7 +74,7 @@ function Add_Mongol_Invasion_Listeners()
 				local unit_list = forces:item_at(i):unit_list();
 
 				if unit_list:num_items() < MIN_ARMY_STRENGTH_UNITS then
-					for j = 0, MIN_ARMY_STRENGTH_UNITS - unit_list:num_items() do
+					for j = 1, MIN_ARMY_STRENGTH_UNITS - unit_list:num_items() do
 						cm:add_unit_to_force("mk_mon_t1_ilkhan_horse_archers", force:command_queue_index());
 					end
 				end
@@ -82,13 +83,35 @@ function Add_Mongol_Invasion_Listeners()
 	end
 end
 
-function FactionTurnStart_Mongol_Preservation(context)
+function FactionTurnStart_Mongols(context)
 	local cumans = cm:model():world():faction_by_key(CUMANS_KEY);
 	local jochi = cm:model():world():faction_by_key(JOCHI_KEY);
 	local khwarazm = cm:model():world():faction_by_key(KHWARAZM_KEY);
 	local tolui = cm:model():world():faction_by_key(TOLUI_KEY);
 	local host_name = (cm:model():faction_for_command_queue_index(HUMAN_FACTIONS[1])):name();
 	local turn_number = cm:model():turn_number();
+
+	if turn_number == MONGOL_PRECURSOR_INCIDENT_TURN and context:faction():is_human() then
+		if context:faction() ~= jochi and context:faction() ~= tolui then
+			for i = 1, #REGIONS_ILKHANATE do
+				local region = cm:model():world():region_manager():region_by_key(REGIONS_ILKHANATE[i]);
+
+				if region:owning_faction():is_human() then
+					cm:trigger_incident(region:owning_faction():name(), "mk_incident_mongol_invasion_precursor");
+					return;
+				end
+			end
+
+			for i = 1, #REGIONS_GOLDEN_HORDE do
+				local region = cm:model():world():region_manager():region_by_key(REGIONS_GOLDEN_HORDE[i]);
+
+				if region:owning_faction():is_human() then
+					cm:trigger_incident(region:owning_faction():name(), "mk_incident_mongol_invasion_precursor");
+					return;
+				end
+			end
+		end
+	end
 
 	if context:faction():name() == JOCHI_KEY then
 		free_upkeep_warned_this_turn = false;

@@ -66,9 +66,11 @@ function start_game_all_factions()
 		Story_Initializer();
 		Timurid_Initializer();
 
-		--if cm:is_multiplayer() then
+		if cm:is_multiplayer() then
 			--Add_MK1212_Networking_Listeners();
-		--end
+		else
+			Add_MK1212_Change_Capital_Listeners();
+		end
 
 		if fow_disabled then
 			local region_list = cm:model():world():region_manager():region_list();

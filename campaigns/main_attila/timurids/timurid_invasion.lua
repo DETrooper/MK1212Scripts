@@ -13,11 +13,14 @@ TIMURIDS_KEY = "mk_fact_timurids";
 
 TIMURID_INVASION_STARTED = false;
 TIMURID_INVASION_TURN = 337;
+TIMURID_PRECURSOR_INCIDENT_TURN = 332;
 TIMURID_PROTECTION_TURNS = 5; -- How many turns after the invasion turn should the Timurids be protected?
+TIMURID_INVASION_ARMIES = 10;
+TIMURID_ALT_INVASION_ARMIES = 6;
 
-MIN_ARMY_STRENGTH_FORCES = 4; -- # of armies.
-MIN_ARMY_STRENGTH_UNITS = 14; -- # of units before an army is considered too small.
-MIN_ARMY_STRENGTH_PERCENT = 65; -- # of men left in an army on average before the army is considered too small.
+local MIN_ARMY_STRENGTH_FORCES = 4; -- # of armies.
+local MIN_ARMY_STRENGTH_UNITS = 14; -- # of units before an army is considered too small.
+local MIN_ARMY_STRENGTH_PERCENT = 65; -- % of men left in an army on average before the army is considered too small.
 
 function Add_Timurid_Invasion_Listeners()
 	cm:add_listener(
@@ -46,18 +49,25 @@ end
 function FactionTurnStart_Timurid_Preservation(context)
 	local turn_number = cm:model():turn_number();
 
-	if turn_number == TIMURID_INVASION_TURN and TIMURID_INVASION_STARTED == false then
+	if turn_number == TIMURID_PRECURSOR_INCIDENT_TURN and context:faction():is_human() then
+		for i = 1, #REGIONS_ILKHANATE do
+			local region = cm:model():world():region_manager():region_by_key(REGIONS_ILKHANATE[i]);
+
+			if region:owning_faction():is_human() then
+				cm:trigger_incident(region:owning_faction():name(), "mk_incident_timurid_invasion_precursor");
+				return;
+			end
+		end
+	elseif turn_number == TIMURID_INVASION_TURN and TIMURID_INVASION_STARTED == false then
 		TIMURID_INVASION_STARTED = true;
 
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_ALT_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_ALT_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
-		SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_ALT_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
+		for i = 1, TIMURID_INVASION_ARMIES do
+			SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
+		end
+
+		for i = 1, TIMURID_ALT_INVASION_ARMIES do
+			SpawnTimuridArmyInZone(TIMURIDS_KEY, TIMURID_ALT_INVASION_ARMY, "att_reg_scythia_sarai", TIMURID_SPAWN_ZONE);
+		end
 
 		cm:force_change_cai_faction_personality(TIMURIDS_KEY, "att_expansionist_dominator_aggressive_variant_cultural_dislikes_sassanids");
 		--cm:add_time_trigger("timurid_war", 0.1);
@@ -126,7 +136,7 @@ function SpawnTimuridArmyInZone(faction_name, unit_list, region, zone)
 		faction_name..tostring(x)..tostring(y)..tostring(turn_number), 	-- string id for army
 		true,
 		function(cqi)
-			--cm:apply_effect_bundle_to_characters_force("mk_bundle_army_timurid_invasion", cqi, 20, true)
+			cm:apply_effect_bundle_to_characters_force("mk_bundle_army_timurid_invasion", cqi, 25, true);
 		end
 	);
 end
