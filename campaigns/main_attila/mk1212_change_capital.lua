@@ -8,7 +8,6 @@
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
--- Todo: Fill in later.
 local regions_to_arrays = {
 	["att_reg_aegyptus_berenice"] = 120,
 	["att_reg_aegyptus_oxyrhynchus"] = 121,
@@ -304,13 +303,37 @@ function TimeTrigger_Change_Capital_UI(context)
 		end
 
 		local exe_exists = util.fileExists("faction_capital_change.exe");
+		local exe_config_exists = util.fileExists("faction_capital_change.exe.config");
 		local dll_exists = util.fileExists("faction_capital_change.dll");
 		local json_exists = util.fileExists("faction_capital_change.deps.json");
 		local json_config_exists = util.fileExists("faction_capital_change.runtimeconfig.json");
 
+
+		-- delete old files if they exist
+		if dll_exists or json_exists or json_config_exists then
+			if exe_exists then
+				os.remove("faction_capital_change.exe");
+			end
+
+			if dll_exists then
+				os.remove("faction_capital_change.dll");
+			end
+
+			if json_exists then
+				os.remove("faction_capital_change.deps.json");
+			end
+
+			if json_config_exists then
+				os.remove("faction_capital_change.runtimeconfig.json");
+			end
+
+			exe_exists = false;
+			dll_exists = false;
+			json_exists = false;
+			json_config_exists = false;
+		end
+
 		if not exe_exists or not dll_exists or not json_exists or not json_config_exists then
-			require("lua_scripts/change_capital_binaries");
-	
 			if not exe_exists then
 				local changeCapitalExe = io.open("faction_capital_change.exe", "wb");
 				local binary = "";
@@ -326,7 +349,22 @@ function TimeTrigger_Change_Capital_UI(context)
 				changeCapitalExe:close();
 			end
 
-			if not dll_exists then
+			if not exe_config_exists then
+				local changeCapitalExeConfig = io.open("faction_capital_change.exe.config", "wb");
+				local binary = "";
+					
+				for i = 1, #change_capital_exe_config_binaries do
+					local number = tonumber("0x"..change_capital_exe_config_binaries[i]);
+					local char = string.char(number);
+		
+					binary = binary..char;
+				end
+		
+				changeCapitalExeConfig:write(binary);
+				changeCapitalExeConfig:close();
+			end
+
+			--[[if not dll_exists then
 				local changeCapitalDll = io.open("faction_capital_change.dll", "wb");
 				local binary = "";
 					
@@ -369,7 +407,7 @@ function TimeTrigger_Change_Capital_UI(context)
 		
 				changeCapitalJsonConfig:write(binary);
 				changeCapitalJsonConfig:close();
-			end
+			end]]--
 		end
 	
 		local command = "faction_capital_change.exe "..tostring(region_array).." attila";

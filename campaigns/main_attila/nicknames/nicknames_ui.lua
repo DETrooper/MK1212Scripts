@@ -58,6 +58,7 @@ end
 
 function CharacterSelected_Nicknames(context)
 	cm:add_time_trigger("Character_Nickname", 0.0);
+	cm:add_time_trigger("Character_Nickname_Details", 0.0);
 end
 
 function ComponentMouseOn_Nicknames(context)
@@ -99,7 +100,7 @@ function TimeTrigger_Nicknames(context)
 					local dy_name_uic = find_uicomponent_by_table(root, {"layout", "info_panel_holder", "info_panel_background", "CharacterInfoPopup", "subpanel_character", "dy_name"});
 					local character_nickname_loc = NICKNAMES_TO_LOCALISATION[character_nickname];
 
-					if dy_name_uic then
+					if dy_name_uic and character_nickname_loc then
 						local character_name = dy_name_uic:GetStateText();
 
 						-- Make sure the character name does not already contain the nickname.
@@ -117,25 +118,32 @@ function TimeTrigger_Nicknames(context)
 
 			if character_nickname then
 				local root = cm:ui_root();
-				local dy_name_uic = find_uicomponent_by_table(root, {"panel_manager", "army_details_panel", "character_details_subpanel", "dy_name"});
-				local dy_commander_uic = find_uicomponent_by_table(root, {"panel_manager", "army_details_panel", "army_details", "tx_commander", "dy_commander"});
-				local character_nickname_loc = NICKNAMES_TO_LOCALISATION[character_nickname];
+				local army_details_panel_uic = UIComponent(root:Find("army_details_panel"));
 
-				if dy_name_uic then
-					local character_name = dy_name_uic:GetStateText();
+				if army_details_panel_uic:Visible() then
+					local character_nickname_loc = NICKNAMES_TO_LOCALISATION[character_nickname];
 
-					-- Make sure the character name does not already contain the nickname.
-					if not string.find(character_name, character_nickname_loc) then
-						dy_name_uic:SetStateText(character_name.." "..character_nickname_loc);
-					end
-				end
+					if character_nickname_loc then
+						local dy_name_uic = find_uicomponent_by_table(army_details_panel_uic, {"character_details_subpanel", "dy_name"});
+						local dy_commander_uic = find_uicomponent_by_table(army_details_panel_uic, {"army_details", "tx_commander", "dy_commander"});
 
-				if dy_commander_uic then
-					local character_commander_name = dy_commander_uic:GetStateText();
+						if dy_name_uic then
+							local character_name = dy_name_uic:GetStateText();
 
-					-- Make sure the character name does not already contain the nickname.
-					if not string.find(character_commander_name, character_nickname_loc) then
-						dy_commander_uic:SetStateText(character_commander_name.." "..character_nickname_loc);
+							-- Make sure the character name does not already contain the nickname.
+							if not string.find(character_name, character_nickname_loc) then
+								dy_name_uic:SetStateText(character_name.." "..character_nickname_loc);
+							end
+						end
+
+						if dy_commander_uic then
+							local character_commander_name = dy_commander_uic:GetStateText();
+
+							-- Make sure the character name does not already contain the nickname.
+							if not string.find(character_commander_name, character_nickname_loc) then
+								dy_commander_uic:SetStateText(character_commander_name.." "..character_nickname_loc);
+							end
+						end
 					end
 				end
 			end
@@ -155,7 +163,7 @@ function TimeTrigger_Nicknames(context)
 				local dy_name_uic = UIComponent(name_holder_uic:Find("dy_name"));
 				local character_nickname_loc = NICKNAMES_TO_LOCALISATION[character_nickname];
 
-				if dy_name_uic then
+				if dy_name_uic and character_nickname_loc then
 					local character_name = dy_name_uic:GetStateText();
 	
 					-- Make sure the character name does not already contain the nickname.
@@ -167,24 +175,28 @@ function TimeTrigger_Nicknames(context)
 		end
 
 		if DIPLOMACY_SELECTED_FACTION and DIPLOMACY_SELECTED_FACTION ~= cm:get_local_faction() then
-			local faction_right_faction_leader = cm:model():world():faction_by_key(DIPLOMACY_SELECTED_FACTION):faction_leader();
+			local faction_right = cm:model():world():faction_by_key(DIPLOMACY_SELECTED_FACTION);
 
-			if faction_right_faction_leader then
-				local character_cqi = faction_right_faction_leader:cqi();
-				local character_nickname = CHARACTERS_TO_NICKNAMES[tostring(character_cqi)];
+			if faction_right:is_null_interface() == false then
+				local faction_right_faction_leader = faction_right:faction_leader();
 
-				if character_nickname then
-					local faction_right_status_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("faction_right_status_panel"));
-					local name_holder_uic = UIComponent(faction_right_status_panel_uic:Find("name_holder"));
-					local dy_name_uic = UIComponent(name_holder_uic:Find("dy_name"));
-					local character_nickname_loc = NICKNAMES_TO_LOCALISATION[character_nickname];
+				if faction_right_faction_leader then
+					local character_cqi = faction_right_faction_leader:cqi();
+					local character_nickname = CHARACTERS_TO_NICKNAMES[tostring(character_cqi)];
 
-					if dy_name_uic then
-						local character_name = dy_name_uic:GetStateText();
-		
-						-- Make sure the character name does not already contain the nickname.
-						if not string.find(character_name, character_nickname_loc) then
-							dy_name_uic:SetStateText(character_name.." "..character_nickname_loc);
+					if character_nickname then
+						local faction_right_status_panel_uic = UIComponent(diplomacy_dropdown_uic:Find("faction_right_status_panel"));
+						local name_holder_uic = UIComponent(faction_right_status_panel_uic:Find("name_holder"));
+						local dy_name_uic = UIComponent(name_holder_uic:Find("dy_name"));
+						local character_nickname_loc = NICKNAMES_TO_LOCALISATION[character_nickname];
+
+						if dy_name_uic and character_nickname_loc then
+							local character_name = dy_name_uic:GetStateText();
+			
+							-- Make sure the character name does not already contain the nickname.
+							if not string.find(character_name, character_nickname_loc) then
+								dy_name_uic:SetStateText(character_name.." "..character_nickname_loc);
+							end
 						end
 					end
 				end
@@ -208,15 +220,18 @@ function TimeTrigger_Nicknames(context)
 				if string.find(child:Id(), "character_row_") then
 					local character_cqi = string.gsub(child:Id(), "character_row_", "");
 					local character_nickname = CHARACTERS_TO_NICKNAMES[character_cqi];
-					local character_nickname_loc = NICKNAMES_TO_LOCALISATION[character_nickname];
-					local dy_character_name_uic = UIComponent(child:Find("dy_character_name"));
 
 					if character_nickname then
-						local character_name = dy_character_name_uic:GetStateText();
+						local character_nickname_loc = NICKNAMES_TO_LOCALISATION[character_nickname];
+						local dy_character_name_uic = UIComponent(child:Find("dy_character_name"));
 
-						-- Make sure the character name does not already contain the nickname.
-						if not string.find(character_name, character_nickname_loc) then
-							dy_character_name_uic:SetStateText(character_name.." "..character_nickname_loc);
+						if dy_character_name_uic and character_nickname_loc then
+							local character_name = dy_character_name_uic:GetStateText();
+
+							-- Make sure the character name does not already contain the nickname.
+							if not string.find(character_name, character_nickname_loc) then
+								dy_character_name_uic:SetStateText(character_name.." "..character_nickname_loc);
+							end
 						end
 					end
 				end

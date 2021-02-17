@@ -39,7 +39,7 @@ m_root = nil;
 svr = ScriptedValueRegistry:new();
 tm = timer_manager:new(Timers);
 version_number = 2000;
-version_number_string = "v2.0.6";
+version_number_string = "v2.0.7";
 
 local checkbox_lucky_nations_selected = false;
 
@@ -234,7 +234,7 @@ function OnComponentLClickUp_MK1212_Frontend(context)
 end
 
 function OnComponentMouseOn_MK1212_Frontend(context)
-	if UIComponent(UIComponent(context.component):Parent())  then
+	if UIComponent(UIComponent(context.component):Parent()) then
 		local parent_id = UIComponent(UIComponent(context.component):Parent()):Id();
 	
 		if parent_id == "army_box" or parent_id == "units_box" then
