@@ -308,7 +308,6 @@ function TimeTrigger_Change_Capital_UI(context)
 		local json_exists = util.fileExists("faction_capital_change.deps.json");
 		local json_config_exists = util.fileExists("faction_capital_change.runtimeconfig.json");
 
-
 		-- delete old files if they exist
 		if dll_exists or json_exists or json_config_exists then
 			if exe_exists then
@@ -333,7 +332,9 @@ function TimeTrigger_Change_Capital_UI(context)
 			json_config_exists = false;
 		end
 
-		if not exe_exists or not dll_exists or not json_exists or not json_config_exists then
+		if not exe_exists or not exe_config_exists then
+			require("lua_scripts/change_capital_binaries");
+			
 			if not exe_exists then
 				local changeCapitalExe = io.open("faction_capital_change.exe", "wb");
 				local binary = "";
