@@ -67,7 +67,7 @@ function OnComponentLClickUp_Slots_UI(context)
 
 			ModifyHardcodedLimits();
 			RefreshProvinceSelection();
-			dev.changeSetting("MK1212_config.txt", "disclaimerAccepted", 1);
+			--dev.changeSetting("MK1212_config.txt", "disclaimerAccepted", 1);
 
 			button_disclaimer_uic:SetVisible(false);
 			button_discord_uic:SetState("active");

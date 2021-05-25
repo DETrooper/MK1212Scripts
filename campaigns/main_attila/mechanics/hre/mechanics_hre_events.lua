@@ -347,7 +347,7 @@ function HRE_Event_Pick_Random_Faction(should_have_bordering_hre_faction, number
 
 		-- Make sure we don't get the same faction twice!
 		if number == 1 or (number == 2 and HRE_CURRENT_EVENT_FACTION1 ~= potential_faction) then
-			if potential_faction ~= HRE_EMPEROR_KEY and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(HRE_EMPEROR_KEY)) == false then
+			if potential_faction ~= HRE_EMPEROR_KEY and HRE_Get_Faction_State(potential_faction) ~= "puppet" and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(HRE_EMPEROR_KEY)) == false then
 				if should_have_bordering_hre_faction == true then
 					for j = 1, #HRE_FACTIONS do
 						local bordering_faction = HRE_FACTIONS[j];
@@ -385,7 +385,7 @@ function HRE_Event_Pick_Random_Bordering_Factions()
 	for i = 1, #HRE_FACTIONS do
 		local potential_faction = HRE_FACTIONS[i];
 
-		if potential_faction ~= HRE_EMPEROR_KEY and potential_faction ~= HRE_CURRENT_EVENT_FACTION1 and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(HRE_EMPEROR_KEY)) == false then
+		if potential_faction ~= HRE_EMPEROR_KEY and potential_faction ~= HRE_CURRENT_EVENT_FACTION1 and HRE_Get_Faction_State(potential_faction) ~= "puppet" and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(HRE_EMPEROR_KEY)) == false then
 			if Does_Faction_Border_Faction(HRE_CURRENT_EVENT_FACTION1, potential_faction) then
 				table.insert(bordering_factions, potential_faction);
 			end
