@@ -66,25 +66,11 @@ function FactionTurnStart_Pope_College(context)
 		-- On the Pope's turn, assign a new cardinal if the College of Cardinals is below its max size.
 		if context:faction():name() == PAPAL_STATES_KEY then
 			if #COLLEGE_OF_CARDINALS_CHARACTERS < COLLEGE_OF_CARDINALS_MAX_CARDINALS then
-				local faction_list = cm:model():world():faction_list();
-				local highest_ranking_character = nil;
-				local highest_rank = 0;
+				local highest_ranking_character = Find_Eligible_Cardinal_Pope_College_Elections(true);
 
-				for i = 0, faction_list:num_items() - 1 do
-					local current_faction = faction_list:item_at(i);
-					local character_list = current_faction:character_list();
-	
-					for i = 0, character_list:num_items() - 1 do
-						local character = character_list:item_at(i);
-						
-						if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" and character:rank() >= COLLEGE_OF_CARDINALS_MIN_RANK then
-							if not COLLEGE_OF_CARDINALS_CHARACTERS[tostring(character:cqi())] and not FACTION_EXCOMMUNICATED[character:faction():name()] then
-								if character:rank() > highest_rank then
-									highest_ranking_character = character;
-								end
-							end
-						end
-					end
+				if not highest_ranking_character then
+					-- Start hiring some lower ranking characters if none can be found.
+					highest_ranking_character = Find_Eligible_Cardinal_Pope_College_Elections(false);
 				end
 
 				if highest_ranking_character then
@@ -99,6 +85,8 @@ function FactionTurnStart_Pope_College(context)
 							true, 
 							701
 						);
+
+						Pope_College_Check();
 					end
 				end
 			end
@@ -206,6 +194,32 @@ function Check_Votes_Pope_College_Elections(character)
 			COLLEGE_OF_CARDINALS_VOTES[tostring(character:cqi())] = tostring(top_scoring_candidate:cqi());
 		end
 	end
+end
+
+function Find_Eligible_Cardinal_Pope_College_Elections(max_rank)
+	local faction_list = cm:model():world():faction_list();
+	local highest_ranking_character = nil;
+	local highest_rank = 0;
+
+	for i = 0, faction_list:num_items() - 1 do
+		local current_faction = faction_list:item_at(i);
+		local character_list = current_faction:character_list();
+
+		for i = 0, character_list:num_items() - 1 do
+			local character = character_list:item_at(i);
+			local character_rank = character:rank();
+			
+			if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" and (max_rank == false or (max_rank and character_rank >= COLLEGE_OF_CARDINALS_MIN_RANK)) then
+				if not COLLEGE_OF_CARDINALS_CHARACTERS[tostring(character:cqi())] and not FACTION_EXCOMMUNICATED[character:faction():name()] then
+					if character_rank > highest_rank then
+						highest_ranking_character = character;
+					end
+				end
+			end
+		end
+	end
+
+	return highest_ranking_character;
 end
 
 function Determine_Preferati_Pope_College_Elections()

@@ -15,4 +15,4 @@ TIMURID_ALT_INVASION_ARMY =
 	"mk_khw_t2_javanmards,mk_khw_t2_javanmards,".. -- Light Sword Infantry
 	"mk_khw_t2_turkoman_archers,mk_khw_t2_turkoman_archers,mk_khw_t2_turkoman_archers,".. -- Light Foot Archers
 	"mk_mon_t3_ilkhan_war_elephants,mk_mon_t3_ilkhan_war_elephants,".. -- War Elephants
-	"mk_mon_t2_rocket,mk_mon_t2_rocket"; -- Artillery
+	"mk_mon_t1_trebuchet,mk_mon_t2_rocket"; -- Artillery

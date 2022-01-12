@@ -11,13 +11,15 @@
 FACTIONS_CAUSING_CRASHING = {
 	"mk_fact_separatists_cumans",
 	"mk_fact_separatists_goldenhorde",
-	"mk_fact_separatists_ilkhanate"
+	"mk_fact_separatists_ilkhanate",
+	"mk_fact_separatists_norway"
 };
 
 FACTIONS_CAUSING_CRASHING_ALT_FACTIONS = {
 	"mk_fact_cumans",
 	"mk_fact_goldenhorde",
-	"mk_fact_ilkhanate"
+	"mk_fact_ilkhanate",
+	"mk_fact_norway"
 };
 
 function Add_Stopgap_Listeners()

@@ -24,11 +24,13 @@ function Add_Silk_Road_Listeners()
 		true
 	);
 
-	local faction_name = FACTION_TURN;
-	local faction = cm:model():world():faction_by_key(faction_name);
+	if cm:is_new_game() then
+		local faction_name = FACTION_TURN;
+		local faction = cm:model():world():faction_by_key(faction_name);
 
-	--Check_Silk_Trade(faction);
-	Check_Spice_Ports(faction);
+		--Check_Silk_Trade(faction);
+		Check_Spice_Ports(faction);
+	end
 end
 
 function FactionTurnStart_Silk_Road(context)
@@ -37,28 +39,28 @@ function FactionTurnStart_Silk_Road(context)
 end
 
 function Check_Spice_Ports(faction)
+	local num_spice_regions = #SPICE_REGIONS;
 	local spice_owned = 0;
-	local regions = faction:region_list();
+	local faction_name = faction:name();
+	local faction_regions = faction:region_list();
 	
-	for i = 0, regions:num_items() - 1 do
-		local region = regions:item_at(i);
+	for i = 0, faction_regions:num_items() - 1 do
+		local region = faction_regions:item_at(i);
 		
-		for s = 1, #SPICE_REGIONS do
-			if region:name() == SPICE_REGIONS[s] then
-				spice_owned = spice_owned + 1;
-			end
+		if HasValue(SPICE_REGIONS, region:name()) then
+			spice_owned = spice_owned + 1;
 		end
 	end
 
-	for i = 1, 5 do
-		cm:remove_effect_bundle("mk_bundle_spice_trade_"..i, faction:name());
+	for i = 1, num_spice_regions do
+		cm:remove_effect_bundle("mk_bundle_spice_trade_"..i, faction_name);
 	end
 	
-	if spice_owned ~= 0 then
-		cm:apply_effect_bundle("mk_bundle_spice_trade_"..spice_owned, faction:name(), 0);
+	if spice_owned > 0 then
+		cm:apply_effect_bundle("mk_bundle_spice_trade_"..spice_owned, faction_name, 0);
 
-		if spice_owned == #SPICE_REGIONS then
-			Unlock_Achievement("the_spice_must_flow");
+		if spice_owned == num_spice_regions then
+			Unlock_Achievement("achievement_the_spice_must_flow");
 		end
 	end
 end

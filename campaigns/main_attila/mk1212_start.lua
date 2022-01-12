@@ -55,7 +55,6 @@ function start_game_all_factions()
 		Common_Initializer();
 		Challenge_Initializer();
 		Byzantium_Initializer();
-		--Islamic_Initializer();
 		Ironman_Initializer();
 		Kingdom_Initializer();
 		Lucky_Nations_Initializer();

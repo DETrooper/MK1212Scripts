@@ -62,7 +62,11 @@ SCRIPTED_CRUSADES_LIST = {
 }
 
 CRUSADE_TARGET_RELIGIONS = {
+	"mk_rel_chr_cathar",
+	"mk_rel_ibadi_islam",
+	"att_rel_pag_slavic",
 	"mk_rel_shia_islam",
+	"att_rel_other",
 	"att_rel_semitic_paganism"
 }
 

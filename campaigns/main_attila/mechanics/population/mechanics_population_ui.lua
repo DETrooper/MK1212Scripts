@@ -145,34 +145,50 @@ function OnComponentMouseOn_Population_UI(context)
 	elseif string.find(context.string, "_recruitable") then
 		local root = cm:ui_root();
 		local unit_name = string.gsub(context.string, "_recruitable", "");
-		local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
-		local splitstr = SplitString(UIComponent(context.component):GetTooltipText(), "\n");
-		local oldToolTip = splitstr[1];
-		local newToolTip = "";
+		local unit_population_table = POPULATION_UNITS_TO_POPULATION[unit_name];
 
-		if not LAST_CHARACTER_SELECTED:faction():is_horde() then
-			local region_name = LAST_CHARACTER_SELECTED:region():name();
-			newToolTip = "Available "..POPULATIONS_CLASSES_STRINGS[unit_class].." manpower in "..REGIONS_NAMES_LOCALISATION[region_name]..": "..tostring(POPULATION_REGIONS_MANPOWER[region_name][unit_class]).."\nManpower Cost: "..POPULATION_UNITS_TO_POPULATION[unit_name][1];
+		if unit_population_table then
+			local unit_class = unit_population_table[2];
+			local unit_class_string = POPULATIONS_CLASSES_STRINGS[unit_class];
 
-			UIComponent(context.component):SetTooltipText(string.gsub(oldToolTip, "\n\n"..newToolTip, "").."\n\n"..newToolTip.."\n\n"..subRecruitableUnit);
-		else
-			UIComponent(context.component):SetTooltipText(oldToolTip.."\n\n"..subRecruitableUnit);
-		end		
+			if unit_class_string then
+				local splitstr = SplitString(UIComponent(context.component):GetTooltipText(), "\n");
+				local oldToolTip = splitstr[1];
+				local newToolTip = "";
+
+				if not LAST_CHARACTER_SELECTED:faction():is_horde() then
+					local region_name = LAST_CHARACTER_SELECTED:region():name();
+					newToolTip = "Available "..unit_class_string.." manpower in "..REGIONS_NAMES_LOCALISATION[region_name]..": "..tostring(POPULATION_REGIONS_MANPOWER[region_name][unit_class]).."\nManpower Cost: "..unit_population_table[1];
+
+					UIComponent(context.component):SetTooltipText(string.gsub(oldToolTip, "\n\n"..newToolTip, "").."\n\n"..newToolTip.."\n\n"..subRecruitableUnit);
+				else
+					UIComponent(context.component):SetTooltipText(oldToolTip.."\n\n"..subRecruitableUnit);
+				end
+			end	
+		end
 	elseif string.find(context.string, "QueuedLandUnit") then
 		local queue_number = string.gsub(context.string, "QueuedLandUnit ", "");
 
 		queue_number = tonumber(queue_number) + 1;
 
 		local unit_name = POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())][queue_number];
-		local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
-		local newToolTip = "Left-click to remove this unit from the recruitment queue.";
-		
-		if not LAST_CHARACTER_SELECTED:faction():is_horde() then
-			local region_name = LAST_CHARACTER_SELECTED:region():name();
-			newToolTip = "Left-click to remove this unit from the recruitment queue.\n\nThis will refund "..POPULATION_UNITS_TO_POPULATION[unit_name][1].." "..POPULATIONS_CLASSES_STRINGS[unit_class].." manpower in "..REGIONS_NAMES_LOCALISATION[region_name]..".";
-		end
+		local unit_population_table = POPULATION_UNITS_TO_POPULATION[unit_name];
 
-		UIComponent(context.component):SetTooltipText(newToolTip);
+		if unit_population_table then
+			local unit_class = unit_population_table[2];
+			local unit_class_string = POPULATIONS_CLASSES_STRINGS[unit_class];
+
+			if unit_class_string then
+				local newToolTip = "Left-click to remove this unit from the recruitment queue.";
+				
+				if not LAST_CHARACTER_SELECTED:faction():is_horde() then
+					local region_name = LAST_CHARACTER_SELECTED:region():name();
+					newToolTip = "Left-click to remove this unit from the recruitment queue.\n\nThis will refund "..unit_population_table[1].." "..unit_class_string.." manpower in "..REGIONS_NAMES_LOCALISATION[region_name]..".";
+				end
+
+				UIComponent(context.component):SetTooltipText(newToolTip);
+			end
+		end
 	elseif string.find(context.string, "LandUnit") then
 		local unit_card_uic = UIComponent(context.component);
 		local merc_icon_uic = UIComponent(unit_card_uic:Find("merc_icon"));
@@ -220,42 +236,49 @@ function OnComponentLClickUp_Population_UI(context)
 		Change_Tooltip_Population_UI(REGION_SELECTED, POPULATION_CURRENT_TOOLTIP_SELECTED, false);
 	elseif string.find(context.string, "_recruitable") then
 		local unit_name = string.gsub(context.string, "_recruitable", "");
+		local unit_population_table = POPULATION_UNITS_TO_POPULATION[unit_name];
 		
-		if UIComponent(context.component):CurrentState() == "active" then
-			local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
+		if unit_population_table then
+			if UIComponent(context.component):CurrentState() == "active" then
+				local unit_class = unit_population_table[2];
 
-			if not LAST_CHARACTER_SELECTED:faction():is_horde() then
-				local region_name = LAST_CHARACTER_SELECTED:region():name();	
-				local region_class_manpower = POPULATION_REGIONS_MANPOWER[region_name][unit_class];
+				if not LAST_CHARACTER_SELECTED:faction():is_horde() then
+					local region_name = LAST_CHARACTER_SELECTED:region():name();	
+					local region_class_manpower = POPULATION_REGIONS_MANPOWER[region_name][unit_class];
 
-				Change_Manpower_Region(region_name, unit_class, -POPULATION_UNITS_TO_POPULATION[unit_name][1]);
+					Change_Manpower_Region(region_name, unit_class, -unit_population_table[1]);
+				end
+
+				if POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())] == nil then
+					POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())] = {};
+				end
+
+				table.insert(POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())], unit_name);
 			end
 
-			if POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())] == nil then
-				POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())] = {};
-			end
-
-			table.insert(POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())], unit_name);
+			UIComponent(context.component):SetDisabled(true);
+			cm:add_time_trigger("Unit_Cards", 0.0);
 		end
-
-		UIComponent(context.component):SetDisabled(true);
-		cm:add_time_trigger("Unit_Cards", 0.0);
 	elseif string.find(context.string, "QueuedLandUnit") then
 		local queue_number = string.gsub(context.string, "QueuedLandUnit ", "");
 
 		queue_number = tonumber(queue_number) + 1;
 
 		local unit_name = POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())][queue_number];
-		local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
+		local unit_population_table = POPULATION_UNITS_TO_POPULATION[unit_name];
 
-		if not LAST_CHARACTER_SELECTED:faction():is_horde() then
-			local region_name = LAST_CHARACTER_SELECTED:region():name();	
-			local region_class_manpower = POPULATION_REGIONS_MANPOWER[region_name][unit_class];
+		if unit_population_table then
+			local unit_class = unit_population_table[2];
 
-			Change_Manpower_Region(region_name, unit_class, POPULATION_UNITS_TO_POPULATION[unit_name][1]);
+			if not LAST_CHARACTER_SELECTED:faction():is_horde() then
+				local region_name = LAST_CHARACTER_SELECTED:region():name();	
+				local region_class_manpower = POPULATION_REGIONS_MANPOWER[region_name][unit_class];
+
+				Change_Manpower_Region(region_name, unit_class, unit_population_table[1]);
+			end
+
+			table.remove(POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())], queue_number);
 		end
-
-		table.remove(POPULATION_UNITS_IN_RECRUITMENT[tostring(LAST_CHARACTER_SELECTED:cqi())], queue_number);
 	elseif string.find(context.string, "LandUnit") then
 		local unit_card_uic = UIComponent(context.component);
 		local merc_icon_uic = UIComponent(unit_card_uic:Find("merc_icon"));
@@ -322,10 +345,14 @@ function TimeTrigger_Population_UI(context)
 				unit_name = string.gsub(unit_name, "_recruitable", "");
 
 				if not LAST_CHARACTER_SELECTED:faction():is_horde() then
-					if POPULATION_REGIONS_MANPOWER[LAST_CHARACTER_SELECTED:region():name()][POPULATION_UNITS_TO_POPULATION[unit_name][2]] < POPULATION_UNITS_TO_POPULATION[unit_name][1] then
-						local unit_icon_uic = UIComponent(unit_uic:Find("unit_icon"));
-						unit_uic:SetDisabled(true);
-						unit_icon_uic:SetState("inactive");
+					local unit_population_table = POPULATION_UNITS_TO_POPULATION[unit_name];
+
+					if unit_population_table then
+						if POPULATION_REGIONS_MANPOWER[LAST_CHARACTER_SELECTED:region():name()][unit_population_table[2]] < unit_population_table[1] then
+							local unit_icon_uic = UIComponent(unit_uic:Find("unit_icon"));
+							unit_uic:SetDisabled(true);
+							unit_icon_uic:SetState("inactive");
+						end
 					end
 				end
 			end 
@@ -357,21 +384,25 @@ function TimeTrigger_Population_UI(context)
 							local unit_name = ARMY_SELECTED_TABLE[i];
 
 							if not string.find(unit_name, "mk_merc") then
-								local unit_cost = POPULATION_UNITS_TO_POPULATION[unit_name][1];
-								local unit_strength = math.floor((unit_cost * (ARMY_SELECTED_STRENGTHS_TABLE[i] / 100)) + 0.5);
-								local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
+								local unit_population_table = POPULATION_UNITS_TO_POPULATION[unit_name];
 
-								if LAST_CHARACTER_SELECTED:has_region() then
-									Change_Manpower_Region(LAST_CHARACTER_SELECTED:region():name(), unit_class, unit_strength);
-								else
-									local region = FindClosestPort(x, y, LAST_CHARACTER_SELECTED:faction());
-									Change_Manpower_Region(region:name(), unit_class, unit_strength);
-								end
+								if unit_population_table then
+									local unit_cost = unit_population_table[1];
+									local unit_strength = math.floor((unit_cost * (ARMY_SELECTED_STRENGTHS_TABLE[i] / 100)) + 0.5);
+									local unit_class = unit_population_table[2];
 
-								for j = 1, #new_army do
-									if new_army[j] == ARMY_SELECTED_TABLE[i] then
-										table.remove(new_army, j);
-										break;
+									if LAST_CHARACTER_SELECTED:has_region() then
+										Change_Manpower_Region(LAST_CHARACTER_SELECTED:region():name(), unit_class, unit_strength);
+									else
+										local region = FindClosestPort(x, y, LAST_CHARACTER_SELECTED:faction());
+										Change_Manpower_Region(region:name(), unit_class, unit_strength);
+									end
+
+									for j = 1, #new_army do
+										if new_army[j] == ARMY_SELECTED_TABLE[i] then
+											table.remove(new_army, j);
+											break;
+										end
 									end
 								end
 							end
@@ -389,11 +420,15 @@ function TimeTrigger_Population_UI(context)
 				local unit_name = ARMY_SELECTED_TABLE[i];
 
 				if not string.find(unit_name, "mk_merc") then
-					local unit_cost = POPULATION_UNITS_TO_POPULATION[unit_name][1];
-					local unit_strength = math.floor((unit_cost * (ARMY_SELECTED_STRENGTHS_TABLE[i] / 100)) + 0.5);
-					local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
+					local unit_population_table = POPULATION_UNITS_TO_POPULATION[unit_name];
 
-					Change_Manpower_Region(ARMY_SELECTED_REGION, unit_class, unit_strength);
+					if unit_population_table then
+						local unit_cost = unit_population_table[1];
+						local unit_strength = math.floor((unit_cost * (ARMY_SELECTED_STRENGTHS_TABLE[i] / 100)) + 0.5);
+						local unit_class = unit_population_table[2];
+
+						Change_Manpower_Region(ARMY_SELECTED_REGION, unit_class, unit_strength);
+					end
 				end
 			end
 		end
@@ -543,6 +578,9 @@ function Change_Tooltip_Population_UI(key, class, own_region)
 				elseif second_split[1] == "soft_cap_exceeded" then
 					second_split[2] = Round_Number_Text(second_split[2]);
 					cap_exceeded = "Soft Cap Exceeded: ".."[[rgba:255:0:0:150]](-"..second_split[2].."% of growth)[[/rgba]]\n";
+				elseif second_split[1] == "black_death" then
+					second_split[2] = Round_Number_Text(second_split[2]);
+					cap_exceeded = "Plague Outbreak: ".."[[rgba:255:0:0:150]](-"..second_split[2].."%)[[/rgba]]\n";
 				elseif second_split[1] == "under_siege" then
 					second_split[2] = Round_Number_Text(second_split[2]);
 					under_siege = "Under Siege: ".."[[rgba:255:0:0:150]](-"..second_split[2].."%)[[/rgba]]\n";

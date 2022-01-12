@@ -108,10 +108,10 @@ function Activate_Papal_Favour_System()
 		true
 	);
 	cm:add_listener(
-		"GarrisonAttackedEvent_Checker",
+		"GarrisonAttackedEvent_Pope",
 		"GarrisonAttackedEvent",
 		true,
-		function(context) GarrisonAttackedEvent_Checker(context) end,
+		function(context) GarrisonAttackedEvent_Pope(context) end,
 		true
 	);
 	cm:add_listener(
@@ -250,7 +250,7 @@ end
 function Deactivate_Papal_Favour_System()
 	PAPAL_FAVOUR_SYSTEM_ACTIVE = false;
 	cm:remove_listener("FactionLeaderDeclaresWar_Pope");
-	cm:remove_listener("GarrisonAttackedEvent_Checker");
+	cm:remove_listener("GarrisonAttackedEvent_Pope");
 	cm:remove_listener("CharacterPerformsOccupationDecisionLoot_Pope");
 	cm:remove_listener("CharacterPerformsOccupationDecisionSack_Pope");
 	cm:remove_listener("CharacterPerformsOccupationDecisionOccupy_Pope");
@@ -368,7 +368,7 @@ function FactionTurnStart_Check_Catholic_Nations(context)
 	end
 end
 
-function GarrisonAttackedEvent_Getter(context)
+function GarrisonAttackedEvent_Pope(context)
 	FAVOUR_LAST_ATTACKED_GARRISON = "";
 
 	if context:garrison_residence():is_null_interface() == false then
@@ -385,7 +385,7 @@ function Check_If_Catholic_Attacked(context, type)
 		local region_name = region:name();
 		local faction_name = context:character():faction():name();
 
-		if region_name ~= "att_reg_italia_roma" then
+		if region_name ~= "att_reg_italia_roma" and faction_name ~= PAPAL_STATES_KEY then
 			if type == "LOOTED" or type == "SACKED" then
 				if SackExploitCheck_Pope(region_name) == true then
 					if context:character():faction():is_human() and context:character():faction():state_religion() == "att_rel_chr_catholic" and FACTION_EXCOMMUNICATED[faction_name] ~= true then
@@ -516,7 +516,11 @@ function CharacterPostBattle_Favour(context, type)
 			if type == "RELEASE" then
 				Add_Pope_Favour(context:character():faction():name(), 1, "released_captives");
 			elseif type == "SLAUGHTER" then
-				Subtract_Pope_Favour(context:character():faction():name(), 1, "slaughtered_captives");
+				local faction_name = context:character():faction():name();
+
+				if faction_name ~= PAPAL_STATES_KEY and faction_name ~= POPE_CONTROLLING_FACTION then
+					Subtract_Pope_Favour(context:character():faction():name(), 1, "slaughtered_captives");
+				end
 			end
 		end
 
@@ -591,55 +595,61 @@ end
 
 function MissionSucceeded_Check_Mission(context)
 	local faction_name = context:faction():name();
-	local mission_name = context:mission():mission_record_key();
 
-	if mission_name == "att_religious_catholic_assassinate_character_1" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
-	elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_legendary_1" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
-	elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_major_1" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
-	elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_minor_1" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
-	elseif mission_name == "att_religious_catholic_construct_building_religious_1" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
-	elseif mission_name == "att_religious_catholic_convert_region_1" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
-	elseif mission_name == "att_religious_catholic_declare_war_1" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
-	elseif mission_name == "att_religious_catholic_recruit_agent_1" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
-	elseif mission_name == "mk_religious_catholic_intervention_end_war" then
-		Add_Pope_Favour(faction_name, 1, "mission_succeed_peace");
-	end
+	if faction_name ~= PAPAL_STATES_KEY then
+		local mission_name = context:mission():mission_record_key();
 
-	if context:faction():state_religion() == "att_rel_chr_catholic" then
-		Update_Pope_Favour(context:faction());	
+		if mission_name == "att_religious_catholic_assassinate_character_1" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
+		elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_legendary_1" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
+		elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_major_1" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
+		elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_minor_1" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
+		elseif mission_name == "att_religious_catholic_construct_building_religious_1" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
+		elseif mission_name == "att_religious_catholic_convert_region_1" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
+		elseif mission_name == "att_religious_catholic_declare_war_1" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
+		elseif mission_name == "att_religious_catholic_recruit_agent_1" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_generic");
+		elseif mission_name == "mk_religious_catholic_intervention_end_war" then
+			Add_Pope_Favour(faction_name, 1, "mission_succeed_peace");
+		end
+
+		if context:faction():state_religion() == "att_rel_chr_catholic" then
+			Update_Pope_Favour(context:faction());	
+		end
 	end
 end
 
 function MissionFailed_Check_Mission(context)
 	local faction_name = context:faction():name();
-	local mission_name = context:mission():mission_record_key();
 
-	if mission_name == "att_religious_catholic_construct_bch_religion_catholic_legendary_1" then
-		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
-	elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_major_1" then
-		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
-	elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_minor_1" then
-		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
-	elseif mission_name == "att_religious_catholic_construct_building_religious_1" then
-		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
-	elseif mission_name == "att_religious_catholic_convert_region_1" then
-		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
-	elseif mission_name == "att_religious_catholic_recruit_agent_1" then
-		Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
-	elseif mission_name == "mk_religious_catholic_intervention_end_war" then
-		Subtract_Pope_Favour(faction_name, 3, "mission_fail_peace");
-	end
-	
-	if context:faction():state_religion() == "att_rel_chr_catholic" then
-		Update_Pope_Favour(context:faction());	
+	if faction_name ~= PAPAL_STATES_KEY and faction_name ~= POPE_CONTROLLING_FACTION then
+		local mission_name = context:mission():mission_record_key();
+
+		if mission_name == "att_religious_catholic_construct_bch_religion_catholic_legendary_1" then
+			Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
+		elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_major_1" then
+			Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
+		elseif mission_name == "att_religious_catholic_construct_bch_religion_catholic_minor_1" then
+			Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
+		elseif mission_name == "att_religious_catholic_construct_building_religious_1" then
+			Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
+		elseif mission_name == "att_religious_catholic_convert_region_1" then
+			Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
+		elseif mission_name == "att_religious_catholic_recruit_agent_1" then
+			Subtract_Pope_Favour(faction_name, 1, "mission_fail_generic");
+		elseif mission_name == "mk_religious_catholic_intervention_end_war" then
+			Subtract_Pope_Favour(faction_name, 3, "mission_fail_peace");
+		end
+		
+		if context:faction():state_religion() == "att_rel_chr_catholic" then
+			Update_Pope_Favour(context:faction());	
+		end
 	end
 end
 

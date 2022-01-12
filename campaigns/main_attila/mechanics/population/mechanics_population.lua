@@ -23,6 +23,7 @@ POPULATION_IMPERIAL_DECREE_BONUS = 0.005; -- How much should be added to a regio
 POPULATION_SIEGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement is under siege?
 POPULATION_FOOD_SHORTAGE_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a settlement has a food shortage?
 POPULATION_RAIDING_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost every turn that a region is being raided?
+POPULATION_PLAGUE_POPULATION_LOSS = 0.125; -- How much percentage of population should be lost when a rebellion fires?
 POPULATION_REBELLION_POPULATION_LOSS = 0.05; -- How much percentage of population should be lost when a rebellion fires?
 
 POPULATION_REGIONS_POPULATIONS = {};
@@ -350,11 +351,15 @@ function CheckArmyReplenishment(character)
 				for i = 1, force:num_items() - 1 do
 					local unit = force:item_at(i);
 					local unit_name = unit:unit_key();
-					local unit_cost = POPULATION_UNITS_TO_POPULATION[unit_name][1];
-					local unit_strength = math.floor((unit_cost * (force_unit_strengths[i] / 100)) + 0.5);
-					local unit_class = POPULATION_UNITS_TO_POPULATION[unit_name][2];
+					local unit_population_table = POPULATION_UNITS_TO_POPULATION[unit_name];
 
-					replenishment_costs[unit_class] = unit_cost - unit_strength;
+					if unit_population_table then
+						local unit_cost = unit_population_table[1];
+						local unit_strength = math.floor((unit_cost * (force_unit_strengths[i] / 100)) + 0.5);
+						local unit_class = unit_population_table[2];
+
+						replenishment_costs[unit_class] = unit_cost - unit_strength;
+					end
 				end
 
 				for i = 1, 5 do
@@ -541,6 +546,13 @@ function Compute_Region_Growth(region)
 	local buildings_list = region:garrison_residence():buildings();
 	local under_siege = region:garrison_residence():is_under_siege();
 	local food_shortage = region_owning_faction:has_food_shortage();
+	local black_death;
+
+	if PLAGUE_PHASE and PLAGUE_PHASE ~= "DORMANT" and PLAGUE_PHASE ~= "ENDED" then
+		if RegionHasPlague(region_name) then
+			black_death = true;
+		end
+	end
 
 	--dev.log("Owning faction name: "..region_owning_faction_name);
 	--dev.log("Is under siege: "..tostring(under_siege));
@@ -629,6 +641,10 @@ function Compute_Region_Growth(region)
 
 		-- Calculate growth penalties.
 
+		if black_death then
+			growth[i] = growth[i] - POPULATION_PLAGUE_POPULATION_LOSS;
+		end
+
 		if under_siege == true then
 			growth[i] = growth[i] - POPULATION_SIEGE_POPULATION_LOSS;
 		end
@@ -639,6 +655,10 @@ function Compute_Region_Growth(region)
 	end
 
 	--dev.log("Checking for additional modifiers such as siege, food shortage, and raiding.");
+
+	if black_death then
+		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."black_death#"..tostring(POPULATION_PLAGUE_POPULATION_LOSS * 100).."#@";
+	end
 
 	if under_siege == true then
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."under_siege#"..tostring(POPULATION_SIEGE_POPULATION_LOSS * 100).."#@";

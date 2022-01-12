@@ -20,13 +20,13 @@ function Add_Pope_Mission_Listeners()
 		function(context) FactionTurnStart_Check_Mission_Prerequisites(context) end,
 		true
 	);]]--
-	cm:add_listener(
+	--[[cm:add_listener(
 		"RegionTurnStart_Check_Regions",
 		"RegionTurnStart",
 		true,
 		function(context) RegionTurnStart_Check_Regions(context) end,
 		true
-	);
+	);]]--
 end
 
 function FactionTurnStart_Check_Mission_Prerequisites(context)
@@ -56,6 +56,6 @@ function RegionTurnStart_Check_Regions(context)
 	local owner = context:region():owning_faction();
 
 	if context:region():majority_religion() ~= "att_rel_chr_catholic" and owner:state_religion() == "att_rel_chr_catholic" and owner:is_human() == true then
-		dev.log(current_region_name);
+
 	end
 end

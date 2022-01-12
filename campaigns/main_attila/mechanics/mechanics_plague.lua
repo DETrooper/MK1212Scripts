@@ -9,6 +9,7 @@
 ---------------------------------------------------------------------------------------------------------------------------
 -- Reworked Plague of Justinian script from The Last Roman DLC for the Bubonic Plague.
 -- Follows a linear, more historical path rather than dynamically spreading (as cool as that was!).
+-- Note that the plague lasts 4 turns (2 years at 2TPY), this can be changed in its DB.
 
 BUBONIC_PLAGUE_KEY = "black_death";
 PLAGUE_PHASE = "DORMANT";			-- Used for tracking plague progress.
@@ -17,17 +18,26 @@ PLAGUE_CONTRACTION_CHANCE = 33;		-- The chance of characters contracting the pla
 PLAGUE_TRAIT = "mk_trait_bubonic_plague";		-- Trait given to characters when they contract the plague.
 SANITATION_SAFE_LEVEL = 10;			-- The level of sanitation at which a region becomes safe from the plague.
 
+REGIONS_TO_PLAGUE_TURNS = {};
+
 function Add_Plague_Listeners()
 	cm:add_listener(
 		"FactionTurnStart_Plague",
 		"FactionTurnStart",
 		true,
-		function(context) OnFactionTurnStart_Plague(context) end,
+		function(context) FactionTurnStart_Plague(context) end,
+		true
+	);
+	cm:add_listener(
+		"RegionTurnStart_Plague",
+		"RegionTurnStart",
+		true,
+		function(context) RegionTurnStart_Plague(context) end,
 		true
 	);
 end
 
-function OnFactionTurnStart_Plague(context)
+function FactionTurnStart_Plague(context)
 	local turn_number = cm:model():turn_number();
 	local faction_list = cm:model():world():faction_list();
 
@@ -359,23 +369,53 @@ function OnFactionTurnStart_Plague(context)
 	end
 end
 
+function RegionTurnStart_Plague(context)
+	local region_name = context:region():name();
+	local plague_turns = REGIONS_TO_PLAGUE_TURNS[region_name];
+
+	if plague_turns and plague_turns > 0 then
+		local new_turns = plague_turns - 1;
+
+		if new_turns <= 0 then
+			REGIONS_TO_PLAGUE_TURNS[region_name] = nil;
+		else
+			REGIONS_TO_PLAGUE_TURNS[region_name] = new_turns;
+		end
+	end
+end
+
 function GiveRegionPlague(region_name)
 	cm:infect_region_with_plague(BUBONIC_PLAGUE_KEY, region_name);
+
+	REGIONS_TO_PLAGUE_TURNS[region_name] = 4;
 end
 
 function GiveArmyPlague(general)
-	local gen_cqi = general:command_queue_index();
+	local gen_cqi = tostring(general:command_queue_index());
+	
 	cm:infect_force_with_plague(BUBONIC_PLAGUE_KEY, "character_cqi:"..gen_cqi);
+end
+
+function RegionHasPlague(region_name)
+	local plague_turns = REGIONS_TO_PLAGUE_TURNS[region_name];
+
+	if plague_turns and plague_turns > 0 then
+		return true;
+	end
+
+	return false;
 end
 
 cm:register_saving_game_callback(
 	function(context)
 		cm:save_value("PLAGUE_PHASE", PLAGUE_PHASE, context);
+		SaveKeyPairTable(context, REGIONS_TO_PLAGUE_TURNS, "REGIONS_TO_PLAGUE_TURNS");
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
 		PLAGUE_PHASE = cm:load_value("PLAGUE_PHASE", "DORMANT", context);
+		REGIONS_TO_PLAGUE_TURNS = LoadKeyPairTableNumbers(context, "REGIONS_TO_PLAGUE_TURNS");
 	end
 );

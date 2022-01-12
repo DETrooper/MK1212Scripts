@@ -22,6 +22,13 @@ function Add_Pope_UI_Listeners()
 		true
 	);
 	cm:add_listener(
+		"FactionReligionConverted_Pope",
+		"FactionReligionConverted",
+		true,
+		function(context) FactionReligionConverted_Pope_UI(context) end,
+		true
+	);
+	cm:add_listener(
 		"OnComponentMouseOn_Pope_UI",
 		"ComponentMouseOn",
 		true,
@@ -176,18 +183,18 @@ end
 function CharacterSelected_Pope_UI(context)
 	local character = context:character();
 	local root = cm:ui_root();
-	local button_college_of_cardinals_uic = UIComponent(root:Find("button_college_of_cardinals"));
+	--local button_college_of_cardinals_uic = UIComponent(root:Find("button_college_of_cardinals"));
 	local button_crusaders_uic = UIComponent(root:Find("button_crusaders"));
 	local button_join_crusade_uic = UIComponent(root:Find("button_join_crusade"));
 
-	button_college_of_cardinals_uic:SetVisible(false); -- Default to not visible.
+	--button_college_of_cardinals_uic:SetVisible(false); -- Default to not visible.
 	button_crusaders_uic:SetVisible(false); -- Default to not visible.
 	button_join_crusade_uic:SetState("inactive"); -- Default to inactive.
 	button_join_crusade_uic:SetVisible(false); -- Default to not visible.
 
-	--[[if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" then
-		button_college_of_cardinals_uic:SetVisible(true);
-	else]]--
+	--if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" then
+		--button_college_of_cardinals_uic:SetVisible(true);
+	--else
 		if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 			CloseCrusaderRecruitmentPanel(false);
 		end
@@ -211,6 +218,14 @@ function CharacterSelected_Pope_UI(context)
 			end
 		end
 	--end
+end
+
+function FactionReligionConverted_Pope_UI(context)
+	local faction = context:faction();
+
+	if faction:is_human() then
+		Pope_Button_Check();
+	end
 end
 
 function OnComponentMouseOn_Pope_UI(context)
@@ -282,13 +297,13 @@ function OnComponentMouseOn_Pope_UI(context)
 end
 
 function OnComponentLClickUp_Pope_UI(context)
-	if context.string == "button_college_of_cardinals" then
-		--[[if COLLEGE_OF_CARDINALS_PANEL_OPEN == false then
+	--[[if context.string == "button_college_of_cardinals" then
+		if COLLEGE_OF_CARDINALS_PANEL_OPEN == false then
 			OpenCollegeOfCardinalsPanel();
 		else
 			CloseCollegeOfCardinalsPanel(true);
-		end]]--
-	elseif context.string == "button_join_crusade" then
+		end
+	else]]if context.string == "button_join_crusade" then
 		local faction_name = LAST_CHARACTER_SELECTED:faction():name();
 		local faction = LAST_CHARACTER_SELECTED:faction();
 		local force = LAST_CHARACTER_SELECTED:cqi();
@@ -338,10 +353,10 @@ function OnComponentLClickUp_Pope_UI(context)
 		else
 			CloseCrusaderRecruitmentPanel(true);
 		end
-	--[[elseif COLLEGE_OF_CARDINALS_PANEL_OPEN == true then
+	elseif COLLEGE_OF_CARDINALS_PANEL_OPEN == true then
 		if context.string == "button_ok" or context.string == "root" then
 			CloseCollegeOfCardinalsPanel(false);
-		end]]--
+		end
 	elseif context.string == "button_missions" then
 		cm:add_time_trigger("Crusade_Mission_UI_Check", 0.0);
 	elseif MISSION_PANEL_OPEN == true then
@@ -487,7 +502,7 @@ function OnPanelOpenedCampaign_Pope_UI(context)
 		end
 	end
 
-	--CloseCollegeOfCardinalsPanel(false);
+	CloseCollegeOfCardinalsPanel(false);
 	CloseCrusaderRecruitmentPanel(false);
 end
 
@@ -564,6 +579,8 @@ function OpenCollegeOfCardinalsPanel()
 	local root = cm:ui_root();
 	local college_of_cardinals_panel_uic = UIComponent(root:Find("college_of_cardinals_panel"));
 
+	PopulateCollegeOfCardinalsPanel();
+
 	college_of_cardinals_panel_uic:SetVisible(true);
 
 	COLLEGE_OF_CARDINALS_PANEL_OPEN = true;
@@ -594,7 +611,11 @@ function PopulateCollegeOfCardinalsPanel()
 	local title_plaque_pope_uic = UIComponent(college_of_cardinals_panel_uic:Find("title_plaque_pope"));
 	local tx_pope_uic = UIComponent(title_plaque_pope_uic:Find("tx_pope"));
 	local papacy = cm:model():world():faction_by_key(PAPAL_STATES_KEY);
-	local current_pope = papacy:faction_leader();
+	local current_pope;
+
+	if papacy and not papacy:is_null_interface() and papacy:has_faction_leader() then
+		current_pope = papacy:faction_leader();
+	end
 
 	list_box_uic:DestroyChildren();
 

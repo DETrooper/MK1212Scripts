@@ -663,7 +663,7 @@ function Begin_Crusade(target, owner)
 			"message_event_text_text_mk_event_crusade_go_crusade_"..tostring(CURRENT_CRUSADE).."_primary", 
 			"message_event_text_text_mk_event_crusade_go_crusade_"..tostring(CURRENT_CRUSADE).."_secondary", 
 			true,
-			706
+			729
 		);
 	else
 		cm:show_message_event(
@@ -672,7 +672,7 @@ function Begin_Crusade(target, owner)
 			"message_event_text_text_mk_event_crusade_go_"..target_short.."_primary", 
 			"message_event_text_text_mk_event_crusade_go_"..target_short.."_secondary", 
 			true,
-			706
+			729
 		);
 	end
 
@@ -705,7 +705,7 @@ function End_Crusade(reason)
 				"message_event_text_text_mk_event_crusade_won_primary", 
 				"message_event_text_text_mk_event_crusade_won_jerusalem_target_secondary", 
 				true,
-				706
+				731
 			);
 		elseif HasValue(CURRENT_CRUSADE_TARGET_OWNED_REGIONS, JERUSALEM_REGION_KEY) then
 			-- Jerusalem was taken during the crusade despite not being a target.
@@ -715,7 +715,7 @@ function End_Crusade(reason)
 				"message_event_text_text_mk_event_crusade_won_primary", 
 				"message_event_text_text_mk_event_crusade_won_jerusalem_taken_secondary", 
 				true,
-				706
+				731
 			);
 		else
 			-- Jerusalem is owned already or was taken outside of the crusade. 
@@ -725,17 +725,23 @@ function End_Crusade(reason)
 				"message_event_text_text_mk_event_crusade_won_primary", 
 				"message_event_text_text_mk_event_crusade_won_jerusalem_secondary", 
 				true,
-				706
+				731
 			);
 		end
 	else
+		local image = 706;
+
+		if reason == "lost" then
+			image = 730;
+		end
+
 		cm:show_message_event(
 			cm:get_local_faction(),
 			"message_event_text_text_mk_event_crusade_"..tostring(CURRENT_CRUSADE).."_title", 
 			"message_event_text_text_mk_event_crusade_"..reason.."_primary", 
 			"message_event_text_text_mk_event_crusade_"..reason.."_secondary", 
 			true,
-			706
+			image
 		);
 	end
 
@@ -765,7 +771,7 @@ function End_Crusade(reason)
 			local region = cm:model():world():region_manager():region_by_key(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i]);
 			
 			if region:owning_faction():state_religion() == "att_rel_chr_catholic" and region:owning_faction():is_human() == false then
-				if region:owning_faction():name() ~= JERUSALEM_KEY then
+				if region:owning_faction():name() ~= JERUSALEM_KEY and region:owning_faction():name() ~= POPE_CONTROLLING_FACTION then
 					Transfer_Region_To_Faction(CURRENT_CRUSADE_TARGET_OWNED_REGIONS[i], JERUSALEM_KEY);
 				end
 			end
@@ -790,7 +796,7 @@ function End_Crusade(reason)
 				cm:apply_effect_bundle("mk_bundle_crusade_victory", possible_christian_faction_name, 10);
 				Add_Pope_Favour(possible_christian_faction_name, 10, "crusade_victory");
 
-				if possible_christian_faction:is_human() == false or (possible_christian_faction:is_human() and possible_christian_faction_name == JERUSALEM_KEY) or (possible_christian_faction:is_human() == true and possible_christian_faction ~= owner) then
+				if possible_christian_faction:is_human() == false or (possible_christian_faction:is_human() and possible_christian_faction_name == JERUSALEM_KEY or possible_christian_faction_name == PAPAL_STATES_KEY or possible_christian_faction_name == POPE_CONTROLLING_FACTION) or (possible_christian_faction:is_human() == true and possible_christian_faction ~= owner) then
 					Make_Peace_Crusades(possible_christian_faction_name);
 				elseif HasValue(CRUSADE_REGIONS_IN_MIDDLE_EAST, CURRENT_CRUSADE_TARGET) and possible_christian_faction:is_human() == true and possible_christian_faction_name == owner:name() and possible_christian_faction_name ~= JERUSALEM_KEY then
 					cm:trigger_dilemma(possible_christian_faction_name, "mk_dilemma_crusades_owned_target");

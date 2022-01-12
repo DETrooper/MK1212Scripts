@@ -39,7 +39,7 @@ m_root = nil;
 svr = ScriptedValueRegistry:new();
 tm = timer_manager:new(Timers);
 version_number = 2000;
-version_number_string = "v2.1.1";
+version_number_string = "v2.2.0";
 
 local checkbox_lucky_nations_selected = false;
 
@@ -92,12 +92,13 @@ function OnUICreated_MK1212_Frontend(context)
 end
 
 function ChangeFrontend(context)
-	local button_historical_battle_uic = UIComponent(m_root:Find("button_historical_battle"));
+	--local button_historical_battle_uic = UIComponent(m_root:Find("button_historical_battle"));
 	local text_version_number_uic = UIComponent(m_root:Find("version_number"));
 
-	if button_historical_battle_uic then
+	-- Not sure why but this seems to be causing a crash. Hex-edited sp_frame to make it start as inactive for now.
+	--[[if button_historical_battle_uic then
 		button_historical_battle_uic:SetState("inactive");
-	end
+	end]]--
 
 	if text_version_number_uic then
 		text_version_number_uic:SetStateText(FRONTEND_STRINGS["text_version_string"]..version_number_string);

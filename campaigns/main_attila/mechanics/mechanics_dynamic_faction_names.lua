@@ -85,7 +85,7 @@ function Add_Dynamic_Faction_Names_Listeners()
 				end
 				
 				if num_regions >= NUM_REQUIRED_REGIONS_LVL3 then
-					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL3).." regions\n.";
+					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL3).." regions.\n";
 				else
 					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Control "..tostring(NUM_REQUIRED_REGIONS_LVL3).." regions.\n";
 				end
@@ -161,7 +161,7 @@ function Global_DFN_Check()
 			if FactionIsAlive(faction_name) then
 				if FACTIONS_DFN_LEVEL[faction_name] == 1 then
 					if not HasValue(FACTIONS_DFN_KINGDOMS_EVENTS, faction_name) then
-						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL2 and faction:region_list():num_items() < NUM_REQUIRED_REGIONS_LVL3 and faction_name ~= HRE_EMPEROR_KEY then
+						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL2 and faction_name ~= HRE_EMPEROR_KEY then
 							if faction:is_human() == false or cm:is_multiplayer() == true then
 								DFN_Set_Faction_Rank(faction_name, 2);
 							else

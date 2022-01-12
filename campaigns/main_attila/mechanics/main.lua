@@ -18,8 +18,10 @@ require("mechanics/mechanics_settle_upkeep");
 require("mechanics/mechanics_silk_road");
 require("mechanics/mechanics_war_weariness");
 
+require("mechanics/islam/mechanics_islam");
 require("mechanics/pope/mechanics_pope");
 require("mechanics/decisions/mechanics_decisions");
+
 require("mechanics/hre/mechanics_hre");
 require("mechanics/population/mechanics_population");
 
@@ -30,6 +32,7 @@ function Mechanic_Initializer()
 		Add_Decisions_Listeners();
 		Add_Dynamic_Faction_Names_Listeners();
 		Add_HRE_Listeners();
+		Add_Islamic_Listeners();
 		Add_Plague_Listeners();
 		Add_Pope_Listeners();
 		Add_Population_Listeners();
@@ -39,6 +42,7 @@ function Mechanic_Initializer()
 		Add_War_Weariness_Listeners();
 	else
 		Add_Dynamic_Faction_Names_Listeners();
+		Add_Islamic_Listeners();
 		Add_Plague_Listeners();
 		Add_Pope_Listeners();
 		Add_Settle_Upkeep_Listeners();

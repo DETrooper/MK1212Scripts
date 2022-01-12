@@ -184,7 +184,6 @@ achievement.requiredregions = {  -- Regions required for this achievement to unl
 	"att_reg_tarraconensis_caesaraugusta",
 	"att_reg_tarraconensis_pompaelo",
 	"att_reg_tarraconensis_tarraco",
-	"att_reg_terra_incognita",
 	"att_reg_thracia_constantinopolis",
 	"att_reg_thracia_marcianopolis",
 	"att_reg_thracia_trimontium",

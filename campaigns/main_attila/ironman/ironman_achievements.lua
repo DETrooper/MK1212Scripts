@@ -93,12 +93,11 @@ function FactionTurnStart_Achievement_Check(context)
 		
 		for i = 1, #ACHIEVEMENT_KEY_LIST do
 			local achievement_key = ACHIEVEMENT_KEY_LIST[i];
+			local achievement = ACHIEVEMENTS[achievement_key];
 
-			if ACHIEVEMENTS[achievement_key] then
-				local achievement = ACHIEVEMENTS[achievement_key];
-
+			if achievement then
 				-- Some achievements are manually triggered, such as when a decision is made, so we should disqualify them from automatically triggering.
-				if achievement.unlocked == false and achievement.manual == false then
+				if achievement.unlocked == false and achievement.manual ~= true then
 					local has_required_buildings = true;
 					local has_required_buildings_in_regions = true;
 					local has_required_regions = true;
@@ -129,14 +128,20 @@ function FactionTurnStart_Achievement_Check(context)
 							end
 						elseif achievement.requiredregionsforbuildings then
 							for i = 1, #achievement.requiredregionsforbuildings do
+								local check = false;
 								local region = cm:model():world():region_manager():region_by_key(achievement.requiredregionsforbuildings[i]);
 								local buildings_list = region:garrison_residence():buildings();
 								
 								for j = 0, buildings_list:num_items() - 1 do
-									if not HasValue(achievement.requiredbuildings, buildings_list:item_at(j):name()) then
-										has_required_buildings_in_regions = false;
+									if HasValue(achievement.requiredbuildings, buildings_list:item_at(j):name()) then
+										check = true;
 										break;
 									end
+								end
+
+								if not check then
+									has_required_buildings_in_regions = false;
+									break;
 								end
 							end
 						end
@@ -204,7 +209,9 @@ function FactionTurnStart_Achievement_Check(context)
 
 					if achievement.requireddeadfactions then
 						for i = 1, #achievement.requireddeadfactions do
-							if FactionIsAlive(achievement.requireddeadfactions[i]) then
+							local required_dead_faction_name = achievement.requireddeadfactions[i];
+
+							if FactionIsAlive(achievement.requireddeadfactions[i]) and faction_name ~= required_dead_faction_name then
 								target_factions_dead = false;
 								break;
 							end
@@ -224,9 +231,9 @@ function FactionTurnStart_Achievement_Check(context)
 						end
 					end
 
-					if has_required_buildings == true and has_required_buildings_in_regions == true and has_required_regions == true 
-					and has_required_technologies == true and is_required_faction == true and is_required_religion == true 
-					and sacked_settlements == true and target_factions_dead == true and has_required_vassals == true then
+					if has_required_buildings and has_required_buildings_in_regions and has_required_regions
+					and has_required_technologies and is_required_faction and is_required_religion
+					and sacked_settlements and target_factions_dead and has_required_vassals then
 						Unlock_Achievement(achievement_key);
 					end
 				end

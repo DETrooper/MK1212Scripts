@@ -116,6 +116,19 @@ function Add_Pope_Listeners()
 		local current_pope = faction:faction_leader();
 		cm:hide_character("character_cqi:"..current_pope:command_queue_index(), true);
 	end
+
+	Pope_Button_Check();
+end
+
+function Pope_Button_Check()
+	--[[local button_pope_uic = UIComponent(cm:ui_root():Find("button_pope"));
+	local faction_name = cm:get_local_faction();
+
+	if faction_name == POPE_CONTROLLING_FACTION and cm:model():world():faction_by_key(faction_name):state_religion() == "att_rel_chr_catholic" then
+		button_pope_uic:SetVisible(true);
+	else
+		button_pope_uic:SetVisible(false);
+	end]]--
 end
 
 function CharacterBecomesFactionLeader_Pope(context)
@@ -278,10 +291,11 @@ end
 
 function Set_Papal_Controller(faction_name)
 	local last_controller = cm:model():world():faction_by_key(POPE_CONTROLLING_FACTION);
+	local new_controller = cm:model():world():faction_by_key(faction_name);
 
 	if last_controller:is_human() then
 		cm:show_message_event(
-			current_faction:name(),
+			POPE_CONTROLLING_FACTION,
 			"message_event_text_text_mk_event_pope_new_pope_lost_control_title",
 			name,
 			"message_event_text_text_mk_event_pope_new_pope_lost_control_secondary_detail",
@@ -290,7 +304,20 @@ function Set_Papal_Controller(faction_name)
 		);
 	end
 
+	if new_controller:is_human() then
+		cm:show_message_event(
+			faction_name,
+			"message_event_text_text_mk_event_pope_new_pope_gained_control_title",
+			name,
+			"message_event_text_text_mk_event_pope_new_pope_gained_control_secondary_detail",
+			true,
+			666
+		);
+	end
+
 	POPE_CONTROLLING_FACTION = faction_name;
+
+	Pope_Button_Check();
 end
 
 ------------------------------------------------
