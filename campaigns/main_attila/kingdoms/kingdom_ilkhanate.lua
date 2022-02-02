@@ -94,7 +94,7 @@ function Ilkhanate_Regions_Check(context)
 end
 
 function Ilkhanate_Formed(faction_name)
-	FACTIONS_DFN_LEVEL[faction_name] = 4;
+	FACTIONS_DFN_LEVEL[faction_name] = 5;
 	ILKHANATE_FACTION = faction_name;
 	Rename_Faction(faction_name, faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]));
 

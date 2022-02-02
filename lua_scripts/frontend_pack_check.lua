@@ -27,7 +27,8 @@ REQUIRED_PACKS = {
 	{key = "1212models5.pack", enabled = false, packPos = nil, order = 8, name = "Medieval Kingdoms 1212 AD Models Pack 5"},
 	{key = "1212models6.pack", enabled = false, packPos = nil, order = 9, name = "Medieval Kingdoms 1212 AD Models Pack 6"},
 	{key = "1212models7.pack", enabled = false, packPos = nil, order = 10, name = "Medieval Kingdoms 1212 AD Models Pack 7"},
-	{key = "1212music.pack", enabled = false, packPos = nil, order = 11, name = "Medieval Kingdoms 1212 AD Music"}
+	{key = "1212models8.pack", enabled = false, packPos = nil, order = 11, name = "Medieval Kingdoms 1212 AD Models Pack 8"},
+	{key = "1212music.pack", enabled = false, packPos = nil, order = 12, name = "Medieval Kingdoms 1212 AD Music"}
 };
 
 eh:add_listener(

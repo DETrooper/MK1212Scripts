@@ -21,7 +21,14 @@ function Add_MK1212_Vassal_Tracking_Listeners()
 		"FactionTurnStart_Vassal_Tracking",
 		"FactionTurnStart",
 		true,
-		function(context) FactionTurnStart_Vassal_Tracking(context) end,
+		function(context) FactionTurnStartEnd_Vassal_Tracking(context) end,
+		true
+	);
+	cm:add_listener(
+		"FactionTurnEnd_Vassal_Tracking",
+		"FactionTurnEnd",
+		true,
+		function(context) FactionTurnStartEnd_Vassal_Tracking(context) end,
 		true
 	);
 	cm:add_listener(
@@ -84,9 +91,10 @@ function VassalTrackingSetup()
 	end
 end
 
-function FactionTurnStart_Vassal_Tracking(context)
-	local faction_name = context:faction():name();
-	local faction_is_human = context:faction():is_human();
+function FactionTurnStartEnd_Vassal_Tracking(context)
+	local faction = context:faction();
+	local faction_name = faction:name();
+	local faction_is_human = faction:is_human();
 
 	if not FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] then
 		FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] = {};
@@ -96,7 +104,7 @@ function FactionTurnStart_Vassal_Tracking(context)
 		local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED[faction_name][i];
 		local vassal_faction = cm:model():world():faction_by_key(vassal_faction_name);
 
-		if vassal_faction:region_list():num_items() < 1 then
+		if vassal_faction:region_list():num_items() < 1 or vassal_faction:at_war_with(faction) then
 			Faction_Unvassalized(faction_name, vassal_faction_name);
 			break;
 		end

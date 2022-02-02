@@ -142,6 +142,7 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 			local human_faction = cm:model():world():faction_by_key(human_faction_name);
 			local faction_panel_uic = UIComponent(settlement_captured_uic:Find("faction_panel"));
 			local list_box_uic = UIComponent(faction_panel_uic:Find("list_box"));
+			local vassal_tracking_enabled = FACTIONS_TO_FACTIONS_VASSALIZED and FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name];
 
 			button_gift_region_uic:SetState("inactive");
 			button_gift_region_uic:SetVisible(true);
@@ -161,7 +162,7 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 				-- Faction is allied/vassalized.
 				if current_faction:allied_with(human_faction) then
 					table.insert(valid_allies, current_faction_name);
-				elseif (FACTIONS_TO_FACTIONS_VASSALIZED and FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name] and HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name], current_faction_name)) then
+				elseif (vassal_tracking_enabled and HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[human_faction_name], current_faction_name)) then
 					-- Vassal tracking isn't 100% accurate so make sure the faction is alive.
 					if FactionIsAlive(current_faction_name) then
 						table.insert(valid_vassals, current_faction_name);
@@ -182,12 +183,12 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 				UIComponent(ally_row_uic:Find("name")):SetStateText(Get_DFN_Localisation(ally_name));
 
 				if HasValue(FACTIONS_WITH_IMAGES, ally_name) then
-					ally_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..ally_name.."_flag_big");
+					ally_row_uic:CreateComponent("faction_logo_"..ally_name, "UI/new/faction_flags/"..ally_name.."_flag_big");
 				else
-					ally_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
+					ally_row_uic:CreateComponent("faction_logo_"..ally_name, "UI/new/faction_flags/mk_fact_unknown_flag_big");
 				end
 		
-				local faction_logo_uic = UIComponent(ally_row_uic:Find("faction_logo"));
+				local faction_logo_uic = UIComponent(ally_row_uic:Find("faction_logo_"..ally_name));
 		
 				faction_logo_uic:Resize(48, 48);
 				faction_logo_uic:SetMoveable(true);
@@ -209,12 +210,12 @@ function OnPanelOpenedCampaign_Occupation_Decisions(context)
 				UIComponent(vassal_row_uic:Find("name")):SetStateText(Get_DFN_Localisation(vassal_name));
 
 				if HasValue(FACTIONS_WITH_IMAGES, vassal_name) then
-					vassal_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..vassal_name.."_flag_big");
+					vassal_row_uic:CreateComponent("faction_logo_"..vassal_name, "UI/new/faction_flags/"..vassal_name.."_flag_big");
 				else
-					vassal_row_uic:CreateComponent("faction_logo", "UI/new/faction_flags/mk_fact_unknown_flag_big");
+					vassal_row_uic:CreateComponent("faction_logo_"..vassal_name, "UI/new/faction_flags/mk_fact_unknown_flag_big");
 				end
 		
-				local faction_logo_uic = UIComponent(vassal_row_uic:Find("faction_logo"));
+				local faction_logo_uic = UIComponent(vassal_row_uic:Find("faction_logo_"..vassal_name));
 		
 				faction_logo_uic:Resize(48, 48);
 				faction_logo_uic:SetMoveable(true);

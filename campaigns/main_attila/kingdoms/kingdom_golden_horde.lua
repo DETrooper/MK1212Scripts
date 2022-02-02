@@ -94,7 +94,7 @@ function Golden_Horde_Regions_Check(context)
 end
 
 function Golden_Horde_Formed(faction_name)
-	FACTIONS_DFN_LEVEL[faction_name] = 4;
+	FACTIONS_DFN_LEVEL[faction_name] = 5;
 	GOLDEN_HORDE_FACTION = faction_name;
 	Rename_Faction(faction_name, faction_name.."_lvl"..tostring(FACTIONS_DFN_LEVEL[faction_name]));
 
