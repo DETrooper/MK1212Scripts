@@ -14,11 +14,14 @@ require("story/story_aragon");
 require("story/story_england");
 require("story/story_france");
 require("story/story_hungary");
-require("story/story_hre");
 require("story/story_reconquista");
-require("story/story_sicily");
 require("story/story_teutonic_order");
 require("story/story_world");
+
+if mkHRE then
+	require("story/story_hre");
+	require("story/story_sicily");
+end
 
 function Story_Initializer()
 	if STORY_EVENTS_ENABLED == true then

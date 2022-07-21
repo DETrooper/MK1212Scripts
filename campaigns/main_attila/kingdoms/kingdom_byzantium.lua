@@ -44,7 +44,7 @@ function Add_Kingdom_Byzantium_Listeners()
 				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Empire of Nicaea, Empire of Trebizond, or Desposate of Epirus.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Byzantine Empire does not exist.\n";
 				local faction_name = cm:get_local_faction();
 
-				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+				if mkHRE and HasValue(mkHRE.factions, faction_name) then
 					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
 				else
 					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
@@ -112,7 +112,7 @@ end
 function Constantinople_Taken(faction_name)
 	if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
 		Byzantine_Empire_Restored(faction_name);
-	elseif (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
+	elseif (not mkHRE or (mkHRE and HasValue(mkHRE.factions, faction_name) ~= true)) then
 		Enable_Decision("restore_byzantine_empire");
 	end
 end

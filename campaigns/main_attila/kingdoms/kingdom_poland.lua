@@ -36,10 +36,12 @@ function Add_Kingdom_Poland_Listeners()
 				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Duchy of Lesser Poland.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Kingdom of Poland does not yet exist.\n";
 				local faction_name = cm:get_local_faction();
 
-				if faction_name == HRE_EMPEROR_KEY then
-					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
-				else
-					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+				if mkHRE then
+					if faction_name == mkHRE.emperor_key then
+						conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+					else
+						conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
+					end
 				end
 	
 				for i = 1, #REGIONS_POLAND do
@@ -87,7 +89,7 @@ function Polish_Regions_Check(context)
 	if has_regions == true then
 		if cm:is_multiplayer() == true or context:faction():is_human() == false then
 			Polish_Kingdom_Formed(faction_name);
-		elseif faction_name ~= HRE_EMPEROR_KEY then
+		elseif not mkHRE or faction_name ~= mkHRE.emperor_key then
 			Enable_Decision("form_kingdom_poland");
 		end
 	end

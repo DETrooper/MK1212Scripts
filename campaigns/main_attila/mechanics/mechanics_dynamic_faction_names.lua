@@ -49,7 +49,7 @@ function Add_Dynamic_Faction_Names_Listeners()
 				local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
 				local conditionstring = "Conditions:\n\n";
 			
-				if faction_name == HRE_EMPEROR_KEY then
+				if mkHRE and faction_name == mkHRE.emperor_key then
 					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not the Holy Roman Emperor.\n";
 				else
 					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not the Holy Roman Emperor.\n";
@@ -78,7 +78,7 @@ function Add_Dynamic_Faction_Names_Listeners()
 				local num_regions = cm:model():world():faction_by_key(faction_name):region_list():num_items();
 				local conditionstring = "Conditions:\n\n";
 			
-				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+				if mkHRE and HasValue(mkHRE.factions, faction_name) then
 					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
 				else
 					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
@@ -161,7 +161,7 @@ function Global_DFN_Check()
 			if FactionIsAlive(faction_name) then
 				if FACTIONS_DFN_LEVEL[faction_name] == 1 then
 					if not HasValue(FACTIONS_DFN_KINGDOMS_EVENTS, faction_name) then
-						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL2 and faction_name ~= HRE_EMPEROR_KEY then
+						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL2 and (not mkHRE or faction_name ~= mkHRE.emperor_key) then
 							if faction:is_human() == false or cm:is_multiplayer() == true then
 								DFN_Set_Faction_Rank(faction_name, 2);
 							else
@@ -175,7 +175,7 @@ function Global_DFN_Check()
 					end
 				elseif FACTIONS_DFN_LEVEL[faction_name] == 2 then
 					if not HasValue(FACTIONS_DFN_EMPIRES_EVENTS, faction_name) then
-						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
+						if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and (not mkHRE or (mkHRE and not HasValue(mkHRE.factions, faction_name))) then
 							if faction:is_human() == false or cm:is_multiplayer() == true then
 								DFN_Set_Faction_Rank(faction_name, 3);
 							else
@@ -188,7 +188,7 @@ function Global_DFN_Check()
 						end
 					end
 				elseif FACTIONS_DFN_LEVEL[faction_name] == 4 then -- For Kingdom events.
-					if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
+					if faction:region_list():num_items() >= NUM_REQUIRED_REGIONS_LVL3 and (not mkHRE or (mkHRE and not HasValue(mkHRE.factions, faction_name))) then
 						if faction:is_human() == false or cm:is_multiplayer() == true then
 							DFN_Set_Faction_Rank(faction_name, 5);
 						else
@@ -226,10 +226,12 @@ function Get_DFN_Localisation(faction_name)
 		faction_string = DFN_NAMES_LOCALISATION[dfn_string];
 	end
 
-	if faction_name == HRE_EMPEROR_KEY then
-		faction_string = FACTIONS_NAMES_LOCALISATION["mk_fact_hre"];
-	elseif faction_name == "mk_fact_hre" then
-		faction_string = DFN_NAMES_LOCALISATION["mk_fact_hre_non_emperor"];
+	if mkHRE then
+		if faction_name == mkHRE.emperor_key then
+			faction_string = FACTIONS_NAMES_LOCALISATION["mk_fact_hre"];
+		elseif faction_name == "mk_fact_hre" then
+			faction_string = DFN_NAMES_LOCALISATION["mk_fact_hre_non_emperor"];
+		end
 	end
 
 	return faction_string;
@@ -311,11 +313,13 @@ function DFN_Refresh_Faction_Name(faction_name)
 	local rank = FACTIONS_DFN_LEVEL[faction_name];
 	local newname = faction_name.."_lvl"..tostring(rank);
 
-	if faction_name == HRE_EMPEROR_KEY then
-		newname = "mk_fact_hre_lvl3";
-	else
-		if faction_name == "mk_fact_hre" then
-			newname = "mk_fact_hre_non_emperor";
+	if mkHRE then
+		if faction_name == mkHRE.emperor_key then
+			newname = "mk_fact_hre_lvl3";
+		else
+			if faction_name == "mk_fact_hre" then
+				newname = "mk_fact_hre_non_emperor";
+			end
 		end
 	end
 

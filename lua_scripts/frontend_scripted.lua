@@ -38,8 +38,8 @@ eh = event_handler:new(AddEventCallBack);
 m_root = nil;
 svr = ScriptedValueRegistry:new();
 tm = timer_manager:new(Timers);
-version_number = 2000;
-version_number_string = "v2.2.5";
+version_number = 2300;
+version_number_string = "v2.3.0";
 
 local checkbox_lucky_nations_selected = false;
 

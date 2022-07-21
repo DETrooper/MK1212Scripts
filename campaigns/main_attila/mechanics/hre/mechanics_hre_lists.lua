@@ -8,7 +8,7 @@
 -------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Order: Attitude title, attitude description.
-HRE_STATES = {
+mkHRE.factions_states = {
 	["loyal"] = {"Loyal", "This faction is loyal to the emperor and will always support them."},
 	["ambitious"] = {"Ambitious", "This faction is ruthlessly ambitious, serving its own ends at the expense of all others."},
 	["malcontent"] = {"Malcontent", "This faction has been extremely offended by the emperor and will always oppose them."},
@@ -19,14 +19,14 @@ HRE_STATES = {
 	["puppet"] = {"Puppet", "This faction exists only in name, being completely subservient to the whims of the emperor"}
 };
 
-HRE_EVENTS_DILEMMAS = {
+mkHRE.event_dilemmas = {
 	["mk_dilemma_hre_border_dispute"] = {0, 0, -10},
 	["mk_dilemma_hre_imperial_immediacy"] = {15, -15},
 	["mk_dilemma_hre_noble_conflict"] = {10, 10, -10},
 	["mk_dilemma_hre_imperial_diet"] = {25, 25, 0, 10}
 };
 
-HRE_FACTIONS_START = {
+mkHRE.factions_start = {
 	"mk_fact_hre",
 	"mk_fact_bologna",
 	"mk_fact_verona",
@@ -49,14 +49,14 @@ HRE_FACTIONS_START = {
 	"mk_fact_pisa"
 };
 
-HRE_FACTIONS_HISTORICAL_ELECTORS = {
+mkHRE.historical_electors = {
 	"mk_fact_bohemia",
 	"mk_fact_brandenburg",
 	"mk_fact_saxony",
 	"mk_fact_trier"
 };
 
-HRE_FACTIONS_STATES_START = {
+mkHRE.factions_to_states_start = {
 	["mk_fact_hre"] = "emperor",
 	["mk_fact_bologna"] = "discontent",
 	["mk_fact_verona"] = "discontent",
@@ -79,7 +79,7 @@ HRE_FACTIONS_STATES_START = {
 	["mk_fact_sicily"] = "pretender"
 };
 
-HRE_FACTIONS_VOTES_START = {
+mkHRE.elector_votes_start = {
 	["mk_fact_hre"] = "mk_fact_hre",
 	["mk_fact_bologna"] = "mk_fact_sicily",
 	["mk_fact_verona"] = "mk_fact_sicily",
@@ -101,7 +101,7 @@ HRE_FACTIONS_VOTES_START = {
 	["mk_fact_pisa"] = "mk_fact_sicily"
 };
 
-HRE_REGIONS = {
+mkHRE.regions = {
 	"att_reg_belgica_augusta_treverorum",
 	"att_reg_belgica_colonia_agrippina",
 	"att_reg_frisia_angulus",
@@ -127,7 +127,7 @@ HRE_REGIONS = {
 	"att_reg_venetia_verona"
 };
 
-HRE_REGIONS_TO_IMAGES = {
+mkHRE.regions_to_images = {
 	["att_reg_belgica_augusta_treverorum"] = "hre_reg_belgica_augusta_treverorum",
 	["att_reg_belgica_colonia_agrippina"] = "hre_reg_belgica_colonia_agrippina",
 	["att_reg_frisia_angulus"] = "hre_reg_frisia_angulus",
@@ -153,7 +153,7 @@ HRE_REGIONS_TO_IMAGES = {
 	["att_reg_venetia_verona"] = "hre_reg_venetia_verona"
 };
 
-HRE_REGION_FACTION_PIPS_LOCATIONS = {
+mkHRE.region_image_faction_pip_locations = {
 	["att_reg_belgica_augusta_treverorum"] = {135, 270},
 	["att_reg_belgica_colonia_agrippina"] = {132, 188},
 	["att_reg_frisia_angulus"] = {251, 62},
@@ -179,7 +179,7 @@ HRE_REGION_FACTION_PIPS_LOCATIONS = {
 	["att_reg_venetia_verona"] = {299, 464},
 };
 
-HRE_EMPERORS_NAMES_NUMBERS = {
+mkHRE.emperors_names_numbers = {
 	["names_name_2147368276"] = 4,
 	["names_name_2147384692"] = 4,
 	["names_name_2147364244"] = 3,
@@ -211,7 +211,7 @@ HRE_EMPERORS_NAMES_NUMBERS = {
 	["names_name_2147370877"] = 2
 };
 
-HRE_EMPERORS_ROMAN_NUMERALS = {
+mkHRE.emperors_roman_numerals = {
 	"I",
 	"II",
 	"III",

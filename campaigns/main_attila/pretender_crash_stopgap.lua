@@ -12,14 +12,14 @@ FACTIONS_CAUSING_CRASHING = {
 	"mk_fact_separatists_cumans",
 	"mk_fact_separatists_goldenhorde",
 	"mk_fact_separatists_ilkhanate",
-	"mk_fact_separatists_norway"
+	--"mk_fact_separatists_norway"
 };
 
 FACTIONS_CAUSING_CRASHING_ALT_FACTIONS = {
 	"mk_fact_cumans",
 	"mk_fact_goldenhorde",
 	"mk_fact_ilkhanate",
-	"mk_fact_norway"
+	--"mk_fact_norway"
 };
 
 function Add_Stopgap_Listeners()
@@ -63,25 +63,27 @@ function Check_Pretender_Factions_Stopgap()
 	for i = 1, #FACTIONS_CAUSING_CRASHING do
 		local faction = cm:model():world():faction_by_key(FACTIONS_CAUSING_CRASHING[i]);
 
-		if faction:region_list():num_items() > 0 or faction:military_force_list():num_items() > 0 then
-			--dev.log("PURGING FACTION: "..FACTIONS_CAUSING_CRASHING[i]);
-			local faction_parent = cm:model():world():faction_by_key(FACTIONS_CAUSING_CRASHING_ALT_FACTIONS[i]) 
-			local region_list = faction:region_list();
-			local character_list = faction:character_list();
+		if faction then
+			if faction:region_list():num_items() > 0 or faction:military_force_list():num_items() > 0 then
+				--dev.log("PURGING FACTION: "..FACTIONS_CAUSING_CRASHING[i]);
+				local faction_parent = cm:model():world():faction_by_key(FACTIONS_CAUSING_CRASHING_ALT_FACTIONS[i]);
+				local region_list = faction:region_list();
+				local character_list = faction:character_list();
 
-			for k = 0, character_list:num_items() - 1 do
-				local character = character_list:item_at(k);
+				for k = 0, character_list:num_items() - 1 do
+					local character = character_list:item_at(k);
 
-				cm:kill_character("character_cqi:"..character:command_queue_index(), true, false);
-			end
+					cm:kill_character("character_cqi:"..character:command_queue_index(), true, false);
+				end
 
-			for j = 0, region_list:num_items() - 1 do
-				local region = region_list:item_at(j);
+				for j = 0, region_list:num_items() - 1 do
+					local region = region_list:item_at(j);
 
-				if faction_parent:region_list():num_items() < 0 or faction_parent:military_force_list():num_items() < 0 then
-					cm:transfer_region_to_faction(region:name(), FACTIONS_CAUSING_CRASHING_ALT_FACTIONS[i]);
-				else			
-					cm:set_region_abandoned(region:name());
+					if faction_parent and (faction_parent:region_list():num_items() < 0 or faction_parent:military_force_list():num_items() < 0) then
+						cm:transfer_region_to_faction(region:name(), FACTIONS_CAUSING_CRASHING_ALT_FACTIONS[i]);
+					else			
+						cm:set_region_abandoned(region:name());
+					end
 				end
 			end
 		end

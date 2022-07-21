@@ -8,16 +8,15 @@
 --------------------------------------------------------------------------------------------------------------------------------------------------
 -- Keeps track of the HRE's regions.
 
-HRE_REGION_RECONQUERED_AUTHORITY_GAIN = 10; -- Imperial Authority gained if a region is reconquered into the HRE.
-HRE_REGION_LOST_AUTHORITY_LOSS = 15; -- Imperial Authority lost if an imperial region is lost to an outside power.
+local hre_region_reconquered_authority_gain = 10; -- Imperial Authority gained if a region is reconquered into the HRE.
+local hre_region_lost_authority_loss = 15; -- Imperial Authority lost if an imperial region is lost to an outside power.
+local hre_unlawful_territory_duration = 10;
 
-HRE_REGIONS_IN_EMPIRE = {};
-HRE_REGIONS_OWNERS = {};
-HRE_REGIONS_UNLAWFUL_TERRITORY = {};
+mkHRE.regions_in_empire = {};
+mkHRE.regions_owners = {};
+mkHRE.regions_unlawful_territory = {};
 
-HRE_UNLAWFUL_TERRITORY_DURATION = 10;
-
-function Add_HRE_Region_Listeners()
+function mkHRE:Add_Region_Listeners()
 	cm:add_listener(
 		"FactionTurnStart_HRE_Regions",
 		"FactionTurnStart",
@@ -27,85 +26,87 @@ function Add_HRE_Region_Listeners()
 	);
 
 	if cm:is_new_game() then
-		for i = 1, #HRE_REGIONS do
-			local region_name = HRE_REGIONS[i];
+		for i = 1, #self.regions do
+			local region_name = self.regions[i];
 			local region_owning_faction_name = cm:model():world():region_manager():region_by_key(region_name):owning_faction():name();
 
-			if HasValue(HRE_FACTIONS, region_owning_faction_name) then
-				table.insert(HRE_REGIONS_IN_EMPIRE, region_name);
+			if HasValue(self.factions, region_owning_faction_name) then
+				table.insert(self.regions_in_empire, region_name);
 			end
 
-			if region_name ~= HRE_FRANKFURT_KEY then
-				HRE_REGIONS_OWNERS[region_name] = region_owning_faction_name;
+			if region_name ~= self.frankfurt_region_key then
+				self.regions_owners[region_name] = region_owning_faction_name;
 			end
 		end
 	end
 end
 
 function FactionTurnStart_HRE_Regions(context)
-	if not HRE_DESTROYED and CURRENT_HRE_REFORM < 9 then
+	if not mkHRE.destroyed and mkHRE.current_reform < 9 then
 		if context:faction():is_human() then
-			HRE_Check_Regions_In_Empire();
+			mkHRE:Check_Regions_In_Empire();
 		end
 	end
 end
 
-function HRE_Check_Regions_In_Empire()
-	local regions_in_empire = {};
-	local factions_to_regions_in_empire = {};
+function mkHRE:Check_Regions_In_Empire()
+	if not self.destroyed then
+		local regions_in_empire = {};
+		local factions_to_regions_in_empire = {};
 
-	for i = 1, #HRE_FACTIONS do
-		HRE_Remove_Imperial_Expansion_Effect_Bundles(HRE_FACTIONS[i]);
-	end
+		for i = 1, #self.factions do
+			self:Remove_Imperial_Expansion_Effect_Bundles(self.factions[i]);
+		end
 
-	for i = 1, #HRE_REGIONS do
-		local region_name = HRE_REGIONS[i];
-		local region_owning_faction_name = cm:model():world():region_manager():region_by_key(region_name):owning_faction():name();
+		for i = 1, #self.regions do
+			local region_name = self.regions[i];
+			local region_owning_faction_name = cm:model():world():region_manager():region_by_key(region_name):owning_faction():name();
 
-		if HasValue(HRE_FACTIONS, region_owning_faction_name) then
-			table.insert(regions_in_empire, region_name);
+			if HasValue(self.factions, region_owning_faction_name) then
+				table.insert(regions_in_empire, region_name);
 
-			if region_name ~= HRE_FRANKFURT_KEY then
-				if factions_to_regions_in_empire[region_owning_faction_name] == nil then
-					factions_to_regions_in_empire[region_owning_faction_name] = {};
+				if region_name ~= self.frankfurt_region_key then
+					if factions_to_regions_in_empire[region_owning_faction_name] == nil then
+						factions_to_regions_in_empire[region_owning_faction_name] = {};
+					end
+
+					table.insert(factions_to_regions_in_empire[region_owning_faction_name], region_name);
 				end
 
-				table.insert(factions_to_regions_in_empire[region_owning_faction_name], region_name);
+				if not HasValue(self.regions_in_empire, region_name) then
+					self:Region_Reconquered(region_name);
+				end
 			end
 
-			if not HasValue(HRE_REGIONS_IN_EMPIRE, region_name) then
-				HRE_Region_Reconquered(region_name);
+			self.regions_owners[region_name] = region_owning_faction_name;
+		end
+
+		for i = 1, #self.regions_in_empire do
+			local region_name =  self.regions_in_empire[i];
+
+			if not HasValue(regions_in_empire, region_name) then
+				self:Region_Lost(region_name);
 			end
 		end
 
-		HRE_REGIONS_OWNERS[region_name] = region_owning_faction_name;
-	end
-
-	for i = 1, #HRE_REGIONS_IN_EMPIRE do
-		local region_name =  HRE_REGIONS_IN_EMPIRE[i];
-
-		if not HasValue(regions_in_empire, region_name) then
-			HRE_Region_Lost(region_name);
-		end
-	end
-
-	for k, v in pairs(factions_to_regions_in_empire) do
-		if #v > 3 then
-			if #v == #HRE_REGIONS - 1 then
-				cm:apply_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(#v - 1), k, 0);
-			else
-				cm:apply_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(#v), k, 0);
+		for k, v in pairs(factions_to_regions_in_empire) do
+			if #v > 3 then
+				if #v == #self.regions - 1 then
+					cm:apply_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(#v - 1), k, 0);
+				else
+					cm:apply_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(#v), k, 0);
+				end
 			end
 		end
-	end
 
-	HRE_REGIONS_IN_EMPIRE = regions_in_empire;
+		self.regions_in_empire = regions_in_empire;
+	end
 end
 
-function HRE_Region_Reconquered(region_name)
+function mkHRE:Region_Reconquered(region_name)
 	local faction_name = cm:get_local_faction();
 
-	if faction_name == HRE_EMPEROR_KEY then
+	if faction_name == self.emperor_key then
 		cm:show_message_event(
 			faction_name,
 			"message_event_text_text_mk_event_hre_region_reconquered_title",
@@ -114,7 +115,7 @@ function HRE_Region_Reconquered(region_name)
 			true, 
 			728
 		);
-	elseif HasValue(HRE_FACTIONS, faction_name) then
+	elseif HasValue(self.factions, faction_name) then
 		cm:show_message_event(
 			faction_name,
 			"message_event_text_text_mk_event_hre_region_reconquered_title",
@@ -125,13 +126,13 @@ function HRE_Region_Reconquered(region_name)
 		);
 	end
 
-	HRE_Change_Imperial_Authority(HRE_REGION_RECONQUERED_AUTHORITY_GAIN);
+	self:Change_Imperial_Authority(hre_region_reconquered_authority_gain);
 end
 
-function HRE_Region_Lost(region_name)
+function mkHRE:Region_Lost(region_name)
 	local faction_name = cm:get_local_faction();
 
-	if faction_name == HRE_EMPEROR_KEY then
+	if faction_name == self.emperor_key then
 		cm:show_message_event(
 			faction_name,
 			"message_event_text_text_mk_event_hre_region_lost_title",
@@ -140,7 +141,7 @@ function HRE_Region_Lost(region_name)
 			true, 
 			703
 		);
-	elseif HasValue(HRE_FACTIONS, faction_name) then
+	elseif HasValue(self.factions, faction_name) then
 		cm:show_message_event(
 			faction_name,
 			"message_event_text_text_mk_event_hre_region_lost_title",
@@ -151,16 +152,16 @@ function HRE_Region_Lost(region_name)
 		);
 	end
 
-	HRE_Change_Imperial_Authority(-HRE_REGION_LOST_AUTHORITY_LOSS);
+	self:Change_Imperial_Authority(-hre_region_lost_authority_loss);
 end
 
-function HRE_Remove_Imperial_Expansion_Effect_Bundles(faction_name)
-	for i = 4, #HRE_REGIONS - 1 do
+function mkHRE:Remove_Imperial_Expansion_Effect_Bundles(faction_name)
+	for i = 4, #self.regions - 1 do
 		cm:remove_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(i), faction_name);
 	end
 end
 
-function HRE_Issue_Unlawful_Territory_Ultimatum(region_name)
+function mkHRE:Issue_Unlawful_Territory_Ultimatum(region_name)
 	local region_owning_faction = cm:model():world():region_manager():region_by_key(region_name):owning_faction();
 
 	if region_owning_faction:is_human() then
@@ -174,10 +175,10 @@ function HRE_Issue_Unlawful_Territory_Ultimatum(region_name)
 		);		
 	end
 
-	cm:apply_effect_bundle_to_region("mk_effect_bundle_unlawful_territory", region_name, HRE_UNLAWFUL_TERRITORY_DURATION);
+	cm:apply_effect_bundle_to_region("mk_effect_bundle_unlawful_territory", region_name, hre_unlawful_territory_duration);
 end
 
-function HRE_Remove_Unlawful_Territory_Effect_Bundles(faction_name)
+function mkHRE:Remove_Unlawful_Territory_Effect_Bundles(faction_name)
 	local region_list = cm:model():world():faction_by_key(faction_name):region_list();
 
 	if region_list:num_items() > 0 then
@@ -194,16 +195,16 @@ end
 --------------------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		SaveTable(context, HRE_REGIONS_IN_EMPIRE, "HRE_REGIONS_IN_EMPIRE");
-		SaveTable(context, HRE_REGIONS_UNLAWFUL_TERRITORY, "HRE_REGIONS_UNLAWFUL_TERRITORY");
-		SaveKeyPairTable(context, HRE_REGIONS_OWNERS, "HRE_REGIONS_OWNERS");
+		SaveTable(context, mkHRE.regions_in_empire, "mkHRE.regions_in_empire");
+		SaveTable(context, mkHRE.regions_unlawful_territory, "mkHRE.regions_unlawful_territory");
+		SaveKeyPairTable(context, mkHRE.regions_owners, "mkHRE.regions_owners");
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
-		HRE_REGIONS_IN_EMPIRE = LoadTable(context, "HRE_REGIONS_IN_EMPIRE");
-		HRE_REGIONS_UNLAWFUL_TERRITORY = LoadTable(context, "HRE_REGIONS_UNLAWFUL_TERRITORY");
-		HRE_REGIONS_OWNERS = LoadKeyPairTable(context, "HRE_REGIONS_OWNERS");
+		mkHRE.regions_in_empire = LoadTable(context, "mkHRE.regions_in_empire");
+		mkHRE.regions_unlawful_territory = LoadTable(context, "mkHRE.regions_unlawful_territory");
+		mkHRE.regions_owners = LoadKeyPairTable(context, "mkHRE.regions_owners");
 	end
 );

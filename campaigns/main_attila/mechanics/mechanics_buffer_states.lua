@@ -168,8 +168,8 @@ function OnSettlementSelected_Buffer(context)
 
 		if not FactionIsAlive(vassal_faction_name) then
 			-- Don't allow HRE factions to be released as buffer states unless Renovatio Imperii has already occured.
-			if HRE_FACTIONS_START and CURRENT_HRE_REFORM then
-				if HasValue(HRE_FACTIONS_START, vassal_faction_name) and CURRENT_HRE_REFORM < 9 then
+			if mkHRE and mkHRE.factions_start and mkHRE.current_reform then
+				if HasValue(mkHRE.factions_start, vassal_faction_name) and mkHRE.current_reform < 9 then
 					return;
 				end
 			end

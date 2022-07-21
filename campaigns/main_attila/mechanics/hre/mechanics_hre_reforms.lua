@@ -8,11 +8,11 @@
 --------------------------------------------------------------------------------------------------------------------------------------------------
 -- System for the HRE to reform its centralization and eventually become unified.
 
-CURRENT_HRE_REFORM = 0;
-HRE_REFORMS_VOTES = {};
-HRE_REFORM_COST = 100;
+mkHRE.current_reform = 0; -- Current HRE reform number.
+mkHRE.reforms_votes = {}; -- List of factions voting in support of a reform.
+mkHRE.reform_cost = 100; -- How much imperial authority it costs to pass a reform.
 
-HRE_REFORMS = {
+mkHRE.reforms = {
 	-- Reforms are unlocked in order from first to last.
 	{
 		["key"] = "hre_reform_kufursten", 
@@ -70,7 +70,7 @@ HRE_REFORMS = {
 	}
 };
 
-function Add_HRE_Reforms_Listeners()
+function mkHRE:Add_Reform_Listeners()
 	cm:add_listener(
 		"FactionTurnStart_HRE_Reforms",
 		"FactionTurnStart",
@@ -80,78 +80,78 @@ function Add_HRE_Reforms_Listeners()
 	);
 
 	if cm:is_new_game() then
-		Calculate_Reform_Votes();
+		self:Calculate_Reform_Votes();
 	end
 end
 
 function FactionTurnStart_HRE_Reforms(context)
-	if not HRE_DESTROYED then
+	if not mkHRE.destroyed then
 		if context:faction():is_human() == false then
-			if context:faction():name() == HRE_EMPEROR_KEY then
-				if HRE_IMPERIAL_AUTHORITY == HRE_REFORM_COST and #HRE_REFORMS_VOTES >= math.ceil((#HRE_FACTIONS - 1) / 2)  then
-					Pass_HRE_Reform(CURRENT_HRE_REFORM + 1);
+			if context:faction():name() == mkHRE.emperor_key then
+				if mkHRE.imperial_authority == mkHRE.reform_cost and #mkHRE.reforms_votes >= math.ceil((#mkHRE.factions - 1) / 2)  then
+					mkHRE:Pass_Reform(mkHRE.current_reform + 1);
 				end
 			end
 		else
-			Calculate_Reform_Votes();
+			mkHRE:Calculate_Reform_Votes();
 		end
 	end
 end
 
-function Calculate_Reform_Votes()
+function mkHRE:Calculate_Reform_Votes()
 	local tab = {};
 
-	for i = 1, #HRE_FACTIONS do
-		local faction_name = HRE_FACTIONS[i];
+	for i = 1, #self.factions do
+		local faction_name = self.factions[i];
 		local faction = cm:model():world():faction_by_key(faction_name);
-		local faction_state = HRE_Get_Faction_State(faction_name);
+		local faction_state = self:Get_Faction_State(faction_name);
 
 		if cm:is_new_game() or faction:is_human() == false then
 			if faction_state == "loyal" or faction_state == "puppet" or faction_state == "neutral" then
 				table.insert(tab, faction_name);
 			end
 		elseif faction:is_human() == true then
-			if HasValue(HRE_REFORMS_VOTES, faction_name) then
+			if HasValue(self.reforms_votes, faction_name) then
 				table.insert(tab, faction_name);
 			end
 		end
 	end
 
-	HRE_REFORMS_VOTES = DeepCopy(tab);
+	self.reforms_votes = DeepCopy(tab);
 end
 
-function Pass_HRE_Reform(reform_number)
-	CURRENT_HRE_REFORM = reform_number;
+function mkHRE:Pass_Reform(reform_number)
+	self.current_reform = reform_number;
 
 	for i = 1, reform_number - 1 do
-		cm:remove_effect_bundle("mk_effect_bundle_reform_"..tostring(i), HRE_EMPEROR_KEY);
+		cm:remove_effect_bundle("mk_effect_bundle_reform_"..tostring(i), self.emperor_key);
 	end
 
-	cm:apply_effect_bundle("mk_effect_bundle_reform_"..tostring(reform_number), HRE_EMPEROR_KEY, 0);
+	cm:apply_effect_bundle("mk_effect_bundle_reform_"..tostring(reform_number), self.emperor_key, 0);
 
 	if reform_number == 1 then
 		-- We need to add 7 Prince-Electors.
-		HRE_FACTIONS_VOTES = {};
+		self.reforms_votes = {};
 
-		for i = 1, #HRE_FACTIONS_HISTORICAL_ELECTORS do
-			local faction_name = HRE_FACTIONS_HISTORICAL_ELECTORS[i];
+		for i = 1, #self.historical_electors do
+			local faction_name = self.historical_electors[i];
 
-			if FactionIsAlive(faction_name) and HasValue(HRE_FACTIONS, faction_name) then
-				table.insert(HRE_FACTIONS_ELECTORS, faction_name);
+			if FactionIsAlive(faction_name) and HasValue(self.factions, faction_name) then
+				table.insert(self.elector_factions, faction_name);
 			end
 		end
 
-		if #HRE_FACTIONS_ELECTORS < 7 then
-			Add_New_Electors_HRE_Elections();
+		if #self.elector_factions < 7 then
+			self:Add_New_Electors_HRE_Elections();
 		end
 	elseif reform_number == 5 then
-		for i = 1, #HRE_FACTIONS do
-			local faction_name = HRE_FACTIONS[i];
+		for i = 1, #self.factions do
+			local faction_name = self.factions[i];
 
-			for j = 1, #HRE_FACTIONS do
-				local faction2_name = HRE_FACTIONS[j];
+			for j = 1, #self.factions do
+				local faction2_name = self.factions[j];
 
-				if faction_name ~= HRE_EMPEROR_KEY and faction2_name ~= HRE_EMPEROR_KEY then
+				if faction_name ~= self.emperor_key and faction2_name ~= self.emperor_key then
 					cm:force_diplomacy(faction_name, faction2_name, "war", false, false);
 
 					if cm:model():world():faction_by_key(faction_name):at_war_with(cm:model():world():faction_by_key(faction2_name)) then
@@ -163,14 +163,14 @@ function Pass_HRE_Reform(reform_number)
 	elseif reform_number == 8 then
 		
 	elseif reform_number == 9 then
-		local faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+		local faction = cm:model():world():faction_by_key(self.emperor_key);
 		local turn_number = cm:model():turn_number();
 
-		for i = 1, #HRE_FACTIONS do
-			local faction_name = HRE_FACTIONS[i];
+		for i = 1, #self.factions do
+			local faction_name = self.factions[i];
 
-			if HRE_Get_Faction_State(faction_name) ~= "emperor" then
-				cm:grant_faction_handover(HRE_EMPEROR_KEY, faction_name, turn_number-1, turn_number-1, context);
+			if self:Get_Faction_State(faction_name) ~= "emperor" then
+				cm:grant_faction_handover(self.emperor_key, faction_name, turn_number-1, turn_number-1, context);
 			end
 		end
 
@@ -186,23 +186,23 @@ function Pass_HRE_Reform(reform_number)
 			Apply_Region_Economy_Factionwide(faction);
 		end
 
-		HRE_Remove_Imperial_Expansion_Effect_Bundles(HRE_EMPEROR_KEY);
-		HRE_Remove_Unlawful_Territory_Effect_Bundles(HRE_EMPEROR_KEY);
-		HRE_Vanquish_Pretender();
-		CloseHREPanel(false);
+		self:Remove_Imperial_Expansion_Effect_Bundles(self.emperor_key);
+		self:Remove_Unlawful_Territory_Effect_Bundles(self.emperor_key);
+		self:HRE_Vanquish_Pretender();
+		self:CloseHREPanel(false);
 
 		if IRONMAN_ENABLED then
 			Unlock_Achievement("achievement_renovatio_imperii");
 		end
 
-		HRE_FACTIONS = {};
-		HRE_FACTIONS_STATES = {};
-		HRE_FACTIONS_STATE_CHANGE_COOLDOWNS = {};
+		self.factions = {};
+		self.factions_to_states = {};
+		self.faction_state_change_cooldowns = {};
 
-		HRE_Button_Check();
+		self:Button_Check();
 	end
 
-	if HasValue(HRE_FACTIONS, cm:get_local_faction()) then
+	if HasValue(self.factions, cm:get_local_faction()) then
 		cm:show_message_event(
 			cm:get_local_faction(),
 			"message_event_text_text_mk_event_hre_reform_title",
@@ -213,49 +213,49 @@ function Pass_HRE_Reform(reform_number)
 		);
 	end
 
-	Calculate_Reform_Votes();
-	HRE_Change_Imperial_Authority(-HRE_REFORM_COST);
+	self:Calculate_Reform_Votes();
+	self:Change_Imperial_Authority(-self.reform_cost);
 end
 
-function Cast_Vote_For_Current_Reform_HRE(faction_name)
-	table.insert(HRE_REFORMS_VOTES, faction_name);
+function mkHRE:Cast_Vote_Reform(faction_name)
+	table.insert(self.reforms_votes, faction_name);
 end
 
-function Remove_Vote_For_Current_Reform_HRE(faction_name)
-	for i = 1, #HRE_REFORMS_VOTES do
-		if HRE_REFORMS_VOTES[i] == faction_name then
-			table.remove(HRE_REFORMS_VOTES, i);
+function mkHRE:Remove_Vote_Reform(faction_name)
+	for i = 1, #self.reforms_votes do
+		if self.reforms_votes[i] == faction_name then
+			table.remove(self.reforms_votes, i);
 		end
 	end
 end
 
-function Get_Reform_Tooltip(reform_key)
+function mkHRE:Get_Reform_Tooltip(reform_key)
 	local reformstring = "";
 
-	for i = 1, #HRE_REFORMS do
-		if HRE_REFORMS[i]["key"] == reform_key then
-			reformstring = "[[rgba:255:215:0:215]]"..HRE_REFORMS[i]["name"].."[[/rgba]]\n[[rgba:219:211:173:150]]"..HRE_REFORMS[i]["description"].."[[/rgba]]\n\nEffects:";
+	for i = 1, #self.reforms do
+		if self.reforms[i]["key"] == reform_key then
+			reformstring = "[[rgba:255:215:0:215]]"..self.reforms[i]["name"].."[[/rgba]]\n[[rgba:219:211:173:150]]"..self.reforms[i]["description"].."[[/rgba]]\n\nEffects:";
 
-			for j = 1, #HRE_REFORMS[i]["effects"] do
-				reformstring = reformstring.."\n"..HRE_REFORMS[i]["effects"][j];
+			for j = 1, #self.reforms[i]["effects"] do
+				reformstring = reformstring.."\n"..self.reforms[i]["effects"][j];
 			end
 
-			if CURRENT_HRE_REFORM < i - 1 then
+			if self.current_reform < i - 1 then
 				reformstring = reformstring.."\n\n[[rgba:255:0:0:150]]"..UI_LOCALISATION["hre_reform_tooltip_locked"].."[[/rgba]]";
-			elseif CURRENT_HRE_REFORM == i - 1 then
+			elseif self.current_reform == i - 1 then
 				local color1 = "[[rgba:255:0:0:150]]";
 				local color2 = "[[rgba:255:0:0:150]]";
 
-				if HRE_IMPERIAL_AUTHORITY >= HRE_REFORM_COST then
+				if self.imperial_authority >= self.reform_cost then
 					color1 = "[[rgba:8:201:27:150]]";
 				end
 
-				if #HRE_REFORMS_VOTES >= math.ceil((#HRE_FACTIONS - 1) / 2) then
+				if #self.reforms_votes >= math.ceil((#self.factions - 1) / 2) then
 					color2 = "[[rgba:8:201:27:150]]";
 				end
 
-				reformstring = reformstring.."\n\n"..color1..UI_LOCALISATION["hre_imperial_authority_prefix"].."("..Round_Number_Text(HRE_IMPERIAL_AUTHORITY).." / "..tostring(HRE_REFORM_COST)..")[[/rgba]]\n"..color2..UI_LOCALISATION["hre_votes_prefix"].."("..tostring(#HRE_REFORMS_VOTES).." / "..tostring(math.ceil((#HRE_FACTIONS - 1) / 2))..UI_LOCALISATION["hre_votes_required"].."[[/rgba]]";
-			elseif CURRENT_HRE_REFORM > i - 1 then
+				reformstring = reformstring.."\n\n"..color1..UI_LOCALISATION["hre_imperial_authority_prefix"].."("..Round_Number_Text(self.imperial_authority).." / "..tostring(self.reform_cost)..")[[/rgba]]\n"..color2..UI_LOCALISATION["hre_votes_prefix"].."("..tostring(#self.reforms_votes).." / "..tostring(math.ceil((#self.factions - 1) / 2))..UI_LOCALISATION["hre_votes_required"].."[[/rgba]]";
+			elseif self.current_reform > i - 1 then
 				reformstring = reformstring.."\n\n[[rgba:8:201:27:150]]"..UI_LOCALISATION["hre_reform_tooltip_unlocked"].."[[/rgba]]";
 			end
 		end
@@ -269,14 +269,14 @@ end
 --------------------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		cm:save_value("CURRENT_HRE_REFORM", CURRENT_HRE_REFORM, context);
-		SaveTable(context, HRE_REFORMS_VOTES, "HRE_REFORMS_VOTES");
+		cm:save_value("mkHRE.current_reform", mkHRE.current_reform, context);
+		SaveTable(context, mkHRE.reforms_votes, "mkHRE.reforms_votes");
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
-		CURRENT_HRE_REFORM = cm:load_value("CURRENT_HRE_REFORM", 0, context);
-		HRE_REFORMS_VOTES = LoadTable(context, "HRE_REFORMS_VOTES");
+		mkHRE.current_reform = cm:load_value("mkHRE.current_reform", 0, context);
+		mkHRE.reforms_votes = LoadTable(context, "mkHRE.reforms_votes");
 	end
 );

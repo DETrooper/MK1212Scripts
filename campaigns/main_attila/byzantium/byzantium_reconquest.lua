@@ -60,7 +60,7 @@ function Add_Byzantium_Reconquest_Listeners()
 					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - The Latin Empire does not exist.\n";
 				end
 
-				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+				if mkHRE and HasValue(mkHRE.factions, faction_name) then
 					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
 				else
 					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
@@ -252,7 +252,7 @@ function Byzantium_Regions_Check(faction_name)
 	if ROMAN_EMPIRE_RESTORED == false and LATIN_EMPIRE_DEAD == true and has_constantinople == true and has_regions_africa == true and has_regions_anatolia == true and has_regions_dalmatia == true and has_regions_egypt == true and has_regions_italy == true and has_regions_greece == true and has_regions_oriens == true then
 		if cm:is_multiplayer() == true or cm:model():world():faction_by_key(faction_name):is_human() == false then
 			Roman_Empire_Restored(faction_name);
-		elseif (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
+		elseif (not mkHRE or (mkHRE and HasValue(mkHRE.factions, faction_name) ~= true)) then
 			Enable_Decision("restore_roman_empire");
 		end
 	end

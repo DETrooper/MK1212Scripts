@@ -8,18 +8,17 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------
 -- Events which can occur for the emperor and members of the HRE.
 
-HRE_EVENTS_MIN_TURN = 4; -- First turn that an HRE event can occur.
-HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX = 12;
-HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MIN = 4;
-HRE_EVENTS_TIMER = -1;
+local hre_current_event = "";
+local hre_current_event_faction1 = "";
+local hre_current_event_faction2 = "";
+local hre_events_min_turn = 4; -- First turn that an HRE event can occur.
+local hre_events_turns_between_dilemmas_max = 12;
+local hre_events_turns_between_dilemmas_min = 4;
+local hre_events_timer = -1;
 
-HRE_CURRENT_EVENT = "";
-HRE_CURRENT_EVENT_FACTION1 = "";
-HRE_CURRENT_EVENT_FACTION2 = "";
-
-function Add_HRE_Event_Listeners()
-	if not HRE_DESTROYED and HRE_EMPEROR_KEY and HRE_EMPEROR_KEY ~= "nil" then
-		local emperor_faction = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+function mkHRE:Add_Event_Listeners()
+	if not self.destroyed and self.emperor_key and self.emperor_key ~= "nil" then
+		local emperor_faction = cm:model():world():faction_by_key(self.emperor_key);
 
 		if emperor_faction:is_human() then
 			cm:add_listener(
@@ -66,7 +65,7 @@ function Add_HRE_Event_Listeners()
 			);
 
 			if cm:is_new_game() then
-				HRE_EVENTS_TIMER = cm:random_number(HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX - 1, HRE_EVENTS_MIN_TURN - 1);
+				hre_events_timer = cm:random_number(hre_events_turns_between_dilemmas_max - 1, hre_events_min_turn - 1);
 			end
 		end
 	end
@@ -80,79 +79,79 @@ function Remove_HRE_Event_Listeners()
 	cm:remove_listener("OnComponentMouseOn_HRE_Events");
 	cm:remove_listener("PanelOpenedCampaign_HRE_Events");
 
-	HRE_EVENTS_TIMER = -1;
+	hre_events_timer = -1;
 end
 
 function FactionTurnStart_HRE_Events(context)
 	if context:faction():is_human() then
 		local faction_name = context:faction():name();
 
-		if faction_name == HRE_EMPEROR_KEY then
+		if faction_name == mkHRE.emperor_key then
 			local turn_number = cm:model():turn_number();
 
-			if HRE_EVENTS_TIMER > 0 then
-				HRE_EVENTS_TIMER = HRE_EVENTS_TIMER - 1;
-			elseif HRE_EVENTS_TIMER == 0 then
-				HRE_Event_Pick_Random_Event();
+			if hre_events_timer > 0 then
+				hre_events_timer = hre_events_timer - 1;
+			elseif hre_events_timer == 0 then
+				mkHRE:Event_Pick_Random_Event();
 			end
 		end
 	end
 end
 
 function DillemaOrIncidentStarted_HRE_Events(context)
-	HRE_CURRENT_EVENT = context.string;
-	HRE_EVENTS_TIMER = cm:random_number(HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX, HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MIN);
+	hre_current_event = context.string;
+	hre_events_timer = cm:random_number(hre_events_turns_between_dilemmas_max, hre_events_turns_between_dilemmas_min);
 end
 
 function DilemmaChoiceMadeEvent_HRE_Events(context)
 	if context:dilemma() == "mk_dilemma_hre_border_dispute" then
 		if context:choice() == 0 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION1, "loyal", true);
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION2, "discontent", true);
+			mkHRE:Set_Faction_State(hre_current_event_faction1, "loyal", true);
+			mkHRE:Set_Faction_State(hre_current_event_faction2, "discontent", true);
 		elseif context:choice() == 1 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION1, "discontent", true);
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION2, "loyal", true);
+			mkHRE:Set_Faction_State(hre_current_event_faction1, "discontent", true);
+			mkHRE:Set_Faction_State(hre_current_event_faction2, "loyal", true);
 		elseif context:choice() == 2 then
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		end
 	elseif context:dilemma() == "mk_dilemma_hre_imperial_immediacy" then
 		if context:choice() == 0 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION1, "discontent", true);
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Set_Faction_State(hre_current_event_faction1, "discontent", true);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		elseif context:choice() == 1 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION1, "loyal", true);
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Set_Faction_State(hre_current_event_faction1, "loyal", true);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		end
 	elseif context:dilemma() == "mk_dilemma_hre_noble_conflict" then
 		if context:choice() == 0 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION2, "discontent", true);
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Set_Faction_State(hre_current_event_faction2, "discontent", true);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		elseif context:choice() == 1 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION1, "discontent", true);
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Set_Faction_State(hre_current_event_faction1, "discontent", true);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		elseif context:choice() == 2 then
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		end
 	elseif context:dilemma() == "mk_dilemma_hre_imperial_diet" then
 		if context:choice() == 0 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION2, "discontent", true);
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Set_Faction_State(hre_current_event_faction2, "discontent", true);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		elseif context:choice() == 1 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION1, "discontent", true);
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Set_Faction_State(hre_current_event_faction1, "discontent", true);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		elseif context:choice() == 2 then
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION1, "loyal", true);
-			HRE_Set_Faction_State(HRE_CURRENT_EVENT_FACTION2, "loyal", true);
+			mkHRE:Set_Faction_State(hre_current_event_faction1, "loyal", true);
+			mkHRE:Set_Faction_State(hre_current_event_faction2, "loyal", true);
 		elseif context:choice() == 3 then
-			HRE_Change_Imperial_Authority(HRE_EVENTS_DILEMMAS[context:dilemma()][context:choice() + 1]);
+			mkHRE:Change_Imperial_Authority(mkHRE.event_dilemmas[context:dilemma()][context:choice() + 1]);
 		end
 	end
 end
 
 function OnComponentMouseOnOrClick_HRE_Events(context)
 	if context.string == "choice_button" then
-		local tooltip = string.gsub(UIComponent(context.component):GetTooltipText(), "faction1", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-		tooltip = string.gsub(tooltip, "faction2", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2));
+		local tooltip = string.gsub(UIComponent(context.component):GetTooltipText(), "faction1", Get_DFN_Localisation(hre_current_event_faction1));
+		tooltip = string.gsub(tooltip, "faction2", Get_DFN_Localisation(hre_current_event_faction2));
 
 		UIComponent(context.component):SetTooltipText(tooltip);
 	end
@@ -160,7 +159,7 @@ end
 
 function PanelOpenedCampaign_HRE_Events(context)
 	if context.string == "events" then
-		if HRE_CURRENT_EVENT == "mk_dilemma_hre_border_dispute" or HRE_CURRENT_EVENT == "mk_dilemma_hre_noble_conflict" then
+		if hre_current_event == "mk_dilemma_hre_border_dispute" or hre_current_event == "mk_dilemma_hre_noble_conflict" then
 			local bg_description_txt = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "non_political", "bg_description", "dy_description", "Text"});
 			local option1_button = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma1_window", "dilemma1_template", "choice_button"});
 			local option1_button_text_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma1_window", "dilemma1_template", "choice_button", "dy_choice"});
@@ -172,8 +171,8 @@ function PanelOpenedCampaign_HRE_Events(context)
 			local option2_effect2_text_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma2_window", "dilemma2_template", "payload_window2", "effect2", "dy_payload"});
 			local option3_effect1_text_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma3_window", "dilemma3_template", "payload_window1", "effect1", "dy_payload"});
 
-			local description_text = string.gsub(bg_description_txt:GetStateText(), "faction1", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-			description_text = string.gsub(description_text, "faction2", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2));
+			local description_text = string.gsub(bg_description_txt:GetStateText(), "faction1", Get_DFN_Localisation(hre_current_event_faction1));
+			description_text = string.gsub(description_text, "faction2", Get_DFN_Localisation(hre_current_event_faction2));
 
 			local option1_effect1_text = "";
 			local option1_effect2_text = "";
@@ -181,11 +180,11 @@ function PanelOpenedCampaign_HRE_Events(context)
 			local option2_effect2_text = "";
 			local option3_effect1_text = "";
 
-			if HRE_CURRENT_EVENT == "mk_dilemma_hre_border_dispute" then
-				option1_effect1_text = string.gsub(option1_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-				option1_effect2_text = string.gsub(option1_effect2_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2));
-				option2_effect1_text = string.gsub(option2_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2));
-				option2_effect2_text = string.gsub(option2_effect2_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
+			if hre_current_event == "mk_dilemma_hre_border_dispute" then
+				option1_effect1_text = string.gsub(option1_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction1));
+				option1_effect2_text = string.gsub(option1_effect2_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction2));
+				option2_effect1_text = string.gsub(option2_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction2));
+				option2_effect2_text = string.gsub(option2_effect2_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction1));
 
 				--[[local option1_effect1_icon_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma1_window", "dilemma1_template", "payload_window1", "effect1", "payload_icon"});
 				local option1_effect2_icon_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma1_window", "dilemma1_template", "payload_window2", "effect2", "payload_icon"});
@@ -197,15 +196,15 @@ function PanelOpenedCampaign_HRE_Events(context)
 				option2_effect1_icon_uic:DestroyChildren();
 				option2_effect2_icon_uic:DestroyChildren();
 
-				option1_effect1_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..HRE_CURRENT_EVENT_FACTION1.."_flag_small");
-				option1_effect2_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..HRE_CURRENT_EVENT_FACTION2.."_flag_small");
-				option2_effect1_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..HRE_CURRENT_EVENT_FACTION2.."_flag_small");
-				option2_effect2_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..HRE_CURRENT_EVENT_FACTION1.."_flag_small");]]--
+				option1_effect1_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..hre_current_event_faction1.."_flag_small");
+				option1_effect2_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..hre_current_event_faction2.."_flag_small");
+				option2_effect1_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..hre_current_event_faction2.."_flag_small");
+				option2_effect2_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..hre_current_event_faction1.."_flag_small");]]--
 			else
-				option1_effect1_text = string.gsub(option1_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2));
-				option1_effect2_text = string.gsub(option1_effect2_text_uic:GetStateText(), "number", tostring(HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][1]));
-				option2_effect1_text = string.gsub(option2_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-				option2_effect2_text = string.gsub(option2_effect2_text_uic:GetStateText(), "number", tostring(HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][2]));
+				option1_effect1_text = string.gsub(option1_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction2));
+				option1_effect2_text = string.gsub(option1_effect2_text_uic:GetStateText(), "number", tostring(mkHRE.event_dilemmas[hre_current_event][1]));
+				option2_effect1_text = string.gsub(option2_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction1));
+				option2_effect2_text = string.gsub(option2_effect2_text_uic:GetStateText(), "number", tostring(mkHRE.event_dilemmas[hre_current_event][2]));
 
 				--[[local option1_effect1_icon_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma1_window", "dilemma1_template", "payload_window1", "effect1", "payload_icon"});
 				local option2_effect1_icon_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma2_window", "dilemma2_template", "payload_window1", "effect1", "payload_icon"});
@@ -213,15 +212,15 @@ function PanelOpenedCampaign_HRE_Events(context)
 				option1_effect1_icon_uic:DestroyChildren();
 				option2_effect1_icon_uic:DestroyChildren();
 
-				option1_effect1_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..HRE_CURRENT_EVENT_FACTION2.."_flag_small");
-				option2_effect1_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..HRE_CURRENT_EVENT_FACTION1.."_flag_small");]]--
+				option1_effect1_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..hre_current_event_faction2.."_flag_small");
+				option2_effect1_icon_uic:CreateComponent("faction_logo", "UI/new/faction_flags/"..hre_current_event_faction1.."_flag_small");]]--
 			end
 
-			option3_effect1_text = string.gsub(option3_effect1_text_uic:GetStateText(), "number", tostring(-HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][3]));
+			option3_effect1_text = string.gsub(option3_effect1_text_uic:GetStateText(), "number", tostring(-mkHRE.event_dilemmas[hre_current_event][3]));
 
 			bg_description_txt:SetStateText(description_text);
-			option1_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1)..".");
-			option2_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2)..".");
+			option1_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(hre_current_event_faction1)..".");
+			option2_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(hre_current_event_faction2)..".");
 			option1_effect1_text_uic:SetStateText(option1_effect1_text);
 			option1_effect2_text_uic:SetStateText(option1_effect2_text);
 			option2_effect1_text_uic:SetStateText(option2_effect1_text);
@@ -235,7 +234,7 @@ function PanelOpenedCampaign_HRE_Events(context)
 			dilemma3_window_uic:SetMoveable(true);
 			dilemma3_window_uic:MoveTo(dilemma3_window_uicX + 172, dilemma3_window_uicY);
 			dilemma3_window_uic:SetMoveable(false);
-		elseif HRE_CURRENT_EVENT == "mk_dilemma_hre_imperial_immediacy" then
+		elseif hre_current_event == "mk_dilemma_hre_imperial_immediacy" then
 			local bg_description_txt = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "non_political", "bg_description", "dy_description", "Text"});
 			local option1_button = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma1B_window", "dilemma1_template", "choice_button"});
 			local option2_button = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma2B_window", "dilemma2_template", "choice_button"});
@@ -244,24 +243,24 @@ function PanelOpenedCampaign_HRE_Events(context)
 			local option2_effect1_text_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma2B_window", "dilemma2_template", "payload_window1", "effect1", "dy_payload"});
 			local option2_effect2_text_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma2B_window", "dilemma2_template", "payload_window2", "effect2", "dy_payload"});
 
-			local description_text = string.gsub(bg_description_txt:GetStateText(), "faction1", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
+			local description_text = string.gsub(bg_description_txt:GetStateText(), "faction1", Get_DFN_Localisation(hre_current_event_faction1));
 			local chance = cm:random_number(2);
 
 			if chance == 2 then
 				description_text = string.gsub(description_text, "subject of", "city under");
 			end
 
-			local option1_effect1_text = string.gsub(option1_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-			local option1_effect2_text = string.gsub(option1_effect2_text_uic:GetStateText(), "number", tostring(HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][1]));
-			local option2_effect1_text = string.gsub(option2_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-			local option2_effect2_text = string.gsub(option2_effect2_text_uic:GetStateText(), "number", tostring(-HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][2]));
+			local option1_effect1_text = string.gsub(option1_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction1));
+			local option1_effect2_text = string.gsub(option1_effect2_text_uic:GetStateText(), "number", tostring(mkHRE.event_dilemmas[hre_current_event][1]));
+			local option2_effect1_text = string.gsub(option2_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction1));
+			local option2_effect2_text = string.gsub(option2_effect2_text_uic:GetStateText(), "number", tostring(-mkHRE.event_dilemmas[hre_current_event][2]));
 
 			bg_description_txt:SetStateText(description_text);
 			option1_effect1_text_uic:SetStateText(option1_effect1_text);
 			option1_effect2_text_uic:SetStateText(option1_effect2_text);
 			option2_effect1_text_uic:SetStateText(option2_effect1_text);
 			option2_effect2_text_uic:SetStateText(option2_effect2_text);
-		elseif HRE_CURRENT_EVENT == "mk_dilemma_hre_imperial_diet" then
+		elseif hre_current_event == "mk_dilemma_hre_imperial_diet" then
 			local bg_description_txt = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "non_political", "bg_description", "dy_description", "Text"});
 			local option1_button = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma1_window", "dilemma1_template", "choice_button"});
 			local option1_button_text_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma1_window", "dilemma1_template", "choice_button", "dy_choice"});
@@ -275,20 +274,20 @@ function PanelOpenedCampaign_HRE_Events(context)
 			local option3_effect2_text_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma3_window", "dilemma3_template", "payload_window2", "effect2", "dy_payload"});
 			local option4_effect1_text_uic = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "dilemma4_window", "dilemma4_template", "payload_window1", "effect1", "dy_payload"});
 
-			local description_text = string.gsub(bg_description_txt:GetStateText(), "faction1", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-			description_text = string.gsub(description_text, "faction2", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2));
+			local description_text = string.gsub(bg_description_txt:GetStateText(), "faction1", Get_DFN_Localisation(hre_current_event_faction1));
+			description_text = string.gsub(description_text, "faction2", Get_DFN_Localisation(hre_current_event_faction2));
 
-			local option1_effect1_text = string.gsub(option1_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2));
-			local option1_effect2_text = string.gsub(option1_effect2_text_uic:GetStateText(), "number", tostring(HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][1]));
-			local option2_effect1_text = string.gsub(option2_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-			local option2_effect2_text = string.gsub(option2_effect2_text_uic:GetStateText(), "number", tostring(HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][2]));
-			local option3_effect1_text = string.gsub(option3_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1));
-			local option3_effect2_text = string.gsub(option3_effect2_text_uic:GetStateText(), "faction", Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2));
-			local option4_effect1_text = string.gsub(option4_effect1_text_uic:GetStateText(), "number", tostring(HRE_EVENTS_DILEMMAS[HRE_CURRENT_EVENT][4]));
+			local option1_effect1_text = string.gsub(option1_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction2));
+			local option1_effect2_text = string.gsub(option1_effect2_text_uic:GetStateText(), "number", tostring(mkHRE.event_dilemmas[hre_current_event][1]));
+			local option2_effect1_text = string.gsub(option2_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction1));
+			local option2_effect2_text = string.gsub(option2_effect2_text_uic:GetStateText(), "number", tostring(mkHRE.event_dilemmas[hre_current_event][2]));
+			local option3_effect1_text = string.gsub(option3_effect1_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction1));
+			local option3_effect2_text = string.gsub(option3_effect2_text_uic:GetStateText(), "faction", Get_DFN_Localisation(hre_current_event_faction2));
+			local option4_effect1_text = string.gsub(option4_effect1_text_uic:GetStateText(), "number", tostring(mkHRE.event_dilemmas[hre_current_event][4]));
 
 			bg_description_txt:SetStateText(description_text);
-			option1_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION1)..".");
-			option2_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(HRE_CURRENT_EVENT_FACTION2)..".");
+			option1_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(hre_current_event_faction1)..".");
+			option2_button_text_uic:SetStateText(UI_LOCALISATION["hre_support_prefix"]..Get_DFN_Localisation(hre_current_event_faction2)..".");
 			option1_effect1_text_uic:SetStateText(option1_effect1_text);
 			option1_effect2_text_uic:SetStateText(option1_effect2_text);
 			option2_effect1_text_uic:SetStateText(option2_effect1_text);
@@ -300,59 +299,59 @@ function PanelOpenedCampaign_HRE_Events(context)
 	end
 end
 
-function HRE_Event_Pick_Random_Event()
+function mkHRE:Event_Pick_Random_Event()
 	local chance = cm:random_number(4);
 
 	if chance == 1 then
-		HRE_Event_Pick_Random_Bordering_Factions();
+		self:Event_Pick_Random_Bordering_Factions();
 
-		if HRE_CURRENT_EVENT_FACTION1 ~= "" and HRE_CURRENT_EVENT_FACTION2 ~= "" then
-			cm:trigger_dilemma(HRE_EMPEROR_KEY, "mk_dilemma_hre_border_dispute");
+		if hre_current_event_faction1 ~= "" and hre_current_event_faction2 ~= "" then
+			cm:trigger_dilemma(mkHRE.emperor_key, "mk_dilemma_hre_border_dispute");
 		else
-			HRE_EVENTS_TIMER = HRE_EVENTS_TIMER + 1;
+			hre_events_timer = hre_events_timer + 1;
 		end
 	elseif chance == 2 then
-		HRE_CURRENT_EVENT_FACTION1 = HRE_Event_Pick_Random_Faction(false, 1);
+		hre_current_event_faction1 = self:Event_Pick_Random_Faction(false, 1);
 
-		if HRE_CURRENT_EVENT_FACTION1 ~= "" then
-			cm:trigger_dilemma(HRE_EMPEROR_KEY, "mk_dilemma_hre_imperial_immediacy");
+		if hre_current_event_faction1 ~= "" then
+			cm:trigger_dilemma(mkHRE.emperor_key, "mk_dilemma_hre_imperial_immediacy");
 		else
-			HRE_EVENTS_TIMER = HRE_EVENTS_TIMER + 1;
+			hre_events_timer = hre_events_timer + 1;
 		end
 	elseif chance == 3 then
-		HRE_Event_Pick_Random_Bordering_Factions();
+		self:Event_Pick_Random_Bordering_Factions();
 
-		if HRE_CURRENT_EVENT_FACTION1 ~= "" and HRE_CURRENT_EVENT_FACTION2 ~= "" then
-			cm:trigger_dilemma(HRE_EMPEROR_KEY, "mk_dilemma_hre_noble_conflict");
+		if hre_current_event_faction1 ~= "" and hre_current_event_faction2 ~= "" then
+			cm:trigger_dilemma(mkHRE.emperor_key, "mk_dilemma_hre_noble_conflict");
 		else
-			HRE_EVENTS_TIMER = HRE_EVENTS_TIMER + 1;
+			hre_events_timer = hre_events_timer + 1;
 		end
 	elseif chance == 4 then
-		HRE_CURRENT_EVENT_FACTION1 = HRE_Event_Pick_Random_Faction(false, 1);
-		HRE_CURRENT_EVENT_FACTION2 = HRE_Event_Pick_Random_Faction(false, 2);
+		hre_current_event_faction1 = self:Event_Pick_Random_Faction(false, 1);
+		hre_current_event_faction2 = self:Event_Pick_Random_Faction(false, 2);
 
-		if HRE_CURRENT_EVENT_FACTION1 ~= "" and HRE_CURRENT_EVENT_FACTION2 ~= "" then
-			cm:trigger_dilemma(HRE_EMPEROR_KEY, "mk_dilemma_hre_imperial_diet");
+		if hre_current_event_faction1 ~= "" and hre_current_event_faction2 ~= "" then
+			cm:trigger_dilemma(mkHRE.emperor_key, "mk_dilemma_hre_imperial_diet");
 		else
-			HRE_EVENTS_TIMER = HRE_EVENTS_TIMER + 1;
+			hre_events_timer = hre_events_timer + 1;
 		end
 	end
 end
 
-function HRE_Event_Pick_Random_Faction(should_have_bordering_hre_faction, number)
+function mkHRE:Event_Pick_Random_Faction(should_have_bordering_hre_faction, number)
 	local hre_factions = {};
 
-	for i = 1, #HRE_FACTIONS do
-		local potential_faction = HRE_FACTIONS[i];
+	for i = 1, #mkHRE.factions do
+		local potential_faction = mkHRE.factions[i];
 
 		-- Make sure we don't get the same faction twice!
-		if number == 1 or (number == 2 and HRE_CURRENT_EVENT_FACTION1 ~= potential_faction) then
-			if potential_faction ~= HRE_EMPEROR_KEY and HRE_Get_Faction_State(potential_faction) ~= "puppet" and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(HRE_EMPEROR_KEY)) == false then
+		if number == 1 or (number == 2 and hre_current_event_faction1 ~= potential_faction) then
+			if potential_faction ~= mkHRE.emperor_key and mkHRE:Get_Faction_State(potential_faction) ~= "puppet" and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(mkHRE.emperor_key)) == false then
 				if should_have_bordering_hre_faction == true then
-					for j = 1, #HRE_FACTIONS do
-						local bordering_faction = HRE_FACTIONS[j];
+					for j = 1, #mkHRE.factions do
+						local bordering_faction = mkHRE.factions[j];
 
-						if bordering_faction ~= HRE_EMPEROR_KEY and bordering_faction ~= potential_faction then
+						if bordering_faction ~= mkHRE.emperor_key and bordering_faction ~= potential_faction then
 							if Does_Faction_Border_Faction(potential_faction, bordering_faction) then
 								table.insert(hre_factions, potential_faction);
 								break;
@@ -373,35 +372,35 @@ function HRE_Event_Pick_Random_Faction(should_have_bordering_hre_faction, number
  	return hre_factions[cm:random_number(#hre_factions)];
 end
 
-function HRE_Event_Pick_Random_Bordering_Factions()
-	HRE_CURRENT_EVENT_FACTION1 = HRE_Event_Pick_Random_Faction(true, 1); -- Set Faction 1.
+function mkHRE:Event_Pick_Random_Bordering_Factions()
+	hre_current_event_faction1 = self:Event_Pick_Random_Faction(true, 1); -- Set Faction 1.
 
-	if HRE_CURRENT_EVENT_FACTION1 == "" then
+	if hre_current_event_faction1 == "" then
 		return;
 	end
 
 	local bordering_factions = {};
 
-	for i = 1, #HRE_FACTIONS do
-		local potential_faction = HRE_FACTIONS[i];
+	for i = 1, #mkHRE.factions do
+		local potential_faction = mkHRE.factions[i];
 
-		if potential_faction ~= HRE_EMPEROR_KEY and potential_faction ~= HRE_CURRENT_EVENT_FACTION1 and HRE_Get_Faction_State(potential_faction) ~= "puppet" and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(HRE_EMPEROR_KEY)) == false then
-			if Does_Faction_Border_Faction(HRE_CURRENT_EVENT_FACTION1, potential_faction) then
+		if potential_faction ~= mkHRE.emperor_key and potential_faction ~= hre_current_event_faction1 and mkHRE:Get_Faction_State(potential_faction) ~= "puppet" and cm:model():world():faction_by_key(potential_faction):at_war_with(cm:model():world():faction_by_key(mkHRE.emperor_key)) == false then
+			if Does_Faction_Border_Faction(hre_current_event_faction1, potential_faction) then
 				table.insert(bordering_factions, potential_faction);
 			end
 		end
 	end
 
 	if #bordering_factions == 0 then
-		HRE_CURRENT_EVENT_FACTION2 = "";
+		hre_current_event_faction2 = "";
 		return;
 	end
 
-	HRE_CURRENT_EVENT_FACTION2 = bordering_factions[cm:random_number(#bordering_factions)];
+	hre_current_event_faction2 = bordering_factions[cm:random_number(#bordering_factions)];
 end
 
-function HRE_Event_Reset_Timer()
-	HRE_EVENTS_TIMER = cm:random_number(HRE_EVENTS_TURNS_BETWEEN_DILEMMAS_MAX - 1, HRE_EVENTS_MIN_TURN - 1);
+function mkHRE:Event_Reset_Timer()
+	hre_events_timer = cm:random_number(hre_events_turns_between_dilemmas_max - 1, hre_events_min_turn - 1);
 end
 
 --------------------------------------------------------------
@@ -409,18 +408,18 @@ end
 --------------------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		cm:save_value("HRE_CURRENT_EVENT", HRE_CURRENT_EVENT, context);
-		cm:save_value("HRE_CURRENT_EVENT_FACTION1", HRE_CURRENT_EVENT_FACTION1, context);
-		cm:save_value("HRE_CURRENT_EVENT_FACTION2", HRE_CURRENT_EVENT_FACTION2, context);
-		cm:save_value("HRE_EVENTS_TIMER", HRE_EVENTS_TIMER, context);
+		cm:save_value("hre_current_event", hre_current_event, context);
+		cm:save_value("hre_current_event_faction1", hre_current_event_faction1, context);
+		cm:save_value("hre_current_event_faction2", hre_current_event_faction2, context);
+		cm:save_value("hre_events_timer", hre_events_timer, context);
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
-		HRE_CURRENT_EVENT = cm:load_value("HRE_CURRENT_EVENT", "", context);
-		HRE_CURRENT_EVENT_FACTION1 = cm:load_value("HRE_CURRENT_EVENT_FACTION1", "", context);
-		HRE_CURRENT_EVENT_FACTION2 = cm:load_value("HRE_CURRENT_EVENT_FACTION2", "", context);
-		HRE_EVENTS_TIMER = cm:load_value("HRE_EVENTS_TIMER", -1, context);
+		hre_current_event = cm:load_value("hre_current_event", "", context);
+		hre_current_event_faction1 = cm:load_value("hre_current_event_faction1", "", context);
+		hre_current_event_faction2 = cm:load_value("hre_current_event_faction2", "", context);
+		hre_events_timer = cm:load_value("hre_events_timer", -1, context);
 	end
 );

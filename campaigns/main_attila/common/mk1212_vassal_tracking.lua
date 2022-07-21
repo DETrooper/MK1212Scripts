@@ -68,24 +68,20 @@ function Add_MK1212_Vassal_Tracking_Listeners()
 	);
 
 	if cm:is_new_game() then
-		VassalTrackingSetup();
-	end
-end
+		local faction_list = cm:model():world():faction_list();
 
-function VassalTrackingSetup()
-	local faction_list = cm:model():world():faction_list();
-
-	for i = 0, faction_list:num_items() - 1 do
-		local faction = faction_list:item_at(i);
-		local faction_name = faction:name();
-
-		FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] = {};
-
-		if FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name] then
-			for j = 1, #FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name] do
-				local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name][j];
-
-				table.insert(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], vassal_faction_name);
+		for i = 0, faction_list:num_items() - 1 do
+			local faction = faction_list:item_at(i);
+			local faction_name = faction:name();
+	
+			FACTIONS_TO_FACTIONS_VASSALIZED[faction_name] = {};
+	
+			if FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name] then
+				for j = 1, #FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name] do
+					local vassal_faction_name = FACTIONS_TO_FACTIONS_VASSALIZED_START[faction_name][j];
+	
+					table.insert(FACTIONS_TO_FACTIONS_VASSALIZED[faction_name], vassal_faction_name);
+				end
 			end
 		end
 	end

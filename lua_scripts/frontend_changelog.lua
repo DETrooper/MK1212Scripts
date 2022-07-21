@@ -12,8 +12,8 @@ local util = require ("lua_scripts/util");
 
 local changelogpriority = false; -- If true, always display.
 local changelogstring = 	"Welcome to the MK1212 Campaign Open Alpha!\n\n"..
-			"This new update brings several revamped and brand new faction rosters as well as tier 1 mercenaries for a majority of the campaign map. Also included are campaign AI tweaks, new buildings, new loading screens, new emergent factions, campaign rebalancing, and a general rebalancing of unit stats.\n\n"..
-			"We look forward to hearing any feedback you may have on the mod, which you can give in our mod's Discord channel. A button that provides a link to our Discord can be found in the menu at the top-left of your screen.\n\n";
+			"This new update brings a new playable faction, the Principality of Wales, though Norway has been removed until campaign map modding becomes available. Victory conditions have also been added for a number of factions, and we will be looking to complete them in the near future.\n\n"..
+			"There have been various other fixes and changes both for the campaign and in battles; you can find a full changelog for this update in our discord. A button that provides a link to our Discord can be found in the menu at the top-left of your screen.\n\n";
 
 changelogcreated = false;
 

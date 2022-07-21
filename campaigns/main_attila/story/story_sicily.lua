@@ -43,8 +43,8 @@ function Add_Sicily_Story_Events_Listeners()
 
 		if cm:model():turn_number() == 1 then
 			-- Disable war with HRE for turn 1.
-			cm:force_diplomacy(HRE_EMPEROR_PRETENDER_KEY, HRE_EMPEROR_KEY, "war", false, false);
-			cm:force_diplomacy(HRE_EMPEROR_KEY, HRE_EMPEROR_PRETENDER_KEY, "war", false, false);
+			cm:force_diplomacy(mkHRE.emperor_pretender_key, mkHRE.emperor_key, "war", false, false);
+			cm:force_diplomacy(mkHRE.emperor_key, mkHRE.emperor_pretender_key, "war", false, false);
 		end
 	end
 
@@ -52,33 +52,33 @@ function Add_Sicily_Story_Events_Listeners()
 		SICILY_KING_CQI = cm:model():world():faction_by_key(SICILY_KEY):faction_leader():command_queue_index();
 
 		-- For the duration of Sicily's mission, ensure that the HRE's tributaries do not get involved in the war with Sicily.
-		for i = 1, #HRE_FACTIONS_START do
-			if HRE_FACTIONS_START[i] ~= HRE_EMPEROR_KEY then
-				cm:force_diplomacy(HRE_FACTIONS_START[i], SICILY_KEY, "war", false, false);
+		for i = 1, #mkHRE.factions_start do
+			if mkHRE.factions_start[i] ~= mkHRE.emperor_key then
+				cm:force_diplomacy(mkHRE.factions_start[i], SICILY_KEY, "war", false, false);
 			end
 		end
 	end
 end
 
 function FactionTurnStart_Sicily(context)
-	if HRE_EMPEROR_KEY then
+	if mkHRE.emperor_key then
 		local sicily = cm:model():world():faction_by_key(SICILY_KEY);
-		local hre = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+		local hre = cm:model():world():faction_by_key(mkHRE.emperor_key);
 
 		if context:faction():name() == SICILY_KEY then
 			if sicily:is_human() then
 				if cm:model():turn_number() == 2 then
 					-- Re-enable war with the HRE.
-					cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
-					cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
+					cm:force_diplomacy(SICILY_KEY, mkHRE.emperor_key, "war", true, true);
+					cm:force_diplomacy(mkHRE.emperor_key, SICILY_KEY, "war", true, true);
 					cm:trigger_dilemma(SICILY_KEY, "mk_dilemma_story_sicily_war_with_hre");
 				end
 			else
 				if hre:is_human() == false then
 					if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false then
-						cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
-						cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
-						cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
+						cm:force_diplomacy(SICILY_KEY, mkHRE.emperor_key, "war", true, true);
+						cm:force_diplomacy(mkHRE.emperor_key, SICILY_KEY, "war", true, true);
+						cm:force_declare_war(mkHRE.emperor_key, SICILY_KEY);
 					end
 				end
 
@@ -91,9 +91,9 @@ function FactionTurnStart_Sicily(context)
 				end
 			end
 
-			if SICILY_BECAME_EMPEROR == false and SICILY_KEY == HRE_EMPEROR_KEY then
-				for i = 1, #HRE_FACTIONS_START do
-					cm:force_diplomacy(HRE_FACTIONS_START[i], SICILY_KEY, "war", true, true);
+			if SICILY_BECAME_EMPEROR == false and SICILY_KEY == mkHRE.emperor_key then
+				for i = 1, #mkHRE.factions_start do
+					cm:force_diplomacy(mkHRE.factions_start[i], SICILY_KEY, "war", true, true);
 				end
 
 				SICILY_BECAME_EMPEROR = true;
@@ -108,16 +108,16 @@ function FactionTurnStart_Sicily(context)
 					SICILY_DILEMMA_ISSUED = true;
 				end
 			end
-		elseif context:faction():name() == HRE_EMPEROR_KEY and context:faction():is_human() then
+		elseif context:faction():name() == mkHRE.emperor_key and context:faction():is_human() then
 			if cm:model():turn_number() == 2 and sicily:at_war_with(hre) == false and sicily:is_human() == false then
-				cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "war", true, true);
-				cm:force_diplomacy(SICILY_KEY, HRE_EMPEROR_KEY, "peace", false, false);
-				cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "war", true, true);
-				cm:force_diplomacy(HRE_EMPEROR_KEY, SICILY_KEY, "peace", false, false);
-				cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
+				cm:force_diplomacy(SICILY_KEY, mkHRE.emperor_key, "war", true, true);
+				cm:force_diplomacy(SICILY_KEY, mkHRE.emperor_key, "peace", false, false);
+				cm:force_diplomacy(mkHRE.emperor_key, SICILY_KEY, "war", true, true);
+				cm:force_diplomacy(mkHRE.emperor_key, SICILY_KEY, "peace", false, false);
+				cm:force_declare_war(mkHRE.emperor_key, SICILY_KEY);
 
 				cm:show_message_event(
-					HRE_EMPEROR_KEY,
+					mkHRE.emperor_key,
 					"message_event_text_text_mk_event_hre_sicilian_invasion_title", 
 					"message_event_text_text_mk_event_hre_sicilian_invasion_primary", 
 					"message_event_text_text_mk_event_hre_sicilian_invasion_secondary", 
@@ -131,19 +131,19 @@ end
 
 function DilemmaChoiceMadeEvent_Sicily(context)
 	if context:dilemma() == "mk_dilemma_story_sicily_war_with_hre" then
-		if HRE_EMPEROR_KEY then
-			local hre = cm:model():world():faction_by_key(HRE_EMPEROR_KEY);
+		if mkHRE.emperor_key then
+			local hre = cm:model():world():faction_by_key(mkHRE.emperor_key);
 
 			if context:choice() == 0 then
 				-- Choice made to declare war on HRE!
-				cm:force_declare_war(HRE_EMPEROR_KEY, SICILY_KEY);
+				cm:force_declare_war(mkHRE.emperor_key, SICILY_KEY);
 
 				cm:trigger_mission(SICILY_KEY, "mk_mission_story_pretender_take_frankfurt");
-				SetFactionsHostile(SICILY_KEY, HRE_EMPEROR_KEY);
+				SetFactionsHostile(SICILY_KEY, mkHRE.emperor_key);
 
 				if hre:is_human() == true then
 					cm:show_message_event(
-						HRE_EMPEROR_KEY,
+						mkHRE.emperor_key,
 						"message_event_text_text_mk_event_hre_sicilian_invasion_title", 
 						"message_event_text_text_mk_event_hre_sicilian_invasion_primary", 
 						"message_event_text_text_mk_event_hre_sicilian_invasion_secondary", 
@@ -164,11 +164,11 @@ function DilemmaChoiceMadeEvent_Sicily(context)
 					704
 				);
 
-				for i = 1, #HRE_FACTIONS_START do
-					cm:force_diplomacy(HRE_FACTIONS_START[i], SICILY_KEY, "war", true, true);
+				for i = 1, #mkHRE.factions_start do
+					cm:force_diplomacy(mkHRE.factions_start[i], SICILY_KEY, "war", true, true);
 				end
 
-				HRE_Vanquish_Pretender();
+				mkHRE:HRE_Vanquish_Pretender();
 			end
 		end
 	elseif context:dilemma() == "mk_dilemma_story_sicily_join_crusade" then

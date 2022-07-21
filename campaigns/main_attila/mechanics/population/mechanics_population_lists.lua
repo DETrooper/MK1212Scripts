@@ -799,7 +799,9 @@ POPULATION_BUILDINGS_TO_GROWTH = {
 	mk_bld_weskingdoms_major_churchland_1 = {0.0005, 0.0005, 0.005, 0, 0, 12500, 25000},
 	mk_bld_weskingdoms_major_churchland_2 = {0.001, 0.001, 0.01, 0, 0, 25000, 50000},
 	mk_bld_weskingdoms_major_churchland_3 = {0.0015, 0.0015, 0.015, 0, 0, 37500, 75000},
-	mk_bld_weskingdoms_major_churchland_4 = {0.002, 0.002, 0.02, 0, 0, 50000, 100000}
+	mk_bld_weskingdoms_major_churchland_4 = {0.002, 0.002, 0.02, 0, 0, 50000, 100000},
+	mk_bld_weskingdoms_military_mercs_1 = {0, 0, 0, 0, 0.002, 0, 0},
+	mk_bld_weskingdoms_military_mercs_2 = {0, 0, 0, 0, 0.0035, 0, 0}
 };
 
 POPULATION_FACTION_TRAITS_TO_GROWTH = {

@@ -36,7 +36,7 @@ function Add_Kingdom_Golden_Horde_Listeners()
 				local conditionstring = "Conditions:\n\n([[rgba:8:201:27:150]]Y[[/rgba]]) - Is the Ulus of Jochi.\n([[rgba:8:201:27:150]]Y[[/rgba:8:201:27:150]]) - The Golden Horde does not yet exist.\n";
 				local faction_name = cm:get_local_faction();
 
-				if HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) then
+				if mkHRE and HasValue(mkHRE.factions, faction_name) then
 					conditionstring = conditionstring.."([[rgba:255:0:0:150]]X[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
 				else
 					conditionstring = conditionstring.."([[rgba:8:201:27:150]]Y[[/rgba]]) - Is not a member of the Holy Roman Empire.\n";
@@ -87,7 +87,7 @@ function Golden_Horde_Regions_Check(context)
 	if has_regions == true then
 		if cm:is_multiplayer() == true or context:faction():is_human() == false then
 			Golden_Horde_Formed(faction_name);
-		elseif (not HRE_FACTIONS or (HRE_FACTIONS and HasValue(HRE_FACTIONS, faction_name) ~= true)) then
+		elseif (not mkHRE or (mkHRE and HasValue(mkHRE.factions, faction_name) ~= true)) then
 			Enable_Decision("form_empire_golden_horde");
 		end	
 	end

@@ -8,11 +8,11 @@
 --------------------------------------------------------------------------------------------------------------------------------------------------
 -- System for the HRE's emperor to pass decrees with various boons and drawbacks for themself and the empire at large.
 
-HRE_ACTIVE_DECREE = "nil";
-HRE_ACTIVE_DECREE_TURNS_LEFT = 0;
-HRE_DECREE_DURATION = 15;
+local hre_decree_duration = 15;
 
-HRE_DECREES = {
+mkHRE.active_decree = "nil";
+mkHRE.active_decree_turns_left = 0;
+mkHRE.decrees = {
 	-- Reforms are unlocked in order from first to last.
 	{
 		["key"] = "hre_decree_imperial_levies",
@@ -70,7 +70,7 @@ HRE_DECREES = {
 	}
 };
 
-function Add_HRE_Decrees_Listeners()
+function mkHRE:Add_Decree_Listeners()
 	cm:add_listener(
 		"FactionTurnStart_HRE_Decrees",
 		"FactionTurnStart",
@@ -81,39 +81,40 @@ function Add_HRE_Decrees_Listeners()
 end
 
 function FactionTurnStart_HRE_Decrees(context)
+	local faction = context:faction();
 	local turn_number = cm:model():turn_number();
 
-	if HRE_Get_Faction_State(context:faction():name()) == "emperor" then
-		if HRE_ACTIVE_DECREE_TURNS_LEFT > 0 then
-			HRE_ACTIVE_DECREE_TURNS_LEFT = HRE_ACTIVE_DECREE_TURNS_LEFT - 1;
+	if mkHRE:Get_Faction_State(faction:name()) == "emperor" then
+		if mkHRE.active_decree_turns_left > 0 then
+			mkHRE.active_decree_turns_left = mkHRE.active_decree_turns_left - 1;
 
-			if HRE_ACTIVE_DECREE_TURNS_LEFT == 0 then
-				HRE_ACTIVE_DECREE = "nil";
+			if mkHRE.active_decree_turns_left == 0 then
+				mkHRE.active_decree = "nil";
 			end
 		end
 
-		if not context:faction():is_human() then
-			if HRE_ACTIVE_DECREE == "nil" then 
-				local random_decree = HRE_DECREES[cm:random_number(#HRE_DECREES)];
+		if not faction:is_human() then
+			if mkHRE.active_decree == "nil" then 
+				local random_decree = mkHRE.decrees[cm:random_number(#mkHRE.decrees)];
 
-				if HRE_IMPERIAL_AUTHORITY >= random_decree["cost"] then
-					Activate_Decree(random_decree["key"]);
+				if mkHRE.imperial_authority >= random_decree["cost"] then
+					mkHRE:Activate_Decree(random_decree["key"]);
 				end
 			end
 		end
 	end
 end
 
-function Activate_Decree(decree_key)
-	for i = 1, #HRE_DECREES do
-		if HRE_DECREES[i]["key"] == decree_key then
-			Apply_Decree_Effect_Bundle(HRE_DECREES[i]["emperor_effect_bundle_key"], HRE_DECREES[i]["member_effect_bundle_key"]);
+function mkHRE:Activate_Decree(decree_key)
+	for i = 1, #mkHRE.decrees do
+		if mkHRE.decrees[i]["key"] == decree_key then
+			Apply_Decree_Effect_Bundle(mkHRE.decrees[i]["emperor_effect_bundle_key"], mkHRE.decrees[i]["member_effect_bundle_key"]);
 
-			HRE_IMPERIAL_AUTHORITY = HRE_IMPERIAL_AUTHORITY - HRE_DECREES[i]["cost"];
-			HRE_ACTIVE_DECREE = decree_key;
-			HRE_ACTIVE_DECREE_TURNS_LEFT = HRE_DECREE_DURATION;
+			mkHRE.imperial_authority = mkHRE.imperial_authority - mkHRE.decrees[i]["cost"];
+			mkHRE.active_decree = decree_key;
+			mkHRE.active_decree_turns_left = hre_decree_duration;
 
-			if HasValue(HRE_FACTIONS, cm:get_local_faction()) then
+			if HasValue(mkHRE.factions, cm:get_local_faction()) then
 				cm:show_message_event(
 					cm:get_local_faction(),
 					"message_event_text_text_mk_event_hre_decree_title",
@@ -132,23 +133,23 @@ function Activate_Decree(decree_key)
 	Refresh_Region_Growths_Population(true);
 end
 
-function Deactivate_Decree(decree_key)
-	for i = 1, #HRE_DECREES do
-		if HRE_DECREES[i]["key"] == decree_key then
-			if HRE_DECREES[i]["emperor_effect_bundle_key"] ~= "none" then
-				cm:remove_effect_bundle(HRE_DECREES[i]["member_effect_bundle_key"], HRE_EMPEROR_KEY);
+function mkHRE:Deactivate_Decree(decree_key)
+	for i = 1, #mkHRE.decrees do
+		if mkHRE.decrees[i]["key"] == decree_key then
+			if mkHRE.decrees[i]["emperor_effect_bundle_key"] ~= "none" then
+				cm:remove_effect_bundle(mkHRE.decrees[i]["member_effect_bundle_key"], mkHRE.emperor_key);
 			end
 
-			if HRE_DECREES[i]["member_effect_bundle_key"] ~= "none" then
-				for j = 1, #HRE_FACTIONS do
-					local faction_name = HRE_FACTIONS[j];
+			if mkHRE.decrees[i]["member_effect_bundle_key"] ~= "none" then
+				for j = 1, #mkHRE.factions do
+					local faction_name = mkHRE.factions[j];
 
-					cm:remove_effect_bundle(HRE_DECREES[i]["member_effect_bundle_key"], faction_name);
+					cm:remove_effect_bundle(mkHRE.decrees[i]["member_effect_bundle_key"], faction_name);
 				end
 			end
 
-			HRE_ACTIVE_DECREE = "nil";
-			HRE_ACTIVE_DECREE_TURNS_LEFT = 0;
+			mkHRE.active_decree = "nil";
+			mkHRE.active_decree_turns_left = 0;
 
 			break;
 		end
@@ -159,21 +160,21 @@ function Deactivate_Decree(decree_key)
 end
 
 function Get_Decree_Property(decree_key, decree_property)
-	for i = 1, #HRE_DECREES do
-		if HRE_DECREES[i]["key"] == decree_key and HRE_DECREES[i][decree_property]  then
-			return HRE_DECREES[i][decree_property];
+	for i = 1, #mkHRE.decrees do
+		if mkHRE.decrees[i]["key"] == decree_key and mkHRE.decrees[i][decree_property]  then
+			return mkHRE.decrees[i][decree_property];
 		end
 	end
 end
 
 function Apply_Decree_Effect_Bundle(emperor_effect_bundle_key, member_effect_bundle_key)
-	for i = 1, #HRE_FACTIONS do
-		local faction_name = HRE_FACTIONS[i];
+	for i = 1, #mkHRE.factions do
+		local faction_name = mkHRE.factions[i];
 
-		if HRE_Get_Faction_State(faction_name) == "emperor" then
-			cm:apply_effect_bundle(emperor_effect_bundle_key, faction_name, HRE_DECREE_DURATION);
+		if mkHRE:Get_Faction_State(faction_name) == "emperor" then
+			cm:apply_effect_bundle(emperor_effect_bundle_key, faction_name, hre_decree_duration);
 		else
-			cm:apply_effect_bundle(member_effect_bundle_key, faction_name, HRE_DECREE_DURATION);
+			cm:apply_effect_bundle(member_effect_bundle_key, faction_name, hre_decree_duration);
 		end
 	end
 end
@@ -181,24 +182,24 @@ end
 function Get_Decree_Tooltip(decree_key)
 	local decreestring = "";
 
-	for i = 1, #HRE_DECREES do
-		if HRE_DECREES[i]["key"] == decree_key then
-			local decree_name = HRE_DECREES[i]["name"];
-			local decree_cost = tostring(HRE_DECREES[i]["cost"]);
+	for i = 1, #mkHRE.decrees do
+		if mkHRE.decrees[i]["key"] == decree_key then
+			local decree_name = mkHRE.decrees[i]["name"];
+			local decree_cost = tostring(mkHRE.decrees[i]["cost"]);
 
 			decreestring = decree_name.."\n----------------------------------------------\nEffects for the emperor:";
 
-			for j = 1, #HRE_DECREES[i]["emperor_effects"] do
-				decreestring = decreestring.."\n"..HRE_DECREES[i]["emperor_effects"][j];
+			for j = 1, #mkHRE.decrees[i]["emperor_effects"] do
+				decreestring = decreestring.."\n"..mkHRE.decrees[i]["emperor_effects"][j];
 			end
 
 			decreestring = decreestring.."\n\nEffects for member-states:";
 
-			for j = 1, #HRE_DECREES[i]["member_effects"] do
-				decreestring = decreestring.."\n"..HRE_DECREES[i]["member_effects"][j];
+			for j = 1, #mkHRE.decrees[i]["member_effects"] do
+				decreestring = decreestring.."\n"..mkHRE.decrees[i]["member_effects"][j];
 			end
 
-			decreestring = decreestring.."\n\nThis decree will cost "..decree_cost.." Imperial Authority to enact, and will last for "..tostring(HRE_DECREE_DURATION).." turns.";
+			decreestring = decreestring.."\n\nThis decree will cost "..decree_cost.." Imperial Authority to enact, and will last for "..tostring(hre_decree_duration).." turns.";
 		end
 	end
 
@@ -210,14 +211,14 @@ end
 --------------------------------------------------------------
 cm:register_saving_game_callback(
 	function(context)
-		cm:save_value("HRE_ACTIVE_DECREE", HRE_ACTIVE_DECREE, context);
-		cm:save_value("HRE_ACTIVE_DECREE_TURNS_LEFT", HRE_ACTIVE_DECREE_TURNS_LEFT, context);
+		cm:save_value("mkHRE.active_decree", mkHRE.active_decree, context);
+		cm:save_value("mkHRE.active_decree_turns_left", mkHRE.active_decree_turns_left, context);
 	end
 );
 
 cm:register_loading_game_callback(
 	function(context)
-		HRE_ACTIVE_DECREE = cm:load_value("HRE_ACTIVE_DECREE", "nil", context);
-		HRE_ACTIVE_DECREE_TURNS_LEFT = cm:load_value("HRE_ACTIVE_DECREE_TURNS_LEFT", 0, context);
+		mkHRE.active_decree = cm:load_value("mkHRE.active_decree", "nil", context);
+		mkHRE.active_decree_turns_left = cm:load_value("mkHRE.active_decree_turns_left", 0, context);
 	end
 );

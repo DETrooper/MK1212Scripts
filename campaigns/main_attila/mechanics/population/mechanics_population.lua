@@ -614,6 +614,8 @@ function Compute_Region_Growth(region)
 		--dev.log("Growth modifier from exceeding soft cap: "..tostring(growth_modifier));
 		POPULATION_REGIONS_GROWTH_FACTORS[region_name] = POPULATION_REGIONS_GROWTH_FACTORS[region_name].."soft_cap_exceeded#"..tostring(100 - (100 * growth_modifier)).."#@";
 	end
+	
+	local hre_decree = (mkHRE and mkHRE.active_decree == "hre_decree_lessen_tax_burdens");
 
 	for i = 1, 5 do
 		if owning_faction_capital == region_name then
@@ -626,8 +628,8 @@ function Compute_Region_Growth(region)
 			end		
 		end
 
-		if HRE_ACTIVE_DECREE == "hre_decree_lessen_tax_burdens" then
-			if HasValue(HRE_FACTIONS, region_owning_faction_name) then
+		if hre_decree then
+			if HasValue(mkHRE.factions, region_owning_faction_name) then
 				if i == 2 or i == 3 then
 					--dev.log("Growth from imperial decree for class "..tostring(i)..": "..tostring(POPULATION_IMPERIAL_DECREE_BONUS));
 					growth[i] = growth[i] + POPULATION_IMPERIAL_DECREE_BONUS;

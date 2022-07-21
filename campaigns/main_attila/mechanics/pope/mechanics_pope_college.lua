@@ -280,7 +280,7 @@ function Process_Pope_College_Election()
 
 	for k, v in pairs(COLLEGE_OF_CARDINALS_CHARACTERS) do
 		if v == "preferati" then
-			local num_votes = Calculate_Num_Votes_HRE_Elections(k);
+			local num_votes = Calculate_Num_Votes_Pope_College_Elections(k);
 
 			if num_votes > max then
 				winner, max = cm:model():character_for_command_queue_index(tonumber(k)), num_votes;

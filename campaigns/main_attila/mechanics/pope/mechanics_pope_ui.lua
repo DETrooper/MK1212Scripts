@@ -192,9 +192,9 @@ function CharacterSelected_Pope_UI(context)
 	button_join_crusade_uic:SetState("inactive"); -- Default to inactive.
 	button_join_crusade_uic:SetVisible(false); -- Default to not visible.
 
-	--if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" then
-		--button_college_of_cardinals_uic:SetVisible(true);
-	--else
+	--[[if character:character_type("dignitary") and character:faction():state_religion() == "att_rel_chr_catholic" then
+		button_college_of_cardinals_uic:SetVisible(true);
+	else]]--
 		if CRUSADER_RECRUITMENT_PANEL_OPEN == true then
 			CloseCrusaderRecruitmentPanel(false);
 		end
@@ -772,9 +772,6 @@ function PopulateCrusaderRecruitmentPanel()
 		unit_card_merch_type_uic:SetVisible(true);
 		unit_card_merch_type_uic:SetState("crusader");
 	end
-
-	--crusader_hslider_uic:SetProperty("maxValue", "215");
-	--dev.log(crusader_hslider_uic:GetProperty("maxValue"));
 end
 
 function RefreshCrusaderRecruitmentPanel(check_units, minus_one)
