@@ -431,9 +431,9 @@ function mkHRE:State_Check(faction_name)
 	-- Find which attitude an HRE member state should have towards the emperor.
 	local faction_list = cm:model():world():faction_list();
 	local faction = cm:model():world():faction_by_key(faction_name);
-	local faction_state = mkHRE:Get_Faction_State(faction_name);
-	local emperor_faction = cm:model():world():faction_by_key(mkHRE.emperor_key);
-	local stance = cm:model():campaign_ai():strategic_stance_between_factions(faction_name, mkHRE.emperor_key);
+	local faction_state = self:Get_Faction_State(faction_name);
+	local emperor_faction = cm:model():world():faction_by_key(self.emperor_key);
+	local stance = cm:model():campaign_ai():strategic_stance_between_factions(faction_name, self.emperor_key);
 	local turn_number = cm:model():turn_number();
 
 	-- Possible stances from strategic_stance_between_factions are -3 to 3, corresponding to diplomatic stances (i.e. 2 being Very Friendly, -2 being Hostile).
@@ -441,16 +441,16 @@ function mkHRE:State_Check(faction_name)
 	-- If the HRE member state is not malcontent but is at war with the emperor, make them malcontent.
 	if faction_state ~= "malcontent" then
 		if faction:at_war_with(emperor_faction) or (turn_number > 1 and stance <= -3) then
-			mkHRE:Set_Faction_State(faction_name, "malcontent", true);
+			self:Set_Faction_State(faction_name, "malcontent", true);
 			return;
 		end
 	end
 
 	if faction_state ~= "puppet" then
 		if emperor_faction:is_human() then
-			if FACTIONS_TO_FACTIONS_VASSALIZED[mkHRE.emperor_key] then
-				if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[mkHRE.emperor_key], faction_name) then
-					mkHRE:Set_Faction_State(faction_name, "puppet", true);
+			if FACTIONS_TO_FACTIONS_VASSALIZED[self.emperor_key] then
+				if HasValue(FACTIONS_TO_FACTIONS_VASSALIZED[self.emperor_key], faction_name) then
+					self:Set_Faction_State(faction_name, "puppet", true);
 					return;
 				end
 			end
@@ -460,9 +460,9 @@ function mkHRE:State_Check(faction_name)
 		for i = 0, faction_list:num_items() - 1 do
 			local possible_ally = faction_list:item_at(i);
 
-			if faction:allied_with(possible_ally) == true and HasValue(mkHRE.factions, possible_ally:name()) then
+			if faction:allied_with(possible_ally) == true and HasValue(self.factions, possible_ally:name()) then
 				if possible_ally:at_war_with(emperor_faction) then
-					mkHRE:Set_Faction_State(faction_name, "discontent", false);
+					self:Set_Faction_State(faction_name, "discontent", false);
 					return;
 				end
 			end
@@ -471,10 +471,10 @@ function mkHRE:State_Check(faction_name)
 		-- If the HRE member state is on very friendly terms with the emperor, make them loyal. If they're hostile, make them malcontent.
 		if turn_number > 1 then
 			if stance >= 3 then
-				mkHRE:Set_Faction_State(faction_name, "loyal", true);
+				self:Set_Faction_State(faction_name, "loyal", true);
 				return;
 			elseif stance > -1 then
-				mkHRE:Set_Faction_State(faction_name, "discontent", false);
+				self:Set_Faction_State(faction_name, "discontent", false);
 				return;
 			end
 		end
@@ -484,24 +484,24 @@ function mkHRE:State_Check(faction_name)
 			local chance = cm:random_number(10);
 
 			if chance == 1 then
-				mkHRE:Set_Faction_State(faction_name, "ambitious", false);
+				self:Set_Faction_State(faction_name, "ambitious", false);
 			end
 		elseif faction_state == "ambitious" then
 			local chance = cm:random_number(5);
 
 			if chance == 1 then
-				mkHRE:Set_Faction_State(faction_name, "neutral", false);
+				self:Set_Faction_State(faction_name, "neutral", false);
 			end
 		else
-			mkHRE:Set_Faction_State(faction_name, "neutral", false);
+			self:Set_Faction_State(faction_name, "neutral", false);
 		end
 	end
 end
 
 function mkHRE:Calculate_Imperial_Authority()
-	local authority = mkHRE.imperial_authority;
-	local current_reform = mkHRE.current_reform;
-	local gain = hre_imperial_authority_gain_rate + (hre_imperial_authority_gain_per_region * #mkHRE.regions_in_empire);
+	local authority = self.imperial_authority;
+	local current_reform = self.current_reform;
+	local gain = hre_imperial_authority_gain_rate + (hre_imperial_authority_gain_per_region * #self.regions_in_empire);
 
 	if current_reform < 5 then
 		authority = authority + gain;
@@ -511,9 +511,9 @@ function mkHRE:Calculate_Imperial_Authority()
 		authority = authority + (gain * 1.5);
 	end
 
-	if authority > mkHRE.imperial_authority_max then
+	if authority > self.imperial_authority_max then
 		authority = 100;
-	elseif authority < mkHRE.imperial_authority_min then
+	elseif authority < self.imperial_authority_min then
 		authority = 0;
 	end
 
@@ -521,8 +521,8 @@ function mkHRE:Calculate_Imperial_Authority()
 end
 
 function mkHRE:Check_Factions_In_Empire()
-	if not mkHRE.destroyed then
-		local hre_factions_copy = DeepCopy(mkHRE.factions);
+	if not self.destroyed then
+		local hre_factions_copy = DeepCopy(self.factions);
 
 		for i = 1, #hre_factions_copy do
 			local faction_name = hre_factions_copy[i];
@@ -532,11 +532,11 @@ function mkHRE:Check_Factions_In_Empire()
 			end
 		end
 
-		for i = 1, #mkHRE.factions_start do
-			local faction_name = mkHRE.factions_start[i];
+		for i = 1, #self.factions_start do
+			local faction_name = self.factions_start[i];
 		
-			if FactionIsAlive(faction_name) and HasValue(mkHRE.factions, faction_name) == false then
-				mkHRE:Add_To_Empire(faction_name);
+			if FactionIsAlive(faction_name) and HasValue(self.factions, faction_name) == false then
+				self:Add_To_Empire(faction_name);
 			end	
 		end
 	end
@@ -545,8 +545,8 @@ end
 function mkHRE:Destroyed_Check()
 	local hre_faction_alive = false;
 
-	for i = 1, #mkHRE.factions do
-		if FactionIsAlive(mkHRE.factions[i]) then
+	for i = 1, #self.factions do
+		if FactionIsAlive(self.factions[i]) then
 			hre_faction_alive = true;
 			break;
 		end
@@ -556,16 +556,16 @@ function mkHRE:Destroyed_Check()
 		local faction_list = cm:model():world():faction_list();
 
 		for i = 0, faction_list:num_items() - 1 do
-			mkHRE:Remove_Unlawful_Territory_Effect_Bundles(faction_list:item_at(i):name());
+			self:Remove_Unlawful_Territory_Effect_Bundles(faction_list:item_at(i):name());
 		end
 
-		mkHRE.destroyed = true;
+		self.destroyed = true;
 
 		cm:show_message_event(
 			cm:get_local_faction(),
-			"message_event_text_text_mk_event_mkHRE.destroyed_title",
-			"message_event_text_text_mk_event_mkHRE.destroyed_primary",
-			"message_event_text_text_mk_event_mkHRE.destroyed_secondary",
+			"message_event_text_text_mk_event_hre_destroyed_title",
+			"message_event_text_text_mk_event_hre_destroyed_primary",
+			"message_event_text_text_mk_event_hre_destroyed_secondary",
 			true, 
 			713
 		);
@@ -574,31 +574,31 @@ end
 
 function mkHRE:Emperor_Check()
 	if not self.destroyed then
-		if mkHRE.emperor_key ~= "nil" then
-			local emperor_faction = cm:model():world():faction_by_key(mkHRE.emperor_key);
+		if self.emperor_key ~= "nil" then
+			local emperor_faction = cm:model():world():faction_by_key(self.emperor_key);
 
-			if mkHRE.emperor_pretender_key ~= "nil" then
-				local pretender_faction = cm:model():world():faction_by_key(mkHRE.emperor_pretender_key);
+			if self.emperor_pretender_key ~= "nil" then
+				local pretender_faction = cm:model():world():faction_by_key(self.emperor_pretender_key);
 
-				if FactionIsAlive(mkHRE.emperor_pretender_key) == false then
+				if FactionIsAlive(self.emperor_pretender_key) == false then
 					if emperor_faction:is_human() then
-						cm:override_mission_succeeded_status(mkHRE.emperor_key, "mk_mission_story_hre_survive_pretender", true);
+						cm:override_mission_succeeded_status(self.emperor_key, "mk_mission_story_hre_survive_pretender", true);
 					elseif pretender_faction:is_human() then
-						cm:override_mission_succeeded_status(mkHRE.emperor_pretender_key, "mk_mission_story_pretender_take_frankfurt", false);
+						cm:override_mission_succeeded_status(self.emperor_pretender_key, "mk_mission_story_pretender_take_frankfurt", false);
 					end
 
-					mkHRE:Pretender_End_Mission(false, "death");
-				elseif FactionIsAlive(mkHRE.emperor_key) == false then
+					self:Pretender_End_Mission(false, "death");
+				elseif FactionIsAlive(self.emperor_key) == false then
 					if emperor_faction:is_human() then
-						cm:override_mission_succeeded_status(mkHRE.emperor_key, "mk_mission_story_hre_survive_pretender", false);
+						cm:override_mission_succeeded_status(self.emperor_key, "mk_mission_story_hre_survive_pretender", false);
 					elseif pretender_faction:is_human() then
-						cm:override_mission_succeeded_status(mkHRE.emperor_pretender_key, "mk_mission_story_pretender_take_frankfurt", true);
+						cm:override_mission_succeeded_status(self.emperor_pretender_key, "mk_mission_story_pretender_take_frankfurt", true);
 					end
 
-					mkHRE:Pretender_End_Mission(true, "victory");
+					self:Pretender_End_Mission(true, "victory");
 				end
 			elseif self.current_reform < 8 then
-				if FactionIsAlive(mkHRE.emperor_key) == false then
+				if FactionIsAlive(self.emperor_key) == false then
 					-- Emperor faction was destroyed, so elect a new emperor!
 					self:Refresh_HRE_Elections();
 					self:Process_Election_Result_HRE_Elections();
@@ -613,48 +613,48 @@ end
 
 function mkHRE:Replace_Emperor(faction_name)
 	local new_emperor_faction = cm:model():world():faction_by_key(faction_name);
-	local old_emperor = mkHRE.emperor_key;
+	local old_emperor = self.emperor_key;
 	local old_emperor_faction = nil;
 
 	if old_emperor and old_emperor ~= "nil" then
 		old_emperor_faction = cm:model():world():faction_by_key(old_emperor);
 	end
 
-	for i = 1, #mkHRE.factions do
+	for i = 1, #self.factions do
 		if old_emperor_faction then
-			if mkHRE.factions[i] == old_emperor then
-				if not HasValue(mkHRE.factions_start, old_emperor) then
-					mkHRE:Set_Faction_State(old_emperor, "not_in_empire", true);
-					table.remove(mkHRE.factions, i);
+			if self.factions[i] == old_emperor then
+				if not HasValue(self.factions_start, old_emperor) then
+					self:Set_Faction_State(old_emperor, "not_in_empire", true);
+					table.remove(self.factions, i);
 					break;
 				else
-					mkHRE:Set_Faction_State(old_emperor, "neutral", true);
+					self:Set_Faction_State(old_emperor, "neutral", true);
 				end
 			end
 		end
 	end
 
-	if not HasValue(mkHRE.factions, faction_name) then
-		table.insert(mkHRE.factions, faction_name);
+	if not HasValue(self.factions, faction_name) then
+		table.insert(self.factions, faction_name);
 	end
 
-	if mkHRE.current_reform > 0 then
+	if self.current_reform > 0 then
 		if old_emperor_faction then
-			for i = 1, mkHRE.current_reform - 1 do
+			for i = 1, self.current_reform - 1 do
 				cm:remove_effect_bundle("mk_effect_bundle_reform_"..tostring(i), old_emperor);
 			end
 		end
 
-		cm:apply_effect_bundle("mk_effect_bundle_reform_"..tostring(mkHRE.current_reform), faction_name, 0);
+		cm:apply_effect_bundle("mk_effect_bundle_reform_"..tostring(self.current_reform), faction_name, 0);
 	end
 
-	if mkHRE.active_decree ~= "nil" then
-		mkHRE:Deactivate_Decree(mkHRE.active_decree);
+	if self.active_decree ~= "nil" then
+		self:Deactivate_Decree(self.active_decree);
 	end
 
 	if new_emperor_faction:is_human() then	
 		Add_HRE_Event_Listeners();
-		mkHRE:HRE_Event_Reset_Timer();
+		self:HRE_Event_Reset_Timer();
 	end
 
 	if old_emperor_faction then 
@@ -663,15 +663,15 @@ function mkHRE:Replace_Emperor(faction_name)
 		end
 	end
 
-	mkHRE.emperor_key = faction_name;
-	mkHRE.imperial_authority = hre_imperial_authority_start;
+	self.emperor_key = faction_name;
+	self.imperial_authority = hre_imperial_authority_start;
 
-	if mkHRE.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()]  then
-		if faction_name ~= mkHRE.emperor_pretender_key then
-			mkHRE.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] = mkHRE.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] + 1;
+	if self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()]  then
+		if faction_name ~= self.emperor_pretender_key then
+			self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] = self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] + 1;
 		end
 	else
-		mkHRE.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] = 1;
+		self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] = 1;
 	end
 
 	DFN_Disable_Forming_Kingdoms(faction_name);
@@ -682,7 +682,7 @@ function mkHRE:Replace_Emperor(faction_name)
 		DFN_Refresh_Faction_Name(old_emperor);
 	end
 
-	if faction_name == mkHRE.emperor_pretender_key then
+	if faction_name == self.emperor_pretender_key then
 		if IRONMAN_ENABLED then
 			if new_emperor_faction:is_human() then
 				Unlock_Achievement("achievement_dont_mind_if_i_do");
@@ -703,23 +703,23 @@ function mkHRE:Replace_Emperor(faction_name)
 		end
 	end
 
-	mkHRE:HRE_Vanquish_Pretender();
-	mkHRE:Remove_Unlawful_Territory_Effect_Bundles(faction_name);
-	mkHRE:Set_Faction_State(faction_name, "emperor", true);
-	mkHRE:Button_Check();
+	self:HRE_Vanquish_Pretender();
+	self:Remove_Unlawful_Territory_Effect_Bundles(faction_name);
+	self:Set_Faction_State(faction_name, "emperor", true);
+	self:Button_Check();
 
 	cm:add_time_trigger("hre_frankfurt_transfer_delay", 0.5);
 
 	if FACTION_TURN == faction_name then
-		mkHRE.liberation_disabled = false;
+		self.liberation_disabled = false;
 	else
-		mkHRE.liberation_disabled = true;
+		self.liberation_disabled = true;
 	end
 end
 
 function mkHRE:Assign_New_Pretender(exclude_player)
 	local faction_list = cm:model():world():faction_list();
-	local emperor_faction = cm:model():world():faction_by_key(mkHRE.emperor_key);
+	local emperor_faction = cm:model():world():faction_by_key(self.emperor_key);
 	local pretender = nil;
 	local pretender_weight = 0;
 
@@ -727,7 +727,7 @@ function mkHRE:Assign_New_Pretender(exclude_player)
 		local current_faction = faction_list:item_at(i);
 		local current_faction_name = current_faction:name();
 
-		if HasValue(mkHRE.factions, current_faction_name) ~= true and current_faction:state_religion() == "att_rel_chr_catholic" and current_faction:is_horde() == false then
+		if HasValue(self.factions, current_faction_name) ~= true and current_faction:state_religion() == "att_rel_chr_catholic" and current_faction:is_horde() == false then
 			if current_faction:allied_with(emperor_faction) ~= true and FACTION_EXCOMMUNICATED[current_faction_name] ~= true then
 				local forces = current_faction:military_force_list();
 				local num_regions = current_faction:region_list():num_items();
@@ -765,10 +765,10 @@ function mkHRE:Assign_New_Pretender(exclude_player)
 		if pretender_faction:is_human() then
 			cm:trigger_dilemma(pretender, "mk_dilemma_hre_pretender_nomination");
 		else
-			mkHRE.emperor_pretender_key = pretender;
+			self.emperor_pretender_key = pretender;
 			local faction_string = "factions_screen_name_"..pretender;
 
-			mkHRE:Set_Faction_State(pretender, "pretender", true);
+			self:Set_Faction_State(pretender, "pretender", true);
 
 			if FACTIONS_DFN_LEVEL[pretender]  then
 				if FACTIONS_DFN_LEVEL[pretender] > 1 then
@@ -776,10 +776,10 @@ function mkHRE:Assign_New_Pretender(exclude_player)
 				end
 			end
 
-			if mkHRE.emperors_names_numbers[pretender_faction:faction_leader():get_forename()]  then
-				mkHRE.emperors_names_numbers[pretender_faction:faction_leader():get_forename()] = mkHRE.emperors_names_numbers[pretender_faction:faction_leader():get_forename()] + 1;
+			if self.emperors_names_numbers[pretender_faction:faction_leader():get_forename()]  then
+				self.emperors_names_numbers[pretender_faction:faction_leader():get_forename()] = self.emperors_names_numbers[pretender_faction:faction_leader():get_forename()] + 1;
 			else
-				mkHRE.emperors_names_numbers[pretender_faction:faction_leader():get_forename()] = 1;
+				self.emperors_names_numbers[pretender_faction:faction_leader():get_forename()] = 1;
 			end
 
 			cm:show_message_event(
@@ -792,62 +792,62 @@ function mkHRE:Assign_New_Pretender(exclude_player)
 			);
 
 			if not pretender_faction:at_war_with(emperor_faction) then
-				cm:force_declare_war(mkHRE.emperor_key, pretender);
+				cm:force_declare_war(self.emperor_key, pretender);
 			end
 
-			cm:force_diplomacy(mkHRE.emperor_key, pretender, "peace", false, false);
-			cm:force_diplomacy(pretender, mkHRE.emperor_key, "peace", false, false);
-			SetFactionsHostile(pretender, mkHRE.emperor_key);
+			cm:force_diplomacy(self.emperor_key, pretender, "peace", false, false);
+			cm:force_diplomacy(pretender, self.emperor_key, "peace", false, false);
+			SetFactionsHostile(pretender, self.emperor_key);
 		end
 	else
 		-- Something went horribly wrong and there's no viable pretender.
-		mkHRE:HRE_Vanquish_Pretender(); -- Reset cooldown.
+		self:HRE_Vanquish_Pretender(); -- Reset cooldown.
 	end
 
-	mkHRE:Refresh_HRE_Elections();
-	mkHRE:Button_Check();
+	self:Refresh_HRE_Elections();
+	self:Button_Check();
 end
 
 function mkHRE:HRE_Vanquish_Pretender()
-	if mkHRE.emperor_pretender_key ~= "nil" and mkHRE.emperor_pretender_key ~= mkHRE.emperor_key then
-		local emperor_faction = cm:model():world():faction_by_key(mkHRE.emperor_key);
-		local pretender_faction = cm:model():world():faction_by_key(mkHRE.emperor_pretender_key);
+	if self.emperor_pretender_key ~= "nil" and self.emperor_pretender_key ~= self.emperor_key then
+		local emperor_faction = cm:model():world():faction_by_key(self.emperor_key);
+		local pretender_faction = cm:model():world():faction_by_key(self.emperor_pretender_key);
 
-		cm:force_diplomacy(mkHRE.emperor_key, mkHRE.emperor_pretender_key, "peace", true, true);
-		cm:force_diplomacy(mkHRE.emperor_pretender_key, mkHRE.emperor_key, "peace", true, true);
+		cm:force_diplomacy(self.emperor_key, self.emperor_pretender_key, "peace", true, true);
+		cm:force_diplomacy(self.emperor_pretender_key, self.emperor_key, "peace", true, true);
 
 		if pretender_faction:at_war_with(emperor_faction) then
-			cm:force_make_peace(mkHRE.emperor_key, mkHRE.emperor_pretender_key);
+			cm:force_make_peace(self.emperor_key, self.emperor_pretender_key);
 		end
 
-		SetFactionsNeutral(mkHRE.emperor_key, mkHRE.emperor_pretender_key);
+		SetFactionsNeutral(self.emperor_key, self.emperor_pretender_key);
 
-		if not HasValue(mkHRE.factions_start, mkHRE.emperor_pretender_key) then
-			mkHRE:Set_Faction_State(mkHRE.emperor_pretender_key, "not_in_empire", true);
+		if not HasValue(self.factions_start, self.emperor_pretender_key) then
+			self:Set_Faction_State(self.emperor_pretender_key, "not_in_empire", true);
 		else
-			mkHRE:Set_Faction_State(mkHRE.emperor_pretender_key, "neutral", true);
+			self:Set_Faction_State(self.emperor_pretender_key, "neutral", true);
 		end
 	end
 
-	mkHRE.emperor_pretender_cooldown = 10;
-	mkHRE.emperor_pretender_key = "nil";
+	self.emperor_pretender_cooldown = 10;
+	self.emperor_pretender_key = "nil";
 
-	mkHRE:Refresh_HRE_Elections();
-	mkHRE:Button_Check();
+	self:Refresh_HRE_Elections();
+	self:Button_Check();
 end
 
 function mkHRE:Pretender_End_Mission(success, reason)
-	mkHRE.emperor_mission_active = false;
-	mkHRE.emperor_mission_win_turn = 0;
+	self.emperor_mission_active = false;
+	self.emperor_mission_win_turn = 0;
 
 	if success == true then
-		mkHRE:Replace_Emperor(mkHRE.emperor_pretender_key);
+		self:Replace_Emperor(self.emperor_pretender_key);
 	else
-		mkHRE:Change_Imperial_Authority(hre_emperor_mission_authority_reward);
+		self:Change_Imperial_Authority(hre_emperor_mission_authority_reward);
 
 		if reason == "death" then
 			cm:show_message_event(
-				mkHRE.emperor_pretender_key,
+				self.emperor_pretender_key,
 				"message_event_text_text_mk_event_sic_lost_claim_title", 
 				"message_event_text_text_mk_event_sic_lost_claim_primary", 
 				"message_event_text_text_mk_event_sic_lost_claim_secondary_death", 
@@ -856,7 +856,7 @@ function mkHRE:Pretender_End_Mission(success, reason)
 			);
 		else
 			cm:show_message_event(
-				mkHRE.emperor_pretender_key,
+				self.emperor_pretender_key,
 				"message_event_text_text_mk_event_sic_lost_claim_title", 
 				"message_event_text_text_mk_event_sic_lost_claim_primary", 
 				"message_event_text_text_mk_event_sic_lost_claim_secondary", 
@@ -865,63 +865,63 @@ function mkHRE:Pretender_End_Mission(success, reason)
 			);
 		end
 
-		mkHRE:HRE_Vanquish_Pretender();
+		self:HRE_Vanquish_Pretender();
 	end
 
-	for i = 1, #mkHRE.factions do
-		if mkHRE.factions[i] ~= mkHRE.emperor_key then
+	for i = 1, #self.factions do
+		if self.factions[i] ~= self.emperor_key then
 			-- Re-enable war in case it's still disabled.
-			cm:force_diplomacy(mkHRE.factions[i], mkHRE.emperor_key, "war", true, true);
-			cm:force_diplomacy(mkHRE.factions[i], mkHRE.emperor_pretender_key, "war", true, true);
+			cm:force_diplomacy(self.factions[i], self.emperor_key, "war", true, true);
+			cm:force_diplomacy(self.factions[i], self.emperor_pretender_key, "war", true, true);
 		end
 	end
 end
 
 function mkHRE:Set_Faction_State(faction_name, state, ignore_cooldown)
 	if state == "not_in_empire" then
-		mkHRE.factions_to_states[faction_name] = nil;
+		self.factions_to_states[faction_name] = nil;
 	end
 
-	if ignore_cooldown == true or mkHRE.faction_state_change_cooldowns[faction_name] == 0 then
-		mkHRE.factions_to_states[faction_name] = state;
-		mkHRE.faction_state_change_cooldowns[faction_name] = hre_faction_state_change_cooldown;
-		mkHRE:Refresh_HRE_Elections();
+	if ignore_cooldown == true or self.faction_state_change_cooldowns[faction_name] == 0 then
+		self.factions_to_states[faction_name] = state;
+		self.faction_state_change_cooldowns[faction_name] = hre_faction_state_change_cooldown;
+		self:Refresh_HRE_Elections();
 	end
 end
 
 function mkHRE:Get_Faction_State(faction_name)
-	if HasValue(mkHRE.factions, faction_name) then
-		if mkHRE.factions_to_states[faction_name] == nil then
-			mkHRE.factions_to_states[faction_name] = "neutral";
+	if HasValue(self.factions, faction_name) then
+		if self.factions_to_states[faction_name] == nil then
+			self.factions_to_states[faction_name] = "neutral";
 		end
 	else
 		return "not_in_empire";
 	end
 
-	return mkHRE.factions_to_states[faction_name];
+	return self.factions_to_states[faction_name];
 end
 
 function mkHRE:Add_To_Empire(faction_name)
-	if not HasValue(mkHRE.factions, faction_name) then
-		table.insert(mkHRE.factions, faction_name);
+	if not HasValue(self.factions, faction_name) then
+		table.insert(self.factions, faction_name);
 	end
 	
-	mkHRE:State_Check(faction_name);
+	self:State_Check(faction_name);
 end
 
 function mkHRE:Remove_From_Empire(faction_name)
-	for i = 1, #mkHRE.factions do
-		if mkHRE.factions[i] == faction_name then
-			mkHRE.factions_to_states[faction_name] = nil;
-			mkHRE.faction_state_change_cooldowns[faction_name] = 0;
+	for i = 1, #self.factions do
+		if self.factions[i] == faction_name then
+			self.factions_to_states[faction_name] = nil;
+			self.faction_state_change_cooldowns[faction_name] = 0;
 
-			mkHRE:Remove_Imperial_Expansion_Effect_Bundles(faction_name);
+			self:Remove_Imperial_Expansion_Effect_Bundles(faction_name);
 
-			if faction_name == mkHRE.emperor_key then
-				mkHRE:Emperor_Check();
+			if faction_name == self.emperor_key then
+				self:Emperor_Check();
 			end
 
-			table.remove(mkHRE.factions, i);
+			table.remove(self.factions, i);
 			break;
 		end
 	end
@@ -931,39 +931,39 @@ function mkHRE:Remove_From_Empire(faction_name)
 end
 
 function mkHRE:Change_Imperial_Authority(amount)
-	local authority = mkHRE.imperial_authority + amount;
+	local authority = self.imperial_authority + amount;
 
-	if authority > mkHRE.imperial_authority_max then
+	if authority > self.imperial_authority_max then
 		authority = 100;
-	elseif authority < mkHRE.imperial_authority_min then
+	elseif authority < self.imperial_authority_min then
 		authority = 0;
 	end
 
-	mkHRE.imperial_authority = authority;
+	self.imperial_authority = authority;
 end
 
 function mkHRE:Get_Authority_Tooltip()
-	local num_regions = #mkHRE.regions_in_empire;
+	local num_regions = #self.regions_in_empire;
 
-	local authoritystring = "Current Imperial Authority: "..Round_Number_Text(mkHRE.imperial_authority);
+	local authoritystring = "Current Imperial Authority: "..Round_Number_Text(self.imperial_authority);
 	authoritystring = authoritystring.."\n\nEmperorship Held: [[rgba:8:201:27:150]]+"..Round_Number_Text(hre_imperial_authority_gain_rate).."[[/rgba]]";
 	authoritystring = authoritystring.."\nRegions in the HRE: [[rgba:8:201:27:150]]+"..Round_Number_Text(hre_imperial_authority_gain_per_region * num_regions).."[[/rgba]]";
 
-	if mkHRE.current_reform >= 5 then
+	if self.current_reform >= 5 then
 		authoritystring = authoritystring.."\nReforms: [[rgba:8:201:27:150]]+25%[[/rgba]]";
-	elseif mkHRE.current_reform >= 7 then
+	elseif self.current_reform >= 7 then
 		authoritystring = authoritystring.."\nReforms: [[rgba:8:201:27:150]]+50%[[/rgba]]";
 	end
 
-	if mkHRE.imperial_authority == mkHRE.imperial_authority_max then
+	if self.imperial_authority == self.imperial_authority_max then
 		authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:255:0:0:150]]None[[/rgba]]";
 		authoritystring = authoritystring.."\nProjected Imperial Authority: [[rgba:8:201:27:150]]100[[/rgba]]";
-	elseif mkHRE:Calculate_Imperial_Authority() > mkHRE.imperial_authority_max then
-		authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:255:255:0:150]]+"..Round_Number_Text(mkHRE:Calculate_Imperial_Authority() - mkHRE.imperial_authority_max).."[[/rgba]]";
+	elseif self:Calculate_Imperial_Authority() > self.imperial_authority_max then
+		authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:255:255:0:150]]+"..Round_Number_Text(self:Calculate_Imperial_Authority() - self.imperial_authority_max).."[[/rgba]]";
 		authoritystring = authoritystring.."\nProjected Imperial Authority: [[rgba:8:201:27:150]]100[/rgba]]";
 	else
-		authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:8:201:27:150]]+"..Round_Number_Text(mkHRE:Calculate_Imperial_Authority() - mkHRE.imperial_authority).."[[/rgba]]";
-		authoritystring = authoritystring.."\nProjected Imperial Authority: [[rgba:8:201:27:150]]"..Round_Number_Text(mkHRE:Calculate_Imperial_Authority()).."[[/rgba]]";
+		authoritystring = authoritystring.."\n\nProjected Growth: [[rgba:8:201:27:150]]+"..Round_Number_Text(self:Calculate_Imperial_Authority() - self.imperial_authority).."[[/rgba]]";
+		authoritystring = authoritystring.."\nProjected Imperial Authority: [[rgba:8:201:27:150]]"..Round_Number_Text(self:Calculate_Imperial_Authority()).."[[/rgba]]";
 	end
 
 	return authoritystring;
