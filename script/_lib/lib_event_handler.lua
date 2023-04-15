@@ -138,6 +138,11 @@ function event_handler:event_callback(eventname, context)
 				-- store this listener to be removed post-list
 				current_listener.to_remove = true;
 			end;
+
+			--[[if eventname == "FactionTurnStart" then
+				dev.log(current_listener.name);
+			end]]--
+
 		end;
 	end;
 	
@@ -149,10 +154,6 @@ function event_handler:event_callback(eventname, context)
 	end]]--
 
 	for i = 1, #callbacks_to_call do
-		--[[if eventname == "FactionTurnStart" then
-			dev.log(tostring(callbacks_to_call[i]));
-		end]]--
-
 		callbacks_to_call[i](context);
 	end;
 end;

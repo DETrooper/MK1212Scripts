@@ -195,7 +195,7 @@ end;
 --scripting.AddEventCallBack("ComponentLClickUp", function() dev.log("Component Selected") end)
 --scripting.AddEventCallBack("ComponentLClickUp", cameraDebugInfo)
 --scripting.AddEventCallBack("ComponentLClickUp", campaignCameraDebugInfo)
-scripting.AddEventCallBack("ComponentLClickUp", function(context) output_uicomponent(UIComponent(context.component)) end)
+--scripting.AddEventCallBack("ComponentLClickUp", function(context) output_uicomponent(UIComponent(context.component)) end)
 
 -- Logging
 dev.log("logging_callbacks.lua loaded")

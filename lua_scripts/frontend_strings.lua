@@ -8,11 +8,10 @@
 ---------------------------------------------------------------------------------------------------------------------------------------
 
 FRONTEND_STRINGS = {
-	campaign_title_1 = "Early Campaign - 1212 AD",
-	campaign_title_2 = "Late Campaign - Date TBD",
+	campaign_title_1 = "Early Campaign - 1212 ad",
+	campaign_title_2 = "Late Campaign - 1380 ad",
 	faction_strength = "Faction Strength: ",
 	faction_weakness = "Faction Weakness: ",
-	population = "Population: ",
 	text_version_string = "Medieval Kingdoms 1212: Campaign Build ",
 	select_random_faction_tooltip = "Select random faction!",
 };

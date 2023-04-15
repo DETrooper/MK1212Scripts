@@ -265,92 +265,54 @@ function ChangeCampaignMenu()
 
 	tx_header_uic:SetStateText(FRONTEND_STRINGS["campaign_title_"..tostring(CAMPAIGN_START_DATE_SELECTED)]);
 
-	if CAMPAIGN_START_DATE_SELECTED == 1 then
-		local faction_button_group_uic = UIComponent(sp_grand_campaign_uic:Find("faction_button_group"));
-		local att_fact_group_roman_uic = UIComponent(sp_grand_campaign_uic:Find("att_fact_group_roman"));
-		local col = 0;
-		local row = 1;
-		local row_offset = 0;
+	local faction_group_button_group_uic = UIComponent(sp_grand_campaign_uic:Find("faction_group_button_group"));
+	local att_fact_group_barbarian_m_uic = UIComponent(sp_grand_campaign_uic:Find("att_fact_group_barbarian_m"));
+	local button_purchase_uic = UIComponent(sp_grand_campaign_uic:Find("button_purchase"));
+	local row_offset = 0;
+	local col = 0;
+	local row = 1;
 
-		att_fact_group_roman_uic:SetVisible(false);
+	att_fact_group_barbarian_m_uic:SetVisible(false);
 
-		--Alphabetically sort the factions.
-		for i = 0, faction_button_group_uic:ChildCount() - 1 do
-			local faction_uic = UIComponent(faction_button_group_uic:Find(i));
-			local faction_id = faction_uic:Id();
+	--Alphabetically sort the factions.
+	for i = 0, faction_group_button_group_uic:ChildCount() - 1 do
+		local faction_uic = UIComponent(faction_group_button_group_uic:Find(i));
+		local faction_id = faction_uic:Id();
 
+		if not string.find(faction_id, "att_fact_group") then
 			table.insert(factions, faction_id);
 		end
-
-		table.sort(factions);
-
-		for i = 1, #factions do
-			local faction_uic = UIComponent(faction_button_group_uic:Find(factions[i]));
-			faction_uic:SetMoveable(true);
-
-			col = col + 1;
-
-			if col > max_columns then
-				if #factions - i < max_columns then
-					row_offset = (spacing / 2) * (max_columns - (#factions - (i - 1)));
-				end
-
-				col = 1;
-				row = row + 1;
-			end
-
-			faction_uic:MoveTo(curX - 562 + (spacing * col) + row_offset, curY - (249 - spacing * (row - 1)));
-			faction_uic:SetMoveable(false);
- 		end
-
-		faction_details_parent_uic:Resize(436, 616);
-		tx_factions_uic:SetStateText("Faction");
-		start_year_uic:Resize(400, 64);
-	elseif CAMPAIGN_START_DATE_SELECTED == 2 then	
-		local faction_group_button_group_uic = UIComponent(sp_grand_campaign_uic:Find("faction_group_button_group"));
-		local att_fact_group_barbarian_m_uic = UIComponent(sp_grand_campaign_uic:Find("att_fact_group_barbarian_m"));
-		local button_purchase_uic = UIComponent(sp_grand_campaign_uic:Find("button_purchase"));
-		local col = 0;
-		local row = 1;
-
-		att_fact_group_barbarian_m_uic:SetVisible(false);
-
-		--Alphabetically sort the factions.
-		for i = 0, faction_group_button_group_uic:ChildCount() - 1 do
-			local faction_uic = UIComponent(faction_group_button_group_uic:Find(i));
-			local faction_id = faction_uic:Id();
-
-			if not string.find(faction_id, "att_fact_group") then
-				table.insert(factions, faction_id);
-			end
-		end
-
-		table.sort(factions);
-
-		for i = 1, #factions do
-			local faction_uic = UIComponent(faction_group_button_group_uic:Find(factions[i]));
-
-			UIComponent(faction_uic:Find("label")):SetVisible(false);
-			UIComponent(faction_uic:Find("icon_new_content")):SetVisible(false);
-			faction_uic:SetMoveable(true);
-
-			col = col + 1;
-
-			if col > max_columns then
-				col = 1;
-				row = row + 1;
-			end
-
-			faction_uic:MoveTo(curX - 562 + (spacing * col), curY - (249 - spacing * (row - 1)));
-			faction_uic:SetMoveable(false);
-		end
-		 
-		button_start_campaign_uic:SetVisible(true);
-		button_purchase_uic:SetVisible(false);
-		effects_uic:SetVisible(true);
-		faction_details_parent_uic:Resize(436, 616);
-		start_year_uic:Resize(400, 64);
 	end
+
+	table.sort(factions);
+
+	for i = 1, #factions do
+		local faction_uic = UIComponent(faction_group_button_group_uic:Find(factions[i]));
+
+		UIComponent(faction_uic:Find("label")):SetVisible(false);
+		UIComponent(faction_uic:Find("icon_new_content")):SetVisible(false);
+		faction_uic:SetMoveable(true);
+
+		col = col + 1;
+
+		if col > max_columns then
+			if #factions - i < max_columns then
+				row_offset = (spacing / 2) * (max_columns - (#factions - (i - 1)));
+			end
+
+			col = 1;
+			row = row + 1;
+		end
+
+		faction_uic:MoveTo(curX - 562 + (spacing * col) + row_offset, curY - (249 - spacing * (row - 1)));
+		faction_uic:SetMoveable(false);
+	end
+		
+	button_start_campaign_uic:SetVisible(true);
+	button_purchase_uic:SetVisible(false);
+	effects_uic:SetVisible(true);
+	faction_details_parent_uic:Resize(436, 616);
+	start_year_uic:Resize(400, 64);
 
 	-- Left Side
 	local tx_faction_leader_uic = UIComponent(sp_grand_campaign_uic:Find("tx_faction_leader"));
@@ -363,22 +325,10 @@ function ChangeCampaignMenu()
 	local faction_trait_icon_uic = UIComponent(sp_grand_campaign_uic:Find("faction_trait_icon"));
 	local entries_window_uic = UIComponent(sp_grand_campaign_uic:Find("entries_window"));
 	header_cultural_uic:SetVisible(false);
-	effects_dlc_uic:SetVisible(true);
-	effects_dlc_uic:Resize(377, 40);
-	effects_dlc_uic:SetMoveable(true);
-	effects_dlc_uic:MoveTo(curX - 432, curY + 506);
-	effects_dlc_uic:SetMoveable(false);
 	header_faction_uic:SetStateText("");
 	header_faction_uic:SetMoveable(true);
 	header_faction_uic:MoveTo(curX - 441, curY + 534);
 	header_faction_uic:SetMoveable(false);
-	tx_religion_uic:SetMoveable(true);
-	tx_religion_uic:MoveTo(curX - 398, curY + 99);
-	tx_religion_uic:SetMoveable(false);
-	effect_description_window_uic:SetMoveable(true);
-	effect_description_window_uic:MoveTo(curX - 338, curY + 81);
-	effect_description_window_uic:SetMoveable(false);
-	entries_window_uic:SetVisible(false);
 	
 	-- Right Side
 	local maps_uic = UIComponent(sp_grand_campaign_uic:Find("maps"));
@@ -419,6 +369,8 @@ end
 function ChangeCampaignMenuFaction(faction_name)
 	local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
 	local start_year_uic = UIComponent(sp_grand_campaign_uic:Find("dy_start_year"));
+	local tx_population_uic = UIComponent(sp_grand_campaign_uic:Find("tx_population"));
+	local dy_population_uic = UIComponent(tx_population_uic:Find("dy_population"));
 	local strength_text = "NOT FOUND";
 	local weakness_text = "NOT FOUND";
 
@@ -433,33 +385,11 @@ function ChangeCampaignMenuFaction(faction_name)
 	start_year_uic:SetVisible(true);
 	start_year_uic:SetStateText("[[rgba:63:35:13:150]]"..FRONTEND_STRINGS["faction_strength"]..strength_text.."\n"..FRONTEND_STRINGS["faction_weakness"]..weakness_text.."[[/rgba:63:35:13:150]]");
 
-	tm:callback(
-		function()
-			local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
-			local effects_dlc_uic = UIComponent(sp_grand_campaign_uic:Find("effects_dlc"));
-			local effect_description_window_uic = UIComponent(effects_dlc_uic:Find("effect_description_window"));
-			local entries_window_uic = UIComponent(effects_dlc_uic:Find("entries_window"));
-			local leader_window_uic = UIComponent(sp_grand_campaign_uic:Find("3D_window"));
-			local curX, curY = leader_window_uic:Position();
-
-			effects_dlc_uic:SetVisible(true);
-			effects_dlc_uic:Resize(377, 40);
-			effects_dlc_uic:SetMoveable(true);
-			effects_dlc_uic:MoveTo(curX - 398, curY + 506);
-			effects_dlc_uic:SetMoveable(false);
-			effect_description_window_uic:SetMoveable(true);
-			effect_description_window_uic:MoveTo(curX - 304, curY + 81);
-			effect_description_window_uic:SetMoveable(false);
-			entries_window_uic:SetVisible(false);
-
-			if FACTION_POPULATIONS[faction_name] then
-				effect_description_window_uic:SetStateText(FRONTEND_STRINGS["population"]..FACTION_POPULATIONS[faction_name]);
-			else
-				effect_description_window_uic:SetStateText(FRONTEND_STRINGS["population"].."NOT FOUND")
-			end
-		end,
-		1
-	);
+	if FACTION_POPULATIONS[faction_name] then
+		dy_population_uic:SetStateText(FACTION_POPULATIONS[faction_name]);
+	else
+		dy_population_uic:SetStateText("NOT FOUND")
+	end
 end
 
 function ChangeUnitStatsLayout()
@@ -488,29 +418,19 @@ end
 
 function SelectRandomFaction()
 	local sp_grand_campaign_uic = UIComponent(m_root:Find("sp_grand_campaign"));
+	local faction_button_group_uic = UIComponent(sp_grand_campaign_uic:Find("faction_group_button_group"));
+	local factions = {};
 
-	if CAMPAIGN_START_DATE_SELECTED == 1 then
-		local faction_button_group_uic = UIComponent(sp_grand_campaign_uic:Find("faction_button_group"));
-		local faction_id = math.random(faction_button_group_uic:ChildCount() - 1);
-		local faction_uic = UIComponent(faction_button_group_uic:Find(faction_id));
+	for i = 0, faction_button_group_uic:ChildCount() - 1 do
+		local faction_uic = UIComponent(faction_button_group_uic:Find(i));
+		local faction_id = faction_uic:Id();
 
-		faction_uic:SimulateClick(); -- Click random faction.
-		faction_uic:SetState("selected");
-	else
-		local faction_button_group_uic = UIComponent(sp_grand_campaign_uic:Find("faction_group_button_group"));
-		local factions = {};
-
-		for i = 0, faction_button_group_uic:ChildCount() - 1 do
-			local faction_uic = UIComponent(faction_button_group_uic:Find(i));
-			local faction_id = faction_uic:Id();
-
-			table.insert(factions, faction_id);
-		end
-
-		local faction_id = factions[math.random(#factions)];
-		local faction_uic = UIComponent(faction_button_group_uic:Find(faction_id));
-
-		faction_uic:SimulateClick(); -- Click random faction.
-		faction_uic:SetState("selected");
+		table.insert(factions, faction_id);
 	end
+
+	local faction_id = factions[math.random(#factions)];
+	local faction_uic = UIComponent(faction_button_group_uic:Find(faction_id));
+
+	faction_uic:SimulateClick(); -- Click random faction.
+	faction_uic:SetState("selected");
 end

@@ -12,6 +12,11 @@ disclaimerstring = "Due to a lack of networking functionality in Total War: Atti
 					"\n\nEnabled Features:\nInvasions\nPapal Favour\nStarting Battles\nWar Weariness\nWorld Events\n\nPartially Working Features:\nDynamic Faction Names (Automatic)\nKingdom Events (Automatic)\nStory Events(HRE & Sicily Disabled)"..
 					"\n\nDisabled Features:\nAnnexing Vassals\nBuffer States\nChallenges\nCrusades\nDecisions\nHoly Roman Empire System\nIronman/Achievements\nPopulation";
 
+local valid_campaigns = {
+	{key = "mk_attila_early", localisation = "Grand Campaign (1212)"},
+	{key = "mk_attila_late", localisation = "Grand Campaign (1380)"},
+};
+
 eh:add_listener(
 	"OnFrontendScreenTransition_MP_Campaign",
 	"FrontendScreenTransition",
@@ -53,6 +58,27 @@ function OnComponentLClickUp_MP_Campaign(context)
 		else
 			disclaimer_uic:SetVisible(true);
 		end
+	elseif context.string == "button_host_campaign" or (string.find(context.string, "option") and UIComponent(UIComponent(UIComponent(UIComponent(context.component):Parent()):Parent()):Parent()):Id() == "dropdown_campaign_map") then
+			tm:callback(
+				function() 
+					local mp_games_list_uic =  UIComponent(m_root:Find("mp_games_list"));
+					local dropdown_campaign_map_uic = UIComponent(mp_games_list_uic:Find("dropdown_campaign_map"));
+					local dy_selected_txt_uic = UIComponent(dropdown_campaign_map_uic:Find("dy_selected_txt"));
+
+					--for i = 1, #valid_campaigns do
+						--if valid_campaigns[i].key == dy_selected_txt_uic:GetStateText() then
+							local button_purchase_uic = UIComponent(mp_games_list_uic:Find("button_purchase"));
+							local button_ok_uic = UIComponent(mp_games_list_uic:Find("button_ok"));
+
+							button_purchase_uic:SetVisible(false);
+							button_ok_uic:SetVisible(true);
+
+							--break;
+						--end
+					--end
+				end,
+				10
+			);
 	end
 end;
 
