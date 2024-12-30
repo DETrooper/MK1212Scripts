@@ -8,10 +8,10 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 -- Keeps track of which factions are in the HRE, and which faction is the emperor. Also handles imperial authority and liberation.
 
-local hre_emperor_mission_authority_reward = 25; -- The amount of Imperial Authority rewarded for beating a pretender.
+local hre_emperor_mission_authority_reward = 50; -- The amount of Imperial Authority rewarded for beating a pretender.
 local hre_imperial_authority_start = 40; -- Starting Imperial Authority. New emperors should also start with this amount.
 local hre_imperial_authority_gain_rate = 1; -- Base Imperial Authority gain per turn.
-local hre_imperial_authority_gain_per_region = 0.1; -- Imperial Authority gain per region in the HRE.
+local hre_imperial_authority_gain_per_region = 0.2; -- Imperial Authority gain per region in the HRE.
 local hre_faction_state_change_cooldown = 10; -- How many turns before a faction's state can change after it has been changed?
 
 mkHRE.emperor_key = "mk_fact_hre"; -- Starting emperor.
@@ -207,45 +207,62 @@ function BattleCompleted_HRE_Factions(context)
 end
 
 function CharacterBecomesFactionLeader_HRE_Factions(context)
-	local faction_name = context:character():faction():name();
+    local faction_name = context:character():faction():name();
+    DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Faction leader change detected for faction: " .. faction_name);
 
-	-- When faction leaders of HRE member states die, set their attitude to neutral if not a puppet, then check to see if their state should be something else.
-	if faction_name ~= mkHRE.emperor_key and HasValue(mkHRE.factions, faction_name) and not context:character():faction():is_human() then
-		local faction_state = mkHRE:Get_Faction_State(faction_name);
+    -- Check if the faction leader is not the emperor and if the faction is part of the HRE
+    if faction_name ~= mkHRE.emperor_key and HasValue(mkHRE.factions, faction_name) and not context:character():faction():is_human() then
+        local faction_state = mkHRE:Get_Faction_State(faction_name);
 
-		if faction_state ~= "puppet" then
-			mkHRE:Set_Faction_State(faction_name, "neutral", true);
-			mkHRE:State_Check(faction_name);
+        DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Faction " .. faction_name .. " is not emperor. Current state: " .. faction_state);
 
-			if mkHRE.current_reform > 1 and mkHRE.current_reform < 8 then
-				mkHRE:Check_Faction_Votes_HRE_Elections(faction_name);
-			end
-		end
-	elseif mkHRE.emperor_pretender_key ~= "nil" then
-		if faction_name == mkHRE.emperor_pretender_key then
-			local emperor_faction = cm:model():world():faction_by_key(mkHRE.emperor_key);
+        if faction_state ~= "puppet" then
+            DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Changing faction state for " .. faction_name .. " to 'neutral'");
+            mkHRE:Set_Faction_State(faction_name, "neutral", true);
+            mkHRE:State_Check(faction_name);
 
-			if emperor_faction:is_human() then
-				cm:override_mission_succeeded_status(mkHRE.emperor_key, "mk_mission_story_hre_survive_pretender", true);
-			elseif context:character():faction():is_human() then
-				cm:override_mission_succeeded_status(mkHRE.emperor_pretender_key, "mk_mission_story_pretender_take_frankfurt", false);
-			end
+            -- Log the reform status and check faction votes
+            if mkHRE.current_reform > 1 and mkHRE.current_reform < 8 then
+                DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Checking faction votes for " .. faction_name);
+                mkHRE:Check_Faction_Votes_HRE_Elections(faction_name);
+            end
+        else
+            DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Faction " .. faction_name .. " is a puppet, no state change.");
+        end
+    elseif mkHRE.emperor_pretender_key ~= "nil" then
+        -- If a pretender faction exists, handle pretender-specific logic
+        if faction_name == mkHRE.emperor_pretender_key then
+            local emperor_faction = cm:model():world():faction_by_key(mkHRE.emperor_key);
 
-			mkHRE:Pretender_End_Mission(false, "death");
-		elseif faction_name == mkHRE.emperor_key then
-			local pretender_faction = cm:model():world():faction_by_key(mkHRE.emperor_pretender_key);
+            if emperor_faction:is_human() then
+                DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Pretender faction " .. faction_name .. " triggers mission for human emperor survival.");
+                cm:override_mission_succeeded_status(mkHRE.emperor_key, "mk_mission_story_hre_survive_pretender", true);
+            elseif context:character():faction():is_human() then
+                DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Pretender faction " .. faction_name .. " triggers mission for human pretender takeover.");
+                cm:override_mission_succeeded_status(mkHRE.emperor_pretender_key, "mk_mission_story_pretender_take_frankfurt", false);
+            end
 
-			if context:character():faction():is_human() then
-				cm:override_mission_succeeded_status(mkHRE.emperor_key, "mk_mission_story_hre_survive_pretender", false);
-			elseif pretender_faction:is_human() then
-				cm:override_mission_succeeded_status(mkHRE.emperor_pretender_key, "mk_mission_story_pretender_take_frankfurt", true);
-			end
+            DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Pretender mission ended for " .. faction_name);
+            mkHRE:Pretender_End_Mission(false, "death");
+        elseif faction_name == mkHRE.emperor_key then
+            local pretender_faction = cm:model():world():faction_by_key(mkHRE.emperor_pretender_key);
 
-			mkHRE:Pretender_End_Mission(true, "victory");
-		end
-	elseif faction_name == mkHRE.emperor_key and mkHRE.current_reform < 8 then
-		mkHRE:Process_Election_Result_HRE_Elections();
-	end
+            if context:character():faction():is_human() then
+                DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Human emperor " .. faction_name .. " ends pretender mission.");
+                cm:override_mission_succeeded_status(mkHRE.emperor_key, "mk_mission_story_hre_survive_pretender", false);
+            elseif pretender_faction:is_human() then
+                DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Pretender faction " .. pretender_faction:name() .. " now takes control.");
+                cm:override_mission_succeeded_status(mkHRE.emperor_pretender_key, "mk_mission_story_pretender_take_frankfurt", true);
+            end
+
+            DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Pretender mission ended for emperor " .. faction_name);
+            mkHRE:Pretender_End_Mission(true, "victory");
+        end
+    elseif faction_name == mkHRE.emperor_key and mkHRE.current_reform < 8 then
+        -- If the emperor has died and no pretender is involved, trigger new election
+        DebugLog("CharacterBecomesFactionLeader_HRE_Factions: Emperor " .. faction_name .. " has died. Triggering new election.");
+        mkHRE:Process_Election_Result_HRE_Elections();
+    end
 end
 
 function DilemmaChoiceMadeEvent_HRE_Pretender(context)
@@ -506,9 +523,9 @@ function mkHRE:Calculate_Imperial_Authority()
 	if current_reform < 5 then
 		authority = authority + gain;
 	elseif current_reform >= 5 then
-		authority = authority + (gain * 1.25);
-	elseif current_reform >= 7 then
 		authority = authority + (gain * 1.5);
+	elseif current_reform >= 7 then
+		authority = authority + (gain * 1.75);
 	end
 
 	if authority > self.imperial_authority_max then
@@ -611,110 +628,169 @@ function mkHRE:Emperor_Check()
 	end
 end
 
+function mkHRE:HRE_Event_Reset_Timer()
+    DebugLog("HRE_Event_Reset_Timer: Resetting HRE events timer.")
+
+    -- Debug the current values of the variables
+    DebugLog("HRE_Event_Reset_Timer: hre_events_turns_between_dilemmas_max = " .. tostring(hre_events_turns_between_dilemmas_max))
+    DebugLog("HRE_Event_Reset_Timer: hre_events_turns_between_dilemmas_min = " .. tostring(hre_events_turns_between_dilemmas_min))
+    DebugLog("HRE_Event_Reset_Timer: hre_events_min_turn = " .. tostring(hre_events_min_turn))
+
+    -- Ensure the necessary variables are defined and set fallbacks if needed
+    hre_events_turns_between_dilemmas_max = hre_events_turns_between_dilemmas_max or 12
+    hre_events_turns_between_dilemmas_min = hre_events_turns_between_dilemmas_min or 4
+    hre_events_min_turn = hre_events_min_turn or 4
+
+    -- Log the fallback values if they were nil
+    if hre_events_turns_between_dilemmas_max == 12 then
+        DebugLog("HRE_Event_Reset_Timer: hre_events_turns_between_dilemmas_max was nil. Default value of 12 applied.")
+    end
+    if hre_events_turns_between_dilemmas_min == 4 then
+        DebugLog("HRE_Event_Reset_Timer: hre_events_turns_between_dilemmas_min was nil. Default value of 4 applied.")
+    end
+    if hre_events_min_turn == 4 then
+        DebugLog("HRE_Event_Reset_Timer: hre_events_min_turn was nil. Default value of 4 applied.")
+    end
+
+    -- Set the timer
+    hre_events_timer = cm:random_number(hre_events_turns_between_dilemmas_max - 1, hre_events_min_turn - 1)
+    DebugLog("HRE_Event_Reset_Timer: Timer set to " .. tostring(hre_events_timer))
+end
+
 function mkHRE:Replace_Emperor(faction_name)
-	local new_emperor_faction = cm:model():world():faction_by_key(faction_name);
-	local old_emperor = self.emperor_key;
-	local old_emperor_faction = nil;
+    DebugLog("Replace_Emperor: Entered function for faction: " .. faction_name)
+    local new_emperor_faction = cm:model():world():faction_by_key(faction_name)
+    local old_emperor = self.emperor_key
+    local old_emperor_faction = nil
 
-	if old_emperor and old_emperor ~= "nil" then
-		old_emperor_faction = cm:model():world():faction_by_key(old_emperor);
-	end
+    if old_emperor and old_emperor ~= "nil" then
+        old_emperor_faction = cm:model():world():faction_by_key(old_emperor)
+    end
 
-	for i = 1, #self.factions do
-		if old_emperor_faction then
-			if self.factions[i] == old_emperor then
-				if not HasValue(self.factions_start, old_emperor) then
-					self:Set_Faction_State(old_emperor, "not_in_empire", true);
-					table.remove(self.factions, i);
-					break;
-				else
-					self:Set_Faction_State(old_emperor, "neutral", true);
-				end
-			end
-		end
-	end
+    -- Remove the old emperor from the factions list and set state accordingly
+    for i = 1, #self.factions do
+        if old_emperor_faction then
+            if self.factions[i] == old_emperor then
+                if not HasValue(self.factions_start, old_emperor) then
+                    self:Set_Faction_State(old_emperor, "not_in_empire", true)
+                    table.remove(self.factions, i)
+                    break
+                else
+                    self:Set_Faction_State(old_emperor, "neutral", true)
+                end
+            end
+        end
+    end
 
-	if not HasValue(self.factions, faction_name) then
-		table.insert(self.factions, faction_name);
-	end
+    -- Add the new emperor if not already in the factions list
+    if not HasValue(self.factions, faction_name) then
+        table.insert(self.factions, faction_name)
+    end
 
-	if self.current_reform > 0 then
-		if old_emperor_faction then
-			for i = 1, self.current_reform - 1 do
-				cm:remove_effect_bundle("mk_effect_bundle_reform_"..tostring(i), old_emperor);
-			end
-		end
+    -- Apply reform bundle for the new emperor
+    if self.current_reform > 0 then
+        if old_emperor_faction then
+            for i = 1, self.current_reform - 1 do
+                cm:remove_effect_bundle("mk_effect_bundle_reform_" .. tostring(i), old_emperor)
+            end
+        end
+        cm:apply_effect_bundle("mk_effect_bundle_reform_" .. tostring(self.current_reform), faction_name, 0)
+    end
 
-		cm:apply_effect_bundle("mk_effect_bundle_reform_"..tostring(self.current_reform), faction_name, 0);
-	end
+    -- Deactivate any active decree
+    if self.active_decree ~= "nil" then
+        self:Deactivate_Decree(self.active_decree)
+    end
 
-	if self.active_decree ~= "nil" then
-		self:Deactivate_Decree(self.active_decree);
-	end
+    -- Add listeners and reset timer for new human emperor
+    if new_emperor_faction:is_human() then
+        DebugLog("Replace_Emperor: New emperor is human. Setting up event listeners.")
 
-	if new_emperor_faction:is_human() then	
-		Add_HRE_Event_Listeners();
-		self:HRE_Event_Reset_Timer();
-	end
+        -- Explicitly pass faction_name to avoid reliance on outdated emperor_key
+        if self.Add_Event_Listeners then
+            self:Add_Event_Listeners(faction_name)
+        else
+            DebugLog("Replace_Emperor: Add_Event_Listeners function not found in scope!")
+        end
 
-	if old_emperor_faction then 
-		if old_emperor_faction:is_human() then
-			Remove_HRE_Event_Listeners();
-		end
-	end
+        if self.HRE_Event_Reset_Timer then
+            self:HRE_Event_Reset_Timer()
+        else
+            DebugLog("Replace_Emperor: HRE_Event_Reset_Timer function not found!")
+        end
+    end
 
-	self.emperor_key = faction_name;
-	self.imperial_authority = hre_imperial_authority_start;
+    -- Remove event listeners if the old emperor was human
+    if old_emperor_faction then
+        if old_emperor_faction:is_human() then
+            DebugLog("Replace_Emperor: Removing event listeners for old human emperor.")
+            Remove_HRE_Event_Listeners()
+        end
+    end
 
-	if self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()]  then
-		if faction_name ~= self.emperor_pretender_key then
-			self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] = self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] + 1;
-		end
-	else
-		self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] = 1;
-	end
+    -- Update the emperor key and reset imperial authority
+    self.emperor_key = faction_name
+    self.imperial_authority = hre_imperial_authority_start
 
-	DFN_Disable_Forming_Kingdoms(faction_name);
-	DFN_Refresh_Faction_Name(faction_name);
+    -- Track the number of times this emperor has been elected
+    if self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] then
+        if faction_name ~= self.emperor_pretender_key then
+            self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] =
+                self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] + 1
+        end
+    else
+        self.emperors_names_numbers[new_emperor_faction:faction_leader():get_forename()] = 1
+    end
 
-	if old_emperor_faction then
-		DFN_Enable_Forming_Kingdoms(old_emperor);
-		DFN_Refresh_Faction_Name(old_emperor);
-	end
+    -- Disable kingdom formation for the new emperor and refresh faction names
+    DFN_Disable_Forming_Kingdoms(faction_name)
+    DFN_Refresh_Faction_Name(faction_name)
 
-	if faction_name == self.emperor_pretender_key then
-		if IRONMAN_ENABLED then
-			if new_emperor_faction:is_human() then
-				Unlock_Achievement("achievement_dont_mind_if_i_do");
+    -- Enable kingdom formation for the old emperor and refresh faction names
+    if old_emperor_faction then
+        DFN_Enable_Forming_Kingdoms(old_emperor)
+        DFN_Refresh_Faction_Name(old_emperor)
+    end
 
-				if faction_name == "mk_fact_sweden" then
-					Unlock_Achievement("achievement_the_lion_of_the_north");
-				end
-			end
-		end
+    -- Special conditions for the emperor pretender (if applicable)
+    if faction_name == self.emperor_pretender_key then
+        if IRONMAN_ENABLED then
+            if new_emperor_faction:is_human() then
+                Unlock_Achievement("achievement_dont_mind_if_i_do")
 
-		if old_emperor_faction then
-			if old_emperor_faction:at_war_with(new_emperor_faction) then
-				cm:force_diplomacy(old_emperor, faction_name, "peace", true, true);
-				cm:force_diplomacy(faction_name, old_emperor, "peace", true, true);
-				cm:force_make_peace(faction_name, old_emperor);
-				SetFactionsNeutral(faction_name, old_emperor);
-			end
-		end
-	end
+                if faction_name == "mk_fact_sweden" then
+                    Unlock_Achievement("achievement_the_lion_of_the_north")
+                end
+            end
+        end
 
-	self:HRE_Vanquish_Pretender();
-	self:Remove_Unlawful_Territory_Effect_Bundles(faction_name);
-	self:Set_Faction_State(faction_name, "emperor", true);
-	self:Button_Check();
+        if old_emperor_faction then
+            if old_emperor_faction:at_war_with(new_emperor_faction) then
+                cm:force_diplomacy(old_emperor, faction_name, "peace", true, true)
+                cm:force_diplomacy(faction_name, old_emperor, "peace", true, true)
+                cm:force_make_peace(faction_name, old_emperor)
+                SetFactionsNeutral(faction_name, old_emperor)
+            end
+        end
+    end
 
-	cm:add_time_trigger("hre_frankfurt_transfer_delay", 0.5);
+    -- Handle potential pretender vanquish and unlawful territory bundles
+    self:HRE_Vanquish_Pretender()
+    self:Remove_Unlawful_Territory_Effect_Bundles(faction_name)
 
-	if FACTION_TURN == faction_name then
-		self.liberation_disabled = false;
-	else
-		self.liberation_disabled = true;
-	end
+    -- Set new emperor state and refresh buttons
+    self:Set_Faction_State(faction_name, "emperor", true)
+    self:Button_Check()
+
+    -- Add a time trigger for the new emperor's transition
+    cm:add_time_trigger("hre_frankfurt_transfer_delay", 0.5)
+
+    -- Set the liberation disabled state based on faction turn
+    if FACTION_TURN == faction_name then
+        self.liberation_disabled = false
+    else
+        self.liberation_disabled = true
+    end
 end
 
 function mkHRE:Assign_New_Pretender(exclude_player)
