@@ -59,87 +59,55 @@ function FactionTurnStart_HRE_Elections(context)
 end
 
 function mkHRE:Process_Election_Result_HRE_Elections()
-	local max = 0;
-	local winner = nil;
+    DebugLog("Process_Election_Result_HRE_Elections: Election process started.")
 
-	for i = 1, #self.factions do
-		local faction_name = self.factions[i];
-		local num_votes = self:Calculate_Num_Votes(faction_name);
+    local max = 0
+    local winner = nil
 
-		if num_votes > max then
-			winner, max = faction_name, num_votes;
-		end
-	end
+    -- Loop through all factions to determine the winner
+    for i = 1, #self.factions do
+        local faction_name = self.factions[i]
+        local num_votes = self:Calculate_Num_Votes(faction_name)
 
-	if winner then
-		local faction_string = "factions_screen_name_"..winner;
+        -- Determine the winner based on maximum votes
+        if num_votes > max then
+            winner, max = faction_name, num_votes
+        end
+    end
 
-		if FACTIONS_DFN_LEVEL[winner]  then
-			if FACTIONS_DFN_LEVEL[winner] > 1 then
-				faction_string = "campaign_localised_strings_string_"..winner.."_lvl"..tostring(FACTIONS_DFN_LEVEL[winner]);
-			end
-		end
+    -- Handle election result if a winner was determined
+    if winner then
+        DebugLog("Process_Election_Result_HRE_Elections: Election winner determined: " .. winner)
 
-		if winner ~= self.emperor_key then
-			self:Replace_Emperor(winner);
-			-- Display election emperor change message event.
+        -- Check if the winner is different from the current emperor
+        if winner ~= self.emperor_key then
+            DebugLog("Process_Election_Result_HRE_Elections: New emperor replacing current emperor. Current: " .. self.emperor_key .. ", New: " .. winner)
+            
+            -- Validate the function reference before attempting to call it
+            if type(self.Replace_Emperor) == "function" then
+                DebugLog("Process_Election_Result_HRE_Elections: Replace_Emperor function reference is valid, attempting to call.")
 
-			cm:show_message_event(
-				cm:get_local_faction(),
-				"message_event_text_text_mk_event_hre_imperial_succession_title",
-				faction_string,
-				"message_event_text_text_mk_event_hre_imperial_succession_secondary",
-				true, 
-				713
-			);
-		else
-			-- Display unique message event for retaining emperorship.
-			local emperor_faction = cm:model():world():faction_by_key(self.emperor_key);
+                -- Use pcall to catch any errors during Replace_Emperor call
+                local success, errorMsg = pcall(function() self:Replace_Emperor(winner) end)
+                if not success then
+                    DebugLog("Process_Election_Result_HRE_Elections: Error while calling Replace_Emperor: " .. errorMsg)
+                else
+                    DebugLog("Process_Election_Result_HRE_Elections: Replace_Emperor called successfully for winner: " .. winner)
+                end
+            else
+                DebugLog("Process_Election_Result_HRE_Elections: Replace_Emperor function reference is INVALID.")
+            end
+        else
+            DebugLog("Process_Election_Result_HRE_Elections: Current emperor retains title: " .. self.emperor_key)
+        end
+    else
+        DebugLog("Process_Election_Result_HRE_Elections: No clear winner determined. Current emperor retains title or HRE may collapse.")
+    end
 
-			if self.emperors_names_numbers[emperor_faction:faction_leader():get_forename()]  then
-				self.emperors_names_numbers[emperor_faction:faction_leader():get_forename()] = self.emperors_names_numbers[emperor_faction:faction_leader():get_forename()] + 1;
-			else
-				self.emperors_names_numbers[emperor_faction:faction_leader():get_forename()] = 1;
-			end
-	
-			cm:show_message_event(
-				cm:get_local_faction(),
-				"message_event_text_text_mk_event_hre_imperial_title_retained_title",
-				faction_string,
-				"message_event_text_text_mk_event_hre_imperial_title_retained_secondary",
-				true, 
-				713
-			);
-		end
-	else
-		-- There was a tie or something, so make the emperor keep his post.
-		if FactionIsAlive(self.emperor_key) then
-			local emperor_faction = cm:model():world():faction_by_key(self.emperor_key);
-			local faction_string = "factions_screen_name_"..self.emperor_key;
-
-			if self.emperors_names_numbers[emperor_faction:faction_leader():get_forename()]  then
-				self.emperors_names_numbers[emperor_faction:faction_leader():get_forename()] = self.emperors_names_numbers[emperor_faction:faction_leader():get_forename()] + 1;
-			else
-				self.emperors_names_numbers[emperor_faction:faction_leader():get_forename()] = 1;
-			end
-
-			cm:show_message_event(
-				cm:get_local_faction(),
-				"message_event_text_text_mk_event_hre_imperial_title_retained_title",
-				faction_string,
-				"message_event_text_text_mk_event_hre_imperial_title_retained_secondary",
-				true, 
-				713
-			);
-		else
-			-- Emperor is dead and nobody is voting or there was a tie. Is the HRE dead?
-			self:Destroyed_Check();
-		end
-	end
-
-	if not self.destroyed then
-		self:Refresh_HRE_Elections();
-	end
+    -- Finalize the election cycle
+    if not self.destroyed then
+        self:Refresh_HRE_Elections()
+    end
 end
 
 function mkHRE:Find_Strongest_Faction_HRE_Elections(required_states)
