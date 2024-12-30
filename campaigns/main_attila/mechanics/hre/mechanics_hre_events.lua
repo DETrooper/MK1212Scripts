@@ -16,59 +16,91 @@ local hre_events_turns_between_dilemmas_max = 12;
 local hre_events_turns_between_dilemmas_min = 4;
 local hre_events_timer = -1;
 
-function mkHRE:Add_Event_Listeners()
-	if not self.destroyed and self.emperor_key and self.emperor_key ~= "nil" then
-		local emperor_faction = cm:model():world():faction_by_key(self.emperor_key);
+function mkHRE:Add_Event_Listeners(emperor_key)
+    DebugLog("Add_Event_Listeners: Starting listener setup.")
 
-		if emperor_faction:is_human() then
-			cm:add_listener(
-				"FactionTurnStart_HRE_Events",
-				"FactionTurnStart",
-				true,
-				function(context) FactionTurnStart_HRE_Events(context) end,
-				true
-			);
-			cm:add_listener(
-				"DilemmaChoiceMadeEvent_HRE_Events",
-				"DilemmaChoiceMadeEvent",
-				true,
-				function(context) DilemmaChoiceMadeEvent_HRE_Events(context) end,
-				true
-			);
-			cm:add_listener(
-				"DillemaOrIncidentStarted_HRE_Events",
-				"DillemaOrIncidentStarted",
-				true,
-				function(context) DillemaOrIncidentStarted_HRE_Events(context) end,
-				true
-			);
-			cm:add_listener(
-				"OnComponentLClickUp_HRE_Events",
-				"ComponentLClickUp",
-				true,
-				function(context) OnComponentMouseOnOrClick_HRE_Events(context) end,
-				true
-			);
-			cm:add_listener(
-				"OnComponentMouseOn_HRE_Events",
-				"ComponentMouseOn",
-				true,
-				function(context) OnComponentMouseOnOrClick_HRE_Events(context) end,
-				true
-			);
-			cm:add_listener(
-				"PanelOpenedCampaign_HRE_Events",
-				"PanelOpenedCampaign",
-				true,
-				function(context) PanelOpenedCampaign_HRE_Events(context) end,
-				true
-			);
+    -- Ensure the HRE system is not destroyed
+    if not self.destroyed then
+        DebugLog("Add_Event_Listeners: HRE system is active.")
+    else
+        DebugLog("Add_Event_Listeners: HRE system is destroyed. Aborting listener setup.")
+        return
+    end
 
-			if cm:is_new_game() then
-				hre_events_timer = cm:random_number(hre_events_turns_between_dilemmas_max - 1, hre_events_min_turn - 1);
-			end
-		end
-	end
+    -- Use the provided emperor_key or fall back to self.emperor_key
+    emperor_key = emperor_key or self.emperor_key
+    if not emperor_key or emperor_key == "nil" then
+        DebugLog("Add_Event_Listeners: No valid emperor key found. Aborting listener setup.")
+        return
+    end
+
+    local emperor_faction = cm:model():world():faction_by_key(emperor_key)
+
+    -- Debug: Validate faction and human status
+    if emperor_faction then
+        DebugLog("Add_Event_Listeners: Found emperor faction: " .. emperor_key)
+        DebugLog("Add_Event_Listeners: Emperor is human: " .. tostring(emperor_faction:is_human()))
+    else
+        DebugLog("Add_Event_Listeners: Emperor faction not found or invalid.")
+        return
+    end
+
+    -- Check if the emperor is a human-controlled faction
+    if emperor_faction:is_human() then
+        DebugLog("Add_Event_Listeners: Emperor is human. Adding event listeners.")
+
+        -- Add various campaign event listeners
+        cm:add_listener(
+            "FactionTurnStart_HRE_Events",
+            "FactionTurnStart",
+            true,
+            function(context) FactionTurnStart_HRE_Events(context) end,
+            true
+        )
+        cm:add_listener(
+            "DilemmaChoiceMadeEvent_HRE_Events",
+            "DilemmaChoiceMadeEvent",
+            true,
+            function(context) DilemmaChoiceMadeEvent_HRE_Events(context) end,
+            true
+        )
+        cm:add_listener(
+            "DillemaOrIncidentStarted_HRE_Events",
+            "DillemaOrIncidentStarted",
+            true,
+            function(context) DillemaOrIncidentStarted_HRE_Events(context) end,
+            true
+        )
+        cm:add_listener(
+            "OnComponentLClickUp_HRE_Events",
+            "ComponentLClickUp",
+            true,
+            function(context) OnComponentMouseOnOrClick_HRE_Events(context) end,
+            true
+        )
+        cm:add_listener(
+            "OnComponentMouseOn_HRE_Events",
+            "ComponentMouseOn",
+            true,
+            function(context) OnComponentMouseOnOrClick_HRE_Events(context) end,
+            true
+        )
+        cm:add_listener(
+            "PanelOpenedCampaign_HRE_Events",
+            "PanelOpenedCampaign",
+            true,
+            function(context) PanelOpenedCampaign_HRE_Events(context) end,
+            true
+        )
+
+        -- Initialize HRE events timer if this is a new game
+        if cm:is_new_game() then
+            hre_events_timer = cm:random_number(hre_events_turns_between_dilemmas_max - 1, hre_events_min_turn - 1)
+            DebugLog("Add_Event_Listeners: Initialized HRE events timer to " .. tostring(hre_events_timer))
+        end
+    else
+        DebugLog("Add_Event_Listeners: Emperor is AI. No event listeners added.")
+    end
 end
 
 function Remove_HRE_Event_Listeners()
