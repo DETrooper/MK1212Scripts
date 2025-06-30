@@ -1,0 +1,339 @@
+key	text	tooltip
+#Loc;1;text/db/mkscript_message_event_text.loc		
+message_event_text_text_mk_event_14th_century_primary	The 14th Century	true
+message_event_text_text_mk_event_14th_century_secondary	The end of the 13th century marked the end of a figurative golden age in Europe, as the 14th century would bring only death and despair. Calamitous climate change, devastating plagues, and widespread revolts marked the century.	true
+message_event_text_text_mk_event_14th_century_title	Turn of the Century	true
+message_event_text_text_mk_event_15th_century_primary	The 15th Century	true
+message_event_text_text_mk_event_15th_century_secondary	As the 1300s transitioned to the 1400s, the world saw many changes. The use of gunpowder became ever more common, as larger and larger artillery pieces began to enter the battlefield.	true
+message_event_text_text_mk_event_15th_century_title	Turn of the Century	true
+message_event_text_text_mk_event_albigensian_crusade_title	Albigensian Crusade	true
+message_event_text_text_mk_event_annexation_aborted_secondary	The annexation of this vassal state has been aborted because it is no longer your vassal or has been destroyed.	true
+message_event_text_text_mk_event_annexation_aborted_secondary_manual	The annexation of this vassal state has been aborted manually.	true
+message_event_text_text_mk_event_annexation_aborted_title	Annexation Aborted!	true
+message_event_text_text_mk_event_annexed_vassal_secondary	This vassal state has been diplomatically annexed, and is now fully incorporated into your faction.	true
+message_event_text_text_mk_event_annexed_vassal_title	Annexed Vassal	true
+message_event_text_text_mk_event_armenian_kingdom_formed_primary	The Kingdom of Armenia	true
+message_event_text_text_mk_event_armenian_kingdom_formed_secondary	The Kingdom of Armenia, long thought lost to the Seljuks, now rises from the ashes. Few would have predicted that the Armenian Kingdom of Cilicia would reconquer its ancestral lands, but now Armenia stands triumphant, ready to exact vengeance on all its foes.	true
+message_event_text_text_mk_event_armenian_kingdom_formed_title	Founding of a Kingdom	true
+message_event_text_text_mk_event_black_death_primary	The Plague Breaks Out	true
+message_event_text_text_mk_event_black_death_secondary	Rumors from afar speak of a horrible pestilence in the east, one that leaves a trail of blackened suppurating corpses in its wake. One thing remains clear from these accounts, that it spreads quickly and kills without mercy. It would be best to prepare, for the Black Death comes.	true
+message_event_text_text_mk_event_black_death_title	The Black Death	true
+message_event_text_text_mk_event_byz_africa_reconquered_primary	Africa	true
+message_event_text_text_mk_event_byz_africa_reconquered_secondary	North Africa, lost for well over half a millenium, has finally been reconquered by the Roman Empire. The return of the breadbasket of Rome will go down in history! This is a glorious day!	true
+message_event_text_text_mk_event_byz_anatolia_reconquered_primary	Anatolia	true
+message_event_text_text_mk_event_byz_anatolia_reconquered_secondary	Anatolia, a battleground between the Byzantines and Turks for the last few centuries, has finally been reconquered by the empire in full. Newly-liberated Greek-speaking subjects of the Turks now rejoice, as they are once more under the dominion of the Roman Empire.	true
+message_event_text_text_mk_event_byz_antioch_reconquered_primary	The Holy City of Antioch	true
+message_event_text_text_mk_event_byz_antioch_reconquered_secondary	The great city of Antioch has once more been reconquered by its rightful rulers, the Romans. Hopefully, this time it will be for good.	true
+message_event_text_text_mk_event_byz_dalmatia_reconquered_primary	Dalmatia	true
+message_event_text_text_mk_event_byz_dalmatia_reconquered_secondary	The Theme of Dalmatia, lost to Croatia and Hungary well over a century ago, has finally been restored to the Empire. Despite its precarious location, Dalmatia is nonetheless a valuable region due to its coastal cities and potential for commerce.	true
+message_event_text_text_mk_event_byz_egypt_reconquered_primary	Egypt	true
+message_event_text_text_mk_event_byz_egypt_reconquered_secondary	The breadbasket of Constantinople falls under Byzantine control for the first time since its loss in the early Muslim conquests. Egypt will again become a vital cornerstone in the continued prosperity of the glorious Roman State	true
+message_event_text_text_mk_event_byz_empire_restored_primary	The Byzantine Empire	true
+message_event_text_text_mk_event_byz_empire_restored_secondary_mk_fact_epirus	The Empire of Epirus is no more, as the rightful Romans now rule in Constantinople once more. The true Roman Empire has been restored, though pretenders in the west would refuse to call it such. Many within the empire's borders hope that it may soon return to its former pre-Frankokratia glory. Despite its precarious position, Byzantium is posed to become a great power once more if the Turks in Anatolia and its rivals in the west can be defeated.	true
+message_event_text_text_mk_event_byz_empire_restored_secondary_mk_fact_nicaea	The Empire of Nicaea is no more, as the rightful Romans now rule in Constantinople once more. The true Roman Empire has been restored, though pretenders in the west would refuse to call it such. Many within the empire's borders hope that it may soon return to its former pre-Frankokratia glory. Despite its precarious position, Byzantium is posed to become a great power once more if the Turks in Anatolia and its rivals in the west can be defeated.	true
+message_event_text_text_mk_event_byz_empire_restored_secondary_mk_fact_trebizond	The Empire ofTrebizond is no more, as the rightful Romans now rule in Constantinople once more. The true Roman Empire has been restored, though pretenders in the west would refuse to call it such. Many within the empire's borders hope that it may soon return to its former pre-Frankokratia glory. Despite its precarious position, Byzantium is posed to become a great power once more if the Turks in Anatolia and its rivals in the west can be defeated.	true
+message_event_text_text_mk_event_byz_empire_restored_title	Restoration of the Empire	true
+message_event_text_text_mk_event_byz_greece_reconquered_primary	Greece	true
+message_event_text_text_mk_event_byz_greece_reconquered_secondary	The Latins have finally been pushed out of Greece, and the Byzantine Empire once again stands strong. This day shall be long remembered in history!	true
+message_event_text_text_mk_event_byz_imperial_reconquest_title	Imperial Reconquest	true
+message_event_text_text_mk_event_byz_italy_reconquered_primary	Italy	true
+message_event_text_text_mk_event_byz_italy_reconquered_secondary	Few could have dreamt of this day. At long last, Italy has finally been taken back. Rome is once more in the hands of the true Romans, and not since the era of the great Justinian has Roman rule in Italy been stronger. Not long ago, Constantinople was occupied by the Latins. Now, the spiritual home of the Latins is occupied by the Romans, and none can doubt which empire is the true Roman Empire.	true
+message_event_text_text_mk_event_byz_oriens_reconquered_primary	Oriens	true
+message_event_text_text_mk_event_byz_oriens_reconquered_secondary	Palestine and Syria now lie within the Byzantine dominion, and with control of the holy lands comes increased respect for the Empire.	true
+message_event_text_text_mk_event_byz_pentarchy_primary	Restoration of the Pentarchy	true
+message_event_text_text_mk_event_byz_pentarchy_secondary	The Pentarchy has been restored, as Alexandria, Antioch, Constantinople, Jerusalem, and Rome are now all under the rule of the Romans. Control of these regions has reinforced the legitimacy of the Orthodox church over Catholicism. Few now would question that the Orthodoxy Chruch is the one, true, and original branch of Christianity.	true
+message_event_text_text_mk_event_byz_roman_empire_restored_primary	The Roman Empire	true
+message_event_text_text_mk_event_byz_roman_empire_restored_secondary	There are now none who doubt the Byzantine Empire's claim to the legacy of Rome. As the foremost world power and the holder of territory not seen in Roman hands since the reign of Justinian, the Byzantine Empire is now in an uncontested position to proclaim itself the true Roman Empire.	true
+message_event_text_text_mk_event_college_of_cardinals_cardinal_added_secondary	This character has been recognized by the Pope as a man of outstanding faith and has thus been appointed to the College of Cardinals.	true
+message_event_text_text_mk_event_college_of_cardinals_cardinal_added_title	Cardinal Appointed	true
+message_event_text_text_mk_event_crusade_5_title	The Fifth Crusade	true
+message_event_text_text_mk_event_crusade_6_title	The Sixth Crusade	true
+message_event_text_text_mk_event_crusade_7_title	The Seventh Crusade	true
+message_event_text_text_mk_event_crusade_8_title	The Eighth Crusade	true
+message_event_text_text_mk_event_crusade_9_title	The Ninth Crusade	true
+message_event_text_text_mk_event_crusade_aborted_primary	Crusade Aborted!	true
+message_event_text_text_mk_event_crusade_aborted_secondary	There is no longer a valid target for the Crusade, and as such, the Pope has called it off.	true
+message_event_text_text_mk_event_crusade_abstain_primary	Abstained From The Crusade!	true
+message_event_text_text_mk_event_crusade_abstain_secondary	You have decided to sit out on this crusade, meaning that while your realm may not be drained in an exhausting and possibly futile war, you will also not recieve any benefits should the crusade succeed.	true
+message_event_text_text_mk_event_crusade_go_aegyptus_alexandria_primary	Crusade for Alexandria!	true
+message_event_text_text_mk_event_crusade_go_aegyptus_alexandria_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Alexandria. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_aegyptus_oxyrhynchus_primary	Crusade for Cairo!	true
+message_event_text_text_mk_event_crusade_go_aegyptus_oxyrhynchus_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Cairo. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_africa_carthago_primary	Crusade for Tunis!	true
+message_event_text_text_mk_event_crusade_go_africa_carthago_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Tunis. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_aquitania_elusa_primary	Crusade for Toulouse!	true
+message_event_text_text_mk_event_crusade_go_aquitania_elusa_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Toulouse. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_baetica_corduba_primary	Crusade for Cordoba!	true
+message_event_text_text_mk_event_crusade_go_baetica_corduba_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Cordoba. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_britannia_superior_londinium_primary	Crusade for London!	true
+message_event_text_text_mk_event_crusade_go_britannia_superior_londinium_secondary	The Pope has formally declared the beginning of a holy war against the infidels in London. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_carthaginensis_toletum_primary	Crusade for Toledo!	true
+message_event_text_text_mk_event_crusade_go_carthaginensis_toletum_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Toledo. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_crusade_5_primary	Crusade For Cairo!	true
+message_event_text_text_mk_event_crusade_go_crusade_5_secondary	The Pope has formally declared the beginning of a holy war against the Muslims in Egypt, seeking to re-establish Christian rule in lands long lost to the saracens. If Cairo can be taken, the rest of Egypt will soon fall, and then can be used as a staging ground for an attack to retake Jerusalem!	true
+message_event_text_text_mk_event_crusade_go_germania_uburzis_primary	Crusade for Frankfurt!	true
+message_event_text_text_mk_event_crusade_go_germania_uburzis_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Frankfurt. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_italia_roma_primary	Crusade for Rome!	true
+message_event_text_text_mk_event_crusade_go_italia_roma_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Rome. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_lugdunensis_turonum_primary	Crusade for Paris!	true
+message_event_text_text_mk_event_crusade_go_lugdunensis_turonum_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Paris. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_macedonia_thessalonica_primary	Crusade for Thessalonica!	true
+message_event_text_text_mk_event_crusade_go_macedonia_thessalonica_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Thessalonica. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_palaestinea_aelia_capitolina_primary	Crusade for Jerusalem!	true
+message_event_text_text_mk_event_crusade_go_palaestinea_aelia_capitolina_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Jerusalem. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_syria_antiochia_primary	Crusade for Antioch!	true
+message_event_text_text_mk_event_crusade_go_syria_antiochia_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Antioch. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_tarraconensis_tarraco_primary	Crusade for Barcelona!	true
+message_event_text_text_mk_event_crusade_go_tarraconensis_tarraco_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Barcelona. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_go_thracia_constantinopolis_primary	Crusade for Constantinople!	true
+message_event_text_text_mk_event_crusade_go_thracia_constantinopolis_secondary	The Pope has formally declared the beginning of a holy war against the infidels in Constantinople. The armies of Christendom will soon descend upon the lands of its owner, bringing devestation in their wake.	true
+message_event_text_text_mk_event_crusade_joined_primary	Joined the Crusade!	true
+message_event_text_text_mk_event_crusade_joined_secondary	Your faction has joined the crusade and will now be at war with the faction holding the crusade's target until it is taken from their hands or the invasion is repelled.	true
+message_event_text_text_mk_event_crusade_lost_primary	Defeat for the Crusaders!	true
+message_event_text_text_mk_event_crusade_lost_secondary	The crusade has come to a halt due to defeats and stagnation across the board. The crusade's target remains in infidel hands and all hope of ever re-conquering it for Christendom may forever be lost.	true
+message_event_text_text_mk_event_crusade_preliminary_5_primary	Fourth Council of the Lateran	true
+message_event_text_text_mk_event_crusade_preliminary_5_secondary	Pope Innocent III proclaimed a new crusade to free the Holy Land from the Saracens at the Fourth Council of the Lateran, held this year. Various Catholic rulers will soon be asked to join the crusade, though its intended target is not precisely known.	true
+message_event_text_text_mk_event_crusade_won_jerusalem_secondary	Against all odds the crusaders have triumphed, taking their intended target from the infidels. With both it and Jerusalem in Christian hands, grave blows have been dealt to the infidels and there is no telling when they will end.	true
+message_event_text_text_mk_event_crusade_won_jerusalem_taken_secondary	Against all odds the crusaders have triumphed, taking their intended target from the infidels. Although not even the primary target of the crusade, the city of Jerusalem itself has been taken by the crusading armies. Long will this crusade be remembered in the minds of Christianity.	true
+message_event_text_text_mk_event_crusade_won_jerusalem_target_secondary	The holiest prize of all has been successfully taken by the crusaders: Jerusalem itself. Church bells ring throughout Catholic lands in celebration of this monumental victory.	true
+message_event_text_text_mk_event_crusade_won_primary	Victory for the Crusaders!	true
+message_event_text_text_mk_event_crusade_won_secondary	Against all odds the crusaders have triumphed, taking their intended target from the infidels. After their new holdings are consolidated, the crusaders may be poised to push into the Holy Land, perhaps finally taking it back once and for all.	true
+message_event_text_text_mk_event_cumans_rejected_primary	The Borders Are Closed	true
+message_event_text_text_mk_event_cumans_rejected_secondary	You have decided that the borders shall remain closed, trapping the Cuman refugees between you and the Mongol hordes. As a result, they may attempt to break into your lands by force, and any boons gained by letting them in are now lost. However, the Mongols are content with your decision, and are less likely to invade now.	true
+message_event_text_text_mk_event_cumans_settled_primary	The Cumans Settle	true
+message_event_text_text_mk_event_cumans_settled_secondary	You have decided that you will open your kingdom's borders to the Cuman refugees, allowing them to settle in your lands in exchange for their military service. They may prove to be useful auxiliary units due to their mastery in horsemanship.	true
+message_event_text_text_mk_event_cumans_situation_title	The Plight of the Cumans	true
+message_event_text_text_mk_event_eng_civil_war_primary	The First Barons' War	true
+message_event_text_text_mk_event_eng_civil_war_secondary	Your discontened vassals have now turned to outright rebellion in order to force their demands upon the crown. Having seized London, they now threaten to take the rest of England by force! To make matters worse, some of the rebellious barons have declared Louis of France to have a claim on the English throne, thereby inviting France to aid them in their rebellion.	true
+message_event_text_text_mk_event_eng_civil_war_title	Civil War!	true
+message_event_text_text_mk_event_eng_magna_carta_peace_secondary	Showing himself a coward, the King of England now must face his ambitious nobles. They have prepared a document which will limit the power of the English crown. To sign it would be the utmost humiliation. To refuse to sign it would surely signal civil war.	true
+message_event_text_text_mk_event_eng_magna_carta_primary	The Magna Carta	true
+message_event_text_text_mk_event_eng_magna_carta_title	The Fate of the Angevin	true
+message_event_text_text_mk_event_eng_magna_carta_war_secondary	Showing himself an incapable commander, the King of England now must face his ambitious nobles. They have prepared a document which will limit the power of the English crown. To sign it would be the utmost humiliation. To refuse to sign it would surely signal civil war.	true
+message_event_text_text_mk_event_faction_rank_secondary_2	Your faction's rank has increased to Kingdom rank, denoting the status of your faction as a regional power.	true
+message_event_text_text_mk_event_faction_rank_secondary_3	Your faction's rank has increased to Empire rank, denoting the status of your faction as a great power.	true
+message_event_text_text_mk_event_faction_rank_title_2	Founding of a Kingdom	true
+message_event_text_text_mk_event_faction_rank_title_3	Founding of an Empire	true
+message_event_text_text_mk_event_fra_aragon_intervenes_bad_primary	Aragonese Intervention!	true
+message_event_text_text_mk_event_fra_aragon_intervenes_bad_secondary	The Crown of Aragon has cast in their lot with the County of Toulouse, its king declaring his intention to counter the influence of France in Languedoc. If the Cathar heresy is to be put down, then so too must the King of Aragon.	true
+message_event_text_text_mk_event_fra_aragon_intervenes_primary	Aragon Joins the Albigensian Crusade!	true
+message_event_text_text_mk_event_fra_aragon_intervenes_secondary	The Crown of Aragon has joined with us in our crusade against the Cathars. Such a powerful ally is surely the final nail in the coffin for the County of Toulouse.	true
+message_event_text_text_mk_event_fra_aragon_support_bad_primary	The Treachery of Aragon	true
+message_event_text_text_mk_event_fra_aragon_support_bad_secondary	The Crown of Aragon, too cowardly to directly involve themselves in the Albigensian Crusade on either side, has instead decided to support the County of Toulouse monetarily, raising a vast army under the County of Toulouse's command.	true
+message_event_text_text_mk_event_fra_cathar_revolt_primary	Cathar Uprising!	true
+message_event_text_text_mk_event_fra_cathar_revolt_secondary	Word has arrived that a major revolt has broken out in the recently conquered County of Toulouse, with Occitan forces springing from nearly every town in the region. They seek to reverse the current situation of the Albigensian Crusade in their favor, and so must put down immediately lest they be successful.	true
+message_event_text_text_mk_event_fra_cathars_crushed_primary	Cathars Crushed!	true
+message_event_text_text_mk_event_fra_cathars_crushed_secondary	The Albigensian Crusade has ended, and the heretics inhabiting Toulouse have been decisively crushed. The county has been incorporated into the Kingdom of France proper. However, the region is expected to be turbulent for many years to come, as remaining heretics are rooted out by the inqusition and destroyed.	true
+message_event_text_text_mk_event_fra_english_invasion_primary	Invasion of Normandy!	true
+message_event_text_text_mk_event_fra_english_invasion_secondary	The lowly King John of England begun preparations for an invasion of Normandy! The English are joined by the County of Flanders and the Holy Roman Empire. The time has come to mount a defense and throw those English dogs back into the sea!	true
+message_event_text_text_mk_event_fra_english_invasion_title	English Invasion	true
+message_event_text_text_mk_event_fra_english_invasion_victory_primary	Victory!	true
+message_event_text_text_mk_event_fra_english_invasion_victory_secondary	The English nobles, fed up with their King's incompetence, have risen up in revolt against his rule! Our lands are now safe, and we have recieved substantial financial compenstation from the English king for peace.	true
+message_event_text_text_mk_event_golden_bull_1222_refused_primary	Golden Bull Refused!	true
+message_event_text_text_mk_event_golden_bull_1222_refused_secondary	You have refused to accept the Golden Bull. This will severely anger the nobility of the realm. A civil war may soon follow.	true
+message_event_text_text_mk_event_golden_bull_1222_signed_primary	Golden Bull Accepted!	true
+message_event_text_text_mk_event_golden_bull_1222_signed_secondary	You have begrudgingly accepted the Golden Bull at considerable cost to your authority and the well-being of your realm, thereby sating your nobles' thirst for power for now...	true
+message_event_text_text_mk_event_golden_bull_1222_title	Golden Bull of 1222	true
+message_event_text_text_mk_event_golden_horde_formed_primary	The Golden Horde	true
+message_event_text_text_mk_event_golden_horde_formed_secondary	The tribes of the great seas of grass have now been subjugated and placed under our rule. Many of our enemies call us the Golden Horde, a name for our domain we shall henceforth adopt.	true
+message_event_text_text_mk_event_golden_horde_formed_title	Founding of the Golden Horde	true
+message_event_text_text_mk_event_great_famine_primary	The Great Famine	true
+message_event_text_text_mk_event_great_famine_secondary	For longer than ever before recorded, incessant rains have plagued much of Europe. Major shortages in grain and salt have drastically increased food prices, and many of the peasantry have begun to go hungry. One can only hope that this calamity soon ends.	true
+message_event_text_text_mk_event_great_famine_title	Climate Change	true
+message_event_text_text_mk_event_greek_fire_lost_primary	Greek Fire Lost!	true
+message_event_text_text_mk_event_greek_fire_lost_secondary	By refusing to pay for the replenishment of greek fire stocks, all supplies have now been exhausted, leaving your armies without the weapon. No longer will you be able to recruit greek fire units, and all standing greek fire units now lack the ammunition required to use their projectors.	true
+message_event_text_text_mk_event_greek_fire_saved_primary	Greek Fire Saved!	true
+message_event_text_text_mk_event_greek_fire_saved_secondary	Your actions have guaranteed that greek fire will continue to be manufactured, but due to its expensive costs and the turbulent circumstances involving gathering its composition materials, there may come another day that its supply will be in jeopardy.	true
+message_event_text_text_mk_event_greek_fire_title	Greek Fire	true
+message_event_text_text_mk_event_hre_decree_primary_hre_decree_encourage_development	Encourage Development	true
+message_event_text_text_mk_event_hre_decree_primary_hre_decree_expand_bureaucracy	Expand The Bureaucracy	true
+message_event_text_text_mk_event_hre_decree_primary_hre_decree_imperial_levies	Muster Imperial Levies	true
+message_event_text_text_mk_event_hre_decree_primary_hre_decree_lessen_tax_burdens	Lessen Tax Burdens	true
+message_event_text_text_mk_event_hre_decree_primary_hre_decree_patronize_universities	Patronize Universities	true
+message_event_text_text_mk_event_hre_decree_primary_hre_decree_promote_commerce	Promote Commerce	true
+message_event_text_text_mk_event_hre_decree_secondary	The emperor has passed an imperial decree, which is now active for 15 turns or until the succession of a new emperor.	true
+message_event_text_text_mk_event_hre_decree_title	Imperial Decree	true
+message_event_text_text_mk_event_hre_destroyed_primary	The Fall of the Holy Roman Empire	true
+message_event_text_text_mk_event_hre_destroyed_secondary	The Holy Roman Empire, long a dominant power in Europe and a bastion of the Catholic faith, has finally been extinguished with all of its member states destroyed or subjugated.	true
+message_event_text_text_mk_event_hre_destroyed_title	Holy Roman Empire Destroyed	true
+message_event_text_text_mk_event_hre_english_invasion_primary	War in the West	true
+message_event_text_text_mk_event_hre_english_invasion_secondary	Our ally, the Kingdom of England, has launched an invasion of Normandy to retake lands lost to the French crown a decade earlier. As part of an alliance assembled by the Pope, we are obligated to assist the English in this endeavour, though the pretender to our throne to the south may complicate this.	true
+message_event_text_text_mk_event_hre_english_invasion_title	England Invades Normandy	true
+message_event_text_text_mk_event_hre_excommunication_primary	The Excommunication of Otto IV	true
+message_event_text_text_mk_event_hre_excommunication_secondary	Having personally offended the Pope and occupying Papal lands, Holy Roman Emperor Otto IV was excommunicated in 1210.	true
+message_event_text_text_mk_event_hre_excommunication_title	Excommunication!	true
+message_event_text_text_mk_event_hre_fealty_decrease_secondary_decay	The loyalty of this faction to the emperor has decreased over the passage of time, perhaps due to being ignored or because of other factors.	true
+message_event_text_text_mk_event_hre_fealty_decrease_secondary_withdrew_support	The loyalty of this faction to the emperor has decreased due to the withdrawal of your support for their candidate.	true
+message_event_text_text_mk_event_hre_fealty_decrease_title	Fealty Decreased	true
+message_event_text_text_mk_event_hre_fealty_increase_secondary_boosted	The loyalty of this faction to the emperor has been increased thanks to boons granted by the emperor.	true
+message_event_text_text_mk_event_hre_fealty_increase_secondary_supported_candidate	The loyalty of this faction to the emperor has been increased as a result of backing their chosen candidate for the election.	true
+message_event_text_text_mk_event_hre_fealty_increase_title	Fealty Increased	true
+message_event_text_text_mk_event_hre_imperial_succession_secondary	A new Holy Roman Emperor from another faction has taken the throne following the death of the previous sovereign, thus disempowering the former ruler's faction.	true
+message_event_text_text_mk_event_hre_imperial_succession_title	Imperial Succession	true
+message_event_text_text_mk_event_hre_imperial_title_retained_secondary	A new Holy Roman Emperor has taken the throne following the death of the previous sovereign, though they are of the same faction. The reigning faction's rule is safe, for now...	true
+message_event_text_text_mk_event_hre_imperial_title_retained_title	Imperial Succession	true
+message_event_text_text_mk_event_hre_pretender_nominated_secondary	The Pope has nominated a pretender to the Imperial Throne, thus challenging the right of the current emperor to rule the Holy Roman Empire.	true
+message_event_text_text_mk_event_hre_pretender_nominated_title	A Pretender to the Throne	true
+message_event_text_text_mk_event_hre_reform_primary_1	Confirm Permanent Prince-Electors	true
+message_event_text_text_mk_event_hre_reform_primary_2	Formalize the Imperial Diet	true
+message_event_text_text_mk_event_hre_reform_primary_3	Institute the Common Penny	true
+message_event_text_text_mk_event_hre_reform_primary_4	Organize the Imperial Circles	true
+message_event_text_text_mk_event_hre_reform_primary_5	Enact Perpetual Public Peace	true
+message_event_text_text_mk_event_hre_reform_primary_6	Establish the Imperial Chamber Court	true
+message_event_text_text_mk_event_hre_reform_primary_7	Establish the Imperial Government	true
+message_event_text_text_mk_event_hre_reform_primary_8	Adopt Hereditary Succession	true
+message_event_text_text_mk_event_hre_reform_primary_9	Renovatio Imperii	true
+message_event_text_text_mk_event_hre_reform_secondary	The emperor attained enough support to pass an imperial reform, thus increasing the centralization of the realm.	true
+message_event_text_text_mk_event_hre_reform_title	Imperial Reform	true
+message_event_text_text_mk_event_hre_region_lost_secondary_emperor	A region rightfully belonging to the Holy Roman Empire has been lost, decreasing your authority.	true
+message_event_text_text_mk_event_hre_region_lost_secondary_member	A region rightfully belonging to the Holy Roman Empire has been lost, decreasing the emperor's authority.	true
+message_event_text_text_mk_event_hre_region_lost_title	Imperial Territory Lost	true
+message_event_text_text_mk_event_hre_region_reconquered_secondary_emperor	A region rightfully belonging to the Holy Roman Empire has been reconquered, increasing your authority.	true
+message_event_text_text_mk_event_hre_region_reconquered_secondary_member	A region rightfully belonging to the Holy Roman Empire has been reconquered, increasing the emperor's authority.	true
+message_event_text_text_mk_event_hre_region_reconquered_title	Imperial Territory Reconquered	true
+message_event_text_text_mk_event_hre_sicilian_invasion_primary	A Pretender to the Throne	true
+message_event_text_text_mk_event_hre_sicilian_invasion_secondary	A mere boy, though one backed by the Pope, now contests the imperial throne after being elected by discontent members of the Empire.	true
+message_event_text_text_mk_event_hre_sicilian_invasion_title	Wrath of the Innocent	true
+message_event_text_text_mk_event_hre_unlawful_territory_secondary	Your occupation of this region has been declared unlawful by the Holy Roman Emperor. As a consequence, many of your subjects in the region are now discontent.	true
+message_event_text_text_mk_event_hre_unlawful_territory_title	Unlawful Territory	false
+message_event_text_text_mk_event_ilkhanate_formed_primary	The Ilkhanate	true
+message_event_text_text_mk_event_ilkhanate_formed_secondary	The lands of these old civilizations now belong to us. Having subjugated the mighty kingdoms and empires of Persia, it has become necessary to incorporate their great wisdom and administration. Indeed, this includes their name for our empire: the Ilkhanate, which we shall henceforth adopt.	true
+message_event_text_text_mk_event_ilkhanate_formed_title	Founding of the Ilkhanate	true
+message_event_text_text_mk_event_Italian_kingdom_formed_primary	The Kingdom of Italy	true
+message_event_text_text_mk_event_Italian_kingdom_formed_secondary	It has been many centuries since Italy was last united, but now the Kingdom of Italy rises, having secured dominion over the Apennine Peninsula.	true
+message_event_text_text_mk_event_Italian_kingdom_formed_title	Founding of a Kingdom	true
+message_event_text_text_mk_event_little_ice_age_primary	The Little Ice Age	true
+message_event_text_text_mk_event_little_ice_age_secondary	The constant rainfall has finally stopped, but it is now apparrent to many that the winters have grown somewhat harsher and the crop growing seasons less reliable.	true
+message_event_text_text_mk_event_little_ice_age_title	Climate Change	true
+message_event_text_text_mk_event_mk1212_intro_primary	Mod Credits	true
+message_event_text_text_mk_event_mk1212_intro_secondary	Team Members:\\n\\nWarman222 - Mod Lead/Unit Design\\nYou_Guess_Who - Database Manager/Ship Design/Unit Design\\nLtd. - Unit Design/Modelling/Rigging\\nFinix - 2D Art\\nJan_Boruta - 2D Art/Historical Research\\nSlytacular - Unit Design/Settlement Design/Modelling\\ndontfearme22 - Unit Design/Modelling\\nzsimmortal - Campaign Design/Unit Design/Modelling\\nHessam - Unit Design/Modelling\\nLucem Mundum - Unit Design\\nThe Fawn Rescuer - Unit Design\\nAzrien Fox - Unit Design\\nbanskie100 - Unit Design/Modelling\\nBaron279 - Unit Design\\nAlexios - Unit Design\\nThe_Culverin - Unit Design\\nGearhawk - Settlement Design\\nFuzFuzFuz - Campaign Design/Unit Design/Minor 2D Art\\nDETrooper - Scripting/Campaign Design/Music Modding\\nFjodor - Unit Design\\nGhost - Unit Design/Ship Design/Building Design\\nKalpok - Unit Design\\nKublaioi - Loading Screens\\nPapy11 - Unit Design/Modelling\\nTycherious - Scripting\\nSaid al - Unit Design\\nSerdarlal - Modelling\\n\\nExternal Asset Credits:\\n\\nPino69\\nLucas the Benevolent\\nMr. Crow\\nNarf\\nDejawolf\\nPacco\\nAl Mansur\\nRus 13th Century\\nPaleogios\\nThick1988\\nRusichi Total War\\nMarka\\nFantasyWarrior\\nLord Szentgyörgyi\\ndome\\nRathos\\nWe's\\nMr.Master\\nYamabusi\\nGrudgeNL\\nCrusaders Way to Expiation Team\\nThe Byzantine\\nLord Hamilton\\nPercus\\nKnights of the Garter\\nSacred Stone Head\\nMandible\\nLife Erickson\\nNarf of Picklestink\\nSonyer\\n\\nSpecial Thanks:\\n\\nCauseless - Script Advice/Music Modding Tools\\nMr. Jox - C++ Help/Settlement Help\\nDrunk Flamingo - Script Advice\\nMarthenil - Script Advice\\nHardballer - UI Editing Advice\\nOle - Asset Editor\\nPhazer - Rigid Model Editor\\nsimivs - Animation Help\\nOcramium - Byzantine Intro Video\\nCreative Assembly for making an awesome game!\\nAnd all of our testers on Discord!	true
+message_event_text_text_mk_event_mk1212_intro_title	Medieval Kingdoms: Total War - 1212 AD	true
+message_event_text_text_mk_event_mk1212_popeintro_primary	The Pope	true
+message_event_text_text_mk_event_mk1212_popeintro_secondary	As a Catholic faction, you must play a precarious game of managing the opinion of the clergy. At the helm of the clergy lies the Pope, supreme ruler of the Catholic church. Appeasing the Pope may be in your best interest, as displeasing him can have dire consequences.	true
+message_event_text_text_mk_event_mk1212_popeintro_title	Medieval Kingdoms: Total War - 1212 AD	true
+message_event_text_text_mk_event_mk1212_wwintro_primary	War Weariness	true
+message_event_text_text_mk_event_mk1212_wwintro_secondary	The sign of a great leader is in knowing how far your people can be pushed. Wars are significant, dramatic events that should not be undertaken lightly.	true
+message_event_text_text_mk_event_mk1212_wwintro_title	Medieval Kingdoms: Total War - 1212 AD	true
+message_event_text_text_mk_event_mongol_invasion_primary	The Mongol Empire	true
+message_event_text_text_mk_event_mongol_invasion_secondary	Word has arrived of a great power arising in the East, one that is determined to conquer or destroy all in its warpath. The Mongol armies are a terrifying force to behold, consisting of large amounts of light cavalry that provide their armies with extraordinary mobility. The Mongols also employ weapons in their armies that are yet unheard of in Europe and the Near East. To those opposing them, only one thing is clear: surrender or be destroyed.	true
+message_event_text_text_mk_event_mongol_invasion_title	Mongol Invasion!	true
+message_event_text_text_mk_event_mongol_invasion_upkeep_primary	An Army's Free Upkeep is Ending	true
+message_event_text_text_mk_event_mongol_invasion_upkeep_secondary	The Great Khan will soon end support for your armies, as he expects they will be able to pay for themselves through revenues from conquered territories. It will then be up to you to maintain this force.	true
+message_event_text_text_mk_event_mongol_invasion_upkeep_title	End of Free Upkeep	true
+message_event_text_text_mk_event_polish_kingdom_formed_primary	The Kingdom of Poland	true
+message_event_text_text_mk_event_polish_kingdom_formed_secondary	Fragmented no longer, Polish supremacy has now been established over the former lands of the kingdom. Now, a true kingdom of the Poles arises, ready to stave off any foreign invader and expand its borders beyond that of even the greatest Piast kings of old.	true
+message_event_text_text_mk_event_polish_kingdom_formed_title	Founding of a Kingdom	true
+message_event_text_text_mk_event_pope_enemy_of_christendom_primary	The Wrath of Europe	true
+message_event_text_text_mk_event_pope_enemy_of_christendom_secondary	Incredibly dire news – your declaration of war against the Papal States has caused the Pope to rally the support of good Christians everywhere against you. They are rising up together in condemnation of your actions, and soon may turn to war to take back Rome.	true
+message_event_text_text_mk_event_pope_enemy_of_christendom_title	Christendom’s Outcry	true
+message_event_text_text_mk_event_pope_excommunication_lifted_other_secondary	This faction has been unexcommunicated by the Pope for its sins, and welcomed back to the Church with open arms.	true
+message_event_text_text_mk_event_pope_excommunication_lifted_other_title	Faction Unexcommunicated	true
+message_event_text_text_mk_event_pope_excommunication_lifted_primary	Your excommunication has been lifted!	true
+message_event_text_text_mk_event_pope_excommunication_lifted_secondary	Your faction has been welcomed back into the Catholic chruch with open arms, and all penalties related to your prior excommunication have been erased.	true
+message_event_text_text_mk_event_pope_excommunication_lifted_title	Excommunication lifted!	true
+message_event_text_text_mk_event_pope_excommunication_other_secondary	This faction has been excommunicated by the Pope for its sins, whether it be crimes against the faith or defying the Pope's will.	true
+message_event_text_text_mk_event_pope_excommunication_other_title	Faction Excommunicated	true
+message_event_text_text_mk_event_pope_excommunication_primary	You have been excommunicated!	true
+message_event_text_text_mk_event_pope_excommunication_secondary	Incredibly dire news – You have been excommunicated by the Pope! Although your faction leader may continue to rule, he is now at odds with the Catholic Church. Being excommunicated severely damages your relations with other Catholic factions whilst your current faction leader remains in power. Other Catholic troops will fight with increased vigour against your own and all pious Catholics among your people will likely soon make their displeasure very well known!	true
+message_event_text_text_mk_event_pope_excommunication_title	Excommunication!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_abstained_crusade	Abstained From The Crusade!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_borrowed_money	Asked for Money!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_declared_war	Declared War!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_failed_to_join_albigensian_crusade	Refused to Join the Albigensian Crusade!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_joined_toulouse	Opposing the Albigensian Crusade!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_mission_fail_generic	Mission Failed!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_mission_fail_peace	Mission Failed!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_mission_fail_take_jerusalem_dilemma	Mission Failed!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_refused_but_gave_target	Minor Concessions	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_refused_demands	Refused Demands	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_refused_pretender	Refused the Nomination!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_sacked_settlement	Settlement Sacked!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_slaughtered_captives	Slaughtered Captives!	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_supported_toulouse	Supported Toulouse!	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_abstained_crusade	The lack of zealousness you've displayed by refusing to crusade in the name of the Lord has greatly upset His Holiness. Your Papal Favour has considerably decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_borrowed_money	His Holiness has granted your request for financial assistance, though by asking for such a sum of money, your relationship with the Pope has been strained. Your Papal Favour has considerably decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_declared_war	You have disappointed the Pope by declaring war against a fellow Catholic. As a result, your Papal Favour has decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_failed_to_join_albigensian_crusade	You have disappointed His Holiness by staying out of the Albigensian Crusade. Your Papal Favour has decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_joined_toulouse	His Holiness denounces you, for you have gone against His will by opposing the Albigensian Crusade. Your Papal Favour has considerably decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_mission_fail_generic	You have displeased His Holiness by failing to complete His task. As a result, your Papal Favour has lowered.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_mission_fail_peace	You have severely angered His Holiness by failing to make peace with your Christian brethren, resulting in a large loss of Papal Favour.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_mission_fail_take_jerusalem_dilemma	You have failed to live up to the promises made to His Holiness after the last crusade, angering him greatly. Your Papal Favour has decreased by an extremely large amount.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_refused_but_gave_target	You have slighted the Pope by only giving up the target city of the Crusade. Your Papal Favour has decreased considerably, but you retain all other lands conquered during the crusade.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_refused_demands	You have refused the Pope's demands, angering him greatly. Your Papal Favour has decreased by an extremely large amount.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_refused_pretender	You have refused the Pope's nomination for emperorship of the Holy Roman Empire, thus avoiding entangling yourself in a war with the current emperor but also angering the Pope. Your Papal Favour has decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_sacked_settlement	You have sacked a defenseless Christian settlement after it had yielded to your armies, and the Pope is greatly disappointed. Your Papal Favour has decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_slaughtered_captives	Even if they were deserving, your mass slaughter of defenseless Christian captives has disappointed the Pope. Your Papal Favour has decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_supported_toulouse	You have displeased His Holiness by supporting the County of Toulouse with arms and men. Your Papal Favour has decreased.	true
+message_event_text_text_mk_event_pope_favour_decrease_title	Papal Favour Decrease	true
+message_event_text_text_mk_event_pope_favour_increase_primary_crusade_victory	Victorious Crusade!	true
+message_event_text_text_mk_event_pope_favour_increase_primary_joined_albigensian_crusade	Joined the Albigensian Crusade!	true
+message_event_text_text_mk_event_pope_favour_increase_primary_joined_crusade	Joined the Crusade!	true
+message_event_text_text_mk_event_pope_favour_increase_primary_mission_succeed_generic	Mission Succeeded!	true
+message_event_text_text_mk_event_pope_favour_increase_primary_mission_succeed_peace	Mission Succeeded!	true
+message_event_text_text_mk_event_pope_favour_increase_primary_released_captives	Released Captives!	true
+message_event_text_text_mk_event_pope_favour_increase_secondary_crusade_victory	You have greatly pleased His Holiness by fulfilling your crusading vows. Your Papal Favour has increased to its maximum amount.	true
+message_event_text_text_mk_event_pope_favour_increase_secondary_joined_albigensian_crusade	You have pleased His Holiness by joining the Albigensian Crusade. Your Papal Favour has increased.	true
+message_event_text_text_mk_event_pope_favour_increase_secondary_joined_crusade	The zealousness you've displayed by your willingness to crusade in the name of the Lord has greatly pleased His Holiness. Your Papal Favour has considerably increased.	true
+message_event_text_text_mk_event_pope_favour_increase_secondary_mission_succeed_generic	You have pleased His Holiness by completing His task. Your Papal Favour has increased.	true
+message_event_text_text_mk_event_pope_favour_increase_secondary_mission_succeed_peace	You have pleased His Holiness by putting aside your differences with your Christian brothers and making peace. Your Papal Favour has increased.	true
+message_event_text_text_mk_event_pope_favour_increase_secondary_released_captives	By showing clemency to the captives from your last battle, you have pleased His Holiness. Your Papal Favour has increased.	true
+message_event_text_text_mk_event_pope_favour_increase_title	Papal Favour Increase	true
+message_event_text_text_mk_event_pope_new_pope_primary_detail	New Pope Elected	true
+message_event_text_text_mk_event_pope_new_pope_primary_detail_coelestinus_4	Pope Coelestinus IV	true
+message_event_text_text_mk_event_pope_new_pope_primary_detail_gregorius_9	Pope Gregorius IX	true
+message_event_text_text_mk_event_pope_new_pope_primary_detail_honorious_3	Pope Honorius III	true
+message_event_text_text_mk_event_pope_new_pope_primary_detail_innocentius_3	Pope Innocentius III	true
+message_event_text_text_mk_event_pope_new_pope_primary_detail_innocentius_4	Pope Innocentius IV	true
+message_event_text_text_mk_event_pope_new_pope_secondary_detail	His holiness, the Pope has been gathered up to God, ending a fruitful chapter in Church history. A new Pope has been elected without delay; this man has a chance to guide all Christendom, few are more important or hold more sway than he does. All good Christian leaders should support the new Pope if called upon to do so, it can only be for the good of their kingdoms – but be aware, by the same token, that crossing him could have dire consequences.	true
+message_event_text_text_mk_event_pope_new_pope_title	New Pope Elected	true
+message_event_text_text_mk_event_pope_papacy_restored_primary	Papal States Re-established	true
+message_event_text_text_mk_event_pope_papacy_restored_secondary	It is a glorious day for Catholicism, the Papal States have been re-established in Italy, and the Pope once more holds sway over the Catholic rulers of Europe.	true
+message_event_text_text_mk_event_pope_papacy_restored_title	The Papacy Restored!	true
+message_event_text_text_mk_event_pope_rome_attacked_nonchrist_primary	Eternal No More	true
+message_event_text_text_mk_event_pope_rome_attacked_nonchrist_secondary	This is a day to be remembered! Rome has been conquered; the seat of the Papacy has once again suffered the blight of war. Unsurprisingly, Christians across the lands are greatly upset at this turn of events. Your people, however, always knew that the fall of this false God and His followers was inevitable.	true
+message_event_text_text_mk_event_pope_rome_attacked_nonchrist_title	The Fall of Rome	true
+message_event_text_text_mk_event_sic_lost_claim_primary	A Lost Claim	true
+message_event_text_text_mk_event_sic_lost_claim_secondary	Having delayed far too long in taking decisive action, many nobles of the Holy Roman Empire have since thrown in their support behind the reigning emperor. So too has the Pope abandoned you in favor of the stronger power in Italy. Your chance at taking the imperial crown has been lost...	true
+message_event_text_text_mk_event_sic_lost_claim_secondary_death	The death of your king marks the end of any short-term ambitions of emperorship, as your faction's claim to the Holy Roman Empire has now been lost.	true
+message_event_text_text_mk_event_sic_lost_claim_title	Wrath of the Innocent	true
+message_event_text_text_mk_event_sic_no_war_hre_primary	King of the Sicilians	true
+message_event_text_text_mk_event_sic_no_war_hre_secondary	Having decided that the Kingdom of Sicily is worth far more than a risky war against the Holy Roman Empire, no war will break out and your claim to the imperial throne will be abandoned.	true
+message_event_text_text_mk_event_sic_no_war_hre_title	Wrath of the Innocent	true
+message_event_text_text_mk_event_spa_reconquista_success_primary	Reconquista Complete	true
+message_event_text_text_mk_event_spa_reconquista_success_secondary	The Reconquista has finally been completed, ushering a new age of Catholic Christian domination of the Spanish peninsula. Many non-Christians within the realm are now under pressure to convert or to leave the peninsula, adversely affecting the realm's stability.	true
+message_event_text_text_mk_event_spa_reconquista_title	The Reconquista	true
+message_event_text_text_mk_event_spanish_kingdom_formed_primary	The Kingdom of Spain	true
+message_event_text_text_mk_event_spanish_kingdom_formed_secondary_mk_fact_aragon	The Crown of Aragon is no more; Spain is now unified under one crown and the Kingdom of Spain has been formed.	true
+message_event_text_text_mk_event_spanish_kingdom_formed_secondary_mk_fact_castile	The Kingdom of Castile is no more; Spain is now unified under one crown and the Kingdom of Spain has been formed.	true
+message_event_text_text_mk_event_spanish_kingdom_formed_secondary_mk_fact_navarre	The Kingdom of Navarre is no more; Spain is now unified under one crown and the Kingdom of Spain has been formed.	true
+message_event_text_text_mk_event_spanish_kingdom_formed_title	Founding of a Kingdom	true
+message_event_text_text_mk_event_timurd_invasion_primary	The Timurid Empire	true
+message_event_text_text_mk_event_timurid_invasion_secondary	A century and a half ago, the Mongols first descended from the eastern steppes to wreak havoc upon the world. The destruction that the Mongols wrought is legendary, but the states that were built upon the ashes are threatened by a new foe. A great warlord has united the Chagatai forces and crossed the Oxus. Now he seeks to make war upon the descendants of Genghis Khan and unite the Mongol empire once more, and those who stand in the way of his relentless warpath are likely to face the same fate as those who opposed the Great Khan years ago.	true
+message_event_text_text_mk_event_timurid_invasion_title	Timurid Invasion!	true
+message_event_text_text_mk_event_tou_aragon_intervenes_bad_primary	Aragon Rallies Against Us!	true
+message_event_text_text_mk_event_tou_aragon_intervenes_bad_secondary	The Crown of Aragon, victorious against the Moors in the south, has now joined with the crusaders, opening a second front in the south. The situation has now become incredibly dire.	true
+message_event_text_text_mk_event_tou_aragon_intervenes_primary	Aragon Comes to Our Aid!	true
+message_event_text_text_mk_event_tou_aragon_intervenes_secondary	The Crown of Aragon has joined our side in the war against France and its crusaders. Blessed be this day!	true
+message_event_text_text_mk_event_tou_aragon_support_primary	Support from Aragon	true
+message_event_text_text_mk_event_tou_aragon_support_secondary	The Crown of Aragon has generously provided us with the men and equipment to raise a new army within our lands, consisting of mixed Aragonese and local troops. With this support, we can swiftly repel the invaders.	true
+message_event_text_text_mk_event_pope_favour_decrease_primary_relations_decay	Unfriendly Papal Relations	true
+message_event_text_text_mk_event_pope_favour_decrease_secondary_relations_decay	The adverse relations between your faction and the Papal States has lowered the Pope's opinion of you. As a result, your Papal Favour has decreased.	true
+message_event_text_text_mk_event_pope_favour_increase_primary_relations_increase	Friendly Papal Relations	true
+message_event_text_text_mk_event_pope_favour_increase_secondary_relations_increase	The amicable relations between your faction and the Papal States has improved the Pope's opinion of you. As a result, your Papal Favour has increased	true
+message_event_text_text_mk_event_mk1212_hreintro_primary	The Holy Roman Empire	true
+message_event_text_text_mk_event_mk1212_hreintro_secondary	Dominating the center of Europe, the Holy Roman Empire stretches from the North Sea to the Adriatic. Although one political entity, it consists of many small-sized factions with a great deal of autonomy. Upon the death of the Holy Roman Emperor, one faction from among these is elected to take their place. The emperor accrues Imperial Authority over time, which can be spent on Imperial Decrees and Imperial Reforms: the former being temporary bonuses that affect the empire at large, and the latter being permanent changes to the Holy Roman Empire. The emperor can also be challenged by pretenders from outside the empire, chosen by the Pope should the emperor be excommunicated.	true
+message_event_text_text_mk_event_mk1212_hreintro_title	Medieval Kingdoms: Total War - 1212 AD	true
+message_event_text_text_mk_event_mecca_attacked_secondary	The Islamic holy city of Mecca has fallen to infidels, its holy sites defiled by foreign invaders. Muslims around the world are outraged at this turn of events, and many realms may soon be thrown into disarray.	true
+message_event_text_text_mk_event_mecca_attacked_title	The Fall of Mecca	true
+message_event_text_text_mk_event_mecca_liberated_secondary	Mecca, the holiest city in all of Islam, has finally been liberated by those of the Islamic faith. Muslims around the world now rejoice, 	true
+message_event_text_text_mk_event_mecca_liberated_title	The Reconquest of Mecca	true
+message_event_text_text_mk_event_mecca_destroyed_title	The Destruction of Mecca	true
+message_event_text_text_mk_event_mecca_destroyed_secondary	In a day that may go down as the worst in Islamic history, the holy city of Mecca has been completely destroyed, with all its holy sites ravaged and flattened by foreign invaders. Islam may not recover from this grave blow, but it will certainly leave those true believers with a want for vengeance.	true
+message_event_text_text_mk_event_faction_rank_secondary_4	Your faction's rank has increased to Kingdom rank, denoting the status of your faction as a regional power.	true
+message_event_text_text_mk_event_faction_rank_secondary_5	Your faction's rank has increased to Empire rank, denoting the status of your faction as a great power.	true
+message_event_text_text_mk_event_faction_rank_title_4	Founding of a Kingdom	true
+message_event_text_text_mk_event_faction_rank_title_5	Founding of an Empire	true
+message_event_text_text_mk_event_hre_war_declared_on_member_state_title	War Declared on HRE Member State	true
+message_event_text_text_mk_event_hre_war_declared_on_member_state_secondary	You have declared war on a member state of the Holy Roman Empire, and in doing so have greatly diminished your standing as emperor, thereby resulting in a great loss of imperial authority.	true
+message_event_text_text_mk_event_hre_election_title	Imperial Election	true
+message_event_text_text_mk_event_hre_election_description	The imperial election has ended, bringing the reign of one emperor to a close and ushering in a new leader for the Holy Roman Empire. The newly crowned Emperor takes the helm, ready to shape the next chapter of the Empire’s legacy.	true
