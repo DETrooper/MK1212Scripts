@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------
 --
--- 	MEDIEVAL KINGDOMS 1212 AD - MECHANICS: HOLY ROMAN EMPIRE
+-- 	MEDIEVAL KINGDOMS 1212 - MECHANICS: HOLY ROMAN EMPIRE
 -- 	By: DETrooper
 --
 --------------------------------------------------------------------------------------------------------------------------------
@@ -60,6 +60,15 @@ function mkHRE:Button_Check()
 	else
 		btnHRE:SetVisible(false);
 	end
+end
+
+function DebugLog(message)
+    local logFilePath = "C:\\Users\\mitch\\AppData\\Roaming\\The Creative Assembly\\Attila\\logs\\mitch_debug_log.txt"
+    local file = io.open(logFilePath, "a")
+    if file then
+        file:write(message .. "\n")
+        file:close()
+    end
 end
 
 --------------------------------------------------------------
