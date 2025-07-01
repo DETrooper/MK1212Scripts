@@ -11,7 +11,7 @@
 local hre_emperor_mission_authority_reward = 50; -- The amount of Imperial Authority rewarded for beating a pretender.
 local hre_imperial_authority_start = 40; -- Starting Imperial Authority. New emperors should also start with this amount.
 local hre_imperial_authority_gain_rate = 1; -- Base Imperial Authority gain per turn.
-local hre_imperial_authority_gain_per_region = 3; -- Imperial Authority gain per region in the HRE.
+local hre_imperial_authority_gain_per_region = 0.3; -- Imperial Authority gain per region in the HRE.
 local hre_faction_state_change_cooldown = 2; -- How many turns before a faction's state can change after it has been changed?
 
 mkHRE.emperor_key = "mk_fact_hre"; -- Starting emperor.
