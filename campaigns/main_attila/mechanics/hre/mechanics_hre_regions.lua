@@ -50,57 +50,67 @@ function FactionTurnStart_HRE_Regions(context)
 end
 
 function mkHRE:Check_Regions_In_Empire()
-	if not self.destroyed then
-		local regions_in_empire = {};
-		local factions_to_regions_in_empire = {};
+    -- First remove any existing expansion effect bundles
+    for i = 1, #self.factions do
+        self:Remove_Imperial_Expansion_Effect_Bundles(self.factions[i])
+    end
 
-		for i = 1, #self.factions do
-			self:Remove_Imperial_Expansion_Effect_Bundles(self.factions[i]);
-		end
+    -- If HRE is destroyed or fully unified (reform 9), don't reapply the effects
+    if self.destroyed or self.current_reform == 9 then
+        return
+    end
 
-		for i = 1, #self.regions do
-			local region_name = self.regions[i];
-			local region_owning_faction_name = cm:model():world():region_manager():region_by_key(region_name):owning_faction():name();
-
-			if HasValue(self.factions, region_owning_faction_name) then
-				table.insert(regions_in_empire, region_name);
-
-				if region_name ~= self.frankfurt_region_key then
-					if factions_to_regions_in_empire[region_owning_faction_name] == nil then
-						factions_to_regions_in_empire[region_owning_faction_name] = {};
-					end
-
-					table.insert(factions_to_regions_in_empire[region_owning_faction_name], region_name);
-				end
-
-				if not HasValue(self.regions_in_empire, region_name) then
-					self:Region_Reconquered(region_name);
-				end
-			end
-
-			self.regions_owners[region_name] = region_owning_faction_name;
-		end
-
-		for i = 1, #self.regions_in_empire do
-			local region_name =  self.regions_in_empire[i];
-
-			if not HasValue(regions_in_empire, region_name) then
-				self:Region_Lost(region_name);
-			end
-		end
-
-		for k, v in pairs(factions_to_regions_in_empire) do
-			if #v > 3 then
-				if #v == #self.regions - 1 then
-					cm:apply_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(#v - 1), k, 0);
-				else
-					cm:apply_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(#v), k, 0);
-				end
-			end
-		end
-
-		self.regions_in_empire = regions_in_empire;
-	end
+    -- Track regions and their owners
+    local regions_in_empire = {}
+    local factions_to_regions_in_empire = {}
+    
+    -- Check each HRE region
+    for i = 1, #self.regions do
+        local region_name = self.regions[i]
+        local region_owning_faction_name = cm:model():world():region_manager():region_by_key(region_name):owning_faction():name()
+        
+        if HasValue(self.factions, region_owning_faction_name) then
+            table.insert(regions_in_empire, region_name)
+            
+            -- Don't count Frankfurt for the expansionism effect
+            if region_name ~= self.frankfurt_region_key then
+                if not factions_to_regions_in_empire[region_owning_faction_name] then
+                    factions_to_regions_in_empire[region_owning_faction_name] = {}
+                end
+                table.insert(factions_to_regions_in_empire[region_owning_faction_name], region_name)
+            end
+            
+            -- Handle region reconquest
+            if not HasValue(self.regions_in_empire, region_name) then
+                self:Region_Reconquered(region_name)
+            end
+        end
+        
+        -- Update region ownership tracking
+        self.regions_owners[region_name] = region_owning_faction_name
+    end
+    
+    -- Check for lost regions
+    for i = 1, #self.regions_in_empire do
+        local region_name = self.regions_in_empire[i]
+        if not HasValue(regions_in_empire, region_name) then
+            self:Region_Lost(region_name)
+        end
+    end
+    
+    -- Apply expansionism debuff based on region count
+    for faction_name, faction_regions in pairs(factions_to_regions_in_empire) do
+        if #faction_regions > 3 then
+            if #faction_regions == #self.regions - 1 then
+            cm:apply_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(#faction_regions - 1), faction_name, 0);
+            else
+            cm:apply_effect_bundle("mk_effect_bundle_hre_imperial_expansionism_"..tostring(#faction_regions), faction_name, 0);
+            end
+        end
+    end
+    
+    -- Update stored region list
+    self.regions_in_empire = regions_in_empire
 end
 
 function mkHRE:Region_Reconquered(region_name)

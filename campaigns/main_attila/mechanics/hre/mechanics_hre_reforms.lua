@@ -59,14 +59,14 @@ mkHRE.reforms = {
 	{
 		["key"] = "hre_reform_erbkaisertum", 
 		["name"] = "Adopt Hereditary Succession", 
-		["description"] = "Abolishes elections and institutes a hereditary monarchy.", 
-		["effects"] = {"The emperorship is now always inherited by the emperor's faction.", "Elections are abolished."}
+		["description"] = "Abolish the electoral law and establish a hereditary monarchy, which poses a fatal threat to the various forces within the Holy Roman Empire. The peace bill will be seen as scrap paper, and each other will fight tirelessly for the supreme throne, while external forces will also be eyeing it", 
+		["effects"] = {"Abolishes elections and institutes a hereditary monarchy", "loyalty: -2 ", "Corruption: +50% ", "Public Order: 0", "Diplomatic Relations With All Factions: -25 ", "Imperial Authority Growth：+0%", "War will reignite within the territory, and the lords may once again attack each other"}
 	},
 	{
 		["key"] = "hre_reform_renovatio_imperii", 
 		["name"] = "Renovatio Imperii", 
-		["description"] = "The Holy Roman Empire is united into one faction!", 
-		["effects"] = {"+2 Public Order.", "-15% Building Cost.", "-5% Corruption."}
+		["description"] = "The Holy Roman Empire is finally unified! The hegemony has been achieved", 
+		["effects"] = {"Diplomatic Relations With All Factions: +50 ", "Public Order: +25 ", "Building Cost: -15% ", "Corruption: -50% ", "loyalty: +5 ", "Tax Rate: +30%", "sanitation: +3", "Levy Unit From Vassals: +5", "Replenishment: +5%", "Military recruitment capacity:+2", "Unit Morale: +20", "Unit Melee Attack: +5", "Unit Melee Defend: +5", "Population Growth: Burgher and Peasantry Growth +2% "}
 	}
 };
 
@@ -120,101 +120,127 @@ function mkHRE:Calculate_Reform_Votes()
 	self.reforms_votes = DeepCopy(tab);
 end
 
+-- Build exactly 7 prince-electors (never includes the emperor)
+function mkHRE:BuildPrinceElectors()
+  self.elector_factions = {}
+
+  -- 1) Add all historical electors except the emperor
+  for _, fname in ipairs(self.historical_electors) do
+    if fname ~= self.emperor_key
+       and FactionIsAlive(fname)
+       and HasValue(self.factions, fname)
+    then
+      table.insert(self.elector_factions, fname)
+    end
+  end
+
+  -- 2) Fill up to 7 with any other HRE members
+  for _, fname in ipairs(self.factions) do
+    if #self.elector_factions >= 7 then break end
+    if fname ~= self.emperor_key
+       and not HasValue(self.elector_factions, fname)
+    then
+      table.insert(self.elector_factions, fname)
+    end
+  end
+
+  -- 3) Trim any extras (just in case)
+  while #self.elector_factions > 7 do
+    table.remove(self.elector_factions)
+  end
+end
+
 function mkHRE:Pass_Reform(reform_number)
-	self.current_reform = reform_number;
+  self.current_reform = reform_number
 
-	for i = 1, reform_number - 1 do
-		cm:remove_effect_bundle("mk_effect_bundle_reform_"..tostring(i), self.emperor_key);
-	end
+  -- Remove any prior reform bundles
+  for i = 1, reform_number - 1 do
+    cm:remove_effect_bundle("mk_effect_bundle_reform_" .. tostring(i), self.emperor_key)
+  end
 
-	cm:apply_effect_bundle("mk_effect_bundle_reform_"..tostring(reform_number), self.emperor_key, 0);
+  -- Apply the new reform bundle
+  cm:apply_effect_bundle("mk_effect_bundle_reform_" .. tostring(reform_number), self.emperor_key, 0)
 
-	if reform_number == 1 then
-		-- We need to add 7 Prince-Electors.
-		self.reforms_votes = {};
+  if reform_number == 1 then
+    -- Reset votes and pick exactly 7 non-emperor electors
+    self.reforms_votes = {}
+    self:BuildPrinceElectors()
 
-		for i = 1, #self.historical_electors do
-			local faction_name = self.historical_electors[i];
+  elseif reform_number == 5 then
+    -- Peace all HRE members (except emperor)
+    for _, faction_name in ipairs(self.factions) do
+      for _, faction2_name in ipairs(self.factions) do
+        if faction_name ~= self.emperor_key
+           and faction2_name ~= self.emperor_key
+        then
+          cm:force_diplomacy(faction_name, faction2_name, "war", false, false)
+          local f1 = cm:model():world():faction_by_key(faction_name)
+          local f2 = cm:model():world():faction_by_key(faction2_name)
+          if f1:at_war_with(f2) then
+            cm:force_make_peace(faction_name, faction2_name)
+          end
+        end
+      end
+    end
 
-			if FactionIsAlive(faction_name) and HasValue(self.factions, faction_name) then
-				table.insert(self.elector_factions, faction_name);
-			end
-		end
+  elseif reform_number == 8 then
+    -- (Nothing special here—placeholder for your later logic.)
 
-		if #self.elector_factions < 7 then
-			self:Add_New_Electors_HRE_Elections();
-		end
-	elseif reform_number == 5 then
-		for i = 1, #self.factions do
-			local faction_name = self.factions[i];
+  elseif reform_number == 9 then
+    local faction = cm:model():world():faction_by_key(self.emperor_key)
+    local turn_number = cm:model():turn_number()
 
-			for j = 1, #self.factions do
-				local faction2_name = self.factions[j];
+    -- Grant handover to every non-emperor state
+    for _, faction_name in ipairs(self.factions) do
+      if self:Get_Faction_State(faction_name) ~= "emperor" then
+        cm:grant_faction_handover(self.emperor_key, faction_name,
+                                 turn_number-1, turn_number-1, context)
+      end
+    end
 
-				if faction_name ~= self.emperor_key and faction2_name ~= self.emperor_key then
-					cm:force_diplomacy(faction_name, faction2_name, "war", false, false);
+    -- Final population and economy bundles
+    if POPULATION_REGIONS_POPULATIONS then
+      for i = 0, faction:region_list():num_items() - 1 do
+        local region = faction:region_list():item_at(i)
+        cm:apply_effect_bundle_to_region(
+          "mk_bundle_population_bundle_region",
+          region:name(), 0
+        )
+      end
+      Apply_Region_Economy_Factionwide(faction)
+    end
 
-					if cm:model():world():faction_by_key(faction_name):at_war_with(cm:model():world():faction_by_key(faction2_name)) then
-						cm:force_make_peace(faction_name, faction2_name);
-					end
-				end
-			end
-		end
-	elseif reform_number == 8 then
-		
-	elseif reform_number == 9 then
-		local faction = cm:model():world():faction_by_key(self.emperor_key);
-		local turn_number = cm:model():turn_number();
+    -- Clean up
+    self:Remove_Imperial_Expansion_Effect_Bundles(self.emperor_key)
+    self:Remove_Unlawful_Territory_Effect_Bundles(self.emperor_key)
+    self:HRE_Vanquish_Pretender()
+    self:CloseHREPanel(false)
 
-		for i = 1, #self.factions do
-			local faction_name = self.factions[i];
+    if IRONMAN_ENABLED then
+      Unlock_Achievement("achievement_renovatio_imperii")
+    end
 
-			if self:Get_Faction_State(faction_name) ~= "emperor" then
-				cm:grant_faction_handover(self.emperor_key, faction_name, turn_number-1, turn_number-1, context);
-			end
-		end
+    -- Reset HRE tracking tables
+    self.factions = {}
+    self.factions_to_states = {}
+    self.faction_state_change_cooldowns = {}
+    self:Button_Check()
+  end
 
-		if POPULATION_REGIONS_POPULATIONS then
-			local regions = faction:region_list();
+  -- Notify the player if they’re in the HRE
+  if HasValue(self.factions, cm:get_local_faction()) then
+    cm:show_message_event(
+      cm:get_local_faction(),
+      "message_event_text_text_mk_event_hre_reform_title",
+      "message_event_text_text_mk_event_hre_reform_primary_" .. tostring(reform_number),
+      "message_event_text_text_mk_event_hre_reform_secondary",
+      true, 704
+    )
+  end
 
-			for i = 0, regions:num_items() - 1 do
-				local region = regions:item_at(i);
-
-				cm:apply_effect_bundle_to_region("mk_bundle_population_bundle_region", region:name(), 0);
-			end
-
-			Apply_Region_Economy_Factionwide(faction);
-		end
-
-		self:Remove_Imperial_Expansion_Effect_Bundles(self.emperor_key);
-		self:Remove_Unlawful_Territory_Effect_Bundles(self.emperor_key);
-		self:HRE_Vanquish_Pretender();
-		self:CloseHREPanel(false);
-
-		if IRONMAN_ENABLED then
-			Unlock_Achievement("achievement_renovatio_imperii");
-		end
-
-		self.factions = {};
-		self.factions_to_states = {};
-		self.faction_state_change_cooldowns = {};
-
-		self:Button_Check();
-	end
-
-	if HasValue(self.factions, cm:get_local_faction()) then
-		cm:show_message_event(
-			cm:get_local_faction(),
-			"message_event_text_text_mk_event_hre_reform_title",
-			"message_event_text_text_mk_event_hre_reform_primary_"..tostring(reform_number),
-			"message_event_text_text_mk_event_hre_reform_secondary",
-			true, 
-			704
-		);
-	end
-
-	self:Calculate_Reform_Votes();
-	self:Change_Imperial_Authority(-self.reform_cost);
+  -- Re-tally votes and deduct authority
+  self:Calculate_Reform_Votes()
+  self:Change_Imperial_Authority(-self.reform_cost)
 end
 
 function mkHRE:Cast_Vote_Reform(faction_name)

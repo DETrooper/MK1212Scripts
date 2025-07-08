@@ -1,0 +1,4 @@
+key	localised_description	localised_title	ui_icon	bundle_target
+#effect_bundles_tables;1;db/effect_bundles_tables/tycherious_hre_mkscript_effect_bundles				
+mk_ty_effect_bundle_reform_8	The emperor has passed the eight of nine Imperial Reforms.	Imperial Reform VIII	faction_leader_positive.png	faction
+mk_ty_effect_bundle_reform_9	The emperor has passed all nine Imperial Reforms.	Imperial Reform IX	faction_leader_positive.png	faction

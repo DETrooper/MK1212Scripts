@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------
 --
--- 	MEDIEVAL KINGDOMS 1212 AD - MECHANICS: HOLY ROMAN EMPIRE EVENTS
+-- 	MEDIEVAL KINGDOMS 1212 - MECHANICS: HOLY ROMAN EMPIRE EVENTS
 -- 	By: DETrooper
 --
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -11,50 +11,36 @@
 local hre_current_event = "";
 local hre_current_event_faction1 = "";
 local hre_current_event_faction2 = "";
-local hre_events_min_turn = 4; -- First turn that an HRE event can occur.
-local hre_events_turns_between_dilemmas_max = 12;
-local hre_events_turns_between_dilemmas_min = 4;
+local hre_events_min_turn = 1; -- First turn that an HRE event can occur.
+local hre_events_turns_between_dilemmas_max = 6;
+local hre_events_turns_between_dilemmas_min = 3;
 local hre_events_timer = -1;
 
 function mkHRE:Add_Event_Listeners(emperor_key)
-    DebugLog("Add_Event_Listeners: Starting listener setup.")
 
     -- Ensure the HRE system is not destroyed
     if not self.destroyed then
-        DebugLog("Add_Event_Listeners: HRE system is active.")
     else
-        DebugLog("Add_Event_Listeners: HRE system is destroyed. Aborting listener setup.")
         return
     end
 
     -- Use the provided emperor_key or fall back to self.emperor_key
     emperor_key = emperor_key or self.emperor_key
     if not emperor_key or emperor_key == "nil" then
-        DebugLog("Add_Event_Listeners: No valid emperor key found. Aborting listener setup.")
         return
     end
 
     local emperor_faction = cm:model():world():faction_by_key(emperor_key)
 
-    -- Debug: Validate faction and human status
-    if emperor_faction then
-        DebugLog("Add_Event_Listeners: Found emperor faction: " .. emperor_key)
-        DebugLog("Add_Event_Listeners: Emperor is human: " .. tostring(emperor_faction:is_human()))
-    else
-        DebugLog("Add_Event_Listeners: Emperor faction not found or invalid.")
-        return
-    end
-
     -- Check if the emperor is a human-controlled faction
     if emperor_faction:is_human() then
-        DebugLog("Add_Event_Listeners: Emperor is human. Adding event listeners.")
 
         -- Add various campaign event listeners
         cm:add_listener(
-            "FactionTurnStart_HRE_Events",
+            "FactionTurnStart_HRE_Events_Wrapper",
             "FactionTurnStart",
             true,
-            function(context) FactionTurnStart_HRE_Events(context) end,
+            function(context) FactionTurnStart_HRE_Events_Wrapper(context) end,
             true
         )
         cm:add_listener(
@@ -96,10 +82,8 @@ function mkHRE:Add_Event_Listeners(emperor_key)
         -- Initialize HRE events timer if this is a new game
         if cm:is_new_game() then
             hre_events_timer = cm:random_number(hre_events_turns_between_dilemmas_max - 1, hre_events_min_turn - 1)
-            DebugLog("Add_Event_Listeners: Initialized HRE events timer to " .. tostring(hre_events_timer))
         end
     else
-        DebugLog("Add_Event_Listeners: Emperor is AI. No event listeners added.")
     end
 end
 
@@ -112,6 +96,14 @@ function Remove_HRE_Event_Listeners()
 	cm:remove_listener("PanelOpenedCampaign_HRE_Events");
 
 	hre_events_timer = -1;
+end
+
+
+function FactionTurnStart_HRE_Events_Wrapper(context)
+    local success, errorMsg = pcall(function() FactionTurnStart_HRE_Events(context) end)
+    if not success then
+        DebugLog("FactionTurnStart_HRE_Events Error: " .. errorMsg)
+    end
 end
 
 function FactionTurnStart_HRE_Events(context)
@@ -190,6 +182,10 @@ function OnComponentMouseOnOrClick_HRE_Events(context)
 end
 
 function PanelOpenedCampaign_HRE_Events(context)
+    DebugLog("PanelOpenedCampaign_HRE_Events");
+    DebugLog("context.string: " .. context.string);
+    DebugLog("hre_current_event: " .. hre_current_event);
+
 	if context.string == "events" then
 		if hre_current_event == "mk_dilemma_hre_border_dispute" or hre_current_event == "mk_dilemma_hre_noble_conflict" then
 			local bg_description_txt = find_uicomponent_by_table(cm:ui_root(), {"panel_manager", "events", "event_dilemma", "non_political", "bg_description", "dy_description", "Text"});
@@ -205,7 +201,9 @@ function PanelOpenedCampaign_HRE_Events(context)
 
 			local description_text = string.gsub(bg_description_txt:GetStateText(), "faction1", Get_DFN_Localisation(hre_current_event_faction1));
 			description_text = string.gsub(description_text, "faction2", Get_DFN_Localisation(hre_current_event_faction2));
-
+            DebugLog("description_text: " .. hre_current_event_faction2);
+            DebugLog("Get_DFN_Localisation(hre_current_event_faction2): " .. Get_DFN_Localisation(hre_current_event_faction2));
+            DebugLog("hre_current_event_faction2: " .. hre_current_event_faction2);
 			local option1_effect1_text = "";
 			local option1_effect2_text = "";
 			local option2_effect1_text = "";
@@ -431,8 +429,16 @@ function mkHRE:Event_Pick_Random_Bordering_Factions()
 	hre_current_event_faction2 = bordering_factions[cm:random_number(#bordering_factions)];
 end
 
-function mkHRE:Event_Reset_Timer()
-	hre_events_timer = cm:random_number(hre_events_turns_between_dilemmas_max - 1, hre_events_min_turn - 1);
+function mkHRE:HRE_Event_Reset_Timer()
+    -- Set default values if not already defined
+    hre_events_turns_between_dilemmas_max = hre_events_turns_between_dilemmas_max or 6
+    hre_events_turns_between_dilemmas_min = hre_events_turns_between_dilemmas_min or 3
+    
+    -- Fix parameter order: min should come before max for cm:random_number
+    hre_events_timer = cm:random_number(
+        hre_events_turns_between_dilemmas_min,
+        hre_events_turns_between_dilemmas_max
+    )
 end
 
 --------------------------------------------------------------

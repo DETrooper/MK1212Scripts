@@ -121,3 +121,6 @@ require("ironman/main");
 
 -- Temporary
 require("pretender_crash_stopgap");
+
+-- CIVIL WAR FIX
+require("civil_war_fix");

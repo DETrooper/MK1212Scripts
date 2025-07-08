@@ -316,14 +316,19 @@ function DFN_Refresh_Faction_Name(faction_name)
 	if mkHRE then
 		if faction_name == mkHRE.emperor_key then
 			newname = "mk_fact_hre_lvl3";
-		else
-			if faction_name == "mk_fact_hre" then
-				newname = "mk_fact_hre_non_emperor";
-			end
+		elseif faction_name == "mk_fact_hre" then
+			newname = "mk_fact_hre_non_emperor";
 		end
 	end
 
-	Rename_Faction(faction_name, newname);
+	-- Log the rename action
+	if Rename_Faction then
+		DebugLog("Renaming faction: " .. faction_name .. " to " .. newname);
+		Rename_Faction(faction_name, newname);
+		DebugLog("Finished Renaming Faction");
+	else
+		DebugLog("Rename_Faction function is not defined.");
+	end
 end
 
 function TimeTrigger_DFN_UI(context)
